@@ -7,10 +7,11 @@ export function ApplicationFilters({
   query: Record<string, string | string[] | undefined>;
 }) {
   return (
-    <form className="panel filter-bar" method="get">
+    <form className="panel filter-bar" method="get" aria-label="筛选投递记录">
       <label>
         搜索公司或岗位
         <input
+          className="search-input"
           name="q"
           defaultValue={typeof query.q === "string" ? query.q : ""}
           maxLength={200}

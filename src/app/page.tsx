@@ -32,17 +32,25 @@ export default async function HomePage({
   ]);
   const filtered = Object.values(search).some(Boolean);
   return (
-    <section className="stack page-gap">
-      <div className="hero-row">
-        <div>
-          <p className="badge">你的求职进度，一眼清楚</p>
-          <h1>投递工作台</h1>
-          <p className="lead">集中管理岗位、面试阶段与需要跟进的机会。</p>
+    <section className="stack page-gap dashboard">
+      <div className="hero-row dashboard-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">
+            <span aria-hidden="true" /> 求职进度工作台
+          </p>
+          <h1>
+            让每一次投递，
+            <br />
+            <span>都有迹可循。</span>
+          </h1>
+          <p className="lead">
+            集中管理岗位、面试阶段和待办跟进，把精力留给真正重要的机会。
+          </p>
         </div>
         <div className="actions">
           <ExportButton query={toSearchParams(search).toString()} />
           <Link className="button" href="/applications/new">
-            新增投递
+            <span aria-hidden="true">＋</span> 新增投递
           </Link>
         </div>
       </div>
