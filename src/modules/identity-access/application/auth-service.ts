@@ -4,11 +4,16 @@ import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
 import { hasAuthConfiguration } from "@/shared/config/env";
 import { Problem } from "@/shared/errors/problem";
-import { loginSchema, registerSchema, safeReturnTo } from "./auth-schema";
+import {
+  emailSchema,
+  loginSchema,
+  registerSchema,
+  safeReturnTo,
+} from "./auth-schema";
 import { auth } from "../infrastructure/better-auth.server";
 
 const credentialError = () =>
-  new Problem("invalid_credentials", "邮箱或密码不正确。", 401);
+  new Problem("invalid_credentials", "用户名或密码不正确。", 401);
 
 function requireAuthConfiguration() {
   if (!hasAuthConfiguration())
@@ -25,14 +30,16 @@ export async function register(input: unknown) {
   try {
     await auth.api.signUpEmail({
       body: {
-        email: value.email,
+        email: `${value.username}@users.jobtrace.local`,
         password: value.password,
-        name: value.displayName ?? value.email.split("@")[0],
+        name: value.displayName ?? value.username,
+        username: value.username,
+        displayUsername: value.username,
       },
     });
   } catch (error) {
     if (error instanceof APIError && error.statusCode === 422)
-      throw new Problem("registration_conflict", "该邮箱已注册。", 409);
+      throw new Problem("registration_conflict", "该用户名已注册。", 409);
     throw new Problem(
       "registration_failed",
       "暂时无法完成注册，请稍后重试。",
@@ -46,8 +53,8 @@ export async function login(input: unknown) {
   requireAuthConfiguration();
   const value = loginSchema.parse(input);
   try {
-    const result = await auth.api.signInEmail({
-      body: { email: value.email, password: value.password },
+    const result = await auth.api.signInUsername({
+      body: { username: value.username, password: value.password },
       headers: await headers(),
     });
     const user = result.user as typeof result.user & {
@@ -75,7 +82,7 @@ export async function logout() {
 
 export async function requestPasswordReset(email: unknown) {
   requireAuthConfiguration();
-  registerSchema.shape.email.parse(email);
+  emailSchema.parse(email);
   return { message: "密码恢复邮件尚未配置，请联系管理员重置密码。" };
 }
 

@@ -6,7 +6,8 @@ type Action = (s: AuthActionState, d: FormData) => Promise<AuthActionState>;
 export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [showPassword, setShowPassword] = useState(false);
-  const email = mode !== "reset",
+  const username = mode === "login" || mode === "register",
+    email = mode === "forgot",
     password = mode === "login" || mode === "register" || mode === "reset";
   return (
     <form action={formAction} className="auth-card">
@@ -45,6 +46,24 @@ export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
           </div>
         </div>
       )}
+      {username && (
+        <div className="auth-field">
+          <label htmlFor="username">用户名</label>
+          <div className="auth-input-wrap">
+            <span className="auth-input-icon" aria-hidden="true">@</span>
+            <input
+              id="username"
+              name="username"
+              autoComplete="username"
+              minLength={3}
+              maxLength={30}
+              pattern="[A-Za-z0-9_]+"
+              placeholder="请输入用户名"
+              required
+            />
+          </div>
+        </div>
+      )}
       {password && (
         <div className="auth-field">
           <label htmlFor="password">密码</label>
@@ -60,8 +79,8 @@ export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
               autoComplete={
                 mode === "login" ? "current-password" : "new-password"
               }
-              minLength={mode === "login" ? 1 : 12}
-              placeholder={mode === "login" ? "输入你的密码" : "至少 12 位字符"}
+              minLength={mode === "login" ? 1 : 8}
+              placeholder={mode === "login" ? "输入你的密码" : "至少 8 位字符"}
               required
             />
             <button

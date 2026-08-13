@@ -9,6 +9,7 @@ export {
 export {
   registerSchema,
   loginSchema,
+  usernameSchema,
   safeReturnTo,
 } from "./application/auth-schema";
 export {

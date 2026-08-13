@@ -4,9 +4,9 @@ import { AuthForm } from "@/modules/identity-access/ui/auth-form";
 describe("AuthForm", () => {
   it("uses accessible credential semantics", () => {
     render(<AuthForm mode="login" action={vi.fn(async () => ({}))} />);
-    expect(screen.getByLabelText("邮箱")).toHaveAttribute(
+    expect(screen.getByLabelText("用户名")).toHaveAttribute(
       "autocomplete",
-      "email",
+      "username",
     );
     expect(screen.getByLabelText("密码")).toHaveAttribute(
       "autocomplete",

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { betterAuth } from "better-auth";
-import { admin } from "better-auth/plugins";
+import { admin, username } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { getAuthEnv, getDatabaseEnv } from "@/shared/config/env";
@@ -16,7 +16,7 @@ export const auth = betterAuth({
   database,
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 12,
+    minPasswordLength: 8,
     maxPasswordLength: 128,
     autoSignIn: false,
     revokeSessionsOnPasswordReset: true,
@@ -27,6 +27,7 @@ export const auth = betterAuth({
     max: 100,
     customRules: {
       "/sign-in/email": { window: 60, max: 10 },
+      "/sign-in/username": { window: 60, max: 10 },
       "/sign-up/email": { window: 60, max: 5 },
     },
   },
@@ -75,6 +76,18 @@ export const auth = betterAuth({
     storeIdentifier: "hashed",
   },
   plugins: [
+    username({
+      minUsernameLength: 3,
+      maxUsernameLength: 30,
+      schema: {
+        user: {
+          fields: {
+            username: "username",
+            displayUsername: "display_username",
+          },
+        },
+      },
+    }),
     admin({
       defaultRole: "user",
       adminRoles: ["admin"],

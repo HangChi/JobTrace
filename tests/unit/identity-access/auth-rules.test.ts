@@ -7,12 +7,12 @@ import {
 describe("identity access rules", () => {
   it("never accepts a role from public registration", () => {
     const parsed = registerSchema.parse({
-      email: "User@Example.com",
-      password: "correct-horse-1",
+      username: "Test_User",
+      password: "12345678",
       role: "admin",
     });
     expect(parsed).not.toHaveProperty("role");
-    expect(parsed.email).toBe("user@example.com");
+    expect(parsed.username).toBe("test_user");
   });
   it("allows only same-origin relative return paths", () => {
     expect(safeReturnTo("/applications/1?q=x")).toBe("/applications/1?q=x");
@@ -20,8 +20,6 @@ describe("identity access rules", () => {
     expect(safeReturnTo("https://evil.example")).toBeNull();
   });
   it("validates login inputs", () => {
-    expect(loginSchema.safeParse({ email: "bad", password: "x" }).success).toBe(
-      false,
-    );
+    expect(loginSchema.safeParse({ username: "!", password: "x" }).success).toBe(false);
   });
 });
