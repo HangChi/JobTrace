@@ -8,7 +8,7 @@ test("统计卡、阶段文本与跟进导航", async ({ request, page }) => {
         companyName: "Analytics Active",
         positionName: "Engineer",
         appliedDate: "2026-08-01",
-        status: "active",
+        status: "submitted",
       },
       {
         companyName: "Analytics Offer",

@@ -3,10 +3,10 @@ import type { AnalyticsSummary } from "../application/contracts";
 export function SummaryCards({ summary }: { summary: AnalyticsSummary }) {
   const cards = [
     ["全部投递", summary.total, "total"],
-    ["正在进行", summary.active, "active"],
-    ["已获 Offer", summary.offers, "offer"],
+    ["已投递", summary.submitted, "active"],
+    ["Offer", summary.offers, "offer"],
     ["本周新增", summary.addedThisWeek, "week"],
-    ["未通过", summary.rejected, "rejected"],
+    ["拒绝", summary.refused, "rejected"],
   ];
   return (
     <div className="summary-grid">

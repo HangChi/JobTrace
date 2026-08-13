@@ -37,11 +37,7 @@ function mapSummary(row: DbRecord) {
     status: row.status as never,
     latestDate: latest,
     stages: (row.stages ?? []) as never[],
-    needsFollowUp:
-      days >= 7 &&
-      !["rejected", "accepted", "withdrawn", "offer"].includes(
-        String(row.status),
-      ),
+    needsFollowUp: days >= 7 && String(row.status) === "submitted",
     followUpDays: days,
     version: Number(row.version),
   };
@@ -175,8 +171,9 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       latestDate: "latest_date",
     }[query.sort];
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
+    const offset = cursor ? 0 : (query.page - 1) * query.limit;
     const rows = await this.sql<DbRecord[]>`
-      select a.*,
+      select a.*, count(*) over() as total_count,
         coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id
@@ -191,11 +188,15 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       group by a.id
       order by ${this.sql(sortColumn)} ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}, a.id ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}
       limit ${query.limit + 1}
+      offset ${offset}
     `;
     const items = rows.slice(0, query.limit).map(mapSummary);
     const last = rows[query.limit - 1];
     return {
       items,
+      total: Number(rows[0]?.totalCount ?? 0),
+      page: query.page,
+      limit: query.limit,
       nextCursor:
         rows.length > query.limit && last
           ? encodeCursor({

@@ -15,7 +15,7 @@ test("投递 CRUD、Problem 和 409 契约", async ({ request }) => {
       companyName: "Contract CRUD",
       positionName: "Engineer",
       appliedDate: "2026-08-13",
-      status: "active",
+      status: "submitted",
     },
   });
   expect(created.status()).toBe(201);
@@ -29,7 +29,7 @@ test("投递 CRUD、Problem 和 409 契约", async ({ request }) => {
       companyName: "Contract CRUD",
       positionName: "Senior Engineer",
       appliedDate: "2026-08-13",
-      status: "active",
+      status: "submitted",
       stages: [],
       version: 1,
       changeDate: "2026-08-13",

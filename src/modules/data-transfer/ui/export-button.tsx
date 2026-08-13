@@ -1,9 +1,11 @@
 "use client";
 
+import { DismissibleDetails } from "@/shared/ui/dismissible-details";
+
 export function ExportButton({ query = "" }: { query?: string }) {
   const suffix = query ? `&${query}` : "";
   return (
-    <details className="export-menu">
+    <DismissibleDetails className="export-menu">
       <summary className="button secondary">
         导出
         <svg className="export-chevron" aria-hidden="true" viewBox="0 0 16 16">
@@ -31,6 +33,6 @@ export function ExportButton({ query = "" }: { query?: string }) {
           </span>
         </a>
       </div>
-    </details>
+    </DismissibleDetails>
   );
 }

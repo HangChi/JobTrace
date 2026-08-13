@@ -10,21 +10,21 @@ test("部分匹配、组合筛选和游标跨页稳定", async ({ request }) => 
           positionName: "Engineer",
           city: index % 2 ? "北京" : "上海",
           appliedDate: `2026-08-${String(index + 1).padStart(2, "0")}`,
-          status: "active",
+          status: "submitted",
         },
       });
       ids.push((await response.json()).id);
     }
     const first = await (
       await request.get(
-        "/api/applications?q=Target&status=active&city=上海&sort=appliedDate&direction=asc&limit=2",
+        "/api/applications?q=Target&status=submitted&city=上海&sort=appliedDate&direction=asc&limit=2",
       )
     ).json();
     expect(first.items).toHaveLength(2);
     expect(first.nextCursor).toEqual(expect.any(String));
     const second = await (
       await request.get(
-        `/api/applications?q=Target&status=active&city=上海&sort=appliedDate&direction=asc&limit=2&cursor=${encodeURIComponent(first.nextCursor)}`,
+        `/api/applications?q=Target&status=submitted&city=上海&sort=appliedDate&direction=asc&limit=2&cursor=${encodeURIComponent(first.nextCursor)}`,
       )
     ).json();
     const combined = [...first.items, ...second.items].map(

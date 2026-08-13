@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { useState } from "react";
 import { Dialog } from "@/shared/ui/dialog";
+import { DismissibleDetails } from "@/shared/ui/dismissible-details";
+import { DeleteApplicationDialog } from "./delete-application-dialog";
+import { EditApplicationDialog } from "./application-dialogs";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -14,11 +18,71 @@ function latestStage(item: ApplicationSummary) {
   return item.stages.at(-1);
 }
 
-export function ApplicationTable({ page }: { page: ApplicationPage }) {
+function jobLinkLabel(value: string) {
+  try {
+    return new URL(value).hostname.replace(/^www\./, "");
+  } catch {
+    return "职位链接";
+  }
+}
+
+type Search = Record<string, string | string[] | undefined>;
+const PAGE_SIZES = ["10", "20", "50", "100"] as const;
+
+function pageHref(query: Search, pageNumber: number) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (["cursor", "history", "page"].includes(key)) continue;
+    if (Array.isArray(value)) value.forEach((item) => params.append(key, item));
+    else if (value) params.set(key, value);
+  }
+  if (pageNumber > 1) params.set("page", String(pageNumber));
+  return `/?${params.toString()}#application-list-title` as Route;
+}
+
+function paginationItems(current: number, total: number) {
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const visible = [...pages]
+    .filter((page) => page >= 1 && page <= total)
+    .sort((a, b) => a - b);
+  const result: Array<number | "ellipsis"> = [];
+  visible.forEach((page, index) => {
+    if (index > 0 && page - visible[index - 1] > 1) result.push("ellipsis");
+    result.push(page);
+  });
+  return result;
+}
+
+function pageSizeHref(query: Search, limit: string) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (["cursor", "history", "page", "limit"].includes(key)) continue;
+    if (Array.isArray(value)) value.forEach((item) => params.append(key, item));
+    else if (value) params.set(key, value);
+  }
+  params.set("limit", limit);
+  return `/?${params.toString()}#application-list-title` as Route;
+}
+
+export function ApplicationTable({
+  page,
+  query = {},
+}: {
+  page: ApplicationPage;
+  query?: Search;
+}) {
   const [selected, setSelected] = useState<ApplicationSummary | null>(null);
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
+  const [editing, setEditing] = useState<ApplicationDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const pageSize =
+    typeof query.limit === "string" &&
+    PAGE_SIZES.includes(query.limit as (typeof PAGE_SIZES)[number])
+      ? query.limit
+      : "10";
+  const pageNumber = page.page;
+  const totalPages = Math.max(1, Math.ceil(page.total / page.limit));
 
   async function openDetail(item: ApplicationSummary) {
     setSelected(item);
@@ -36,6 +100,19 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
     }
   }
 
+  async function openEditor(item: ApplicationSummary) {
+    setError("");
+    try {
+      const response = await fetch(`/api/applications/${item.id}`);
+      if (!response.ok) throw new Error("暂时无法加载投递信息");
+      setEditing(await response.json());
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "暂时无法加载投递信息",
+      );
+    }
+  }
+
   return (
     <section
       className="panel application-list-panel"
@@ -43,14 +120,21 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
     >
       <div className="section-heading">
         <div>
-          <p className="section-kicker">APPLICATIONS</p>
           <h2 id="application-list-title">投递记录</h2>
           <p className="table-hint">点击任意记录可在当前页查看详情</p>
         </div>
-        <span className="record-count">本页 {page.items.length} 条</span>
+        <span className="record-count">共 {page.total} 条</span>
       </div>
       <div className="table-wrap">
-        <table>
+        <table className="application-table">
+          <colgroup>
+            <col className="company-column" />
+            <col className="link-column" />
+            <col className="stage-column" />
+            <col className="status-column" />
+            <col className="date-column" />
+            <col className="actions-column" />
+          </colgroup>
           <thead>
             <tr>
               <th>公司与岗位</th>
@@ -82,9 +166,11 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
                     }
                   }}
                 >
-                  <td data-label="公司与岗位">
-                    <strong>{item.companyName}</strong>
-                    <span className="table-subline">{item.positionName}</span>
+                  <td className="application-name-cell" data-label="公司与岗位">
+                    <strong title={item.companyName}>{item.companyName}</strong>
+                    <span className="table-subline" title={item.positionName}>
+                      {item.positionName}
+                    </span>
                   </td>
                   <td data-label="投递链接">
                     {item.jobUrl ? (
@@ -95,7 +181,10 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
                         rel="noreferrer"
                         aria-label={`打开 ${item.companyName} 的投递链接`}
                       >
-                        打开职位 <span aria-hidden="true">↗</span>
+                        <span className="job-link-label">
+                          {jobLinkLabel(item.jobUrl)}
+                        </span>
+                        <span aria-hidden="true">↗</span>
                       </a>
                     ) : (
                       <span className="table-placeholder">未填写</span>
@@ -124,16 +213,20 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
                   </td>
                   <td data-label="投递日期">{item.appliedDate}</td>
                   <td data-label="操作">
-                    <Link
-                      className="edit-link"
-                      href={`/applications/${item.id}`}
-                    >
-                      编辑
-                      <svg aria-hidden="true" viewBox="0 0 16 16">
-                        <path d="M10.8 2.7a1.4 1.4 0 0 1 2 2L6 11.5l-2.8.7.7-2.8 6.9-6.7Z" />
-                        <path d="m9.7 3.8 2.5 2.5" />
-                      </svg>
-                    </Link>
+                    <div className="table-actions">
+                      <button
+                        className="table-action"
+                        type="button"
+                        onClick={() => void openEditor(item)}
+                      >
+                        编辑
+                      </button>
+                      <DeleteApplicationDialog
+                        compact
+                        id={item.id}
+                        name={`${item.companyName} · ${item.positionName}`}
+                      />
+                    </div>
                   </td>
                 </tr>
               );
@@ -141,9 +234,101 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
           </tbody>
         </table>
       </div>
-      {page.nextCursor && (
-        <p className="more-records">还有更多记录，请缩小筛选范围查看。</p>
-      )}
+      <nav className="table-pagination" aria-label="投递记录分页">
+        <div className="page-size-control">
+          <span>每页显示</span>
+          <DismissibleDetails className="page-size-menu">
+            <summary aria-label={`每页显示 ${pageSize} 条，打开选项`}>
+              <strong>{pageSize}</strong>
+              <span>条</span>
+              <svg aria-hidden="true" viewBox="0 0 16 16">
+                <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+              </svg>
+            </summary>
+            <div className="page-size-options" aria-label="每页显示条数">
+              {PAGE_SIZES.map((size) => (
+                <Link
+                  key={size}
+                  className={size === pageSize ? "is-current" : ""}
+                  href={pageSizeHref(query, size)}
+                  scroll={false}
+                  aria-current={size === pageSize ? "true" : undefined}
+                >
+                  <span>{size} 条</span>
+                  {size === pageSize && <span aria-hidden="true">✓</span>}
+                </Link>
+              ))}
+            </div>
+          </DismissibleDetails>
+        </div>
+        <div>
+          {pageNumber > 1 ? (
+            <Link
+              className="pagination-link"
+              href={pageHref(query, pageNumber - 1)}
+              aria-label="上一页"
+              scroll={false}
+            >
+              <span aria-hidden="true">‹</span>
+            </Link>
+          ) : (
+            <span
+              className="pagination-link is-disabled"
+              aria-label="已是第一页"
+            >
+              ‹
+            </span>
+          )}
+          <div className="pagination-pages">
+            {paginationItems(pageNumber, totalPages).map((item, index) =>
+              item === "ellipsis" ? (
+                <span
+                  className="pagination-ellipsis"
+                  key={`ellipsis-${index}`}
+                  aria-hidden="true"
+                >
+                  …
+                </span>
+              ) : item === pageNumber ? (
+                <span
+                  className="pagination-page is-current"
+                  key={item}
+                  aria-current="page"
+                >
+                  {item}
+                </span>
+              ) : (
+                <Link
+                  className="pagination-page"
+                  href={pageHref(query, item)}
+                  key={item}
+                  aria-label={`第 ${item} 页`}
+                  scroll={false}
+                >
+                  {item}
+                </Link>
+              ),
+            )}
+          </div>
+          {pageNumber < totalPages ? (
+            <Link
+              className="pagination-link"
+              href={pageHref(query, pageNumber + 1)}
+              aria-label="下一页"
+              scroll={false}
+            >
+              <span aria-hidden="true">›</span>
+            </Link>
+          ) : (
+            <span
+              className="pagination-link is-disabled"
+              aria-label="已是最后一页"
+            >
+              ›
+            </span>
+          )}
+        </div>
+      </nav>
 
       <Dialog
         open={Boolean(selected)}
@@ -235,14 +420,26 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
                     打开投递链接 ↗
                   </a>
                 )}
-                <Link className="button" href={`/applications/${detail.id}`}>
+                <button
+                  className="button"
+                  type="button"
+                  onClick={() => {
+                    setSelected(null);
+                    setEditing(detail);
+                  }}
+                >
                   编辑这条投递
-                </Link>
+                </button>
               </div>
             </>
           )}
         </div>
       </Dialog>
+      <EditApplicationDialog
+        application={editing}
+        open={Boolean(editing)}
+        onClose={() => setEditing(null)}
+      />
     </section>
   );
 }

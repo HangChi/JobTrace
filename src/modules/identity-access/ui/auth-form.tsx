@@ -50,7 +50,9 @@ export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
         <div className="auth-field">
           <label htmlFor="username">用户名</label>
           <div className="auth-input-wrap">
-            <span className="auth-input-icon" aria-hidden="true">@</span>
+            <span className="auth-input-icon" aria-hidden="true">
+              @
+            </span>
             <input
               id="username"
               name="username"

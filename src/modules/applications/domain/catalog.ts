@@ -1,12 +1,4 @@
-export const APPLICATION_STATUSES = [
-  "planned",
-  "active",
-  "rejected",
-  "offer",
-  "accepted",
-  "withdrawn",
-  "no_response",
-] as const;
+export const APPLICATION_STATUSES = ["submitted", "offer", "refused"] as const;
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 export const RECRUITMENT_STAGES = [
   "screening",
@@ -20,13 +12,9 @@ export const RECRUITMENT_STAGES = [
 ] as const;
 export type RecruitmentStage = (typeof RECRUITMENT_STAGES)[number];
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
-  planned: "计划投递",
-  active: "进行中",
-  rejected: "未通过",
-  offer: "已获 Offer",
-  accepted: "已接受",
-  withdrawn: "已撤回",
-  no_response: "暂无回复",
+  submitted: "已投递",
+  offer: "Offer",
+  refused: "拒绝",
 };
 export const STAGE_LABELS: Record<RecruitmentStage, string> = {
   screening: "简历筛选",

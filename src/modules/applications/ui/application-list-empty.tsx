@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewApplicationDialog } from "./application-dialogs";
 
 export function ApplicationListEmpty({
   filtered = false,
@@ -13,9 +14,13 @@ export function ApplicationListEmpty({
           ? "尝试清空或调整搜索条件。"
           : "记录公司、岗位与投递日期，后续进展就不会散落。"}
       </p>
-      <Link className="button" href={filtered ? "/" : "/applications/new"}>
-        {filtered ? "清空条件" : "新增投递"}
-      </Link>
+      {filtered ? (
+        <Link className="button" href="/">
+          清空条件
+        </Link>
+      ) : (
+        <NewApplicationDialog />
+      )}
     </section>
   );
 }

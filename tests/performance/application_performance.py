@@ -25,14 +25,14 @@ def main() -> None:
                 select 'Perf Company ' || (n % 500), 'Role ' || (n % 100),
                   (array['上海','北京','深圳','杭州'])[(n % 4)+1],
                   date '2026-01-01' + (n % 200),
-                  case when n % 9 = 0 then 'rejected'::application_status else 'active'::application_status end,
+                  case when n % 9 = 0 then 'refused'::application_status else 'submitted'::application_status end,
                   date '2026-01-01' + (n % 200)
                 from generate_series(1,10000) n
                 """
             )
             benchmarks = {
                 "list": "select id from applications order by latest_date desc,id limit 50",
-                "filter": "select id from applications where status='active' and city='上海' and lower(company_name || ' ' || position_name) like '%company 12%' order by latest_date desc,id limit 50",
+                "filter": "select id from applications where status='submitted' and city='上海' and lower(company_name || ' ' || position_name) like '%company 12%' order by latest_date desc,id limit 50",
                 "analytics": "select analytics_summary(current_date)",
             }
             for name, query in benchmarks.items():

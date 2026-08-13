@@ -6,7 +6,16 @@ const aliases = {
   city: ["city", "城市"],
   jobUrl: ["jobUrl", "职位链接"],
   notes: ["notes", "备注"],
+  status: ["status", "状态", "投递"],
 } as const;
+const statusAliases: Record<string, string> = {
+  Offer: "offer",
+  offer: "offer",
+  已投递: "submitted",
+  submitted: "submitted",
+  拒绝: "refused",
+  refused: "refused",
+};
 export function normalizeImportRow(row: Record<string, unknown>) {
   const value: Record<string, unknown> = {};
   for (const [field, names] of Object.entries(aliases))
@@ -16,6 +25,8 @@ export function normalizeImportRow(row: Record<string, unknown>) {
           typeof row[name] === "string" ? row[name].trim() : row[name];
         break;
       }
+  if (typeof value.status === "string")
+    value.status = statusAliases[value.status] ?? value.status;
   return value;
 }
 export function validateImportRow(row: Record<string, unknown>) {

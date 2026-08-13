@@ -31,6 +31,7 @@ export function parseListQuery(params: URLSearchParams) {
       .catch("desc")
       .parse(params.get("direction")),
     cursor: params.get("cursor") || undefined,
+    page: Math.max(1, Number.parseInt(params.get("page") ?? "1", 10) || 1),
     limit: Math.min(
       100,
       Math.max(1, Number.parseInt(params.get("limit") ?? "50", 10) || 50),

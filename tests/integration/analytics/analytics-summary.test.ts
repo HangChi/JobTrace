@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { RECRUITMENT_STAGES } from "@/modules/applications/domain/catalog";
 
 test("统计与更新后跟进移除", async ({ request }) => {
   const created = await request.post("/api/applications", {
@@ -6,12 +7,17 @@ test("统计与更新后跟进移除", async ({ request }) => {
       companyName: "Integration FollowUp",
       positionName: "Engineer",
       appliedDate: "2026-08-01",
-      status: "active",
+      status: "submitted",
     },
   });
   const app = await created.json();
   try {
     let summary = await (await request.get("/api/analytics/summary")).json();
+    expect(
+      Object.keys(summary.stageDistribution).every((stage) =>
+        RECRUITMENT_STAGES.includes(stage as never),
+      ),
+    ).toBe(true);
     expect(
       summary.followUps.some((item: { id: string }) => item.id === app.id),
     ).toBe(true);
@@ -20,7 +26,7 @@ test("统计与更新后跟进移除", async ({ request }) => {
         companyName: app.companyName,
         positionName: app.positionName,
         appliedDate: app.appliedDate,
-        status: "active",
+        status: "submitted",
         stages: [],
         version: 1,
         changeDate: "2026-08-13",

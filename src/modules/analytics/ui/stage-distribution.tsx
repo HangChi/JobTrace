@@ -6,7 +6,7 @@ import {
 export function StageDistribution({
   values,
 }: {
-  values: Record<string, number>;
+  values: Partial<Record<RecruitmentStage, number>>;
 }) {
   const items = Object.entries(values).filter(([, count]) => count > 0);
   const total = items.reduce((sum, [, count]) => sum + count, 0);
@@ -15,10 +15,9 @@ export function StageDistribution({
     <section className="panel insight-panel">
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">PIPELINE</p>
+          <p className="section-kicker">招聘流程</p>
           <h3>阶段分布</h3>
         </div>
-        <span className="panel-icon stage-icon" aria-hidden="true" />
       </div>
       {items.length ? (
         <div className="distribution-layout">
@@ -26,13 +25,13 @@ export function StageDistribution({
             <strong>{total}</strong>
             <span>阶段记录</span>
           </div>
-          <ul className="distribution-list">
+          <ul className="distribution-list is-scrollable">
             {items.map(([stage, count]) => (
               <li key={stage} className={`stage-${stage}`}>
                 <div className="distribution-meta">
                   <span>
                     <i aria-hidden="true" />
-                    {STAGE_LABELS[stage as RecruitmentStage] ?? stage}
+                    {STAGE_LABELS[stage as RecruitmentStage]}
                   </span>
                   <strong>
                     {count}

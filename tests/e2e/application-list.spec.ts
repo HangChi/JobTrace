@@ -6,7 +6,7 @@ test("筛选、清空与空状态", async ({ request, page }) => {
       companyName: "E2E 筛选公司",
       positionName: "产品经理",
       appliedDate: "2026-08-13",
-      status: "active",
+      status: "submitted",
     },
   });
   const application = await created.json();

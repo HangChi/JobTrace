@@ -1,13 +1,48 @@
-import Link from "next/link";
+"use client";
+
+import { useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { APPLICATION_STATUSES, STATUS_LABELS } from "../domain/catalog";
+
+const PAGE_SIZES = ["10", "20", "50", "100"];
 
 export function ApplicationFilters({
   query,
 }: {
   query: Record<string, string | string[] | undefined>;
 }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const limit =
+    typeof query.limit === "string" && PAGE_SIZES.includes(query.limit)
+      ? query.limit
+      : "10";
+
+  function navigate(params: URLSearchParams) {
+    const suffix = params.toString();
+    startTransition(() =>
+      router.push(suffix ? `/?${suffix}` : "/", { scroll: false }),
+    );
+  }
+
+  function applyFilters(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const params = new URLSearchParams();
+    for (const [key, value] of form.entries()) {
+      if (typeof value === "string" && value) params.append(key, value);
+    }
+    navigate(params);
+  }
+
   return (
-    <form className="panel filter-bar" method="get" aria-label="筛选投递记录">
+    <form
+      className="panel filter-bar"
+      aria-label="筛选投递记录"
+      onSubmit={applyFilters}
+      aria-busy={pending}
+    >
+      <input type="hidden" name="limit" value={limit} />
       <label>
         搜索公司或岗位
         <input
@@ -56,12 +91,17 @@ export function ApplicationFilters({
           </svg>
         </span>
       </label>
-      <button className="button" type="submit">
-        应用条件
+      <button className="button" type="submit" disabled={pending}>
+        {pending ? "更新中…" : "应用条件"}
       </button>
-      <Link className="button secondary" href="/">
+      <button
+        className="button secondary"
+        type="button"
+        disabled={pending}
+        onClick={() => navigate(new URLSearchParams({ limit }))}
+      >
         清空
-      </Link>
+      </button>
     </form>
   );
 }

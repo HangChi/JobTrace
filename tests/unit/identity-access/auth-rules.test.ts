@@ -20,6 +20,8 @@ describe("identity access rules", () => {
     expect(safeReturnTo("https://evil.example")).toBeNull();
   });
   it("validates login inputs", () => {
-    expect(loginSchema.safeParse({ username: "!", password: "x" }).success).toBe(false);
+    expect(
+      loginSchema.safeParse({ username: "!", password: "x" }).success,
+    ).toBe(false);
   });
 });

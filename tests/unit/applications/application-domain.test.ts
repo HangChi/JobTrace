@@ -36,8 +36,8 @@ describe("投递领域", () => {
     ).toBe(false);
   });
   it("识别结束状态并按阶段代码去重", () => {
-    expect(isTerminalStatus("rejected")).toBe(true);
-    expect(isTerminalStatus("active")).toBe(false);
+    expect(isTerminalStatus("refused")).toBe(true);
+    expect(isTerminalStatus("submitted")).toBe(false);
     expect(
       uniqueStages([
         { stage: "screening", occurredOn: "2026-08-13" },

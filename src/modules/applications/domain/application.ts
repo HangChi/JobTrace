@@ -2,7 +2,7 @@ import type { ApplicationStatus, RecruitmentStage } from "./catalog";
 
 export type StageInput = { stage: RecruitmentStage; occurredOn: string };
 export function isTerminalStatus(status: ApplicationStatus) {
-  return ["rejected", "accepted", "withdrawn"].includes(status);
+  return ["offer", "refused"].includes(status);
 }
 export function uniqueStages(stages: StageInput[]) {
   const seen = new Set<string>();

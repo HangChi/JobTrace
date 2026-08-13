@@ -4,16 +4,13 @@ export function needsFollowUp(
   latestDate: string,
   today: string,
 ) {
-  return (
-    !["rejected", "accepted", "withdrawn", "offer"].includes(status) &&
-    calendarDaysBetween(latestDate, today) >= 7
-  );
+  return status === "submitted" && calendarDaysBetween(latestDate, today) >= 7;
 }
 export function summarizeApplications(items: { status: string }[]) {
   return {
     total: items.length,
-    active: items.filter((x) => x.status === "active").length,
-    rejected: items.filter((x) => x.status === "rejected").length,
+    submitted: items.filter((x) => x.status === "submitted").length,
+    refused: items.filter((x) => x.status === "refused").length,
     offers: items.filter((x) => x.status === "offer").length,
   };
 }

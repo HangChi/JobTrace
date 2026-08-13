@@ -6,13 +6,12 @@ export function FollowUpList({ items }: { items: ApplicationSummary[] }) {
     <section className="panel insight-panel follow-up-panel">
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">NEXT ACTION</p>
           <h3>需要跟进</h3>
         </div>
         <span className="follow-up-count">{items.length}</span>
       </div>
       {items.length ? (
-        <ul className="follow-up-list">
+        <ul className="follow-up-list is-scrollable">
           {items.map((item) => (
             <li key={item.id}>
               <span className="company-avatar" aria-hidden="true">

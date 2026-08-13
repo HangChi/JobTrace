@@ -6,7 +6,7 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
       companyName: "Integration Lifecycle",
       positionName: "Engineer",
       appliedDate: "2026-08-01",
-      status: "active",
+      status: "submitted",
     },
   });
   const application = await created.json();

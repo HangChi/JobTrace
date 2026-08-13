@@ -10,8 +10,13 @@ describe("导入导出安全", () => {
         公司: " 甲 ",
         岗位: "开发",
         投递日期: "2026-08-13",
+        投递: "Offer",
       }),
-    ).toMatchObject({ companyName: "甲", positionName: "开发" }));
+    ).toMatchObject({
+      companyName: "甲",
+      positionName: "开发",
+      status: "offer",
+    }));
   it("阻止公式注入", () =>
     expect(escapeSpreadsheetFormula('=HYPERLINK("bad")')).toBe(
       '\'=HYPERLINK("bad")',

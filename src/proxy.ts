@@ -3,10 +3,14 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
-  const publicPath = ["/login", "/register", "/forgot-password", "/reset-password"].some(
-    (path) => request.nextUrl.pathname.startsWith(path),
-  );
-  const publicApi = request.nextUrl.pathname.startsWith("/api/auth/") ||
+  const publicPath = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ].some((path) => request.nextUrl.pathname.startsWith(path));
+  const publicApi =
+    request.nextUrl.pathname.startsWith("/api/auth/") ||
     request.nextUrl.pathname.startsWith("/api/health");
   if (!sessionCookie && !publicPath && !publicApi) {
     const login = request.nextUrl.clone();

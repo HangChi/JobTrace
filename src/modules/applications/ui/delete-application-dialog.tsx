@@ -1,42 +1,80 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@/shared/ui/dialog";
+
 export function DeleteApplicationDialog({
   id,
   name,
+  compact = false,
 }: {
   id: string;
   name: string;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
   async function remove() {
-    const response = await fetch(`/api/applications/${id}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      router.push("/");
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/applications/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("删除失败，请稍后重试。");
+      setOpen(false);
+      if (!compact) router.push("/");
       router.refresh();
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "删除失败，请稍后重试。",
+      );
+    } finally {
+      setLoading(false);
     }
   }
+
   return (
     <>
-      <button className="button danger" onClick={() => setOpen(true)}>
-        删除记录
+      <button
+        className={
+          compact ? "table-action table-action-danger" : "button danger"
+        }
+        onClick={() => setOpen(true)}
+      >
+        {compact ? "删除" : "删除记录"}
       </button>
       <Dialog
         open={open}
-        title={`确认删除“${name}”？`}
+        kicker="DELETE APPLICATION"
+        title="删除这条投递？"
+        description="删除后无法恢复，请确认记录是否正确。"
+        className="delete-dialog"
         onClose={() => setOpen(false)}
       >
-        <p>该操作会同时删除阶段和历史，且无法撤销。</p>
-        <div className="actions">
-          <button className="button danger" onClick={remove}>
-            确认删除
-          </button>
-          <button className="button secondary" onClick={() => setOpen(false)}>
+        <div className="delete-warning">
+          <span className="delete-warning-icon" aria-hidden="true">
+            !
+          </span>
+          <div>
+            <strong>{name}</strong>
+            <p>相关招聘阶段和更新历史也会一起删除。</p>
+          </div>
+        </div>
+        {error && <p className="field-error">{error}</p>}
+        <div className="delete-dialog-actions">
+          <button
+            className="button secondary"
+            disabled={loading}
+            onClick={() => setOpen(false)}
+          >
             取消
+          </button>
+          <button className="button danger" disabled={loading} onClick={remove}>
+            {loading ? "正在删除…" : "确认删除"}
           </button>
         </div>
       </Dialog>

@@ -36,8 +36,9 @@ export async function updateUserAccess(
 ) {
   const actor = await requireAdmin();
   const sql = createServerDatabase();
-  const [current] = await sql<Array<{ role: AccountRole; disabled: boolean }>>
-    `select role,disabled from users where id=${userId}`;
+  const [current] = await sql<
+    Array<{ role: AccountRole; disabled: boolean }>
+  >`select role,disabled from users where id=${userId}`;
   if (!current) throw new Problem("not_found", "没有找到该用户。", 404);
   const role =
     input.role && accountRoles.includes(input.role as AccountRole)
@@ -50,11 +51,7 @@ export async function updateUserAccess(
     return user;
   } catch (error) {
     if ((error as { code?: string }).code === "23514")
-      throw new Problem(
-        "last_admin",
-        "不能禁用或降级最后一个管理员。",
-        409,
-      );
+      throw new Problem("last_admin", "不能禁用或降级最后一个管理员。", 409);
     throw error;
   }
 }

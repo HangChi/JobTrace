@@ -2,6 +2,10 @@ import { createServerDatabase } from "@/shared/database";
 import { Problem } from "@/shared/errors/problem";
 import { rowsToCsv, rowsToXlsx } from "../infrastructure/spreadsheet-writer";
 import { requireUser } from "@/modules/identity-access";
+import {
+  STATUS_LABELS,
+  type ApplicationStatus,
+} from "@/modules/applications/domain/catalog";
 
 export type ExportOptions = {
   scope: "all" | "filtered";
@@ -35,7 +39,7 @@ export async function exportApplications(options: ExportOptions) {
     城市: row.city ?? "",
     职位链接: row.jobUrl ?? "",
     投递日期: String(row.appliedDate),
-    状态: row.status,
+    状态: STATUS_LABELS[row.status as ApplicationStatus],
     备注: row.notes ?? "",
   }));
   return options.format === "xlsx" ? rowsToXlsx(rows) : rowsToCsv(rows);

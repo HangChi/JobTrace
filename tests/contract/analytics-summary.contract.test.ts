@@ -5,8 +5,8 @@ test("统计摘要契约", async ({ request }) => {
   expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({
     total: expect.any(Number),
-    active: expect.any(Number),
-    rejected: expect.any(Number),
+    submitted: expect.any(Number),
+    refused: expect.any(Number),
     offers: expect.any(Number),
     addedThisWeek: expect.any(Number),
     stageDistribution: expect.any(Object),

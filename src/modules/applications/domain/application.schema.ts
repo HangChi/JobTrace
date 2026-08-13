@@ -16,7 +16,7 @@ export const createApplicationSchema = z.object({
     .union([z.url({ protocol: /^https?$/ }).max(2048), z.literal(""), z.null()])
     .optional(),
   appliedDate: date,
-  status: z.enum(APPLICATION_STATUSES).default("active"),
+  status: z.enum(APPLICATION_STATUSES).default("submitted"),
   notes: optionalText(10000),
   stages: z.array(stageInputSchema).max(100).default([]),
 });

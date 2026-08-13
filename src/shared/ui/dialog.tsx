@@ -1,19 +1,25 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 export function Dialog({
   open,
   title,
   kicker,
+  description,
+  className = "",
   children,
   onClose,
 }: {
   open: boolean;
   title: string;
   kicker?: string;
+  description?: string;
+  className?: string;
   children: React.ReactNode;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
   useEffect(() => {
     if (open && !ref.current?.open) ref.current?.showModal();
     if (!open && ref.current?.open) ref.current.close();
@@ -25,18 +31,25 @@ export function Dialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      aria-labelledby="dialog-title"
+      className={className}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
     >
       <div className="dialog-card">
         <div className="dialog-heading">
           <div>
             {kicker && <p className="section-kicker">{kicker}</p>}
-            <h2 id="dialog-title">{title}</h2>
+            <h2 id={titleId}>{title}</h2>
+            {description && (
+              <p className="dialog-description" id={descriptionId}>
+                {description}
+              </p>
+            )}
           </div>
           <button
             className="dialog-close"
             onClick={onClose}
-            aria-label="关闭详情"
+            aria-label="关闭弹窗"
           >
             ×
           </button>

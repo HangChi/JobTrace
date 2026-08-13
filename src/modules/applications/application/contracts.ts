@@ -34,4 +34,7 @@ export type ApplicationDetail = ApplicationSummary & {
 export type ApplicationPage = {
   items: ApplicationSummary[];
   nextCursor: string | null;
+  total: number;
+  page: number;
+  limit: number;
 };
