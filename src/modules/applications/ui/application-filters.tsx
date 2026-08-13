@@ -20,31 +20,41 @@ export function ApplicationFilters({
       </label>
       <label>
         状态
-        <select
-          name="status"
-          defaultValue={typeof query.status === "string" ? query.status : ""}
-        >
-          <option value="">全部状态</option>
-          {APPLICATION_STATUSES.map((status) => (
-            <option value={status} key={status}>
-              {STATUS_LABELS[status]}
-            </option>
-          ))}
-        </select>
+        <span className="select-wrap">
+          <select
+            name="status"
+            defaultValue={typeof query.status === "string" ? query.status : ""}
+          >
+            <option value="">全部状态</option>
+            {APPLICATION_STATUSES.map((status) => (
+              <option value={status} key={status}>
+                {STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+          </svg>
+        </span>
       </label>
       <label>
         排序
-        <select
-          name="sort"
-          defaultValue={
-            typeof query.sort === "string" ? query.sort : "latestDate"
-          }
-        >
-          <option value="latestDate">最近进展</option>
-          <option value="appliedDate">投递日期</option>
-          <option value="company">公司名称</option>
-          <option value="position">岗位名称</option>
-        </select>
+        <span className="select-wrap">
+          <select
+            name="sort"
+            defaultValue={
+              typeof query.sort === "string" ? query.sort : "latestDate"
+            }
+          >
+            <option value="latestDate">最近进展</option>
+            <option value="appliedDate">投递日期</option>
+            <option value="company">公司名称</option>
+            <option value="position">岗位名称</option>
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+          </svg>
+        </span>
       </label>
       <button className="button" type="submit">
         应用条件

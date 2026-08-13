@@ -5,10 +5,10 @@ export function ExportButton({ query = "" }: { query?: string }) {
   return (
     <details className="export-menu">
       <summary className="button secondary">
-        导出{" "}
-        <span className="export-chevron" aria-hidden="true">
-          ⌄
-        </span>
+        导出
+        <svg className="export-chevron" aria-hidden="true" viewBox="0 0 16 16">
+          <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+        </svg>
       </summary>
       <div className="export-options">
         <p>选择导出格式</p>

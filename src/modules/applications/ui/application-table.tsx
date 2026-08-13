@@ -45,6 +45,7 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
         <div>
           <p className="section-kicker">APPLICATIONS</p>
           <h2 id="application-list-title">投递记录</h2>
+          <p className="table-hint">点击任意记录可在当前页查看详情</p>
         </div>
         <span className="record-count">本页 {page.items.length} 条</span>
       </div>
@@ -127,7 +128,11 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
                       className="edit-link"
                       href={`/applications/${item.id}`}
                     >
-                      编辑 <span aria-hidden="true">✎</span>
+                      编辑
+                      <svg aria-hidden="true" viewBox="0 0 16 16">
+                        <path d="M10.8 2.7a1.4 1.4 0 0 1 2 2L6 11.5l-2.8.7.7-2.8 6.9-6.7Z" />
+                        <path d="m9.7 3.8 2.5 2.5" />
+                      </svg>
                     </Link>
                   </td>
                 </tr>
@@ -151,7 +156,31 @@ export function ApplicationTable({ page }: { page: ApplicationPage }) {
         onClose={() => setSelected(null)}
       >
         <div className="detail-dialog-body">
-          {loading && <p className="detail-loading">正在加载投递详情…</p>}
+          {selected && !detail && (
+            <div className="detail-meta-grid">
+              <div>
+                <span>当前状态</span>
+                <strong>{STATUS_LABELS[selected.status]}</strong>
+              </div>
+              <div>
+                <span>投递日期</span>
+                <strong>{selected.appliedDate}</strong>
+              </div>
+              <div>
+                <span>工作城市</span>
+                <strong>{selected.city || "未填写"}</strong>
+              </div>
+              <div>
+                <span>最近更新</span>
+                <strong>{selected.latestDate}</strong>
+              </div>
+            </div>
+          )}
+          {loading && (
+            <p className="detail-loading detail-loading-inline">
+              正在加载阶段和备注…
+            </p>
+          )}
           {error && <p className="field-error">{error}</p>}
           {detail && (
             <>
