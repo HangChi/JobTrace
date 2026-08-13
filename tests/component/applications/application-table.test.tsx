@@ -19,6 +19,7 @@ const application: ApplicationDetail = {
   stages: ["screening"],
   needsFollowUp: false,
   followUpDays: 0,
+  followUpReason: null,
   version: 1,
   notes: "准备技术面试",
   stageOccurrences: [

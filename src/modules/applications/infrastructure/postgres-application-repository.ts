@@ -5,12 +5,14 @@ import type { ApplicationRepository } from "../application/ports";
 import type {
   ApplicationDetail,
   ApplicationPage,
+  ApplicationSummary,
 } from "../application/contracts";
 import type {
   CreateApplicationInput,
   UpdateApplicationInput,
 } from "../domain/application.schema";
 import type { ListQuery } from "../application/list-query";
+import { FOLLOW_UP_THRESHOLD_DAYS } from "../domain/catalog";
 
 type DbRecord = Record<string, unknown>;
 
@@ -19,14 +21,36 @@ function dateOnly(value: unknown) {
   return String(value).slice(0, 10);
 }
 
-function mapSummary(row: DbRecord) {
+function mapSummary(row: DbRecord): ApplicationSummary {
   const latest = dateOnly(row.latestDate);
-  const days = Math.max(
+  const applicationDays = Math.max(
     0,
     Math.floor(
       (Date.now() - new Date(`${latest}T00:00:00+08:00`).getTime()) / 86400000,
     ),
   );
+  const timelineLatest = row.timelineLatestDate
+    ? dateOnly(row.timelineLatestDate)
+    : null;
+  const timelineDays = timelineLatest
+    ? Math.max(
+        0,
+        Math.floor(
+          (Date.now() -
+            new Date(`${timelineLatest}T00:00:00+08:00`).getTime()) /
+            86400000,
+        ),
+      )
+    : 0;
+  const active = String(row.status) === "submitted";
+  const applicationStale =
+    active && applicationDays >= FOLLOW_UP_THRESHOLD_DAYS;
+  const timelineStale = active && timelineDays >= FOLLOW_UP_THRESHOLD_DAYS;
+  const followUpReason = timelineStale
+    ? "timeline"
+    : applicationStale
+      ? "application"
+      : null;
   return {
     id: String(row.id),
     companyName: String(row.companyName),
@@ -37,8 +61,10 @@ function mapSummary(row: DbRecord) {
     status: row.status as never,
     latestDate: latest,
     stages: (row.stages ?? []) as never[],
-    needsFollowUp: days >= 7 && String(row.status) === "submitted",
-    followUpDays: days,
+    needsFollowUp: Boolean(followUpReason),
+    followUpDays:
+      followUpReason === "timeline" ? timelineDays : applicationDays,
+    followUpReason,
     version: Number(row.version),
   };
 }
@@ -55,7 +81,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
 
   async get(ownerId: string, id: string) {
     const [row] = await this.sql<DbRecord[]>`
-      select a.*,
+      select a.*, max(s.occurred_on) as timeline_latest_date,
         coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id
@@ -174,6 +200,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     const offset = cursor ? 0 : (query.page - 1) * query.limit;
     const rows = await this.sql<DbRecord[]>`
       select a.*, count(*) over() as total_count,
+        max(s.occurred_on) as timeline_latest_date,
         coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id

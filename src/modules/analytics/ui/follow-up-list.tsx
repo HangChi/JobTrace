@@ -23,7 +23,13 @@ export function FollowUpList({ items }: { items: ApplicationSummary[] }) {
                 </Link>
                 <span className="table-subline">{item.positionName}</span>
               </div>
-              <span className="follow-up">{item.followUpDays} 天</span>
+              <span
+                className={`follow-up follow-up-${item.followUpReason ?? "application"}`}
+              >
+                {item.followUpReason === "timeline"
+                  ? `时间线 ${item.followUpDays} 天未更新`
+                  : `投递记录 ${item.followUpDays} 天未更新`}
+              </span>
             </li>
           ))}
         </ul>
@@ -32,7 +38,7 @@ export function FollowUpList({ items }: { items: ApplicationSummary[] }) {
           <span aria-hidden="true">✓</span>
           <div>
             <strong>目前都跟进得很好</strong>
-            <p>超过 7 天没有进展的投递会出现在这里。</p>
+            <p>时间线或投递记录满 15 天未更新会出现在这里。</p>
           </div>
         </div>
       )}

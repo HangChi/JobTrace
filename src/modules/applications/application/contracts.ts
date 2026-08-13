@@ -11,6 +11,7 @@ export type ApplicationSummary = {
   stages: RecruitmentStage[];
   needsFollowUp: boolean;
   followUpDays: number;
+  followUpReason: "timeline" | "application" | null;
   version: number;
 };
 export type ApplicationDetail = ApplicationSummary & {

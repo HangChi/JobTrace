@@ -11,6 +11,7 @@ export const RECRUITMENT_STAGES = [
   "final_interview",
 ] as const;
 export type RecruitmentStage = (typeof RECRUITMENT_STAGES)[number];
+export const FOLLOW_UP_THRESHOLD_DAYS = 15;
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   submitted: "已投递",
   offer: "Offer",

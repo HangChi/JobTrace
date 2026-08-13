@@ -30,7 +30,11 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
       await request.get(`/api/applications/${application.id}`)
     ).json();
     expect(detail.version).toBe(3);
-    expect(detail.stageOccurrences).toHaveLength(1);
+    expect(detail.stageOccurrences).toHaveLength(2);
+    expect(detail.stageOccurrences[0]).toMatchObject({
+      stage: "screening",
+      occurredOn: "2026-08-01",
+    });
     expect(detail.events.map((event: { type: string }) => event.type)).toEqual(
       expect.arrayContaining(["created", "stage_added", "status_changed"]),
     );

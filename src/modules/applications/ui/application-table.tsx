@@ -7,6 +7,8 @@ import { Dialog } from "@/shared/ui/dialog";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { EditApplicationDialog } from "./application-dialogs";
+import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
+import { ApplicationStatusSelect } from "./application-status-select";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -155,11 +157,21 @@ export function ApplicationTable({
                   tabIndex={0}
                   aria-label={`查看 ${item.companyName} ${item.positionName} 详情`}
                   onClick={(event) => {
-                    if (!(event.target as HTMLElement).closest("a, button")) {
+                    if (
+                      !(event.target as HTMLElement).closest(
+                        "a, button, select, input",
+                      )
+                    ) {
                       void openDetail(item);
                     }
                   }}
                   onKeyDown={(event) => {
+                    if (
+                      (event.target as HTMLElement).closest(
+                        "a, button, select, input",
+                      )
+                    )
+                      return;
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       void openDetail(item);
@@ -202,12 +214,12 @@ export function ApplicationTable({
                     )}
                   </td>
                   <td data-label="状态">
-                    <span className={`status-badge status-${item.status}`}>
-                      {STATUS_LABELS[item.status]}
-                    </span>
+                    <ApplicationStatusSelect application={item} />
                     {item.needsFollowUp && (
                       <span className="follow-up">
-                        {item.followUpDays} 天未更新
+                        {item.followUpReason === "timeline"
+                          ? `时间线 ${item.followUpDays} 天未更新`
+                          : `投递记录 ${item.followUpDays} 天未更新`}
                       </span>
                     )}
                   </td>
@@ -387,22 +399,13 @@ export function ApplicationTable({
                   <strong>{detail.latestDate}</strong>
                 </div>
               </div>
-              <section className="detail-section">
-                <h3>招聘阶段</h3>
-                {detail.stageOccurrences.length ? (
-                  <ol className="detail-stage-list">
-                    {detail.stageOccurrences.map((stage) => (
-                      <li key={stage.id} className={`stage-${stage.stage}`}>
-                        <i aria-hidden="true" />
-                        <span>{STAGE_LABELS[stage.stage]}</span>
-                        <time>{stage.occurredOn}</time>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="muted">还没有记录招聘阶段。</p>
-                )}
-              </section>
+              <RecruitmentStageTimeline
+                application={detail}
+                onUpdate={(updated) => {
+                  setDetail(updated);
+                  setSelected(updated);
+                }}
+              />
               {detail.notes && (
                 <section className="detail-section">
                   <h3>备注</h3>

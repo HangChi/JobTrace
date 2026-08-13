@@ -5,6 +5,7 @@ import {
   type RecruitmentStage,
 } from "@/modules/applications/domain/catalog";
 import type { AnalyticsSummary } from "../application/contracts";
+import { FOLLOW_UP_THRESHOLD_DAYS } from "@/modules/applications/domain/catalog";
 
 export async function fetchAnalyticsSummary(
   ownerId: string,
@@ -33,13 +34,35 @@ export async function fetchAnalyticsSummary(
     }
   }
   const followUps = await sql<Record<string, unknown>[]>`
-    select id, company_name, position_name, city, job_url, applied_date,
-      status, latest_date, version,
-      (${businessToday()}::date - latest_date) as follow_up_days
-    from public.applications
-    where owner_id=${ownerId} and status='submitted'
-      and ${businessToday()}::date - latest_date >= 7
-    order by latest_date asc, id
+    select a.id, a.company_name, a.position_name, a.city, a.job_url,
+      a.applied_date, a.status, a.latest_date, a.version,
+      case
+        when timeline.latest_date is not null
+          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+          then 'timeline'
+        else 'application'
+      end as follow_up_reason,
+      case
+        when timeline.latest_date is not null
+          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+          then ${businessToday()}::date - timeline.latest_date
+        else ${businessToday()}::date - a.latest_date
+      end as follow_up_days
+    from public.applications a
+    left join lateral (
+      select max(s.occurred_on) as latest_date
+      from public.application_stage_occurrences s
+      where s.application_id = a.id
+    ) timeline on true
+    where a.owner_id=${ownerId} and a.status='submitted'
+      and (
+        ${businessToday()}::date - a.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+        or (
+          timeline.latest_date is not null
+          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+        )
+      )
+    order by follow_up_days desc, a.id
     limit 20
   `;
   return {
@@ -67,6 +90,7 @@ export async function fetchAnalyticsSummary(
       stages: [],
       needsFollowUp: true,
       followUpDays: Number(row.followUpDays),
+      followUpReason: row.followUpReason as "timeline" | "application",
       version: Number(row.version),
     })),
   };
