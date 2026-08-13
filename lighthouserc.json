@@ -1,0 +1,25 @@
+{
+  "ci": {
+    "collect": {
+      "url": ["http://127.0.0.1:3000/"],
+      "numberOfRuns": 3,
+      "settings": {
+        "formFactor": "desktop",
+        "screenEmulation": {
+          "mobile": false,
+          "width": 1280,
+          "height": 800,
+          "deviceScaleFactor": 1,
+          "disabled": false
+        },
+        "chromeFlags": "--headless --no-sandbox --disable-gpu"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }]
+      }
+    }
+  }
+}

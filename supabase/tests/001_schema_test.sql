@@ -1,0 +1,17 @@
+begin;
+select plan(13);
+select has_table('public','applications','applications exists');
+select has_table('public','application_stage_occurrences','stages exists');
+select has_table('public','application_events','events exists');
+select has_table('public','import_batches','import batches exist');
+select col_is_pk('public','applications','id','application id is primary key');
+select fk_ok('public','application_events','application_id','public','applications','id','event cascade foreign key');
+select fk_ok('public','application_stage_occurrences','application_id','public','applications','id','stage cascade foreign key');
+select has_index('public','applications','applications_search_idx','trigram search index exists');
+select has_index('public','applications','applications_filter_idx','filter index exists');
+select has_index('public','import_batches','import_batches_expiry_idx','expiry index exists');
+select throws_ok($$insert into public.applications(company_name,position_name,applied_date,latest_date) values('','x',current_date,current_date)$$,'23514');
+select ok((select relrowsecurity from pg_class where oid='public.applications'::regclass),'applications RLS enabled');
+select ok((select relrowsecurity from pg_class where oid='public.import_rows'::regclass),'import rows RLS enabled');
+select * from finish();
+rollback;

@@ -1,0 +1,199 @@
+import { createServerDatabase } from "@/shared/database";
+import { Problem } from "@/shared/errors/problem";
+import { decodeCursor, encodeCursor } from "@/shared/pagination/cursor";
+import type { ApplicationRepository } from "../application/ports";
+import type {
+  ApplicationDetail,
+  ApplicationPage,
+} from "../application/contracts";
+import type {
+  CreateApplicationInput,
+  UpdateApplicationInput,
+} from "../domain/application.schema";
+import type { ListQuery } from "../application/list-query";
+
+type DbRecord = Record<string, unknown>;
+
+function dateOnly(value: unknown) {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value).slice(0, 10);
+}
+
+function mapSummary(row: DbRecord) {
+  const latest = dateOnly(row.latestDate);
+  const days = Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(`${latest}T00:00:00+08:00`).getTime()) / 86400000,
+    ),
+  );
+  return {
+    id: String(row.id),
+    companyName: String(row.companyName),
+    positionName: String(row.positionName),
+    city: row.city as string | null,
+    jobUrl: row.jobUrl as string | null,
+    appliedDate: dateOnly(row.appliedDate),
+    status: row.status as never,
+    latestDate: latest,
+    stages: (row.stages ?? []) as never[],
+    needsFollowUp:
+      days >= 7 &&
+      !["rejected", "accepted", "withdrawn", "offer"].includes(
+        String(row.status),
+      ),
+    followUpDays: days,
+    version: Number(row.version),
+  };
+}
+
+export class PostgresApplicationRepository implements ApplicationRepository {
+  private sql = createServerDatabase();
+
+  async create(input: CreateApplicationInput) {
+    const [row] = await this.sql<DbRecord[]>`
+      select * from public.create_application(${this.sql.json(input)}::jsonb)
+    `;
+    return this.get(String(row.id)) as Promise<ApplicationDetail>;
+  }
+
+  async get(id: string) {
+    const [row] = await this.sql<DbRecord[]>`
+      select a.*,
+        coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
+      from public.applications a
+      left join public.application_stage_occurrences s on s.application_id = a.id
+      where a.id = ${id}
+      group by a.id
+    `;
+    if (!row) return null;
+    const stages = await this.sql<DbRecord[]>`
+      select id, stage, occurred_on from public.application_stage_occurrences
+      where application_id = ${id} order by occurred_on, created_at
+    `;
+    const events = await this.sql<DbRecord[]>`
+      select id, type, occurred_on, before, after, created_at
+      from public.application_events where application_id = ${id}
+      order by occurred_on desc, created_at desc
+    `;
+    return {
+      ...mapSummary(row),
+      notes: row.notes as string | null,
+      stageOccurrences: stages.map((item) => ({
+        id: String(item.id),
+        stage: item.stage as never,
+        occurredOn: dateOnly(item.occurredOn),
+      })),
+      events: events.map((event) => ({
+        id: String(event.id),
+        type: String(event.type),
+        occurredOn: dateOnly(event.occurredOn),
+        before: event.before,
+        after: event.after,
+        createdAt: String(event.createdAt),
+      })),
+      createdAt: String(row.createdAt),
+      updatedAt: String(row.updatedAt),
+    } as ApplicationDetail;
+  }
+
+  async update(id: string, input: UpdateApplicationInput) {
+    try {
+      const [row] = await this.sql<DbRecord[]>`
+        select * from public.update_application(
+          ${id}, ${input.version}, ${input.changeDate}::date,
+          ${this.sql.json(input)}::jsonb
+        )
+      `;
+      return this.get(String(row.id)) as Promise<ApplicationDetail>;
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "40001") {
+        throw new Problem("conflict", "记录已被更新，请刷新后重试。", 409);
+      }
+      if (code === "P0002") {
+        throw new Problem("not_found", "没有找到这条投递记录。", 404);
+      }
+      throw new Problem("storage", "更新投递失败", 500);
+    }
+  }
+
+  async delete(id: string) {
+    const rows = await this
+      .sql`delete from public.applications where id = ${id} returning id`;
+    return rows.length > 0;
+  }
+
+  async addStage(id: string, stage: string, occurredOn: string) {
+    try {
+      await this.sql`
+        select public.add_stage_occurrence(
+          ${id}, ${stage}::recruitment_stage, ${occurredOn}::date
+        )
+      `;
+      return this.get(id) as Promise<ApplicationDetail>;
+    } catch (error) {
+      if ((error as { code?: string }).code === "23505") {
+        throw new Problem("conflict", "该阶段日期已经存在。", 409);
+      }
+      throw new Problem("storage", "添加阶段失败", 500);
+    }
+  }
+
+  async removeStage(id: string, occurrenceId: string, changeDate: string) {
+    try {
+      await this.sql`
+        select public.remove_stage_occurrence(${occurrenceId}, ${changeDate}::date)
+      `;
+      return this.get(id) as Promise<ApplicationDetail>;
+    } catch (error) {
+      if ((error as { code?: string }).code === "P0002") {
+        throw new Problem("not_found", "没有找到该阶段记录。", 404);
+      }
+      throw new Problem("storage", "删除阶段失败", 500);
+    }
+  }
+
+  async list(query: ListQuery): Promise<ApplicationPage> {
+    const sortColumn = {
+      company: "company_name",
+      position: "position_name",
+      appliedDate: "applied_date",
+      latestDate: "latest_date",
+    }[query.sort];
+    const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
+    const rows = await this.sql<DbRecord[]>`
+      select a.*,
+        coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
+      from public.applications a
+      left join public.application_stage_occurrences s on s.application_id = a.id
+      where 1 = 1
+        ${query.q ? this.sql`and lower(a.company_name || ' ' || a.position_name) like ${`%${query.q.toLowerCase()}%`}` : this.sql``}
+        ${query.status.length ? this.sql`and a.status = any(${query.status}::application_status[])` : this.sql``}
+        ${query.stage.length ? this.sql`and exists (select 1 from public.application_stage_occurrences fs where fs.application_id = a.id and fs.stage = any(${query.stage}::recruitment_stage[]))` : this.sql``}
+        ${query.city.length ? this.sql`and a.city = any(${query.city})` : this.sql``}
+        ${query.appliedFrom ? this.sql`and a.applied_date >= ${query.appliedFrom}::date` : this.sql``}
+        ${query.appliedTo ? this.sql`and a.applied_date <= ${query.appliedTo}::date` : this.sql``}
+        ${cursor ? this.sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)` : this.sql``}
+      group by a.id
+      order by ${this.sql(sortColumn)} ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}, a.id ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}
+      limit ${query.limit + 1}
+    `;
+    const items = rows.slice(0, query.limit).map(mapSummary);
+    const last = rows[query.limit - 1];
+    return {
+      items,
+      nextCursor:
+        rows.length > query.limit && last
+          ? encodeCursor({
+              value: String(
+                last[
+                  sortColumn.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+                ],
+              ),
+              id: String(last.id),
+            })
+          : null,
+    };
+  }
+}

@@ -8,6 +8,13 @@ node_modules/
 dist/
 build/
 coverage/
+.next/
+.turbo/
+tsconfig.tsbuildinfo
+.pnpm-store/
+test-results/
+playwright-report/
+.lighthouseci/
 
 # Python
 __pycache__/
@@ -28,3 +35,7 @@ Thumbs.db
 *.swo
 tmp/
 temp/
+
+# Supabase local state
+.supabase/
+supabase/.branches/

@@ -1,0 +1,11 @@
+begin;
+select plan(7);
+select lives_ok($$select public.create_application('{"companyName":"测试公司","positionName":"工程师","appliedDate":"2026-08-01"}'::jsonb)$$,'create is atomic');
+select is((select count(*) from public.application_events where type='created'),1::bigint,'created event recorded');
+select lives_ok($$select public.add_stage_occurrence((select id from applications limit 1),'screening','2026-08-05')$$,'stage write is atomic');
+select is((select version from applications limit 1),2,'stage increments version');
+select is((select latest_date from applications limit 1),'2026-08-05'::date,'stage updates latest date');
+select throws_ok(format($sql$select public.update_application(%L,1,'2026-08-06','{"companyName":"冲突","positionName":"工程师","appliedDate":"2026-08-01"}'::jsonb)$sql$,(select id from applications limit 1)),'40001','application_version_conflict','stale version conflicts');
+select is((select count(*) from application_events where type='stage_added'),1::bigint,'stage event recorded');
+select * from finish();
+rollback;
