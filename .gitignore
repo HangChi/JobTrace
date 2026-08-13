@@ -12,6 +12,7 @@ coverage/
 .turbo/
 tsconfig.tsbuildinfo
 .pnpm-store/
+.uv-cache/
 test-results/
 playwright-report/
 .lighthouseci/
