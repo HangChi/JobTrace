@@ -1,0 +1,327 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Web Boundary
+  version: 1.0.0
+  description: >-
+    Next.js modular-monolith HTTP boundary. Server Actions used by same-origin forms
+    must honor the same input and error schemas described here.
+servers:
+  - url: /api
+paths:
+  /applications:
+    get:
+      operationId: listApplications
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: status, in: query, schema: { type: array, items: { $ref: '#/components/schemas/ApplicationStatus' } }, explode: true }
+        - { name: stage, in: query, schema: { type: array, items: { $ref: '#/components/schemas/RecruitmentStage' } }, explode: true }
+        - { name: city, in: query, schema: { type: array, items: { type: string } }, explode: true }
+        - { name: appliedFrom, in: query, schema: { type: string, format: date } }
+        - { name: appliedTo, in: query, schema: { type: string, format: date } }
+        - { name: sort, in: query, schema: { type: string, enum: [company, position, appliedDate, latestDate], default: latestDate } }
+        - { name: direction, in: query, schema: { type: string, enum: [asc, desc], default: desc } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: Stable, cursor-paginated result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationPage' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+    post:
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateApplication' }
+      responses:
+        '201':
+          description: Created application
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationDetail' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /applications/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getApplication
+      responses:
+        '200':
+          description: Application with stages and history
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateApplication' }
+      responses:
+        '200':
+          description: Updated application
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationDetail' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      operationId: deleteApplication
+      responses:
+        '204': { description: Deleted after explicit UI confirmation }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      responses:
+        '200':
+          description: Current aggregate statistics and follow-up items
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total, active, rejected, offers, addedThisWeek, stageDistribution, followUps]
+                properties:
+                  total: { type: integer, minimum: 0 }
+                  active: { type: integer, minimum: 0 }
+                  rejected: { type: integer, minimum: 0 }
+                  offers: { type: integer, minimum: 0 }
+                  addedThisWeek: { type: integer, minimum: 0 }
+                  stageDistribution:
+                    type: object
+                    additionalProperties: { type: integer, minimum: 0 }
+                  followUps:
+                    type: array
+                    items: { $ref: '#/components/schemas/ApplicationSummary' }
+  /imports/preview:
+    post:
+      operationId: previewImport
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: CSV or XLSX, max 5 MB and 10,000 data rows }
+      responses:
+        '201':
+          description: Persisted preview valid for 24 hours
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ImportPreview' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '413':
+          description: File or row count exceeds limit
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '415':
+          description: Unsupported file format
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+  /imports/{id}/confirm:
+    post:
+      operationId: confirmImport
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decisions]
+              properties:
+                decisions:
+                  type: array
+                  maxItems: 10000
+                  items:
+                    type: object
+                    required: [rowNumber, action]
+                    properties:
+                      rowNumber: { type: integer, minimum: 1 }
+                      action: { type: string, enum: [import, skip] }
+      responses:
+        '200':
+          description: Per-row partial-success result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ImportResult' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /exports/applications:
+    get:
+      operationId: exportApplications
+      parameters:
+        - { name: scope, in: query, schema: { type: string, enum: [all, filtered], default: filtered } }
+        - { name: format, in: query, schema: { type: string, enum: [xlsx, csv], default: xlsx } }
+        - { name: q, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: array, items: { $ref: '#/components/schemas/ApplicationStatus' } }, explode: true }
+        - { name: stage, in: query, schema: { type: array, items: { $ref: '#/components/schemas/RecruitmentStage' } }, explode: true }
+        - { name: city, in: query, schema: { type: array, items: { type: string } }, explode: true }
+        - { name: appliedFrom, in: query, schema: { type: string, format: date } }
+        - { name: appliedTo, in: query, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Attachment containing all selected business fields and readable labels
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: { schema: { type: string, format: binary } }
+            text/csv: { schema: { type: string } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404':
+          description: No records in the selected scope
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+components:
+  schemas:
+    ApplicationStatus:
+      type: string
+      enum: [planned, active, rejected, offer, accepted, withdrawn, no_response]
+    RecruitmentStage:
+      type: string
+      enum: [screening, assessment, written_test, interview_1, interview_2, interview_3, hr_interview, final_interview]
+    CreateApplication:
+      type: object
+      additionalProperties: false
+      required: [companyName, positionName, appliedDate]
+      properties:
+        companyName: { type: string, minLength: 1, maxLength: 200 }
+        positionName: { type: string, minLength: 1, maxLength: 200 }
+        city: { type: [string, 'null'], maxLength: 100 }
+        jobUrl: { type: [string, 'null'], format: uri, maxLength: 2048 }
+        appliedDate: { type: string, format: date }
+        status: { $ref: '#/components/schemas/ApplicationStatus' }
+        notes: { type: [string, 'null'], maxLength: 10000 }
+        stages:
+          type: array
+          items: { $ref: '#/components/schemas/StageInput' }
+    UpdateApplication:
+      allOf:
+        - { $ref: '#/components/schemas/CreateApplication' }
+        - type: object
+          required: [version, changeDate]
+          properties:
+            version: { type: integer, minimum: 1 }
+            changeDate: { type: string, format: date }
+    StageInput:
+      type: object
+      required: [stage, occurredOn]
+      properties:
+        stage: { $ref: '#/components/schemas/RecruitmentStage' }
+        occurredOn: { type: string, format: date }
+    ApplicationSummary:
+      type: object
+      required: [id, companyName, positionName, appliedDate, status, latestDate, stages, version]
+      properties:
+        id: { type: string, format: uuid }
+        companyName: { type: string }
+        positionName: { type: string }
+        city: { type: [string, 'null'] }
+        jobUrl: { type: [string, 'null'], format: uri }
+        appliedDate: { type: string, format: date }
+        status: { $ref: '#/components/schemas/ApplicationStatus' }
+        latestDate: { type: string, format: date }
+        stages: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/RecruitmentStage' } }
+        needsFollowUp: { type: boolean }
+        followUpDays: { type: integer, minimum: 0 }
+        version: { type: integer, minimum: 1 }
+    ApplicationDetail:
+      allOf:
+        - { $ref: '#/components/schemas/ApplicationSummary' }
+        - type: object
+          required: [notes, stageOccurrences, events, createdAt, updatedAt]
+          properties:
+            notes: { type: [string, 'null'] }
+            stageOccurrences: { type: array, items: { $ref: '#/components/schemas/StageOccurrence' } }
+            events: { type: array, items: { $ref: '#/components/schemas/ApplicationEvent' } }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    StageOccurrence:
+      allOf:
+        - { $ref: '#/components/schemas/StageInput' }
+        - type: object
+          required: [id]
+          properties: { id: { type: string, format: uuid } }
+    ApplicationEvent:
+      type: object
+      required: [id, type, occurredOn, after, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [created, details_changed, status_changed, stage_added, stage_removed, imported] }
+        occurredOn: { type: string, format: date }
+        before: { type: [object, 'null'] }
+        after: { type: object }
+        createdAt: { type: string, format: date-time }
+    ApplicationPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ApplicationSummary' } }
+        nextCursor: { type: [string, 'null'] }
+    ImportPreview:
+      type: object
+      required: [id, expiresAt, totalRows, validRows, invalidRows, duplicateRows, columns, rows]
+      properties:
+        id: { type: string, format: uuid }
+        expiresAt: { type: string, format: date-time }
+        totalRows: { type: integer, minimum: 0 }
+        validRows: { type: integer, minimum: 0 }
+        invalidRows: { type: integer, minimum: 0 }
+        duplicateRows: { type: integer, minimum: 0 }
+        columns: { type: object, additionalProperties: { type: string } }
+        rows:
+          type: array
+          items:
+            type: object
+            required: [rowNumber, data, errors, duplicateApplicationIds]
+            properties:
+              rowNumber: { type: integer }
+              data: { type: [object, 'null'] }
+              errors: { type: array, items: { $ref: '#/components/schemas/FieldError' } }
+              duplicateApplicationIds: { type: array, items: { type: string, format: uuid } }
+    ImportResult:
+      type: object
+      required: [created, skipped, failed, rows]
+      properties:
+        created: { type: integer, minimum: 0 }
+        skipped: { type: integer, minimum: 0 }
+        failed: { type: integer, minimum: 0 }
+        rows:
+          type: array
+          items:
+            type: object
+            required: [rowNumber, result]
+            properties:
+              rowNumber: { type: integer }
+              result: { type: string, enum: [created, skipped, failed] }
+              applicationId: { type: [string, 'null'], format: uuid }
+              error: { anyOf: [{ $ref: '#/components/schemas/Problem' }, { type: 'null' }] }
+    FieldError:
+      type: object
+      required: [field, code, message]
+      properties:
+        field: { type: string }
+        code: { type: string }
+        message: { type: string }
+    Problem:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string }
+        fieldErrors: { type: array, items: { $ref: '#/components/schemas/FieldError' } }
+  responses:
+    ValidationError:
+      description: Invalid request
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    NotFound:
+      description: Resource not found
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Conflict:
+      description: Stale version, expired batch, or incompatible state
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
