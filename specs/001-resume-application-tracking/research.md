@@ -2,7 +2,7 @@
 
 ## 1. Next.js 应用边界
 
-**Decision**: 使用 Next.js 16.x App Router。只读首屏采用 Server Components；同源表单变更采用 Server Actions；需要文件上传/下载或稳定 HTTP 契约的能力采用 Route Handlers。三类入口均调用相同模块应用服务。
+**Decision**: 使用 Next.js 16.x App Router。只读首屏采用 Server Components；同源表单变更采用 Server Actions；需要文件上传/下载或稳定 HTTP 契约的能力采用 Route Handlers。三类入口均调用相同模块应用服务。本节原始“单用户”前提已由第 10–12 节的账号范围变更取代。
 
 **Rationale**: App Router 是 Next.js 当前主路由模型，支持 Server Components、Suspense 和 Server Functions；Route Handlers 覆盖标准 HTTP 方法并适合文件与外部契约。入口与业务逻辑分离可避免 Server Action/HTTP 处理器成为领域层。
 
@@ -33,7 +33,7 @@
 **Alternatives considered**:
 
 - 浏览器直接使用 anon key + 宽松 RLS：无身份时无法安全区分访问者，拒绝。
-- 立即引入 Supabase Auth：与首期“无需账号”冲突。
+- Supabase Auth（原结论）：在最初“无需账号”范围下被排除；该前提现已由 2026-08-13 账号范围变更废止，当前决定见第 10 节。
 - ORM + 直连数据库：事务表达方便，但增加另一套 schema/type 抽象；当前 SQL 和生成类型足够。
 
 ## 4. 数据建模与历史
@@ -106,6 +106,49 @@
 - 始终使用 latest：不可重现且增加升级风险。
 
 ## Primary References
+
+## 10. 认证、会话与角色授权（2026-08-13 范围变更）
+
+**Decision**: 使用 Better Auth 邮箱密码认证，用户、密码哈希、数据库 Session 与验证令牌全部保存在自有 PostgreSQL；认证表单由 Server Actions 处理。Next.js 16 的 `src/proxy.ts` 只做乐观路由分流，最终授权在 Server Action、Route Handler 和 DAL 中执行。
+
+**Rationale**: 用户要求使用自己的服务器数据库。Better Auth 接管密码哈希、Session Cookie、速率限制与认证端点，避免自研凭据算法，同时不依赖外部身份平台。
+
+**Alternatives considered**:
+
+- 自研 users/password_hash/session 表：安全维护面过大，需自行处理哈希升级、令牌轮换、恢复和泄露响应。
+- Auth.js/独立身份 SaaS：能力可行，但在当前 Supabase 栈上增加第二套身份与数据映射。
+- 只在 Proxy 检查角色：容易被直接调用 Server Action/API 绕过，不能作为最终授权。
+
+## 11. 角色模型与管理员引导
+
+**Decision**: `profiles.role` 仅允许 `user|admin`。公开注册触发器固定写入 `user`；首个管理员通过受控引导脚本/迁移配置创建，后续角色变更仅限管理员服务端用例。管理员账号不设独立登录表单，统一登录后按服务端读取的可信角色分流。
+
+**Rationale**: 统一入口减少重复体验；服务端确定角色避免客户端篡改。禁止公开选择管理员角色是最小权限原则的直接要求。
+
+**Alternatives considered**:
+
+- 注册页提供“管理员”选项：构成直接提权漏洞。
+- 仅把角色存在 JWT user metadata：用户可写 metadata 或令牌角色陈旧；数据库 profile 是权威来源，变更后刷新/撤销会话。
+- 为管理员维护独立凭据库：重复身份生命周期且增加运维风险。
+
+## 12. 数据归属与 RLS
+
+**Decision**: `applications` 和 `import_batches` 增加非空 `owner_id`；阶段、事件和导入行通过父表继承归属。普通用户所有查询和写入均绑定 `auth.uid()`，RLS 与应用 DAL 双重校验。管理员全局访问只能通过 `requireAdmin()` 后的受控服务端用例。
+
+**Rationale**: owner 放在聚合根避免子表重复且可通过 FK/EXISTS 策略一致授权。双层校验降低 service-role 误用和接口漏检导致的跨租户风险。
+
+**Alternatives considered**:
+
+- 仅靠 UI 隐藏：直接请求可绕过。
+- 所有子表复制 owner_id：查询方便但产生归属漂移风险。
+- 迁移时把旧数据给首个注册用户：注册顺序不可信，可能造成数据泄露。
+
+## Authentication References
+
+- Next.js 16 本地文档：`node_modules/next/dist/docs/01-app/02-guides/authentication.md`
+- Next.js 16 Cookie API：`node_modules/next/dist/docs/01-app/03-api-reference/04-functions/cookies.md`
+- Next.js 16 Proxy：`node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`
+- Supabase SSR、密码认证、RLS 与 RBAC 官方文档（实现时复核具体包版本 API）
 
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)

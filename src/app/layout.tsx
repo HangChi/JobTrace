@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getActor } from "@/modules/identity-access";
+import { AccountMenu } from "@/modules/identity-access/ui/account-menu";
 
 export const metadata: Metadata = {
   title: "JobTrace 职迹",
@@ -11,9 +13,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const actor = await getActor();
   return (
     <html lang="zh-CN">
       <body>
@@ -21,6 +24,7 @@ export default function RootLayout({
           跳到主要内容
         </a>
         <main className="page-shell" id="main-content">
+          {actor && <AccountMenu actor={actor} />}
           {children}
         </main>
       </body>

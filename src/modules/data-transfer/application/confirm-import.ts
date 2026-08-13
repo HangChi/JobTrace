@@ -6,18 +6,20 @@ import type {
   ImportResult,
   ImportResultRow,
 } from "./contracts";
+import { requireUser } from "@/modules/identity-access";
 
 export async function confirmImport(
   id: string,
   decisions: ImportDecision[],
 ): Promise<ImportResult> {
+  const actor = await requireUser();
   const repository = new PostgresImportRepository();
   await repository.cleanupExpired();
-  const { rows } = await repository.getBatch(id);
+  const { rows } = await repository.getBatch(actor.id, id);
   const decisionMap = new Map(
     decisions.map((item) => [item.rowNumber, item.action]),
   );
-  await repository.markProcessing(id);
+  await repository.markProcessing(actor.id, id);
   const results: ImportResultRow[] = [];
   for (const row of rows) {
     const rowNumber = Number(row.rowNumber);
@@ -31,7 +33,7 @@ export async function confirmImport(
         error: null,
       };
       results.push(result);
-      await repository.recordResult(id, result, "skip");
+      await repository.recordResult(actor.id, id, result, "skip");
       continue;
     }
     try {
@@ -47,7 +49,7 @@ export async function confirmImport(
         error: null,
       };
       results.push(result);
-      await repository.recordResult(id, result, "import");
+      await repository.recordResult(actor.id, id, result, "import");
     } catch (error) {
       const problem =
         error instanceof Problem
@@ -64,10 +66,10 @@ export async function confirmImport(
         },
       };
       results.push(result);
-      await repository.recordResult(id, result, "import");
+      await repository.recordResult(actor.id, id, result, "import");
     }
   }
-  await repository.complete(id);
+  await repository.complete(actor.id, id);
   return {
     created: results.filter((row) => row.result === "created").length,
     skipped: results.filter((row) => row.result === "skipped").length,

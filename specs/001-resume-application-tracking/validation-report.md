@@ -1,5 +1,25 @@
 # 实现验证报告
 
+## 自有 PostgreSQL 认证验证（2026-08-13）
+
+- PASS：认证已从 Supabase 改为 Better Auth + 用户自有 PostgreSQL；远程目标为 `115.159.112.148:5432/jobtrace`。
+- PASS：远程迁移 001–005 保持不变，006–009 成功应用；空临时数据库可完整重放全部迁移与 seed。
+- PASS：真实注册和登录均返回 HTTP 200，Session Cookie 已写入；新账号数据库角色为 `user` 且 `disabled=false`。
+- PASS：TypeScript、ESLint、Next.js 生产构建通过；13 个 Vitest 文件、25 项测试全部通过。
+- PASS：公开注册不能提交角色，管理员角色只能通过首个管理员引导脚本或已认证管理员操作授予；禁用账号会撤销 Session，数据库保护最后一个有效管理员。
+
+## 认证范围扩展验证（2026-08-13）
+
+- **PASS**：Next.js 16 路由类型生成和生产构建，覆盖 `/login`、`/register`、`/reset-password`、`/admin`、认证/管理 API 与 `src/proxy.ts`。
+- **PASS**：ESLint 模块边界；service-role 客户端只允许 identity-access 基础设施适配器导入。
+- **PASS**：TypeScript `tsc --noEmit`。
+- **PASS**：13 个 Vitest 文件、25 个单元/组件测试，包含认证校验、开放重定向拒绝、密码管理器语义和管理员状态展示。
+- **PASS**：投递 CRUD/列表、统计、导入批次/重复判断和导出均已加入 owner 谓词。
+- **BLOCKED**：`.env.local` 中 PostgreSQL 主机可以解析，但从当前环境访问 5432/TCP 失败；因此尚未执行新增迁移、数据库类型生成、数据库集成、E2E 和性能门禁。
+- **BLOCKED**：`.env.local` 当前只有 `DATABASE_URL`；真实注册/登录/RBAC E2E 还需要 Supabase URL、publishable key、service-role key 和测试身份。
+
+在 tasks.md 中剩余认证数据库、安全 E2E 和发布任务完成前，不得作为公开多用户版本发布。
+
 **日期**：2026-08-13
 
 **环境**：Windows，Node.js 24.19.0，PostgreSQL 17，Chromium/Playwright 1.62

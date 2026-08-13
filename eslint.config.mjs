@@ -49,4 +49,25 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: [
+      "src/shared/database/supabase.admin.server.ts",
+      "src/modules/identity-access/infrastructure/**",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/shared/database/supabase.admin.server"],
+              message:
+                "Service-role 客户端仅允许 identity-access 基础设施使用。",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);

@@ -27,6 +27,13 @@
 
 ## 1. Configure
 
+认证与迁移新增配置（实际变量名以实现阶段 `.env.example` 为准）：
+
+- Supabase URL 与 publishable key（SSR 用户会话）；service-role key 仅限受控服务端管理用例。
+- `SITE_URL` 与允许的认证回调 URL；生产启用邮箱确认和自定义 SMTP。
+- 首次升级时显式提供 `MIGRATION_OWNER_ID`；不得使用“第一个注册用户”作为隐式 owner。
+- 生产启用登录/注册速率限制，并配置 CAPTCHA 接入点。
+
 ```bash
 cp .env.example .env.local
 npm install
@@ -68,6 +75,22 @@ npm run dev
 打开终端输出的本地地址。首屏应显示统计区、跟进区和投递列表的空状态，并提供“新增投递”和“导入数据”入口。键盘 Tab 顺序合理且所有交互控件有可见焦点。
 
 ## 4. Validate Primary Journeys
+
+### Journey 0 — Authentication and role routing
+
+1. 注册 `user-a@example.test`，确认公开表单无法提交/决定 `admin` 角色。
+2. 完成邮箱确认（本地使用 Mailpit），以普通用户登录；预期进入 `/`。
+3. 以预置管理员登录；预期进入 `/admin`，可分页查看用户但不能禁用最后一个管理员。
+4. 普通用户直接访问 `/admin`：页面不得显示管理数据；管理 API 返回 `403`。
+5. 未登录访问 `/applications/new` 与 `/api/applications`：页面跳转登录，API 返回 `401`。
+6. 退出后重试受保护资源；预期会话失效。执行密码恢复并确认错误文案不泄露邮箱是否存在。
+
+### Journey 0B — Tenant isolation
+
+1. 用户 A、B 分别创建两组唯一公司名记录，并各自执行列表、详情、统计、导入与导出。
+2. 用户 A 使用用户 B 的 application/batch UUID 请求 GET/PATCH/DELETE/confirm。
+3. 预期所有跨 owner 请求返回 `404` 或统一拒绝，不泄露资源存在性；A/B 统计和导出均无混入。
+4. 管理员只通过 `/admin` 专用只读用例查看全局摘要；普通业务首页仍仅展示管理员本人的数据。
 
 ### Journey A — Create and maintain an application
 
@@ -130,6 +153,10 @@ npm run test:web-vitals
 
 ## 7. Release and Rollback Check
 
+- 在旧数据副本上演练 owner 扩展→回填→非空/RLS 的迁移；缺少/无效 `MIGRATION_OWNER_ID` 时必须安全失败。
+- 验证回滚旧应用构建不会删除 auth.users、profiles 或 owner 列；禁止回滚到可绕过认证并公开访问业务数据的版本。
+- 验证角色变更、禁用和启用有管理员审计记录，且日志不含密码、token 或 Cookie。
+
 ```bash
 npx supabase db reset
 npm run build
@@ -139,6 +166,10 @@ npm run start
 预期：全新数据库可重建、生产构建成功、健康检查通过。部署数据库迁移前审查 SQL 并保留数据库备份；应用部署保留上一构建以快速回滚。对破坏性 schema 变化采用“扩展 → 数据迁移 → 收缩”，不得让应用回滚依赖已被删除的列。
 
 ## Traceability
+
+- 注册/登录/角色分流：FR-031–FR-034，SC-009–SC-010。
+- 管理后台与账号安全：FR-035–FR-037，SC-010。
+- owner/RLS 数据隔离：FR-026、FR-033，SC-011；详见 [data-model.md](./data-model.md)。
 
 - 业务范围与验收：[spec.md](./spec.md)
 - 架构和质量门禁：[plan.md](./plan.md)

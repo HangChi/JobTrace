@@ -3,12 +3,14 @@ import { getApplication, STATUS_LABELS } from "@/modules/applications";
 import { ApplicationEditor } from "@/modules/applications/ui/application-editor";
 import { ApplicationHistory } from "@/modules/applications/ui/application-history";
 import { DeleteApplicationDialog } from "@/modules/applications/ui/delete-application-dialog";
+import { requirePageUser } from "@/modules/identity-access";
 
 export default async function ApplicationPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requirePageUser();
   let application;
   try {
     application = await getApplication((await params).id);

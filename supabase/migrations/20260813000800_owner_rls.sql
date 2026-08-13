@@ -1,0 +1,3 @@
+-- The application connects to self-hosted PostgreSQL with a single service role.
+-- Authorization is enforced in the identity DAL and every business query carries
+-- an explicit owner_id predicate. No Supabase JWT/RLS functions are required.

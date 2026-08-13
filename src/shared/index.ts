@@ -1,1 +1,5 @@
-export { getServerEnv } from "./config/env";
+export {
+  getDatabaseEnv,
+  getAuthEnv,
+  hasAuthConfiguration,
+} from "./config/env";

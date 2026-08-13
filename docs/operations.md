@@ -7,7 +7,14 @@
 3. 在 `.env.local` 配置 `DATABASE_URL`，执行 `pnpm install`、`pnpm db`。
 4. 执行 `pnpm dev`，访问 `http://127.0.0.1:3000`。
 
-`DATABASE_URL` 只能存在于服务端环境变量中。首期没有账号体系，只允许部署到个人私有环境，不应公开为多用户服务。
+`DATABASE_URL` 与 `BETTER_AUTH_SECRET` 只能存在于服务端环境变量中。所有最终授权由服务端 actor 校验和数据库查询中的 `owner_id` 条件执行。
+
+## 认证运维
+
+- 首个管理员：先公开注册，再执行 `pnpm admin:bootstrap -- <邮箱>`；公开注册永远不接收角色。
+- 旧数据：显式选择已注册用户 ID，人工确认后回填 `applications.owner_id` 与 `import_batches.owner_id`；不要按注册顺序推断 owner。
+- 账号事件：管理员可在 `/admin` 禁用账号并撤销全局会话；数据库阻止禁用或降级最后一个有效管理员。
+- 回滚：仅回滚应用代码，并确认旧构建无法绕过登录；保留 users、sessions、owner 列及审计事件。
 
 ## 发布门禁
 

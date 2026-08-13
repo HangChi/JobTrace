@@ -1,4 +1,4 @@
-﻿# Tasks: 职迹简历投递管理
+# Tasks: 职迹简历投递管理
 
 **Input**: Design documents from `/specs/001-resume-application-tracking/`
 
@@ -7,6 +7,8 @@
 **Tests**: 项目宪章要求测试作为发布门禁。每个故事的测试任务必须先完成并确认失败，再开始对应实现。
 
 **Organization**: 任务按用户故事分组；每个故事完成后都能独立验收。严格遵守 `app → application → domain` 依赖方向，模块间仅通过 `index.ts` 公开契约交互。
+
+**Scope Extension Baseline**: T001–T078 是已完成的原单用户系统基线。2026-08-13 新增的注册、登录、管理员/普通用户分流与 owner 隔离从 T079 开始；保留已完成标记以避免重做历史工作。
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -183,6 +185,146 @@
 
 ---
 
+## Phase 8: Authentication Setup（账号范围扩展准备）
+
+**Purpose**: 在不破坏已完成业务能力的前提下，引入 Supabase Auth SSR 依赖、配置和 identity-access 模块边界。
+
+- [X] T079 安装并锁定 Better Auth 与 PostgreSQL 驱动到 package.json、pnpm-lock.yaml
+- [X] T080 [P] 扩展 DATABASE_URL、BETTER_AUTH_SECRET、BETTER_AUTH_URL 的服务端环境校验到 .env.example、src/shared/config/env.ts
+- [X] T081 [P] 配置本地邮箱密码注册、确认回调、允许跳转 URL 和 Mailpit 到 supabase/config.toml
+- [X] T082 [P] 建立 identity-access 模块公开边界和目录到 src/modules/identity-access/index.ts、src/modules/identity-access/application/.gitkeep、src/modules/identity-access/infrastructure/.gitkeep、src/modules/identity-access/ui/.gitkeep
+- [ ] T083 [P] 更新依赖边界规则，禁止客户端导入 service-role 管理适配器到 eslint.config.mjs、tests/unit/shared/module-boundaries.test.ts
+
+**Checkpoint**: 认证依赖和配置可被构建/测试环境加载，尚不改变现有用户访问行为。
+
+---
+
+## Phase 9: Authentication Foundation（阻塞性账号与归属基础）
+
+**Purpose**: 建立 profile、角色、owner、审计、会话和纵深授权基础；完成前不得开放注册入口。
+
+**⚠️ CRITICAL**: T084–T096 完成并验证前，公开部署不得启用多用户注册。
+
+- [ ] T084 [P] 为 profile 固定普通角色、最后管理员保护、owner FK/NOT NULL、跨用户 RLS 和审计不可篡改编写失败优先数据库测试到 supabase/tests/004_identity_access_test.sql
+- [ ] T085 [P] 为缺失/无效 MIGRATION_OWNER_ID、孤儿数据及成功回填编写失败优先迁移演练测试到 scripts/test_owner_migration.py
+- [X] T086 创建 account_role、profiles、admin_audit_events、注册 profile 触发器和最后管理员保护函数到 supabase/migrations/20260813000600_identity_access.sql
+- [X] T087 添加 applications/import_batches 的可空 owner_id、显式 owner 回填、FK/NOT NULL/索引及失败保护到 supabase/migrations/20260813000700_owner_backfill.sql
+- [X] T088 添加 applications、阶段、事件、导入批次/行的 authenticated owner RLS 与管理员授权函数到 supabase/migrations/20260813000800_owner_rls.sql
+- [X] T089 改造数据库 RPC 以从 `auth.uid()`/可信 actor 写入并校验 owner，禁止 payload 指定 owner 到 supabase/migrations/20260813000900_owner_aware_functions.sql
+- [ ] T090 重新生成包含 profile、role、owner 与审计表的数据库类型并验证漂移到 src/generated/database.types.ts、package.json
+- [X] T091 [P] 实现 Better Auth PostgreSQL、Server Component/Action Cookie 会话适配到 src/modules/identity-access/infrastructure/better-auth.server.ts
+- [X] T092 [P] 定义 Actor、AccountRole、Profile、会话错误与注册/登录 schema 到 src/modules/identity-access/application/contracts.ts、src/modules/identity-access/application/auth-schema.ts
+- [X] T093 实现 `getActor`、`requireUser`、`requireAdmin`、禁用状态校验及可信 returnTo 白名单到 src/modules/identity-access/application/authorization.ts
+- [X] T094 实现 profile/角色/账号状态仓储和管理员审计事务到 src/modules/identity-access/infrastructure/postgres-profile-repository.ts、src/modules/identity-access/infrastructure/supabase-admin-repository.ts
+- [X] T095 从 identity-access 公开导出最小授权接口，并禁止其他模块读取内部 profile 表到 src/modules/identity-access/index.ts
+- [X] T096 实现 Next.js 16 Cookie 刷新与乐观页面分流到 src/proxy.ts，并确保最终授权仍由 T093 的 DAL 检查承担
+
+**Checkpoint**: owner 迁移可安全重放，普通用户数据库策略严格隔离，会话和角色授权可供所有故事调用。
+
+---
+
+## Phase 10: User Story 0 — 注册、登录与角色分流（Priority: P0）🎯 Authentication MVP
+
+**Goal**: 访客可注册普通账号；普通用户登录进入业务首页；管理员登录进入 `/admin`；退出、确认、恢复和越权拒绝均可用。
+
+**Independent Test**: 使用访客、普通用户、管理员和禁用用户分别访问认证页、普通页面、`/admin` 和认证/管理 API，验证角色分流、401/403、最后管理员保护及退出后失效。
+
+### Tests for User Story 0（先写并确认失败）
+
+- [X] T097 [P] [US0] 为注册/登录校验、returnTo 白名单、角色分流和统一凭据错误编写单元测试到 tests/unit/identity-access/auth-rules.test.ts
+- [X] T098 [P] [US0] 为 `/api/auth/register|login|logout` 与 `/api/admin/users` 的 202/401/403/409/429 契约编写测试到 tests/contract/identity-access.contract.test.ts
+- [ ] T099 [P] [US0] 为 profile 自动创建、公开注册固定 user、角色/禁用审计和最后管理员保护编写集成测试到 tests/integration/identity-access/account-lifecycle.test.ts
+- [X] T100 [P] [US0] 为登录、注册和账号管理表单的 pending/error/focus/密码管理器语义编写组件测试到 tests/component/identity-access/auth-forms.test.tsx、tests/component/identity-access/user-admin-table.test.tsx
+- [ ] T101 [P] [US0] 为邮箱确认、普通/管理员登录分流、退出、恢复、禁用用户和越权访问编写 E2E 到 tests/e2e/authentication-and-rbac.spec.ts
+
+### Implementation for User Story 0
+
+- [X] T102 [US0] 实现注册、登录、退出、确认交换、密码恢复和会话撤销用例到 src/modules/identity-access/application/auth-service.ts
+- [X] T103 [US0] 实现分页用户查询、角色变更、启用/禁用及最后管理员冲突映射到 src/modules/identity-access/application/admin-user-service.ts
+- [X] T104 [P] [US0] 实现注册、登录、退出与密码恢复 Server Actions 到 src/app/(auth)/actions.ts
+- [ ] T105 [P] [US0] 实现 OpenAPI 认证 Route Handlers 和统一限流/CAPTCHA 接入点到 src/app/api/auth/register/route.ts、src/app/api/auth/login/route.ts、src/app/api/auth/logout/route.ts、src/modules/identity-access/infrastructure/auth-rate-limit.ts
+- [ ] T106 [P] [US0] 实现 PKCE 邮箱确认与密码重置回调到 src/app/auth/confirm/route.ts、src/app/auth/reset-password/route.ts
+- [X] T107 [P] [US0] 实现可访问的登录、注册、忘记/重置密码表单与反馈状态到 src/modules/identity-access/ui/login-form.tsx、src/modules/identity-access/ui/register-form.tsx、src/modules/identity-access/ui/password-reset-form.tsx
+- [X] T108 [US0] 实现公开认证页面及已登录角色重定向到 src/app/(auth)/login/page.tsx、src/app/(auth)/register/page.tsx、src/app/(auth)/forgot-password/page.tsx、src/app/(auth)/reset-password/page.tsx
+- [ ] T109 [P] [US0] 实现管理员用户列表、角色/状态操作、具名确认和全局摘要组件到 src/modules/identity-access/ui/user-admin-table.tsx、src/modules/identity-access/ui/admin-summary.tsx
+- [X] T110 [US0] 实现受保护的管理员页面与用户管理 Route Handlers 到 src/app/admin/page.tsx、src/app/api/admin/users/route.ts、src/app/api/admin/users/[id]/route.ts
+- [X] T111 [US0] 在全局 shell 增加角色感知导航、当前用户信息与退出入口到 src/app/layout.tsx、src/modules/identity-access/ui/account-menu.tsx
+- [ ] T112 [US0] 运行 US0 单元、契约、集成、组件、E2E 与 axe 测试并记录独立验收到 specs/001-resume-application-tracking/quickstart.md
+
+**Checkpoint**: 认证 MVP 可独立发布；角色由服务端可信数据决定，普通用户无法进入管理后台。
+
+---
+
+## Phase 11: User Story 1 Owner Extension — 投递生命周期隔离（Priority: P1）
+
+**Goal**: 所有投递详情和写操作绑定当前 actor，跨用户 UUID 不可读取或修改。
+
+**Independent Test**: 用户 A 创建投递后，用户 B 对其详情、更新、阶段和删除请求均得到不泄露存在性的拒绝；A 的完整生命周期保持可用。
+
+- [ ] T113 [P] [US1] 为双用户投递 CRUD、阶段 RPC 和跨 owner UUID 拒绝编写失败优先集成测试到 tests/integration/applications/application-owner-isolation.test.ts
+- [ ] T114 [P] [US1] 为未登录 401、跨 owner 404 和管理员普通首页仍按本人 owner 的契约行为补充测试到 tests/contract/applications-auth.contract.test.ts
+- [X] T115 [US1] 将 Actor/owner 条件贯穿投递端口、服务和 PostgreSQL 仓储到 src/modules/applications/application/ports.ts、src/modules/applications/application/application-service.ts、src/modules/applications/infrastructure/postgres-application-repository.ts
+- [X] T116 [US1] 在投递 Server Actions、详情及阶段 Route Handlers 调用 requireUser 并移除无身份数据库路径到 src/app/applications/actions.ts、src/app/api/applications/[id]/route.ts、src/app/api/applications/[id]/stages/route.ts、src/app/api/applications/[id]/stages/[occurrenceId]/route.ts
+
+**Checkpoint**: US1 在多用户环境中独立满足 owner 隔离。
+
+---
+
+## Phase 12: User Story 2 Owner Extension — 列表与搜索隔离（Priority: P1）
+
+**Goal**: 搜索、筛选、排序、分页和详情导航只在当前普通用户的数据集合内运行。
+
+**Independent Test**: 两个用户使用可区分 fixture 执行所有列表组合，结果、游标和数量均不包含另一用户记录。
+
+- [ ] T117 [P] [US2] 为双用户搜索、筛选、排序和跨页游标隔离编写失败优先集成/E2E 测试到 tests/integration/applications/application-list-owner-isolation.test.ts、tests/e2e/application-list-isolation.spec.ts
+- [X] T118 [US2] 将 owner 谓词加入列表端口、查询实现及 API actor 校验到 src/modules/applications/application/list-query.ts、src/modules/applications/infrastructure/postgres-application-repository.ts、src/app/api/applications/route.ts
+- [X] T119 [US2] 保护主列表 Server Component 并按会话 actor 获取数据到 src/app/page.tsx
+
+**Checkpoint**: US2 所有查询和游标都局限于当前 owner。
+
+---
+
+## Phase 13: User Story 3 Owner Extension — 统计与跟进隔离（Priority: P2）
+
+**Goal**: 普通用户只看到自己的统计和提醒；管理员全局摘要仅在专用后台用例中提供。
+
+**Independent Test**: A/B 数据集的普通统计分别准确，管理员普通首页不聚合全局数据，`/admin` 专用摘要才显示全局总量。
+
+- [ ] T120 [P] [US3] 为用户级统计、跟进和管理员专用全局摘要编写失败优先数据库/契约测试到 tests/integration/analytics/analytics-owner-isolation.test.ts、tests/contract/admin-summary.contract.test.ts
+- [ ] T121 [US3] 将 actor/owner 参数加入统计函数、端口、适配器和普通统计 Route Handler 到 supabase/migrations/20260813001000_owner_analytics.sql、src/modules/analytics/application/ports.ts、src/modules/analytics/infrastructure/postgres-analytics.ts、src/app/api/analytics/summary/route.ts
+- [X] T122 [US3] 实现 requireAdmin 保护的全局运营摘要用例与接口到 src/modules/identity-access/application/admin-summary-service.ts、src/app/api/admin/summary/route.ts
+
+**Checkpoint**: US3 普通统计无跨用户混入，管理员全局能力与普通路径明确分离。
+
+---
+
+## Phase 14: User Story 4 Owner Extension — 导入导出隔离（Priority: P2）
+
+**Goal**: 导入批次、重复检测、确认和导出全部绑定当前 owner。
+
+**Independent Test**: 用户 A 无法预览/确认用户 B 的批次，重复候选仅比较本人记录，双方导出文件无交叉数据。
+
+- [ ] T123 [P] [US4] 为跨用户批次访问、owner 内重复检测和导出隔离编写失败优先集成/E2E 测试到 tests/integration/data-transfer/import-export-owner-isolation.test.ts、tests/e2e/data-transfer-isolation.spec.ts
+- [X] T124 [US4] 将 actor/owner 贯穿预检、确认、重复查询和导出应用服务/仓储到 src/modules/data-transfer/application/preview-import.ts、src/modules/data-transfer/application/confirm-import.ts、src/modules/data-transfer/application/export-applications.ts、src/modules/data-transfer/infrastructure/postgres-import-repository.ts
+- [X] T125 [US4] 保护导入预览、确认和导出 Route Handlers 并对跨 owner 资源返回统一拒绝到 src/app/api/imports/preview/route.ts、src/app/api/imports/[id]/confirm/route.ts、src/app/api/exports/applications/route.ts
+
+**Checkpoint**: US4 的批次、重复判断和文件内容全部按 owner 隔离。
+
+---
+
+## Phase 15: Authentication Polish & Release Gates
+
+**Purpose**: 完成安全、性能、可访问性、迁移、文档与整体验证，不扩大产品范围。
+
+- [ ] T126 [P] 对凭据枚举、开放重定向、CSRF、Cookie 属性、速率限制、service-role 泄露和日志 token 泄露编写安全回归测试到 tests/integration/identity-access/auth-security.test.ts、tests/e2e/auth-security.spec.ts
+- [ ] T127 [P] 验证登录/角色分流 p95 ≤1s 及 owner 条件下 10k/用户列表统计预算到 tests/performance/authentication-performance.ts、tests/performance/application_performance.py
+- [ ] T128 [P] 对认证页、账号菜单和管理员表格执行 WCAG 2.2 AA、键盘、焦点、窄桌面检查到 tests/e2e/accessibility.spec.ts
+- [ ] T129 [P] 更新认证配置、SMTP/CAPTCHA、首个管理员引导、owner 迁移、禁用账号与应急回滚说明到 README.md、docs/architecture.md、docs/operations.md
+- [ ] T130 校验 contracts/openapi.yaml、实际认证/管理路由、Problem 响应与生成数据库类型一致到 tests/contract/identity-access.contract.test.ts、specs/001-resume-application-tracking/contracts/openapi.yaml
+- [ ] T131 执行 owner 迁移演练、格式、lint、类型、覆盖率、数据库、契约、E2E、可访问性和性能全门禁并记录证据到 specs/001-resume-application-tracking/validation-report.md
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -194,6 +336,11 @@
 - **Phase 5 US3**: 依赖 Phase 2 的 schema 和 applications 只读契约；可在 US1 核心数据能力完成后与 US2 并行。
 - **Phase 6 US4**: 依赖 Phase 2 的批次表和 US1 的批量创建公开命令；可在 US1 完成后与 US2/US3 并行。
 - **Phase 7 Polish**: 依赖所有拟发布故事完成。
+- **Phase 8 Authentication Setup**: 依赖已完成的 T001–T078 基线，可立即开始账号范围扩展。
+- **Phase 9 Authentication Foundation**: 依赖 Phase 8，完成前阻塞注册开放和所有 owner 改造。
+- **Phase 10 US0**: 依赖 Phase 9，构成认证 MVP。
+- **Phases 11–14 Owner Extensions**: 依赖 US0 的 actor/授权接口；US1 完成后 US2/US3/US4 可并行。
+- **Phase 15 Authentication Polish**: 依赖 US0 与全部拟发布 owner extension 完成。
 
 ### User Story Dependency Graph
 
@@ -202,6 +349,14 @@ Setup → Foundation → US1 (MVP)
                          ├──→ US2 ──┐
                          ├──→ US3 ──┼──→ Polish/Release
                          └──→ US4 ──┘
+```
+
+```text
+Completed Baseline T001–T078 → Auth Setup → Auth Foundation → US0 (Authentication MVP)
+                                                              └──→ US1 owner isolation
+                                                                    ├──→ US2 list isolation ──┐
+                                                                    ├──→ US3 analytics ───────┼──→ Auth Polish/Release
+                                                                    └──→ US4 transfer ────────┘
 ```
 
 ### Within Each User Story
@@ -220,6 +375,10 @@ Setup → Foundation → US1 (MVP)
 - US1 完成公开数据命令/查询契约后，US2、US3、US4 可由不同开发者并行。
 - 每个故事中标有 [P] 的 Route Handler、UI 组件和独立适配器可并行。
 - Polish 中性能、Web Vitals、可访问性、可观测性和文档可并行。
+- 账号扩展中 T080–T083、T084–T085、T091–T092 可按文件并行；迁移必须保持 T086→T087→T088→T089 顺序。
+- US0 测试 T097–T101 可并行，失败确认后认证 API、UI 与管理员组件 T104–T109 可按依赖并行。
+- US1 owner 隔离完成后，US2、US3、US4 的 owner 改造可以由不同执行者并行。
+- Phase 15 中安全、性能、可访问性和文档 T126–T129 可并行。
 
 ## Parallel Examples
 
@@ -252,6 +411,13 @@ T057 规则测试 | T058 契约测试 | T059 文件 fixture | T060 集成测试 
 契约稳定后：T063 文件适配器 | T066 导入 HTTP | T067 导出 HTTP | T068 导入 UI
 ```
 
+### User Story 0
+
+```text
+T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T101 E2E
+服务契约稳定后：T104 Actions | T105 Auth API | T106 回调 | T107 表单 | T109 管理 UI
+```
+
 ## Implementation Strategy
 
 ### MVP First
@@ -269,6 +435,14 @@ T057 规则测试 | T058 契约测试 | T059 文件 fixture | T060 集成测试 
 4. US4：降低迁移成本并提供数据可携带性。
 5. Polish：以宪章门禁完成发布候选验证。
 
+### Authentication Scope Extension MVP
+
+1. 以已完成的 T001–T078 为基线完成 Phase 8。
+2. 完成 Phase 9，安全迁移旧数据并建立 owner/RLS。
+3. 完成 Phase 10 US0，独立验证注册、登录、角色分流和管理后台。
+4. 完成 Phase 11，确保核心投递生命周期无跨用户访问后才允许公开多用户部署。
+5. 按 US2→US3→US4 增量恢复列表、统计和导入导出能力，最后执行 Phase 15。
+
 ### Definition of Done per Task Group
 
 - 代码已格式化、lint 与类型检查通过。
@@ -282,4 +456,4 @@ T057 规则测试 | T058 契约测试 | T059 文件 fixture | T060 集成测试 
 - `[P]` 仅表示文件和依赖允许并行，不表示可跳过前置阶段。
 - 数据库迁移文件名为规划基线；若实际生成时间戳不同，保持顺序和语义不变。
 - 每个逻辑任务或紧密任务组完成后提交，避免跨故事混合提交。
-- 不在本清单中加入账号、多人协作、邮件解析、招聘网站同步、消息通知或智能分析。
+- 本次范围包含账号、管理员/普通用户角色与 owner 隔离；仍不包含组织/团队协作、社交登录、邮件解析、招聘网站同步、消息通知或智能分析。

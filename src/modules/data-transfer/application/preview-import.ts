@@ -3,8 +3,10 @@ import { readSpreadsheet } from "../infrastructure/spreadsheet-reader";
 import { PostgresImportRepository } from "../infrastructure/postgres-import-repository";
 import { normalizeImportRow, validateImportRow } from "./import-schema";
 import type { ImportPreview } from "./contracts";
+import { requireUser } from "@/modules/identity-access";
 
 export async function previewImport(file: File): Promise<ImportPreview> {
+  const actor = await requireUser();
   const repository = new PostgresImportRepository();
   await repository.cleanupExpired();
   const raw = readSpreadsheet(await file.arrayBuffer(), file.name);
@@ -23,10 +25,10 @@ export async function previewImport(file: File): Promise<ImportPreview> {
       duplicateApplicationIds: [],
     };
   });
-  await repository.findDuplicates(rows);
+  await repository.findDuplicates(actor.id, rows);
   const safeName = basename(file.name)
     .replace(/[^\p{L}\p{N}._-]/gu, "_")
     .slice(0, 255);
   const format = file.name.toLowerCase().endsWith(".xlsx") ? "xlsx" : "csv";
-  return repository.savePreview(safeName || "import", format, rows);
+  return repository.savePreview(actor.id, safeName || "import", format, rows);
 }

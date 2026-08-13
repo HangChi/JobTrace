@@ -50,30 +50,30 @@ function mapSummary(row: DbRecord) {
 export class PostgresApplicationRepository implements ApplicationRepository {
   private sql = createServerDatabase();
 
-  async create(input: CreateApplicationInput) {
+  async create(ownerId: string, input: CreateApplicationInput) {
     const [row] = await this.sql<DbRecord[]>`
-      select * from public.create_application(${this.sql.json(input)}::jsonb)
+      select * from public.create_application_for_owner(${ownerId},${this.sql.json(input)}::jsonb)
     `;
-    return this.get(String(row.id)) as Promise<ApplicationDetail>;
+    return this.get(ownerId, String(row.id)) as Promise<ApplicationDetail>;
   }
 
-  async get(id: string) {
+  async get(ownerId: string, id: string) {
     const [row] = await this.sql<DbRecord[]>`
       select a.*,
         coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id
-      where a.id = ${id}
+      where a.id = ${id} and a.owner_id = ${ownerId}
       group by a.id
     `;
     if (!row) return null;
     const stages = await this.sql<DbRecord[]>`
       select id, stage, occurred_on from public.application_stage_occurrences
-      where application_id = ${id} order by occurred_on, created_at
+      where application_id = ${id} and exists(select 1 from applications a where a.id=${id} and a.owner_id=${ownerId}) order by occurred_on, created_at
     `;
     const events = await this.sql<DbRecord[]>`
       select id, type, occurred_on, before, after, created_at
-      from public.application_events where application_id = ${id}
+      from public.application_events where application_id = ${id} and exists(select 1 from applications a where a.id=${id} and a.owner_id=${ownerId})
       order by occurred_on desc, created_at desc
     `;
     return {
@@ -97,15 +97,16 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     } as ApplicationDetail;
   }
 
-  async update(id: string, input: UpdateApplicationInput) {
+  async update(ownerId: string, id: string, input: UpdateApplicationInput) {
     try {
+      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       const [row] = await this.sql<DbRecord[]>`
         select * from public.update_application(
           ${id}, ${input.version}, ${input.changeDate}::date,
           ${this.sql.json(input)}::jsonb
         )
       `;
-      return this.get(String(row.id)) as Promise<ApplicationDetail>;
+      return this.get(ownerId, String(row.id)) as Promise<ApplicationDetail>;
     } catch (error) {
       const code = (error as { code?: string }).code;
       if (code === "40001") {
@@ -118,20 +119,26 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     }
   }
 
-  async delete(id: string) {
+  async delete(ownerId: string, id: string) {
     const rows = await this
-      .sql`delete from public.applications where id = ${id} returning id`;
+      .sql`delete from public.applications where id = ${id} and owner_id=${ownerId} returning id`;
     return rows.length > 0;
   }
 
-  async addStage(id: string, stage: string, occurredOn: string) {
+  async addStage(
+    ownerId: string,
+    id: string,
+    stage: string,
+    occurredOn: string,
+  ) {
     try {
+      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       await this.sql`
         select public.add_stage_occurrence(
           ${id}, ${stage}::recruitment_stage, ${occurredOn}::date
         )
       `;
-      return this.get(id) as Promise<ApplicationDetail>;
+      return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       if ((error as { code?: string }).code === "23505") {
         throw new Problem("conflict", "该阶段日期已经存在。", 409);
@@ -140,12 +147,18 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     }
   }
 
-  async removeStage(id: string, occurrenceId: string, changeDate: string) {
+  async removeStage(
+    ownerId: string,
+    id: string,
+    occurrenceId: string,
+    changeDate: string,
+  ) {
     try {
+      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       await this.sql`
         select public.remove_stage_occurrence(${occurrenceId}, ${changeDate}::date)
       `;
-      return this.get(id) as Promise<ApplicationDetail>;
+      return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       if ((error as { code?: string }).code === "P0002") {
         throw new Problem("not_found", "没有找到该阶段记录。", 404);
@@ -154,7 +167,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     }
   }
 
-  async list(query: ListQuery): Promise<ApplicationPage> {
+  async list(ownerId: string, query: ListQuery): Promise<ApplicationPage> {
     const sortColumn = {
       company: "company_name",
       position: "position_name",
@@ -167,7 +180,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id
-      where 1 = 1
+      where a.owner_id = ${ownerId}
         ${query.q ? this.sql`and lower(a.company_name || ' ' || a.position_name) like ${`%${query.q.toLowerCase()}%`}` : this.sql``}
         ${query.status.length ? this.sql`and a.status = any(${query.status}::application_status[])` : this.sql``}
         ${query.stage.length ? this.sql`and exists (select 1 from public.application_stage_occurrences fs where fs.application_id = a.id and fs.stage = any(${query.stage}::recruitment_stage[]))` : this.sql``}

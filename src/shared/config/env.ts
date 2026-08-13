@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const serverEnvSchema = z.object({
+const databaseEnvSchema = z.object({
   DATABASE_URL: z
     .url()
     .refine(
@@ -10,8 +10,27 @@ const serverEnvSchema = z.object({
     ),
 });
 
-export function getServerEnv() {
-  return serverEnvSchema.parse({
+const authEnvSchema = z.object({
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
+});
+
+export function getDatabaseEnv() {
+  return databaseEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
   });
+}
+
+export function getAuthEnv() {
+  return authEnvSchema.parse({
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+  });
+}
+
+export function hasAuthConfiguration() {
+  return authEnvSchema.safeParse({
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+  }).success;
 }

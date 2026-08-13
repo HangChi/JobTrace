@@ -5,19 +5,28 @@ import type {
 import type { ApplicationDetail, ApplicationPage } from "./contracts";
 import type { ListQuery } from "./list-query";
 export interface ApplicationRepository {
-  create(input: CreateApplicationInput): Promise<ApplicationDetail>;
-  get(id: string): Promise<ApplicationDetail | null>;
-  update(id: string, input: UpdateApplicationInput): Promise<ApplicationDetail>;
-  delete(id: string): Promise<boolean>;
+  create(
+    ownerId: string,
+    input: CreateApplicationInput,
+  ): Promise<ApplicationDetail>;
+  get(ownerId: string, id: string): Promise<ApplicationDetail | null>;
+  update(
+    ownerId: string,
+    id: string,
+    input: UpdateApplicationInput,
+  ): Promise<ApplicationDetail>;
+  delete(ownerId: string, id: string): Promise<boolean>;
   addStage(
+    ownerId: string,
     id: string,
     stage: string,
     occurredOn: string,
   ): Promise<ApplicationDetail>;
   removeStage(
+    ownerId: string,
     id: string,
     occurrenceId: string,
     changeDate: string,
   ): Promise<ApplicationDetail>;
-  list(query: ListQuery): Promise<ApplicationPage>;
+  list(ownerId: string, query: ListQuery): Promise<ApplicationPage>;
 }

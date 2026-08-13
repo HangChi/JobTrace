@@ -1,6 +1,8 @@
 import { ImportUploader } from "@/modules/data-transfer/ui/import-uploader";
+import { requirePageUser } from "@/modules/identity-access";
 
-export default function ImportPage() {
+export default async function ImportPage() {
+  await requirePageUser();
   return (
     <section className="stack">
       <div>

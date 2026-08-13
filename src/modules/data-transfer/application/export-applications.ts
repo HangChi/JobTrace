@@ -1,6 +1,7 @@
 import { createServerDatabase } from "@/shared/database";
 import { Problem } from "@/shared/errors/problem";
 import { rowsToCsv, rowsToXlsx } from "../infrastructure/spreadsheet-writer";
+import { requireUser } from "@/modules/identity-access";
 
 export type ExportOptions = {
   scope: "all" | "filtered";
@@ -13,11 +14,12 @@ export type ExportOptions = {
 };
 
 export async function exportApplications(options: ExportOptions) {
+  const actor = await requireUser();
   const sql = createServerDatabase();
   const data = await sql<Record<string, unknown>[]>`
     select company_name, position_name, city, job_url, applied_date, status, notes
     from public.applications
-    where 1 = 1
+    where owner_id=${actor.id}
       ${options.scope === "filtered" && options.q ? sql`and lower(company_name || ' ' || position_name) like ${`%${options.q.toLowerCase()}%`}` : sql``}
       ${options.scope === "filtered" && options.status.length ? sql`and status = any(${options.status}::application_status[])` : sql``}
       ${options.scope === "filtered" && options.city.length ? sql`and city = any(${options.city})` : sql``}

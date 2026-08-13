@@ -21,12 +21,12 @@ export class PostgresImportRepository {
     `;
   }
 
-  async findDuplicates(rows: ImportRow[]) {
+  async findDuplicates(ownerId: string, rows: ImportRow[]) {
     for (const row of rows) {
       if (!row.data) continue;
       const matches = await this.sql<{ id: string }[]>`
         select id from public.applications
-        where lower(company_name) = lower(${String(row.data.companyName)})
+        where owner_id=${ownerId} and lower(company_name) = lower(${String(row.data.companyName)})
           and lower(position_name) = lower(${String(row.data.positionName)})
           and applied_date = ${String(row.data.appliedDate)}::date
         order by id
@@ -37,6 +37,7 @@ export class PostgresImportRepository {
   }
 
   async savePreview(
+    ownerId: string,
     fileName: string,
     format: "csv" | "xlsx",
     rows: ImportRow[],
@@ -49,8 +50,8 @@ export class PostgresImportRepository {
     return this.sql.begin(async (sql) => {
       const [batch] = await sql<DbRow[]>`
         insert into public.import_batches(
-          file_name, format, total_rows, valid_rows, invalid_rows, duplicate_rows
-        ) values (${fileName}, ${format}, ${rows.length}, ${validRows}, ${invalidRows}, ${duplicateRows})
+          owner_id,file_name, format, total_rows, valid_rows, invalid_rows, duplicate_rows
+        ) values (${ownerId},${fileName}, ${format}, ${rows.length}, ${validRows}, ${invalidRows}, ${duplicateRows})
         returning id, expires_at
       `;
       for (const row of rows) {
@@ -78,9 +79,9 @@ export class PostgresImportRepository {
     });
   }
 
-  async getBatch(id: string) {
+  async getBatch(ownerId: string, id: string) {
     const [batch] = await this.sql<DbRow[]>`
-      select * from public.import_batches where id = ${id}
+      select * from public.import_batches where id = ${id} and owner_id=${ownerId}
     `;
     if (!batch) throw new Problem("not_found", "没有找到该导入批次。", 404);
     if (
@@ -96,10 +97,10 @@ export class PostgresImportRepository {
     return { batch, rows };
   }
 
-  async markProcessing(id: string) {
+  async markProcessing(ownerId: string, id: string) {
     const rows = await this.sql`
       update public.import_batches set status = 'processing'
-      where id = ${id} and status = 'previewed' and expires_at > now()
+      where id = ${id} and owner_id=${ownerId} and status = 'previewed' and expires_at > now()
       returning id
     `;
     if (!rows.length)
@@ -107,6 +108,7 @@ export class PostgresImportRepository {
   }
 
   async recordResult(
+    ownerId: string,
     id: string,
     row: ImportResultRow,
     decision: "import" | "skip",
@@ -114,13 +116,13 @@ export class PostgresImportRepository {
     await this.sql`
       update public.import_rows set decision = ${decision}, result = ${row.result}::import_row_result,
         application_id = ${row.applicationId}::uuid
-      where batch_id = ${id} and row_number = ${row.rowNumber}
+      where batch_id = ${id} and row_number = ${row.rowNumber} and exists(select 1 from import_batches b where b.id=${id} and b.owner_id=${ownerId})
     `;
   }
 
-  async complete(id: string) {
+  async complete(ownerId: string, id: string) {
     await this.sql`
-      update public.import_batches set status = 'completed', completed_at = now() where id = ${id}
+      update public.import_batches set status = 'completed', completed_at = now() where id = ${id} and owner_id=${ownerId}
     `;
   }
 }

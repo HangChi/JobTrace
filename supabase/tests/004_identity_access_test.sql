@@ -1,0 +1,12 @@
+begin;
+select plan(8);
+select has_table('public','users','users exists');
+select has_table('public','sessions','sessions exists');
+select has_table('public','accounts','accounts exists');
+select has_table('public','verification_tokens','verification tokens exist');
+select has_table('public','admin_audit_events','audit table exists');
+select has_column('public','applications','owner_id','applications have owner');
+select has_column('public','import_batches','owner_id','batches have owner');
+select function_returns('public','assert_application_owner',array['text','uuid'],'void','owner assertion exists');
+select * from finish();
+rollback;

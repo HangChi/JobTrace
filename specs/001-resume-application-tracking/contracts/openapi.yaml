@@ -7,7 +7,79 @@ info:
     must honor the same input and error schemas described here.
 servers:
   - url: /api
+security:
+  - cookieSession: []
 paths:
+  /auth/register:
+    post:
+      security: []
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '202': { description: Account created; response is identical whether email confirmation is immediate or pending }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/login:
+    post:
+      security: []
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Cookie session established; redirectTarget is derived from trusted server-side role
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [redirectTarget]
+                properties:
+                  redirectTarget: { type: string, enum: ['/', '/admin'] }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/logout:
+    post:
+      operationId: logout
+      responses:
+        '204': { description: Session cookies cleared }
+  /admin/users:
+    get:
+      operationId: listUsers
+      parameters:
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200': { description: Admin-only cursor-paginated user list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/users/{id}:
+    patch:
+      operationId: updateUserAccess
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role: { $ref: '#/components/schemas/AccountRole' }
+                disabled: { type: boolean }
+              minProperties: 1
+              additionalProperties: false
+      responses:
+        '200': { description: Updated profile with audit event }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /applications:
     get:
       operationId: listApplications
@@ -177,7 +249,32 @@ paths:
           description: No records in the selected scope
           content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
 components:
+  securitySchemes:
+    cookieSession:
+      type: apiKey
+      in: cookie
+      name: sb-auth-token
+      description: Logical Supabase SSR session; deployed cookie names may be project-scoped and split.
   schemas:
+    AccountRole:
+      type: string
+      enum: [user, admin]
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 12, maxLength: 128, format: password }
+        displayName: { type: string, minLength: 1, maxLength: 100 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 1, maxLength: 128, format: password }
+        returnTo: { type: string, description: Optional same-origin relative path; external URLs are rejected }
     ApplicationStatus:
       type: string
       enum: [planned, active, rejected, offer, accepted, withdrawn, no_response]
@@ -324,4 +421,15 @@ components:
       content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
     Conflict:
       description: Stale version, expired batch, or incompatible state
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Unauthorized:
+      description: Missing, expired, or invalid authentication session
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Forbidden:
+      description: Authenticated actor lacks the required role or account is disabled
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    TooManyRequests:
+      description: Authentication attempt rate limit exceeded
+      headers:
+        Retry-After: { schema: { type: integer, minimum: 1 } }
       content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }

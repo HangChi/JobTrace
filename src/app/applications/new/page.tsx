@@ -1,5 +1,7 @@
 import { ApplicationForm } from "@/modules/applications/ui/application-form";
-export default function NewApplicationPage() {
+import { requirePageUser } from "@/modules/identity-access";
+export default async function NewApplicationPage() {
+  await requirePageUser();
   return (
     <section className="stack">
       <div>

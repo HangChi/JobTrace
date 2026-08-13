@@ -2,6 +2,12 @@
 
 面向个人用户的求职投递管理 Web 应用，支持投递记录、状态和阶段历史、列表检索、统计跟进以及 CSV/XLSX 导入导出。
 
+## 账号与角色配置
+
+JobTrace 使用自有 PostgreSQL 和 Better Auth 提供邮箱密码认证。用户、密码哈希、Session、验证令牌、角色和业务数据都保存在 `DATABASE_URL` 指向的数据库；公开注册固定创建普通用户。运行前配置 `.env.example` 中的 `DATABASE_URL`、`BETTER_AUTH_SECRET` 与 `BETTER_AUTH_URL`。
+
+首次管理员需先通过注册页创建账号，再执行 `pnpm admin:bootstrap -- admin@example.com`。从旧单用户版本升级时，先注册目标用户，再显式把遗留投递与导入批次的 `owner_id` 设为该用户 ID；不得自动归给首个注册者。应用迁移前请备份数据库，回滚时不得删除用户、Session、审计表或业务表的 `owner_id`。
+
 ## 快速开始
 
 要求 Node.js 24、pnpm、Python 3.12 和 uv。

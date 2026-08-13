@@ -6,7 +6,44 @@
 - 状态、阶段和事件类型存稳定英文代码，中文标签由应用展示层映射。
 - 所有可编辑文本保存前去除首尾空白；公司/岗位另维护数据库生成或写入的标准化搜索值。
 - 数据库是完整性最终防线；相同规则在 TypeScript 领域层和请求 schema 中提前反馈。
-- 首期只有一个安装级 owner。业务表不向 Supabase `anon`/`authenticated` 角色开放，由 Next.js 服务端访问。
+- 每个业务聚合都归属一个认证用户；普通用户按 owner 隔离，管理员只通过受控后台用例跨 owner 访问。
+
+## Enumerations: identity and access
+
+### account_role
+
+`user`（普通用户）、`admin`（管理员）。公开注册只能产生 `user`。
+
+## Entity: profiles
+
+与 `auth.users` 一一对应的应用授权资料，不保存密码或会话令牌。
+
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| `user_id` | uuid | yes | PK、FK → `auth.users.id`，删除级联 |
+| `role` | account_role | yes | 默认且公开注册固定为 `user` |
+| `display_name` | varchar(100) | no | trim 后 1–100 字符 |
+| `disabled_at` | timestamptz | no | 非空表示禁止继续访问业务能力 |
+| `created_at` | timestamptz | yes | 数据库生成 |
+| `updated_at` | timestamptz | yes | 资料/角色/状态变化时更新 |
+
+**Rules**:
+
+- `auth.users` 创建触发器以数据库常量 `user` 建立 profile，不信任注册请求 metadata 中的角色。
+- 角色或禁用状态变化写入 `admin_audit_events`，并触发会话刷新/撤销策略。
+- 禁止禁用、删除或降级最后一个未禁用管理员；管理员不能通过普通用户接口修改角色。
+
+## Entity: admin_audit_events
+
+| Field | Type | Required | Rules |
+|-------|------|----------|-------|
+| `id` | uuid | yes | 主键 |
+| `actor_id` | uuid | yes | FK → profiles.user_id，执行管理员 |
+| `target_user_id` | uuid | yes | FK → profiles.user_id，被操作账号 |
+| `event_type` | text | yes | `role_changed`, `user_disabled`, `user_enabled` |
+| `before_data` | jsonb | no | 仅角色/状态旧值 |
+| `after_data` | jsonb | yes | 仅角色/状态新值 |
+| `created_at` | timestamptz | yes | 数据库生成，不可常规修改/删除 |
 
 ## Enumerations
 
@@ -37,6 +74,7 @@
 | Field | Type | Required | Rules |
 |-------|------|----------|-------|
 | `id` | uuid | yes | 主键 |
+| `owner_id` | uuid | yes | FK → profiles.user_id；普通用户只能访问自己的记录 |
 | `company_name` | varchar(200) | yes | trim 后 1–200 字符 |
 | `company_name_search` | text | yes | 公司名的大小写无关标准化值；仅内部使用 |
 | `position_name` | varchar(200) | yes | trim 后 1–200 字符 |
@@ -71,6 +109,7 @@
 | Field | Type | Required | Rules |
 |-------|------|----------|-------|
 | `id` | uuid | yes | 主键 |
+| `owner_id` | uuid | yes | FK → profiles.user_id；必须等于发起导入的用户 |
 | `application_id` | uuid | yes | FK → applications，删除级联 |
 | `stage` | recruitment_stage | yes | 标准阶段代码 |
 | `occurred_on` | date | yes | `>= application.applied_date` 且不晚于当前业务日期 |
@@ -140,6 +179,26 @@
 5. 删除是用户确认后的硬删除，级联清理阶段和事件。首期不承诺恢复。
 6. 导入确认按行隔离：单行的应用和事件原子写入；单行失败不回滚其他成功行，最终汇总必须与行结果一致。
 7. 统计从 applications 和去重阶段关联实时计算，不存储可漂移的计数器。
+8. 创建投递/导入批次时 `owner_id` 只能取已验证 actor，不接受客户端字段；更新/删除必须同时匹配资源 ID 与 owner。
+9. 管理员跨 owner 查询必须走独立管理用例并写操作审计；普通业务接口即使 actor 是管理员也默认按本人 owner 运行，避免意外全局修改。
+
+## Authorization Matrix
+
+| Resource/action | Visitor | User | Admin |
+|-----------------|---------|------|-------|
+| 注册/登录/确认/恢复 | allowed | redirect if signed in | redirect if signed in |
+| 本人投递/统计/导入导出 | denied | CRUD | CRUD |
+| 他人业务数据 | denied | denied | admin read via dedicated use case |
+| 用户列表与账号状态 | denied | denied | read/update |
+| 授予管理员 | denied | denied | allowed, last-admin guard |
+
+## Existing Data Migration
+
+1. 先创建认证用户、profile 和可空 `owner_id` 列，不改变旧查询。
+2. 运维人员显式提供 `MIGRATION_OWNER_ID`，校验其 profile 存在且未禁用。
+3. 在单个迁移事务内回填 applications/import_batches 的 owner；通过父关系验证所有子行均可解析归属。
+4. 将 owner FK/NOT NULL/索引和 RLS 策略启用，再切换应用代码到认证路径。
+5. owner 缺失、目标用户无效或存在孤儿子行时中止，不猜测归属。
 
 ## State Transitions
 
@@ -156,3 +215,5 @@
 - 投递、阶段和事件持续保留，直到用户删除投递。
 - 导入批次和行在 24 小时后可清理；不保留上传的二进制原文件。
 - 日志不得包含 notes、完整文件行或密钥；必要时只记录 application/batch ID、行数和错误代码。
+- 密码、访问/刷新令牌与 Cookie 由 Supabase Auth 管理，不进入 public schema 或应用日志。
+- 删除认证用户默认级联删除 profile；业务数据采用受控删除/转移策略，管理员执行前必须明确确认，避免隐式丢失投递记录。

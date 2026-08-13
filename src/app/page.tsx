@@ -6,6 +6,7 @@ import { ApplicationFilters } from "@/modules/applications/ui/application-filter
 import { ApplicationListEmpty } from "@/modules/applications/ui/application-list-empty";
 import { ApplicationTable } from "@/modules/applications/ui/application-table";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
+import { requirePageUser } from "@/modules/identity-access";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<Search>;
 }) {
+  await requirePageUser();
   const search = await searchParams;
   const [page, summary] = await Promise.all([
     listApplications(toSearchParams(search)),
