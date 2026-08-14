@@ -5,11 +5,16 @@ const node = process.execPath;
 export default defineConfig({
   testDir: "tests/e2e",
   workers: 1,
-  use: { baseURL: "http://127.0.0.1:3000", trace: "retain-on-failure" },
+  globalSetup: "./tests/setup/auth.global.ts",
+  use: {
+    baseURL: "http://127.0.0.1:3004",
+    trace: "retain-on-failure",
+    storageState: ".playwright/auth.json",
+  },
   webServer: {
-    command: `"${node}" ./node_modules/next/dist/bin/next dev -H 127.0.0.1 -p 3000`,
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: true,
+    command: `"${node}" ./scripts/next-dev.mjs 3004 .next-e2e`,
+    url: "http://127.0.0.1:3004",
+    reuseExistingServer: false,
   },
   projects: [
     {

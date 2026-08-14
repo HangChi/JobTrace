@@ -6,7 +6,7 @@ test("统计与更新后跟进移除", async ({ request }) => {
     data: {
       companyName: "Integration FollowUp",
       positionName: "Engineer",
-      appliedDate: "2026-08-01",
+      appliedDate: "2026-07-01",
       status: "submitted",
     },
   });
@@ -26,10 +26,10 @@ test("统计与更新后跟进移除", async ({ request }) => {
         companyName: app.companyName,
         positionName: app.positionName,
         appliedDate: app.appliedDate,
-        status: "submitted",
+        status: "offer",
         stages: [],
         version: 1,
-        changeDate: "2026-08-13",
+        changeDate: new Date().toISOString().slice(0, 10),
       },
     });
     summary = await (await request.get("/api/analytics/summary")).json();

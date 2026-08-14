@@ -11,10 +11,16 @@
 
 ## 认证运维
 
+认证使用 Better Auth 的用户名密码模式。生产环境必须配置 HTTPS、至少 32 字节的
+`BETTER_AUTH_SECRET` 和准确的 `BETTER_AUTH_URL`。如需 CAPTCHA，在服务端配置
+`AUTH_CHALLENGE_VERIFY_URL` 与 `AUTH_CHALLENGE_SECRET`；登录和注册客户端通过
+`x-auth-challenge` 传递供应商 token。SMTP 尚未接入，忘记密码页会给出不枚举账号的
+统一提示，重置接口保持 503，需由管理员按应急流程处理。
+
 - 首个管理员：先公开注册用户名，再以 `<用户名>@users.jobtrace.local` 执行 `pnpm admin:bootstrap -- <内部邮箱>`；公开注册永远不接收角色。
-- 旧数据：显式选择已注册用户 ID，人工确认后回填 `applications.owner_id` 与 `import_batches.owner_id`；不要按注册顺序推断 owner。
+- 旧数据：备份后显式设置 `MIGRATION_OWNER_ID`，执行 `pnpm db:owner:migrate`；核对回填数量，再执行 `pnpm db` 强制 owner 外键与 NOT NULL。先运行 `pnpm db:owner:test` 可在临时库验证缺失、无效 owner 和成功回填；不要按注册顺序推断 owner。
 - 账号事件：管理员可在 `/admin` 禁用账号并撤销全局会话；数据库阻止禁用或降级最后一个有效管理员。
-- 回滚：仅回滚应用代码，并确认旧构建无法绕过登录；保留 users、sessions、owner 列及审计事件。
+- 回滚：仅回滚应用代码，并确认旧构建无法绕过登录；保留 users、sessions、owner 列及审计事件。若认证服务异常，先停止写入并切回上一应用构建，不得删除 owner 列或审计记录。
 
 ## 发布门禁
 

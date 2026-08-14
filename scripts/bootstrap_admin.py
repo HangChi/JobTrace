@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 import psycopg
+from env import load_local_env
 
 
 def database_url() -> str | None:
@@ -21,6 +22,7 @@ def database_url() -> str | None:
 
 
 def main() -> None:
+    load_local_env()
     parser = argparse.ArgumentParser(description="Promote an existing JobTrace user to admin")
     parser.add_argument("email", help="Email of an already registered user")
     args = parser.parse_args()

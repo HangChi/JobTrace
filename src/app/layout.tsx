@@ -18,7 +18,7 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const actor = await getActor();
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" data-scroll-behavior="smooth">
       <body>
         <a className="skip-link" href="#main-content">
           跳到主要内容

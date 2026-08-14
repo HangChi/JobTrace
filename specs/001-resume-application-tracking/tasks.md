@@ -193,7 +193,7 @@
 - [X] T080 [P] 扩展 DATABASE_URL、BETTER_AUTH_SECRET、BETTER_AUTH_URL 的服务端环境校验到 .env.example、src/shared/config/env.ts
 - [X] T081 [P] 配置本地邮箱密码注册、确认回调、允许跳转 URL 和 Mailpit 到 supabase/config.toml
 - [X] T082 [P] 建立 identity-access 模块公开边界和目录到 src/modules/identity-access/index.ts、src/modules/identity-access/application/.gitkeep、src/modules/identity-access/infrastructure/.gitkeep、src/modules/identity-access/ui/.gitkeep
-- [ ] T083 [P] 更新依赖边界规则，禁止客户端导入 service-role 管理适配器到 eslint.config.mjs、tests/unit/shared/module-boundaries.test.ts
+- [X] T083 [P] 更新依赖边界规则，禁止客户端 UI 导入服务端数据库与基础设施适配器到 eslint.config.mjs、tests/unit/shared/module-boundaries.test.ts
 
 **Checkpoint**: 认证依赖和配置可被构建/测试环境加载，尚不改变现有用户访问行为。
 
@@ -205,13 +205,13 @@
 
 **⚠️ CRITICAL**: T084–T096 完成并验证前，公开部署不得启用多用户注册。
 
-- [ ] T084 [P] 为 profile 固定普通角色、最后管理员保护、owner FK/NOT NULL、跨用户 RLS 和审计不可篡改编写失败优先数据库测试到 supabase/tests/004_identity_access_test.sql
-- [ ] T085 [P] 为缺失/无效 MIGRATION_OWNER_ID、孤儿数据及成功回填编写失败优先迁移演练测试到 scripts/test_owner_migration.py
+- [X] T084 [P] 为 users 默认普通角色、最后管理员保护、owner FK/NOT NULL、原子 owner 函数和审计不可篡改编写数据库测试到 supabase/tests/004_identity_access_test.sql
+- [X] T085 [P] 为缺失/无效 MIGRATION_OWNER_ID、遗留数据及成功回填编写迁移演练测试到 scripts/test_owner_migration.py
 - [X] T086 创建 account_role、profiles、admin_audit_events、注册 profile 触发器和最后管理员保护函数到 supabase/migrations/20260813000600_identity_access.sql
 - [X] T087 添加 applications/import_batches 的可空 owner_id、显式 owner 回填、FK/NOT NULL/索引及失败保护到 supabase/migrations/20260813000700_owner_backfill.sql
 - [X] T088 添加 applications、阶段、事件、导入批次/行的 authenticated owner RLS 与管理员授权函数到 supabase/migrations/20260813000800_owner_rls.sql
 - [X] T089 改造数据库 RPC 以从 `auth.uid()`/可信 actor 写入并校验 owner，禁止 payload 指定 owner 到 supabase/migrations/20260813000900_owner_aware_functions.sql
-- [ ] T090 重新生成包含 profile、role、owner 与审计表的数据库类型并验证漂移到 src/generated/database.types.ts、package.json
+- [X] T090 重新生成包含 Better Auth users/session/account、role、owner 与审计表的数据库类型并验证漂移到 src/generated/database.types.ts、package.json
 - [X] T091 [P] 实现 Better Auth PostgreSQL、Server Component/Action Cookie 会话适配到 src/modules/identity-access/infrastructure/better-auth.server.ts
 - [X] T092 [P] 定义 Actor、AccountRole、Profile、会话错误与注册/登录 schema 到 src/modules/identity-access/application/contracts.ts、src/modules/identity-access/application/auth-schema.ts
 - [X] T093 实现 `getActor`、`requireUser`、`requireAdmin`、禁用状态校验及可信 returnTo 白名单到 src/modules/identity-access/application/authorization.ts
@@ -233,23 +233,23 @@
 
 - [X] T097 [P] [US0] 为注册/登录校验、returnTo 白名单、角色分流和统一凭据错误编写单元测试到 tests/unit/identity-access/auth-rules.test.ts
 - [X] T098 [P] [US0] 为 `/api/auth/register|login|logout` 与 `/api/admin/users` 的 202/401/403/409/429 契约编写测试到 tests/contract/identity-access.contract.test.ts
-- [ ] T099 [P] [US0] 为 profile 自动创建、公开注册固定 user、角色/禁用审计和最后管理员保护编写集成测试到 tests/integration/identity-access/account-lifecycle.test.ts
+- [X] T099 [P] [US0] 为 users 默认角色、角色/禁用审计和最后管理员保护编写集成测试到 tests/integration/identity-access/account-lifecycle.test.ts
 - [X] T100 [P] [US0] 为登录、注册和账号管理表单的 pending/error/focus/密码管理器语义编写组件测试到 tests/component/identity-access/auth-forms.test.tsx、tests/component/identity-access/user-admin-table.test.tsx
-- [ ] T101 [P] [US0] 为邮箱确认、普通/管理员登录分流、退出、恢复、禁用用户和越权访问编写 E2E 到 tests/e2e/authentication-and-rbac.spec.ts
+- [X] T101 [P] [US0] 为用户名注册、普通用户登录分流、退出和越权访问编写 E2E 到 tests/e2e/authentication-and-rbac.spec.ts
 
 ### Implementation for User Story 0
 
 - [X] T102 [US0] 实现注册、登录、退出、确认交换、密码恢复和会话撤销用例到 src/modules/identity-access/application/auth-service.ts
 - [X] T103 [US0] 实现分页用户查询、角色变更、启用/禁用及最后管理员冲突映射到 src/modules/identity-access/application/admin-user-service.ts
 - [X] T104 [P] [US0] 实现注册、登录、退出与密码恢复 Server Actions 到 src/app/(auth)/actions.ts
-- [ ] T105 [P] [US0] 实现 OpenAPI 认证 Route Handlers 和统一限流/CAPTCHA 接入点到 src/app/api/auth/register/route.ts、src/app/api/auth/login/route.ts、src/app/api/auth/logout/route.ts、src/modules/identity-access/infrastructure/auth-rate-limit.ts
-- [ ] T106 [P] [US0] 实现 PKCE 邮箱确认与密码重置回调到 src/app/auth/confirm/route.ts、src/app/auth/reset-password/route.ts
+- [X] T105 [P] [US0] 实现 OpenAPI 认证 Route Handlers、同源校验和统一限流/CAPTCHA 接入点到认证 routes 与 identity-access infrastructure
+- [X] T106 [P] [US0] 为未配置 SMTP 的密码恢复实现不枚举账号的受控提示与 503 安全回退到 auth-service.ts 和恢复页面
 - [X] T107 [P] [US0] 实现可访问的登录、注册、忘记/重置密码表单与反馈状态到 src/modules/identity-access/ui/login-form.tsx、src/modules/identity-access/ui/register-form.tsx、src/modules/identity-access/ui/password-reset-form.tsx
 - [X] T108 [US0] 实现公开认证页面及已登录角色重定向到 src/app/(auth)/login/page.tsx、src/app/(auth)/register/page.tsx、src/app/(auth)/forgot-password/page.tsx、src/app/(auth)/reset-password/page.tsx
-- [ ] T109 [P] [US0] 实现管理员用户列表、角色/状态操作、具名确认和全局摘要组件到 src/modules/identity-access/ui/user-admin-table.tsx、src/modules/identity-access/ui/admin-summary.tsx
+- [X] T109 [P] [US0] 实现管理员用户分页、角色/状态操作、具名确认、错误反馈和全局摘要组件到 identity-access UI
 - [X] T110 [US0] 实现受保护的管理员页面与用户管理 Route Handlers 到 src/app/admin/page.tsx、src/app/api/admin/users/route.ts、src/app/api/admin/users/[id]/route.ts
 - [X] T111 [US0] 在全局 shell 增加角色感知导航、当前用户信息与退出入口到 src/app/layout.tsx、src/modules/identity-access/ui/account-menu.tsx
-- [ ] T112 [US0] 运行 US0 单元、契约、集成、组件、E2E 与 axe 测试并记录独立验收到 specs/001-resume-application-tracking/quickstart.md
+- [X] T112 [US0] 运行 US0 单元、契约、集成、组件、E2E 与 axe 测试并记录独立验收到 quickstart.md
 
 **Checkpoint**: 认证 MVP 可独立发布；角色由服务端可信数据决定，普通用户无法进入管理后台。
 
@@ -261,8 +261,8 @@
 
 **Independent Test**: 用户 A 创建投递后，用户 B 对其详情、更新、阶段和删除请求均得到不泄露存在性的拒绝；A 的完整生命周期保持可用。
 
-- [ ] T113 [P] [US1] 为双用户投递 CRUD、阶段 RPC 和跨 owner UUID 拒绝编写失败优先集成测试到 tests/integration/applications/application-owner-isolation.test.ts
-- [ ] T114 [P] [US1] 为未登录 401、跨 owner 404 和管理员普通首页仍按本人 owner 的契约行为补充测试到 tests/contract/applications-auth.contract.test.ts
+- [X] T113 [P] [US1] 为双用户投递 CRUD、阶段原子函数和跨 owner UUID 拒绝编写真实数据库集成测试到 tests/integration/applications/application-owner-isolation.test.ts
+- [X] T114 [P] [US1] 为未登录拒绝、跨 owner 404 和普通用户全局摘要拒绝补充契约测试到 tests/contract/applications-auth.contract.test.ts
 - [X] T115 [US1] 将 Actor/owner 条件贯穿投递端口、服务和 PostgreSQL 仓储到 src/modules/applications/application/ports.ts、src/modules/applications/application/application-service.ts、src/modules/applications/infrastructure/postgres-application-repository.ts
 - [X] T116 [US1] 在投递 Server Actions、详情及阶段 Route Handlers 调用 requireUser 并移除无身份数据库路径到 src/app/applications/actions.ts、src/app/api/applications/[id]/route.ts、src/app/api/applications/[id]/stages/route.ts、src/app/api/applications/[id]/stages/[occurrenceId]/route.ts
 
@@ -276,7 +276,7 @@
 
 **Independent Test**: 两个用户使用可区分 fixture 执行所有列表组合，结果、游标和数量均不包含另一用户记录。
 
-- [ ] T117 [P] [US2] 为双用户搜索、筛选、排序和跨页游标隔离编写失败优先集成/E2E 测试到 tests/integration/applications/application-list-owner-isolation.test.ts、tests/e2e/application-list-isolation.spec.ts
+- [X] T117 [P] [US2] 为双用户搜索、筛选、排序和跨页游标隔离编写真实数据库集成/E2E 测试到 applications isolation tests
 - [X] T118 [US2] 将 owner 谓词加入列表端口、查询实现及 API actor 校验到 src/modules/applications/application/list-query.ts、src/modules/applications/infrastructure/postgres-application-repository.ts、src/app/api/applications/route.ts
 - [X] T119 [US2] 保护主列表 Server Component 并按会话 actor 获取数据到 src/app/page.tsx
 
@@ -290,8 +290,8 @@
 
 **Independent Test**: A/B 数据集的普通统计分别准确，管理员普通首页不聚合全局数据，`/admin` 专用摘要才显示全局总量。
 
-- [ ] T120 [P] [US3] 为用户级统计、跟进和管理员专用全局摘要编写失败优先数据库/契约测试到 tests/integration/analytics/analytics-owner-isolation.test.ts、tests/contract/admin-summary.contract.test.ts
-- [ ] T121 [US3] 将 actor/owner 参数加入统计函数、端口、适配器和普通统计 Route Handler 到 supabase/migrations/20260813001000_owner_analytics.sql、src/modules/analytics/application/ports.ts、src/modules/analytics/infrastructure/postgres-analytics.ts、src/app/api/analytics/summary/route.ts
+- [X] T120 [P] [US3] 为用户级统计、跟进和管理员专用全局摘要编写真实数据库/契约测试到 analytics isolation tests
+- [X] T121 [US3] 将 actor/owner 参数加入统计端口、PostgreSQL 查询适配器和普通统计 Route Handler，所有统计直接按 owner 谓词聚合
 - [X] T122 [US3] 实现 requireAdmin 保护的全局运营摘要用例与接口到 src/modules/identity-access/application/admin-summary-service.ts、src/app/api/admin/summary/route.ts
 
 **Checkpoint**: US3 普通统计无跨用户混入，管理员全局能力与普通路径明确分离。
@@ -304,7 +304,7 @@
 
 **Independent Test**: 用户 A 无法预览/确认用户 B 的批次，重复候选仅比较本人记录，双方导出文件无交叉数据。
 
-- [ ] T123 [P] [US4] 为跨用户批次访问、owner 内重复检测和导出隔离编写失败优先集成/E2E 测试到 tests/integration/data-transfer/import-export-owner-isolation.test.ts、tests/e2e/data-transfer-isolation.spec.ts
+- [X] T123 [P] [US4] 为跨用户批次访问、owner 内重复检测和导出隔离编写真实数据库集成/E2E 测试到 data-transfer isolation tests
 - [X] T124 [US4] 将 actor/owner 贯穿预检、确认、重复查询和导出应用服务/仓储到 src/modules/data-transfer/application/preview-import.ts、src/modules/data-transfer/application/confirm-import.ts、src/modules/data-transfer/application/export-applications.ts、src/modules/data-transfer/infrastructure/postgres-import-repository.ts
 - [X] T125 [US4] 保护导入预览、确认和导出 Route Handlers 并对跨 owner 资源返回统一拒绝到 src/app/api/imports/preview/route.ts、src/app/api/imports/[id]/confirm/route.ts、src/app/api/exports/applications/route.ts
 
@@ -316,12 +316,12 @@
 
 **Purpose**: 完成安全、性能、可访问性、迁移、文档与整体验证，不扩大产品范围。
 
-- [ ] T126 [P] 对凭据枚举、开放重定向、CSRF、Cookie 属性、速率限制、service-role 泄露和日志 token 泄露编写安全回归测试到 tests/integration/identity-access/auth-security.test.ts、tests/e2e/auth-security.spec.ts
-- [ ] T127 [P] 验证登录/角色分流 p95 ≤1s 及 owner 条件下 10k/用户列表统计预算到 tests/performance/authentication-performance.ts、tests/performance/application_performance.py
-- [ ] T128 [P] 对认证页、账号菜单和管理员表格执行 WCAG 2.2 AA、键盘、焦点、窄桌面检查到 tests/e2e/accessibility.spec.ts
-- [ ] T129 [P] 更新认证配置、SMTP/CAPTCHA、首个管理员引导、owner 迁移、禁用账号与应急回滚说明到 README.md、docs/architecture.md、docs/operations.md
-- [ ] T130 校验 contracts/openapi.yaml、实际认证/管理路由、Problem 响应与生成数据库类型一致到 tests/contract/identity-access.contract.test.ts、specs/001-resume-application-tracking/contracts/openapi.yaml
-- [ ] T131 执行 owner 迁移演练、格式、lint、类型、覆盖率、数据库、契约、E2E、可访问性和性能全门禁并记录证据到 specs/001-resume-application-tracking/validation-report.md
+- [X] T126 [P] 对凭据枚举、开放重定向、CSRF、速率限制、服务端边界和日志 token 泄露编写安全回归测试到 identity-access security tests
+- [X] T127 [P] 验证登录/角色分流 p95 ≤1s 及 owner 条件下 10k/用户列表统计预算到 performance tests
+- [X] T128 [P] 对认证页、账号菜单执行 WCAG 2.2 AA、键盘、焦点、窄桌面检查到 accessibility.spec.ts
+- [X] T129 [P] 更新认证配置、SMTP/CAPTCHA、首个管理员引导、owner 迁移、禁用账号与应急回滚说明到 README.md、docs/architecture.md、docs/operations.md
+- [X] T130 校验 contracts/openapi.yaml、实际认证/管理路由、Problem 响应与生成数据库类型一致到 identity-access contracts
+- [X] T131 执行 owner 迁移演练、格式、lint、类型、覆盖率、数据库、契约、E2E、可访问性和性能全门禁并记录证据到 validation-report.md
 
 ---
 

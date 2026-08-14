@@ -22,6 +22,8 @@ paths:
       responses:
         '202': { description: User account created; the response instructs the user to log in }
         '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
   /auth/login:
     post:
@@ -41,7 +43,8 @@ paths:
                 type: object
                 required: [redirectTarget]
                 properties:
-                  redirectTarget: { type: string, enum: ['/', '/admin'] }
+                  redirectTarget: { type: string, description: Same-origin relative path, defaulting to / or /admin from the trusted server-side role }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
   /auth/logout:
@@ -53,10 +56,10 @@ paths:
     get:
       operationId: listUsers
       parameters:
-        - { name: cursor, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
       responses:
-        '200': { description: Admin-only cursor-paginated user list }
+        '200': { description: Admin-only page-paginated user list }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
   /admin/users/{id}:
@@ -80,6 +83,23 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /admin/summary:
+    get:
+      operationId: getAdminSummary
+      responses:
+        '200':
+          description: Admin-only global counts across users and applications
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [users, disabledUsers, applications]
+                properties:
+                  users: { type: integer, minimum: 0 }
+                  disabledUsers: { type: integer, minimum: 0 }
+                  applications: { type: integer, minimum: 0 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /applications:
     get:
       operationId: listApplications

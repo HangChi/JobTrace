@@ -904,7 +904,7 @@ a:focus-visible {
 .metric-label {
   display: block;
   margin-top: 8px;
-  color: var(--muted);
+  color: #496661;
   font-size: 0.82rem;
   font-weight: 650;
 }

@@ -5,7 +5,7 @@ import nextTs from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "coverage/**", "dist/**", "src/generated/**"]),
+  globalIgnores([".next*/**", "coverage/**", "dist/**", "src/generated/**"]),
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
@@ -50,20 +50,15 @@ export default defineConfig([
     },
   },
   {
-    files: ["src/**/*.{ts,tsx}"],
-    ignores: [
-      "src/shared/database/supabase.admin.server.ts",
-      "src/modules/identity-access/infrastructure/**",
-    ],
+    files: ["src/modules/*/ui/**/*.{ts,tsx}", "src/shared/ui/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
           patterns: [
             {
-              group: ["@/shared/database/supabase.admin.server"],
-              message:
-                "Service-role 客户端仅允许 identity-access 基础设施使用。",
+              group: ["@/shared/database/**", "@/modules/*/infrastructure/**"],
+              message: "客户端 UI 不得导入数据库或服务端基础设施。",
             },
           ],
         },

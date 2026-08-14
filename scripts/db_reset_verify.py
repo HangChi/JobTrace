@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import os
+import argparse
 import uuid
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 import psycopg
 from psycopg import sql
+from env import load_local_env
+from db_types import read_schema, write_types
 
 
 def with_database(url: str, database: str) -> str:
@@ -15,6 +18,10 @@ def with_database(url: str, database: str) -> str:
 
 
 def main() -> None:
+    load_local_env()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write-types", action="store_true")
+    args = parser.parse_args()
     url = os.environ.get("DATABASE_URL")
     if not url:
         raise SystemExit("DATABASE_URL is required")
@@ -34,6 +41,9 @@ def main() -> None:
                 events = cursor.fetchone()[0]
                 if count < 1 or events < 1:
                     raise SystemExit("seed verification failed")
+                if args.write_types:
+                    write_types(read_schema(cursor))
+                    print("PASS generated database types from clean schema")
                 print(f"PASS empty database replay: applications={count}, events={events}")
             connection.commit()
     finally:

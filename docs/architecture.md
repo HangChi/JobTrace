@@ -2,6 +2,8 @@
 
 JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。SQL 迁移保存在 `supabase/migrations`（沿用规格目录），运行时通过仅服务端 PostgreSQL 驱动访问。
 
+多用户隔离由服务端 actor 与每条查询/原子写函数中的 `owner_id` 谓词共同保证；PostgreSQL 连接不依赖 Supabase JWT/RLS。`applications.owner_id` 与 `import_batches.owner_id` 均为必填外键，跨 owner UUID 统一表现为未找到。
+
 - `src/app`：页面、Server Components 与 HTTP Route Handlers。
 - `src/modules/applications`：投递聚合、查询、仓储与界面。
 - `src/modules/analytics`：只读统计与跟进提醒。

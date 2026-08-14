@@ -33,4 +33,10 @@ pnpm e2e
 pnpm performance
 ```
 
+从单用户版本升级时，先备份数据库并注册确认后的目标用户，然后设置
+`MIGRATION_OWNER_ID=<users.id>` 运行 `pnpm db:owner:migrate`。确认回填数量后再运行
+`pnpm db` 施加 `owner_id NOT NULL`。可先用 `pnpm db:owner:test` 在临时数据库演练；
+禁止根据注册顺序推断 owner。数据库类型由 `pnpm db:types:clean` 从干净临时库生成，
+`pnpm db:types:check` 用于检查当前数据库是否漂移。
+
 架构与模块边界见 `docs/architecture.md`，部署、迁移和回滚见 `docs/operations.md`。

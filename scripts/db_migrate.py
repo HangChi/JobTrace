@@ -5,9 +5,11 @@ import os
 from pathlib import Path
 
 import psycopg
+from env import load_local_env
 
 
 def main() -> None:
+    load_local_env()
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
         raise SystemExit("DATABASE_URL is required")

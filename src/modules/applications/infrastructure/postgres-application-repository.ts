@@ -121,10 +121,9 @@ export class PostgresApplicationRepository implements ApplicationRepository {
 
   async update(ownerId: string, id: string, input: UpdateApplicationInput) {
     try {
-      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       const [row] = await this.sql<DbRecord[]>`
-        select * from public.update_application(
-          ${id}, ${input.version}, ${input.changeDate}::date,
+        select * from public.update_application_for_owner(
+          ${ownerId}, ${id}, ${input.version}, ${input.changeDate}::date,
           ${this.sql.json(input)}::jsonb
         )
       `;
@@ -154,16 +153,18 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     occurredOn: string,
   ) {
     try {
-      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       await this.sql`
-        select public.add_stage_occurrence(
-          ${id}, ${stage}::recruitment_stage, ${occurredOn}::date
+        select public.add_stage_occurrence_for_owner(
+          ${ownerId}, ${id}, ${stage}::recruitment_stage, ${occurredOn}::date
         )
       `;
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       if ((error as { code?: string }).code === "23505") {
         throw new Problem("conflict", "该阶段日期已经存在。", 409);
+      }
+      if ((error as { code?: string }).code === "P0002") {
+        throw new Problem("not_found", "没有找到这条投递记录。", 404);
       }
       throw new Problem("storage", "添加阶段失败", 500);
     }
@@ -176,9 +177,8 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     changeDate: string,
   ) {
     try {
-      await this.sql`select public.assert_application_owner(${ownerId},${id})`;
       await this.sql`
-        select public.remove_stage_occurrence(${occurrenceId}, ${changeDate}::date)
+        select public.remove_stage_occurrence_for_owner(${ownerId}, ${occurrenceId}, ${changeDate}::date)
       `;
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {

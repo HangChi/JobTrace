@@ -27,7 +27,15 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".next-integration/types/**/*.ts",
+    ".next-integration/dev/types/**/*.ts",
+    ".next-contract/types/**/*.ts",
+    ".next-contract/dev/types/**/*.ts",
+    ".next-e2e/types/**/*.ts",
+    ".next-e2e/dev/types/**/*.ts",
+    ".next-performance/types/**/*.ts",
+    ".next-performance/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

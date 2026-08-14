@@ -10,20 +10,49 @@ type User = {
 };
 export function UserAdminTable({ users }: { users: User[] }) {
   const [busy, setBusy] = useState<string>();
+  const [error, setError] = useState<string>();
   async function update(
     user: User,
     patch: { role?: string; disabled?: boolean },
   ) {
+    const action =
+      patch.disabled === true
+        ? "禁用"
+        : patch.disabled === false
+          ? "启用"
+          : patch.role === "admin"
+            ? "设为管理员"
+            : "降为普通用户";
+    if (!window.confirm(`确认将 ${user.email} ${action}？`)) return;
     setBusy(user.id);
-    await fetch(`/api/admin/users/${user.id}`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(patch),
-    });
-    location.reload();
+    setError(undefined);
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!response.ok) {
+        const problem = (await response.json().catch(() => null)) as {
+          detail?: string;
+        } | null;
+        throw new Error(problem?.detail ?? "操作失败，请稍后重试。");
+      }
+      location.reload();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "操作失败，请稍后重试。",
+      );
+      setBusy(undefined);
+    }
   }
   return (
     <div className="panel">
+      {error ? (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      ) : null}
       <table>
         <thead>
           <tr>

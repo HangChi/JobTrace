@@ -13,3 +13,7 @@ export function checkAuthRateLimit(key: string, limit = 10, windowMs = 60_000) {
     throw new Problem("rate_limited", "尝试次数过多，请稍后再试。", 429);
   current.count += 1;
 }
+
+export function resetAuthRateLimits() {
+  buckets.clear();
+}

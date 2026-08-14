@@ -49,6 +49,11 @@ pnpm typecheck
 
 ## 2. Run Quality Gates
 
+2026-08-14 独立验收结果：Vitest 47/47、契约 8/8、真实数据库集成 10/10、
+Chromium E2E/axe 15/15 均通过。测试套件通过 `run_with_temp_database.py`
+创建并销毁隔离数据库，不写入开发数据库；owner 迁移演练和空库重放均通过。
+认证恢复当前按“SMTP 未配置”的受控回退验收，不声明邮件交付能力。
+
 ```bash
 pnpm format
 pnpm lint

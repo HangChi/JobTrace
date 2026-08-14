@@ -7,7 +7,7 @@ test("统计卡、阶段文本与跟进导航", async ({ request, page }) => {
       {
         companyName: "Analytics Active",
         positionName: "Engineer",
-        appliedDate: "2026-08-01",
+        appliedDate: "2026-07-01",
         status: "submitted",
       },
       {
@@ -22,7 +22,9 @@ test("统计卡、阶段文本与跟进导航", async ({ request, page }) => {
     }
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "求职概览" })).toBeVisible();
-    await expect(page.getByText("Offer", { exact: true })).toBeVisible();
+    await expect(
+      page.getByLabel("求职概览").getByText("Offer", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "阶段分布" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "需要跟进" })).toBeVisible();
     await expect(

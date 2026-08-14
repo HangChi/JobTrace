@@ -14,7 +14,7 @@ test("筛选、清空与空状态", async ({ request, page }) => {
     await page.goto("/");
     await page.getByLabel("搜索公司或岗位").fill("E2E 筛选公司");
     await page.getByRole("button", { name: "应用条件" }).click();
-    await expect(page.getByText("E2E 筛选公司")).toBeVisible();
+    await expect(page.getByText("E2E 筛选公司", { exact: true })).toBeVisible();
     await page.getByLabel("搜索公司或岗位").fill("完全不存在的公司");
     await page.getByRole("button", { name: "应用条件" }).click();
     await expect(
