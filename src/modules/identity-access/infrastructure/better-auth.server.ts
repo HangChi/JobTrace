@@ -13,6 +13,11 @@ export const auth = betterAuth({
   appName: "JobTrace",
   baseURL: authEnv.BETTER_AUTH_URL,
   secret: authEnv.BETTER_AUTH_SECRET,
+  advanced: {
+    useSecureCookies:
+      process.env.NODE_ENV === "production" ||
+      authEnv.BETTER_AUTH_URL.startsWith("https://"),
+  },
   database,
   emailAndPassword: {
     enabled: true,

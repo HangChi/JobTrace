@@ -17,12 +17,17 @@
 - 数据库类型：从干净临时库生成，包含 Better Auth users/sessions/accounts、owner
   和审计表。
 - 静态质量：Prettier、ESLint、TypeScript 通过。
-- Vitest：19 个文件、47 项全部通过；行覆盖率 94.77%，分支覆盖率 89.88%。
+- Vitest：19 个文件、47 项全部通过；行覆盖率 94.97%，分支覆盖率 87.87%。
 - 真实数据库集成：10/10，包括双用户 CRUD、阶段、列表游标、统计、导入导出和
   最后管理员保护。
 - HTTP 契约：8/8，包括未登录保护、跨 owner 404、管理员摘要 403、CSRF Problem。
-- Chromium E2E/axe：15/15；覆盖认证、越权、应用生命周期、统计、导入、认证页、
-  账号菜单、键盘焦点和 768px 窄桌面；axe 无违规。
+- Chromium E2E/axe：19/19；覆盖认证、越权、应用生命周期、统计、导入、认证页、
+  账号菜单、键盘焦点和 768px 窄桌面；axe 无违规。安全行为测试进一步验证了管理员
+  普通首页、列表、统计和导出仍只包含本人数据，跨 owner UUID 返回 404，登录失败
+  限流，Session Cookie 使用 HttpOnly/SameSite=Lax/Path=/，以及禁用账号会立即撤销
+  现有 Session 且保持统一登录错误。
+- 日志隐私：日志上下文会递归移除 secret/password/token/cookie/authorization/session
+  字段，嵌套请求头和 Session 数据不会进入结构化日志。
 - 性能：10,000 条/owner 数据下 list p95 27.33ms、filter p95 24.36ms、analytics
   p95 19.81ms；登录/角色分流 p95 ≤ 1s。
 - Next.js 生产构建：通过，页面、API 和 Proxy 均生成成功。

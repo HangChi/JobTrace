@@ -1,7 +1,7 @@
 {
-  "at": "2026-08-14T00:33:42+00:00",
-  "title": "同步三状态契约并恢复覆盖率门禁",
-  "summary": "依据当前实现将投递状态统一为 submitted/offer/refused，跟进阈值统一为 15 个完整日，并把规格、数据模型、OpenAPI、验收指南、README 和运维文档同步到 Better Auth 用户名认证。新增边界测试后，17 个测试文件共 42 项通过，行覆盖率 94.77%、分支覆盖率 89.88%；格式、ESLint、TypeScript 与 Next.js 16.3.0 生产构建通过。数据库、E2E、Lighthouse 和性能门禁本轮未重跑。",
+  "at": "2026-08-14T02:07:12+00:00",
+  "title": "多用户安全验收补齐",
+  "summary": "补齐管理员本人 owner 行为隔离、Cookie 安全属性、登录限流、日志递归脱敏和禁用账号 Session 撤销测试；E2E 19/19、集成 10/10、契约 8/8、Vitest 47/47 通过。",
   "sections": [],
   "memory_sections": [],
   "project_sections": []

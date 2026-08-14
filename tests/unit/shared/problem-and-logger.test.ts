@@ -21,8 +21,17 @@ describe("错误与隐私日志", () => {
         operation: "create",
         notes: "secret",
         apiToken: "secret",
+        requestHeaders: {
+          cookie: "better-auth.session_token=secret",
+          authorization: "Bearer secret",
+          accept: "application/json",
+        },
+        session: { token: "secret" },
       }),
-    ).toEqual({ operation: "create" });
+    ).toEqual({
+      operation: "create",
+      requestHeaders: { accept: "application/json" },
+    });
   });
   it("将未知错误隐藏为统一内部错误", () => {
     const problem = asProblem(new Error("database secret"));

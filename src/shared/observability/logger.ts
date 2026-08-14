@@ -5,13 +5,30 @@ const privateKeys = new Set([
   "password",
   "key",
   "token",
+  "cookie",
+  "authorization",
+  "session",
 ]);
-export function sanitizeLogContext(context: Record<string, unknown>) {
+
+function sanitizeValue(value: unknown, seen: WeakSet<object>): unknown {
+  if (!value || typeof value !== "object") return value;
+  if (seen.has(value)) return "[Circular]";
+  seen.add(value);
+  if (Array.isArray(value))
+    return value.map((item) => sanitizeValue(item, seen));
+  if (value instanceof Date) return value.toISOString();
   return Object.fromEntries(
-    Object.entries(context).filter(
-      ([key]) => !privateKeys.has(key) && !/secret|password|token/i.test(key),
+    Object.entries(value).flatMap(([key, child]) =>
+      privateKeys.has(key) ||
+      /secret|password|token|cookie|authorization|session/i.test(key)
+        ? []
+        : [[key, sanitizeValue(child, seen)]],
     ),
   );
+}
+
+export function sanitizeLogContext(context: Record<string, unknown>) {
+  return sanitizeValue(context, new WeakSet()) as Record<string, unknown>;
 }
 export function logServerEvent(
   operation: string,
