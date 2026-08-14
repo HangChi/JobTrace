@@ -51,13 +51,9 @@
 
 | Code | 中文标签 | 分类 |
 |------|----------|------|
-| `planned` | 待投递 | 活跃 |
-| `active` | 进行中 | 活跃、可跟进 |
-| `rejected` | 拒绝 | 结束 |
-| `offer` | Offer | 活跃、可跟进 |
-| `accepted` | 已接受 | 结束 |
-| `withdrawn` | 已放弃 | 结束 |
-| `no_response` | 无反馈 | 结束 |
+| `submitted` | 已投递 | 活跃、可跟进 |
+| `offer` | Offer | 终态 |
+| `refused` | 拒绝 | 终态 |
 
 ### recruitment_stage
 
@@ -82,7 +78,7 @@
 | `city` | varchar(100) | no | trim 后 1–100 字符 |
 | `job_url` | text | no | 绝对 `http`/`https` URL，最长 2048 字符 |
 | `applied_date` | date | yes | 不晚于当前业务日期 |
-| `status` | application_status | yes | 默认 `planned` |
+| `status` | application_status | yes | 默认 `submitted` |
 | `latest_date` | date | yes | `>= applied_date`，创建时等于投递日期 |
 | `notes` | text | no | 最长 10,000 字符 |
 | `created_at` | timestamptz | yes | 数据库生成 |
@@ -91,8 +87,8 @@
 
 ### Derived values
 
-- `is_closed`: `status` ∈ rejected, accepted, withdrawn, no_response。
-- `needs_follow_up`: `status` ∈ active, offer 且 `current_business_date - latest_date >= 7`。
+- `is_closed`: `status` ∈ offer, refused。
+- `needs_follow_up`: `status = submitted` 且投递内容或招聘时间线连续 15 个完整日未更新。
 - `follow_up_days`: 当前业务日期与 `latest_date` 的自然日差。
 - `candidate_duplicate_key`: 标准化公司名 + 标准化岗位名 + `applied_date`；只提示，不建立唯一约束。
 
@@ -215,5 +211,5 @@
 - 投递、阶段和事件持续保留，直到用户删除投递。
 - 导入批次和行在 24 小时后可清理；不保留上传的二进制原文件。
 - 日志不得包含 notes、完整文件行或密钥；必要时只记录 application/batch ID、行数和错误代码。
-- 密码、访问/刷新令牌与 Cookie 由 Supabase Auth 管理，不进入 public schema 或应用日志。
+- 密码哈希、Session 与验证令牌由 Better Auth 管理；密码、令牌和完整 Cookie 不得进入应用日志。
 - 删除认证用户默认级联删除 profile；业务数据采用受控删除/转移策略，管理员执行前必须明确确认，避免隐式丢失投递记录。

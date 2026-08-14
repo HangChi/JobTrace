@@ -1779,28 +1779,53 @@ dialog::backdrop {
 }
 
 .delete-dialog {
-  width: min(500px, calc(100% - 28px));
+  width: min(480px, calc(100% - 28px));
 }
 .delete-dialog .dialog-card {
-  padding: 26px;
+  padding: 24px;
 }
 .delete-dialog .dialog-heading {
-  padding-bottom: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  padding-bottom: 16px;
   border-bottom: 0;
+}
+.delete-dialog .dialog-heading > div {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+.delete-dialog .dialog-heading h2 {
+  margin: 0;
+  font-size: 1.42rem;
+  line-height: 1.2;
+}
+.delete-dialog .dialog-description {
+  margin-top: 8px;
+  font-size: 0.84rem;
+}
+.delete-dialog .dialog-close {
+  width: 34px;
+  height: 34px;
+  font-size: 1.25rem;
 }
 .delete-warning {
   display: flex;
-  gap: 14px;
-  margin: 2px 0 22px;
-  padding: 16px;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 14px;
   border: 1px solid #f0c8cf;
-  border-radius: 14px;
+  border-radius: 12px;
   color: #702333;
   background: #fff7f8;
 }
 .delete-warning-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -1812,13 +1837,14 @@ dialog::backdrop {
 .delete-warning strong {
   display: block;
   color: #551725;
-  line-height: 1.45;
+  font-size: 0.92rem;
+  line-height: 1.4;
 }
 .delete-warning p {
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   color: #955060;
-  font-size: 0.86rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 .delete-dialog-actions {
   display: flex;
@@ -1826,7 +1852,10 @@ dialog::backdrop {
   gap: 10px;
 }
 .delete-dialog-actions .button {
-  min-width: 104px;
+  min-width: 96px;
+  min-height: 40px;
+  padding-inline: 15px;
+  font-size: 0.82rem;
 }
 .delete-dialog .button.danger:hover {
   background: #941d32;

@@ -11,3 +11,5 @@ JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。S
 依赖方向为 `app → application → domain`。模块间只允许通过各模块的 `index.ts` 公开接口协作。写操作通过 PostgreSQL 函数原子写入投递与历史事件；浏览器不接触服务角色密钥。
 
 业务日期以 `Asia/Shanghai` 自然日解释。投递状态和阶段在数据库中保存稳定英文代码，中文只作为展示标签。
+
+投递状态固定为 `submitted`（已投递）、`offer`（Offer）和 `refused`（拒绝）；Offer 与拒绝为终态。只有已投递记录会在投递内容或招聘时间线连续 15 个完整日未更新时进入跟进提醒。

@@ -16,6 +16,7 @@ describe("identity access rules", () => {
   });
   it("allows only same-origin relative return paths", () => {
     expect(safeReturnTo("/applications/1?q=x")).toBe("/applications/1?q=x");
+    expect(safeReturnTo(undefined)).toBeNull();
     expect(safeReturnTo("//evil.example")).toBeNull();
     expect(safeReturnTo("https://evil.example")).toBeNull();
   });

@@ -109,7 +109,7 @@
 
 ## 10. 认证、会话与角色授权（2026-08-13 范围变更）
 
-**Decision**: 使用 Better Auth 邮箱密码认证，用户、密码哈希、数据库 Session 与验证令牌全部保存在自有 PostgreSQL；认证表单由 Server Actions 处理。Next.js 16 的 `src/proxy.ts` 只做乐观路由分流，最终授权在 Server Action、Route Handler 和 DAL 中执行。
+**Decision**: 使用 Better Auth 用户名密码认证，用户名为 3–30 位字母、数字或下划线，注册密码至少 8 位。Better Auth 以 `<用户名>@users.jobtrace.local` 作为内部账号标识；用户、密码哈希、数据库 Session 与验证令牌全部保存在自有 PostgreSQL。认证表单由 Server Actions 处理，Next.js 16 的 `src/proxy.ts` 只做乐观路由分流，最终授权在 Server Action、Route Handler 和 DAL 中执行。
 
 **Rationale**: 用户要求使用自己的服务器数据库。Better Auth 接管密码哈希、Session Cookie、速率限制与认证端点，避免自研凭据算法，同时不依赖外部身份平台。
 
@@ -121,7 +121,7 @@
 
 ## 11. 角色模型与管理员引导
 
-**Decision**: `profiles.role` 仅允许 `user|admin`。公开注册触发器固定写入 `user`；首个管理员通过受控引导脚本/迁移配置创建，后续角色变更仅限管理员服务端用例。管理员账号不设独立登录表单，统一登录后按服务端读取的可信角色分流。
+**Decision**: `users.role` 仅允许 `user|admin`。公开注册固定写入 `user`；首个管理员通过受控引导脚本提升已注册账号，后续角色变更仅限管理员服务端用例。管理员账号不设独立登录表单，统一登录后按服务端读取的可信角色分流。
 
 **Rationale**: 统一入口减少重复体验；服务端确定角色避免客户端篡改。禁止公开选择管理员角色是最小权限原则的直接要求。
 
@@ -133,7 +133,7 @@
 
 ## 12. 数据归属与 RLS
 
-**Decision**: `applications` 和 `import_batches` 增加非空 `owner_id`；阶段、事件和导入行通过父表继承归属。普通用户所有查询和写入均绑定 `auth.uid()`，RLS 与应用 DAL 双重校验。管理员全局访问只能通过 `requireAdmin()` 后的受控服务端用例。
+**Decision**: `applications` 和 `import_batches` 增加 `owner_id`；阶段、事件和导入行通过父表继承归属。应用使用共享服务端数据库连接，因此普通用户所有查询和写入都必须显式携带 Better Auth actor 的 `users.id` 并附加 owner 谓词；管理员全局访问只能通过 `requireAdmin()` 后的受控服务端用例。
 
 **Rationale**: owner 放在聚合根避免子表重复且可通过 FK/EXISTS 策略一致授权。双层校验降低 service-role 误用和接口漏检导致的跨租户风险。
 
@@ -148,7 +148,7 @@
 - Next.js 16 本地文档：`node_modules/next/dist/docs/01-app/02-guides/authentication.md`
 - Next.js 16 Cookie API：`node_modules/next/dist/docs/01-app/03-api-reference/04-functions/cookies.md`
 - Next.js 16 Proxy：`node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`
-- Supabase SSR、密码认证、RLS 与 RBAC 官方文档（实现时复核具体包版本 API）
+- Better Auth 用户名插件、数据库 Session 与管理员插件文档（实现时复核锁定版本 API）
 
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers)

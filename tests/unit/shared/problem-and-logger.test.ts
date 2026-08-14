@@ -24,4 +24,9 @@ describe("错误与隐私日志", () => {
       }),
     ).toEqual({ operation: "create" });
   });
+  it("将未知错误隐藏为统一内部错误", () => {
+    const problem = asProblem(new Error("database secret"));
+    expect(problem).toMatchObject({ code: "internal", status: 500 });
+    expect(problem.message).not.toContain("database secret");
+  });
 });

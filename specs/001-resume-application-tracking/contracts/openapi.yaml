@@ -20,7 +20,7 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/RegisterRequest' }
       responses:
-        '202': { description: Account created; response is identical whether email confirmation is immediate or pending }
+        '202': { description: User account created; the response instructs the user to log in }
         '400': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
   /auth/login:
@@ -158,11 +158,11 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [total, active, rejected, offers, addedThisWeek, stageDistribution, followUps]
+                required: [total, submitted, refused, offers, addedThisWeek, stageDistribution, followUps]
                 properties:
                   total: { type: integer, minimum: 0 }
-                  active: { type: integer, minimum: 0 }
-                  rejected: { type: integer, minimum: 0 }
+                  submitted: { type: integer, minimum: 0 }
+                  refused: { type: integer, minimum: 0 }
                   offers: { type: integer, minimum: 0 }
                   addedThisWeek: { type: integer, minimum: 0 }
                   stageDistribution:
@@ -253,31 +253,31 @@ components:
     cookieSession:
       type: apiKey
       in: cookie
-      name: sb-auth-token
-      description: Logical Supabase SSR session; deployed cookie names may be project-scoped and split.
+      name: better-auth.session_token
+      description: Better Auth server-validated session cookie; production attributes include HttpOnly, Secure and SameSite=Lax.
   schemas:
     AccountRole:
       type: string
       enum: [user, admin]
     RegisterRequest:
       type: object
-      required: [email, password]
+      required: [username, password]
       additionalProperties: false
       properties:
-        email: { type: string, format: email, maxLength: 254 }
-        password: { type: string, minLength: 12, maxLength: 128, format: password }
+        username: { type: string, minLength: 3, maxLength: 30, pattern: '^[A-Za-z0-9_]+$' }
+        password: { type: string, minLength: 8, maxLength: 128, format: password }
         displayName: { type: string, minLength: 1, maxLength: 100 }
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [username, password]
       additionalProperties: false
       properties:
-        email: { type: string, format: email, maxLength: 254 }
+        username: { type: string, minLength: 3, maxLength: 30, pattern: '^[A-Za-z0-9_]+$' }
         password: { type: string, minLength: 1, maxLength: 128, format: password }
         returnTo: { type: string, description: Optional same-origin relative path; external URLs are rejected }
     ApplicationStatus:
       type: string
-      enum: [planned, active, rejected, offer, accepted, withdrawn, no_response]
+      enum: [submitted, offer, refused]
     RecruitmentStage:
       type: string
       enum: [screening, assessment, written_test, interview_1, interview_2, interview_3, hr_interview, final_interview]

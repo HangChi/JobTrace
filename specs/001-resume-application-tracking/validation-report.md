@@ -1,5 +1,16 @@
 # 实现验证报告
 
+## 当前代码口径同步与覆盖率修复（2026-08-14）
+
+- **PASS**：投递状态规格、数据模型与 OpenAPI 已同步为 `submitted`（已投递）、`offer`（Offer）、`refused`（拒绝）；Offer 和拒绝为终态，仅已投递记录参与跟进提醒。
+- **PASS**：跟进阈值已同步为 15 个完整日，并区分投递内容与招聘时间线停滞来源。
+- **PASS**：认证契约已同步为 Better Auth 用户名密码登录；用户名 3–30 位，注册密码至少 8 位，Session Cookie 由 Better Auth 在服务端验证。
+- **PASS**：`pnpm test` 运行 17 个测试文件、42 项测试全部通过；行覆盖率 94.77%，分支覆盖率 89.88%，满足宪章 80% 门槛。
+- **PASS**：`pnpm format`、规格目录 Prettier 检查、`pnpm lint`、`pnpm typecheck` 与 Next.js 16.3.0 `pnpm build` 全部通过；页面、API 路由及 Proxy 均成功生成。
+- **NOT RUN**：本轮未重跑 PostgreSQL 迁移、数据库/HTTP 集成、Playwright E2E、Lighthouse 与 10,000 条性能测试；下方 2026-08-13 数据仅代表当时基线，不自动证明当前提交通过这些门禁。
+
+当前版本发布前仍须按 `tasks.md` 完成剩余认证安全、真实双用户隔离、数据库迁移演练与完整发布门禁。
+
 ## 自有 PostgreSQL 认证验证（2026-08-13）
 
 - PASS：认证已从 Supabase 改为 Better Auth + 用户自有 PostgreSQL；远程目标为 `115.159.112.148:5432/jobtrace`。
@@ -16,7 +27,7 @@
 - **PASS**：13 个 Vitest 文件、25 个单元/组件测试，包含认证校验、开放重定向拒绝、密码管理器语义和管理员状态展示。
 - **PASS**：投递 CRUD/列表、统计、导入批次/重复判断和导出均已加入 owner 谓词。
 - **BLOCKED**：`.env.local` 中 PostgreSQL 主机可以解析，但从当前环境访问 5432/TCP 失败；因此尚未执行新增迁移、数据库类型生成、数据库集成、E2E 和性能门禁。
-- **BLOCKED**：`.env.local` 当前只有 `DATABASE_URL`；真实注册/登录/RBAC E2E 还需要 Supabase URL、publishable key、service-role key 和测试身份。
+- **BLOCKED**：真实注册/登录/RBAC E2E 仍需要可访问的 PostgreSQL、完整 Better Auth 服务端配置和隔离的测试身份。
 
 在 tasks.md 中剩余认证数据库、安全 E2E 和发布任务完成前，不得作为公开多用户版本发布。
 
@@ -44,4 +55,4 @@
 - CLS 三次均为 0.0109，低于 0.1 预算；性能分为 90、89、90。
 - Lighthouse CI 断言全部通过，T072 已完成。
 
-当前任务进度为 78/78，全部实现任务与自动化发布门禁均已通过。
+以上“完整通过的门禁”和 Lighthouse 数据是 2026-08-13 的历史基线。当前扩展任务清单仍有未完成项，应以 `tasks.md` 的勾选状态和本报告顶部最新日期小节为准。

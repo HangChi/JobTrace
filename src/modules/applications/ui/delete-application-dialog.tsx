@@ -49,7 +49,6 @@ export function DeleteApplicationDialog({
       </button>
       <Dialog
         open={open}
-        kicker="DELETE APPLICATION"
         title="删除这条投递？"
         description="删除后无法恢复，请确认记录是否正确。"
         className="delete-dialog"

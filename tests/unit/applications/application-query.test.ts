@@ -21,4 +21,21 @@ describe("列表查询", () => {
       sort: "latestDate",
       direction: "desc",
     }));
+  it("忽略未知筛选和无效日期并约束页码", () => {
+    const query = parseListQuery(
+      new URLSearchParams(
+        "status=unknown&stage=unknown&appliedFrom=nope&appliedTo=2026-08-13&direction=sideways&page=-2&limit=0&city=Shanghai",
+      ),
+    );
+    expect(query).toMatchObject({
+      status: [],
+      stage: [],
+      city: ["Shanghai"],
+      appliedFrom: undefined,
+      appliedTo: "2026-08-13",
+      direction: "desc",
+      page: 1,
+      limit: 50,
+    });
+  });
 });

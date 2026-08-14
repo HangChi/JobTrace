@@ -21,34 +21,28 @@
 ## Prerequisites
 
 - Node.js 24 LTS 与项目选定的包管理器
-- Docker Desktop 或兼容容器运行时
-- Supabase CLI（项目开发依赖）
+- Python 3.12 与 uv（数据库迁移和验证脚本）
+- 可访问的 PostgreSQL 17 实例
 - 支持的桌面浏览器
 
 ## 1. Configure
 
-认证与迁移新增配置（实际变量名以实现阶段 `.env.example` 为准）：
-
-- Supabase URL 与 publishable key（SSR 用户会话）；service-role key 仅限受控服务端管理用例。
-- `SITE_URL` 与允许的认证回调 URL；生产启用邮箱确认和自定义 SMTP。
-- 首次升级时显式提供 `MIGRATION_OWNER_ID`；不得使用“第一个注册用户”作为隐式 owner。
-- 生产启用登录/注册速率限制，并配置 CAPTCHA 接入点。
+认证与迁移使用 `.env.example` 中的 `DATABASE_URL`、`BETTER_AUTH_SECRET` 与 `BETTER_AUTH_URL`。认证密钥至少 32 个随机字符，只能存在于服务端环境；旧数据必须显式选择已注册用户作为 owner，不得使用“第一个注册用户”作为隐式归属。
 
 ```bash
 cp .env.example .env.local
-npm install
-npx supabase start
-npx supabase db reset
-npm run db:types
+pnpm install
+pnpm db
+pnpm db:types
 ```
 
-将 `supabase status` 输出的本地 URL 和仅服务端密钥填入 `.env.local`。不得使用 `NEXT_PUBLIC_` 前缀暴露服务端密钥。数据库结构应完全来自 `supabase/migrations/`，类型输出到 `src/generated/database.types.ts`。
+不得使用 `NEXT_PUBLIC_` 前缀暴露数据库连接或认证密钥。数据库结构应完全来自 `supabase/migrations/`，类型输出到 `src/generated/database.types.ts`。
 
 验证：
 
 ```bash
-npm run db:verify
-npm run typecheck
+pnpm db:test
+pnpm typecheck
 ```
 
 预期：迁移从空数据库成功重放；数据库测试通过；生成类型与已提交文件无差异。
@@ -56,12 +50,12 @@ npm run typecheck
 ## 2. Run Quality Gates
 
 ```bash
-npm run format:check
-npm run lint
-npm run typecheck
-npm run test:coverage
-npm run test:integration
-npm run test:contract
+pnpm format
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm integration
+pnpm contract
 ```
 
 预期：所有检查通过，变更代码的行覆盖率和分支覆盖率均不低于 80%；HTTP 行为符合 [OpenAPI 契约](./contracts/openapi.yaml)。
@@ -69,7 +63,7 @@ npm run test:contract
 ## 3. Start the Application
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 打开终端输出的本地地址。首屏应显示统计区、跟进区和投递列表的空状态，并提供“新增投递”和“导入数据”入口。键盘 Tab 顺序合理且所有交互控件有可见焦点。
@@ -78,12 +72,12 @@ npm run dev
 
 ### Journey 0 — Authentication and role routing
 
-1. 注册 `user-a@example.test`，确认公开表单无法提交/决定 `admin` 角色。
-2. 完成邮箱确认（本地使用 Mailpit），以普通用户登录；预期进入 `/`。
+1. 注册用户名 `user_a` 和至少 8 位密码，确认公开表单无法提交/决定 `admin` 角色。
+2. 以普通用户登录；预期进入 `/`。
 3. 以预置管理员登录；预期进入 `/admin`，可分页查看用户但不能禁用最后一个管理员。
 4. 普通用户直接访问 `/admin`：页面不得显示管理数据；管理 API 返回 `403`。
 5. 未登录访问 `/applications/new` 与 `/api/applications`：页面跳转登录，API 返回 `401`。
-6. 退出后重试受保护资源；预期会话失效。执行密码恢复并确认错误文案不泄露邮箱是否存在。
+6. 退出后重试受保护资源；预期会话失效。密码恢复尚未配置邮件投递时应返回统一说明，不泄露账号是否存在。
 
 ### Journey 0B — Tenant isolation
 
@@ -96,7 +90,7 @@ npm run dev
 
 1. 仅填写公司、岗位和今天以前的投递日期并保存。
 2. 确认列表出现记录，最新日期等于投递日期。
-3. 在详情中将状态改为进行中，添加一面和二面，并填写不同发生日期。
+3. 保持状态为已投递，添加一面和二面，并填写不同发生日期；再将状态改为 Offer 或拒绝。
 4. 确认详情历史按日期展示状态和阶段变化，列表阶段不重复。
 5. 在另一个浏览器标签修改记录，再从旧标签保存，确认收到冲突提示且新数据未被覆盖。
 6. 尝试无效 URL、未来日期和空白公司名，确认字段错误且输入保留。
@@ -111,10 +105,10 @@ npm run dev
 
 ### Journey C — Analytics and follow-up
 
-1. 执行固定统计 fixture，覆盖全部状态、阶段、本周边界和 7 天阈值。
-2. 核对总数、进行中、拒绝、Offer、本周新增和阶段分布。
-3. 确认 active/offer 且最新日期恰好早 7 天的记录出现提醒，早 6 天的不出现。
-4. 更新提醒记录或将其转为结束状态，确认提醒立即消失。
+1. 执行固定统计 fixture，覆盖已投递、Offer、拒绝、全部阶段、本周边界和 15 天阈值。
+2. 核对总数、已投递、拒绝、Offer、本周新增和阶段分布。
+3. 确认已投递且投递内容或招聘时间线恰好停滞 15 天的记录出现提醒，停滞 14 天的不出现；Offer 和拒绝不提醒。
+4. 更新提醒记录或将其转为 Offer/拒绝，确认提醒立即消失。
 
 ### Journey D — Import and export
 

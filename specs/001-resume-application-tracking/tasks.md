@@ -116,13 +116,13 @@
 
 ## Phase 5: User Story 3 — 掌握整体求职进展（Priority: P2）
 
-**Goal**: 用户可以查看准确的核心统计、阶段分布和连续 7 天未更新的跟进提示。
+**Goal**: 用户可以查看准确的核心统计、阶段分布和连续 15 天未更新的跟进提示。
 
-**Independent Test**: 使用覆盖周一边界、全部状态/阶段和 6/7 天阈值的固定数据，核对统计和提醒，并在更新后确认提醒消失。
+**Independent Test**: 使用覆盖周一边界、三种状态、全部阶段和 14/15 天阈值的固定数据，核对统计和提醒，并在更新后确认提醒消失。
 
 ### Tests for User Story 3（先写并确认失败）
 
-- [X] T047 [P] [US3] 为本周区间、结束状态、去重阶段分布和 7 天跟进判定编写单元测试到 tests/unit/analytics/analytics-rules.test.ts
+- [X] T047 [P] [US3] 为本周区间、终态、去重阶段分布和 15 天跟进判定编写单元测试到 tests/unit/analytics/analytics-rules.test.ts
 - [X] T048 [P] [US3] 为统计聚合、时区边界和更新后提醒移除编写数据库集成测试到 tests/integration/analytics/analytics-summary.test.ts
 - [X] T049 [P] [US3] 为 GET `/api/analytics/summary` 编写契约测试到 tests/contract/analytics-summary.contract.test.ts
 - [X] T050 [P] [US3] 为统计卡、文本阶段分布和跟进导航编写端到端/可访问性测试到 tests/e2e/analytics.spec.ts

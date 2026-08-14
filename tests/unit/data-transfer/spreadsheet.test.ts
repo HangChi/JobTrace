@@ -23,6 +23,17 @@ describe("表格读取与写出", () => {
       readSpreadsheet(new Uint8Array([0, 1]).buffer, "fake.csv"),
     ).toThrow("二进制");
   });
+  it("拒绝超限、未知格式和无法解码的文件", () => {
+    expect(() =>
+      readSpreadsheet(new ArrayBuffer(5 * 1024 * 1024 + 1), "large.csv"),
+    ).toThrow("5MB");
+    expect(() => readSpreadsheet(new ArrayBuffer(0), "data.txt")).toThrow(
+      "CSV 或 XLSX",
+    );
+    expect(() =>
+      readSpreadsheet(new Uint8Array([0xc3, 0x28]).buffer, "invalid.csv"),
+    ).toThrow("UTF-8");
+  });
   it("写出可往返的 XLSX 并阻止公式注入", () => {
     const rows = [{ 公司: "=CMD()", 岗位: "开发" }];
     expect(rowsToCsv(rows)).toContain("'=CMD()");

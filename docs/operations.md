@@ -11,7 +11,7 @@
 
 ## 认证运维
 
-- 首个管理员：先公开注册，再执行 `pnpm admin:bootstrap -- <邮箱>`；公开注册永远不接收角色。
+- 首个管理员：先公开注册用户名，再以 `<用户名>@users.jobtrace.local` 执行 `pnpm admin:bootstrap -- <内部邮箱>`；公开注册永远不接收角色。
 - 旧数据：显式选择已注册用户 ID，人工确认后回填 `applications.owner_id` 与 `import_batches.owner_id`；不要按注册顺序推断 owner。
 - 账号事件：管理员可在 `/admin` 禁用账号并撤销全局会话；数据库阻止禁用或降级最后一个有效管理员。
 - 回滚：仅回滚应用代码，并确认旧构建无法绕过登录；保留 users、sessions、owner 列及审计事件。
