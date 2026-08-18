@@ -28,5 +28,13 @@ export interface ApplicationRepository {
     occurrenceId: string,
     changeDate: string,
   ): Promise<ApplicationDetail>;
+  updateStage(
+    ownerId: string,
+    id: string,
+    occurrenceId: string,
+    stage: string,
+    occurredOn: string,
+    changeDate: string,
+  ): Promise<ApplicationDetail>;
   list(ownerId: string, query: ListQuery): Promise<ApplicationPage>;
 }

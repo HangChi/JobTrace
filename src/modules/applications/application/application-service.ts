@@ -2,6 +2,7 @@ import { Problem } from "@/shared/errors/problem";
 import {
   createApplicationSchema,
   stageInputSchema,
+  stageUpdateSchema,
   updateApplicationSchema,
 } from "../domain/application.schema";
 import { PostgresApplicationRepository } from "../infrastructure/postgres-application-repository";
@@ -45,6 +46,17 @@ export async function removeApplicationStage(
   const { changeDate } = z.object({ changeDate: z.iso.date() }).parse(input);
   const actor = await requireUser();
   return repository().removeStage(actor.id, id, occurrenceId, changeDate);
+}
+export async function updateApplicationStage(
+  id: string,
+  occurrenceId: string,
+  input: unknown,
+) {
+  const value = stageUpdateSchema.parse(input);
+  const actor = await requireUser();
+  return repository().updateStage(
+    actor.id,id,occurrenceId,value.stage,value.occurredOn,value.changeDate,
+  );
 }
 export async function listApplications(params: URLSearchParams) {
   const actor = await requireUser();

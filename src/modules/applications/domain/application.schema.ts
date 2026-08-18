@@ -12,6 +12,7 @@ export const stageInputSchema = z.object({
   stage: z.enum(RECRUITMENT_STAGES),
   occurredOn: date,
 });
+export const stageUpdateSchema = stageInputSchema.extend({ changeDate: date });
 export const createApplicationSchema = z.object({
   companyName: z.string().trim().min(1, "请输入公司名称").max(200),
   positionName: z.string().trim().min(1, "请输入岗位名称").max(200),

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Route } from "next";
 import { logoutAction } from "@/app/(auth)/actions";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import type { Actor } from "../application/contracts";
@@ -24,6 +25,10 @@ export function AccountMenu({ actor }: { actor: Actor }) {
           <small>求职进度工作台</small>
         </span>
       </Link>
+      <div className="app-primary-nav" aria-label="主要功能">
+        <Link href="/">投递记录</Link>
+        <Link href={"/interviews" as Route}>面经</Link>
+      </div>
       <DismissibleDetails className="account-menu">
         <summary aria-label="打开用户菜单">
           <span className="user-avatar" aria-hidden="true">
