@@ -1,8 +1,0 @@
-{
-  "at": "2026-08-14T02:07:12+00:00",
-  "title": "多用户安全验收补齐",
-  "summary": "补齐管理员本人 owner 行为隔离、Cookie 安全属性、登录限流、日志递归脱敏和禁用账号 Session 撤销测试；E2E 19/19、集成 10/10、契约 8/8、Vitest 47/47 通过。",
-  "sections": [],
-  "memory_sections": [],
-  "project_sections": []
-}
