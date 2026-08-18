@@ -21,13 +21,13 @@ JobTrace 是一个面向个人求职者的多用户 Web 应用，用于替代分
 
 ## 技术栈
 
-| 层 | 技术 |
-| --- | --- |
-| 框架 | [Next.js](https://nextjs.org/) 16（App Router）、React 19、TypeScript |
-| 数据库 | PostgreSQL 17（仅服务端驱动，SQL 迁移 + 原子写函数） |
-| 认证 | [Better Auth](https://www.better-auth.com/) 用户名密码模式 + 角色访问 |
-| 数据导入导出 | CSV / XLSX |
-| 测试 | Vitest、Playwright、@axe-core/playwright、Lighthouse CI |
+| 层           | 技术                                                                  |
+| ------------ | --------------------------------------------------------------------- |
+| 框架         | [Next.js](https://nextjs.org/) 16（App Router）、React 19、TypeScript |
+| 数据库       | PostgreSQL 17（仅服务端驱动，SQL 迁移 + 原子写函数）                  |
+| 认证         | [Better Auth](https://www.better-auth.com/) 用户名密码模式 + 角色访问 |
+| 数据导入导出 | CSV / XLSX                                                            |
+| 测试         | Vitest、Playwright、@axe-core/playwright、Lighthouse CI               |
 
 ## 快速开始
 
@@ -115,13 +115,18 @@ pnpm lighthouse     # Lighthouse CI
 
 ## 环境变量
 
-| 变量 | 必填 | 说明 |
-| --- | --- | --- |
-| `DATABASE_URL` | 是 | PostgreSQL 连接串 |
-| `BETTER_AUTH_SECRET` | 是 | 认证密钥，生产环境至少 32 字节 |
-| `BETTER_AUTH_URL` | 是 | 应用访问地址 |
-| `AUTH_CHALLENGE_VERIFY_URL` | 否 | CAPTCHA 兼容的验证端点 |
-| `AUTH_CHALLENGE_SECRET` | 否 | CAPTCHA 验证密钥 |
+| 变量                        | 必填     | 说明                                        |
+| --------------------------- | -------- | ------------------------------------------- |
+| `DATABASE_URL`              | 是       | PostgreSQL 连接串                           |
+| `BETTER_AUTH_SECRET`        | 是       | 认证密钥，生产环境至少 32 字节              |
+| `BETTER_AUTH_URL`           | 是       | 应用访问地址                                |
+| `AUTH_CHALLENGE_VERIFY_URL` | 否       | CAPTCHA 兼容的验证端点                      |
+| `AUTH_CHALLENGE_SECRET`     | 否       | CAPTCHA 验证密钥                            |
+| `COS_SECRET_ID`             | 头像上传 | 腾讯云 COS 服务端访问密钥 ID                |
+| `COS_SECRET_KEY`            | 头像上传 | 腾讯云 COS 服务端访问密钥，禁止暴露给浏览器 |
+| `COS_BUCKET`                | 头像上传 | COS 存储桶名称，包含 APPID 后缀             |
+| `COS_REGION`                | 头像上传 | COS 地域，例如 `ap-shanghai`                |
+| `COS_PUBLIC_BASE_URL`       | 否       | 头像公开访问域名，默认使用 COS 源站域名     |
 
 完整说明见 [.env.example](.env.example)。
 

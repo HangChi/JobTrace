@@ -55,7 +55,13 @@ export class PostgresInterviewRepository implements InterviewRepository {
       if (code === "P0002")
         throw new Problem("not_found", "没有找到对应的投递或阶段。", 404);
       if (code === "22023")
-        throw new Problem("validation", "面试阶段或日期无效。", 400);
+        throw new Problem(
+          "validation",
+          (error as { message?: string }).message === "terminal_application"
+            ? "Offer 或拒绝后的投递不能再记录新的面试。"
+            : "面试阶段或日期无效。",
+          400,
+        );
       throw new Problem("storage", "创建面经失败，请稍后重试。", 500);
     }
   }

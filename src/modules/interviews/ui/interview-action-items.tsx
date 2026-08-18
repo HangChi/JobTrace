@@ -16,6 +16,10 @@ export function InterviewActionItems({
           <p className="section-kicker">NEXT STEPS</p>
           <h2>下一步行动</h2>
         </div>
+        <span className="action-progress">
+          {items.filter((item) => item.completed).length}/{items.length || 0}{" "}
+          已完成
+        </span>
         <button
           type="button"
           className="button secondary"
@@ -26,7 +30,7 @@ export function InterviewActionItems({
             ])
           }
         >
-          添加行动
+          添加任务
         </button>
       </div>
       {items.length === 0 && (
@@ -35,6 +39,9 @@ export function InterviewActionItems({
       <ol className="action-item-list">
         {items.map((item, index) => (
           <li key={item.id}>
+            <span className="action-item-index" aria-hidden="true">
+              {index + 1}
+            </span>
             <input
               aria-label={`完成行动 ${index + 1}`}
               type="checkbox"
@@ -50,7 +57,10 @@ export function InterviewActionItems({
               }
             />
             <input
-              aria-label={`行动 ${index + 1}`}
+              type="text"
+              aria-label={`任务 ${index + 1}`}
+              placeholder="写下一个具体、可执行的任务"
+              className={item.completed ? "is-completed" : ""}
               value={item.content}
               onChange={(event) =>
                 onChange(

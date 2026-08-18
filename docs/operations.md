@@ -9,6 +9,14 @@
 
 `DATABASE_URL` 与 `BETTER_AUTH_SECRET` 只能存在于服务端环境变量中。所有最终授权由服务端 actor 校验和数据库查询中的 `owner_id` 条件执行。
 
+## 头像存储
+
+头像通过服务端签名请求上传到腾讯云 COS。生产环境必须配置 `COS_SECRET_ID`、
+`COS_SECRET_KEY`、`COS_BUCKET` 和 `COS_REGION`；自定义或加速域名通过
+`COS_PUBLIC_BASE_URL` 配置。密钥仅授予目标桶的对象上传权限，不得使用主账号永久密钥，
+也不得添加 `NEXT_PUBLIC_` 前缀。头像 URL 需要公开读取，因此目标桶或 `avatars/` 前缀应配置
+只读访问策略。
+
 ## 认证运维
 
 认证使用 Better Auth 的用户名密码模式。生产环境必须配置 HTTPS、至少 32 字节的

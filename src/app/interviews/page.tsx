@@ -33,7 +33,7 @@ export default async function InterviewsPage({
           <p className="eyebrow">
             <span aria-hidden="true" /> 面试复盘工作台
           </p>
-          <h1>
+          <h1 className="interviews-hero-title">
             把每次面试，<span>变成下一次的准备。</span>
           </h1>
           <p className="lead">

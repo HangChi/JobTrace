@@ -39,7 +39,6 @@ export function InterviewCreateForm({
       durationMinutes: values.durationMinutes
         ? Number(values.durationMinutes)
         : null,
-      interviewerNotes: values.interviewerNotes || null,
       roundResult: "pending",
     };
     const response = await fetch("/api/interviews", {
@@ -66,37 +65,47 @@ export function InterviewCreateForm({
       <div className="grid">
         <label>
           关联投递
-          <select
-            name="applicationId"
-            defaultValue={applicationId}
-            required
-            disabled={Boolean(applicationId)}
-          >
-            <option value="">请选择投递</option>
-            {applications.map((item) => (
-              <option value={item.id} key={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
+          <span className="select-wrap">
+            <select
+              name="applicationId"
+              defaultValue={applicationId}
+              required
+              disabled={Boolean(applicationId)}
+            >
+              <option value="">请选择投递</option>
+              {applications.map((item) => (
+                <option value={item.id} key={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+            </svg>
+          </span>
           {applicationId && (
             <input type="hidden" name="applicationId" value={applicationId} />
           )}
         </label>
         <label>
           面试轮次
-          <select
-            name="stage"
-            defaultValue={stage}
-            disabled={Boolean(stageOccurrenceId)}
-            required
-          >
-            {INTERVIEW_STAGES.map((item) => (
-              <option value={item} key={item}>
-                {STAGE_LABELS[item]}
-              </option>
-            ))}
-          </select>
+          <span className="select-wrap">
+            <select
+              name="stage"
+              defaultValue={stage}
+              disabled={Boolean(stageOccurrenceId)}
+              required
+            >
+              {INTERVIEW_STAGES.map((item) => (
+                <option value={item} key={item}>
+                  {STAGE_LABELS[item]}
+                </option>
+              ))}
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+            </svg>
+          </span>
         </label>
         <label>
           面试日期
@@ -110,22 +119,23 @@ export function InterviewCreateForm({
         </label>
         <label>
           面试形式
-          <select name="format" defaultValue="">
-            <option value="">未记录</option>
-            <option value="online">线上</option>
-            <option value="offline">线下</option>
-            <option value="phone">电话</option>
-          </select>
+          <span className="select-wrap">
+            <select name="format" defaultValue="">
+              <option value="">未记录</option>
+              <option value="online">线上</option>
+              <option value="offline">线下</option>
+              <option value="phone">电话</option>
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+            </svg>
+          </span>
         </label>
         <label>
           时长（分钟）
           <input name="durationMinutes" type="number" min="1" max="600" />
         </label>
       </div>
-      <label>
-        面试官信息
-        <textarea name="interviewerNotes" maxLength={2000} rows={3} />
-      </label>
       <button className="button" disabled={busy}>
         {busy ? "正在创建…" : "开始记录"}
       </button>

@@ -6,7 +6,10 @@ import { DeleteApplicationDialog } from "@/modules/applications/ui/delete-applic
 import { requirePageUser } from "@/modules/identity-access";
 import Link from "next/link";
 import type { Route } from "next";
-import { listApplicationInterviews, REVIEW_STATUS_LABELS } from "@/modules/interviews";
+import {
+  listApplicationInterviews,
+  REVIEW_STATUS_LABELS,
+} from "@/modules/interviews";
 import { STAGE_LABELS } from "@/modules/applications";
 
 export default async function ApplicationPage({
@@ -23,21 +26,20 @@ export default async function ApplicationPage({
   }
   const interviews = await listApplicationInterviews(application.id);
   return (
-    <section className="stack">
-      <div>
-        <span className="badge">{STATUS_LABELS[application.status]}</span>
-        <h1>{application.companyName}</h1>
-        <p className="lead">
-          {application.positionName} · {application.city ?? "城市未填写"} ·
-          投递于 {application.appliedDate}
-        </p>
-        <div className="actions">
-          <DeleteApplicationDialog
-            id={application.id}
-            name={`${application.companyName} ${application.positionName}`}
-          />
+    <section className="stack application-detail-page">
+      <header className="application-detail-header">
+        <Link className="application-detail-back" href="/">
+          <span aria-hidden="true">←</span> 返回投递记录
+        </Link>
+        <div>
+          <span className="badge">{STATUS_LABELS[application.status]}</span>
+          <h1>{application.companyName}</h1>
+          <p className="lead">
+            {application.positionName} · {application.city ?? "城市未填写"} ·
+            投递于 {application.appliedDate}
+          </p>
         </div>
-      </div>
+      </header>
       {application.notes && (
         <section className="panel">
           <h2>备注</h2>
@@ -46,10 +48,53 @@ export default async function ApplicationPage({
       )}
       <ApplicationEditor application={application} />
       <section className="panel stack">
-        <div className="section-heading"><div><p className="section-kicker">INTERVIEW REVIEWS</p><h2>面经复盘</h2></div><Link className="button secondary" href={`/interviews/new?applicationId=${application.id}` as Route}>记录面经</Link></div>
-        {interviews.length ? <ul className="application-interview-list">{interviews.map((item) => <li key={item.id}><span>{STAGE_LABELS[item.stage]} · {item.interviewedOn}</span><span className={`review-status status-${item.status}`}>{REVIEW_STATUS_LABELS[item.status]}</span><Link href={`/interviews/${item.id}` as Route}>打开复盘</Link></li>)}</ul> : <p className="muted">阶段时间线中的一面、二面等面试阶段可以直接记录面经。</p>}
+        <div className="section-heading">
+          <div>
+            <p className="section-kicker">INTERVIEW REVIEWS</p>
+            <h2>面经复盘</h2>
+          </div>
+          <Link
+            className="button secondary"
+            href={`/interviews/new?applicationId=${application.id}` as Route}
+          >
+            记录面经
+          </Link>
+        </div>
+        {interviews.length ? (
+          <ul className="application-interview-list">
+            {interviews.map((item) => (
+              <li key={item.id}>
+                <span>
+                  {STAGE_LABELS[item.stage]} · {item.interviewedOn}
+                </span>
+                <span className={`review-status status-${item.status}`}>
+                  {REVIEW_STATUS_LABELS[item.status]}
+                </span>
+                <Link href={`/interviews/${item.id}` as Route}>打开复盘</Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">
+            阶段时间线中的一面、二面等面试阶段可以直接记录面经。
+          </p>
+        )}
       </section>
       <ApplicationHistory application={application} />
+      <section
+        className="application-danger-zone"
+        aria-labelledby="delete-application-title"
+      >
+        <div>
+          <p className="section-kicker">DANGER ZONE</p>
+          <h2 id="delete-application-title">删除这条投递</h2>
+          <p>删除后，招聘阶段、更新历史和面经复盘也会一起移除。</p>
+        </div>
+        <DeleteApplicationDialog
+          id={application.id}
+          name={`${application.companyName} ${application.positionName}`}
+        />
+      </section>
     </section>
   );
 }

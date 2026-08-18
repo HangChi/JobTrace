@@ -5,7 +5,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RecruitmentStageTimeline } from "@/modules/applications/ui/recruitment-stage-timeline";
 import type { ApplicationDetail } from "@/modules/applications";
 
@@ -39,6 +39,17 @@ const application: ApplicationDetail = {
 };
 
 describe("招聘阶段时间线", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-08-14T08:00:00+08:00"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    refresh.mockReset();
+  });
+
   it.each([
     ["offer", "Offer"],
     ["refused", "拒绝"],

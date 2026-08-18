@@ -162,10 +162,21 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       if ((error as { code?: string }).code === "23505") {
-        throw new Problem("conflict", "该阶段日期已经存在。", 409);
+        throw new Problem(
+          "conflict",
+          "该招聘阶段已经记录过，不能重复添加。",
+          409,
+        );
       }
       if ((error as { code?: string }).code === "P0002") {
         throw new Problem("not_found", "没有找到这条投递记录。", 404);
+      }
+      if ((error as { code?: string }).code === "22023") {
+        throw new Problem(
+          "validation",
+          "Offer 或拒绝后的投递不能再添加招聘阶段。",
+          400,
+        );
       }
       throw new Problem("storage", "添加阶段失败", 500);
     }
@@ -205,9 +216,16 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       const code = (error as { code?: string }).code;
-      if (code === "23505") throw new Problem("conflict", "该阶段日期已经存在。", 409);
-      if (code === "P0002") throw new Problem("not_found", "没有找到该阶段记录。", 404);
-      if (code === "22023") throw new Problem("validation", "阶段日期无效。", 400);
+      if (code === "23505")
+        throw new Problem(
+          "conflict",
+          "该招聘阶段已经记录过，不能重复添加。",
+          409,
+        );
+      if (code === "P0002")
+        throw new Problem("not_found", "没有找到该阶段记录。", 404);
+      if (code === "22023")
+        throw new Problem("validation", "阶段日期无效。", 400);
       throw new Problem("storage", "更新阶段失败", 500);
     }
   }

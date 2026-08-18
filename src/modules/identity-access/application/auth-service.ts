@@ -2,6 +2,7 @@ import "server-only";
 
 import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
+import { z } from "zod";
 import { hasAuthConfiguration } from "@/shared/config/env";
 import { Problem } from "@/shared/errors/problem";
 import {
@@ -11,6 +12,7 @@ import {
   safeReturnTo,
 } from "./auth-schema";
 import { auth } from "../infrastructure/better-auth.server";
+import { requireUser } from "./authorization";
 
 const credentialError = () =>
   new Problem("invalid_credentials", "用户名或密码不正确。", 401);
@@ -93,4 +95,23 @@ export async function updatePassword(password: unknown) {
     "密码恢复邮件尚未配置，请联系管理员。",
     503,
   );
+}
+
+export async function updateProfile(input: unknown) {
+  const actor = await requireUser();
+  const value = z
+    .object({
+      displayName: z.string().trim().min(1, "请输入昵称").max(100),
+      image: z.union([z.url(), z.literal(""), z.null()]).optional(),
+    })
+    .parse(input);
+  await auth.api.updateUser({
+    body: { name: value.displayName, image: value.image || null },
+    headers: await headers(),
+  });
+  return {
+    id: actor.id,
+    displayName: value.displayName,
+    image: value.image || null,
+  };
 }
