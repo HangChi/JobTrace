@@ -3,11 +3,22 @@ const aliases = {
   companyName: ["companyName", "公司", "公司名称"],
   positionName: ["positionName", "岗位", "岗位名称"],
   appliedDate: ["appliedDate", "投递日期"],
+  type: ["type", "类型"],
   city: ["city", "城市"],
   jobUrl: ["jobUrl", "职位链接"],
   notes: ["notes", "备注"],
   status: ["status", "状态", "投递"],
 } as const;
+const typeAliases: Record<string, string> = {
+  暑期实习: "summer_internship",
+  summer_internship: "summer_internship",
+  日常实习: "daily_internship",
+  daily_internship: "daily_internship",
+  秋招: "campus_recruitment",
+  campus_recruitment: "campus_recruitment",
+  社招: "social_recruitment",
+  social_recruitment: "social_recruitment",
+};
 const statusAliases: Record<string, string> = {
   Offer: "offer",
   offer: "offer",
@@ -27,6 +38,8 @@ export function normalizeImportRow(row: Record<string, unknown>) {
       }
   if (typeof value.status === "string")
     value.status = statusAliases[value.status] ?? value.status;
+  if (typeof value.type === "string")
+    value.type = typeAliases[value.type] ?? value.type;
   return value;
 }
 export function validateImportRow(row: Record<string, unknown>) {

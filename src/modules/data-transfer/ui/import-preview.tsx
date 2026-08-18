@@ -5,6 +5,10 @@ import type {
   ImportResult,
 } from "../application/contracts";
 import Link from "next/link";
+import {
+  TYPE_LABELS,
+  type ApplicationType,
+} from "@/modules/applications/domain/catalog";
 
 export function ImportPreview({
   preview,
@@ -66,7 +70,7 @@ export function ImportPreview({
                   <td>{row.rowNumber}</td>
                   <td>
                     {valid
-                      ? `${row.data?.companyName} · ${row.data?.positionName}`
+                      ? `${row.data?.companyName} · ${row.data?.positionName} · ${TYPE_LABELS[(row.data?.type ?? "campus_recruitment") as ApplicationType]}`
                       : row.errors.map((item) => item.message).join("；")}
                     {row.duplicateApplicationIds.length > 0 && (
                       <span className="follow-up">

@@ -1057,10 +1057,6 @@ a:focus-visible {
   font-weight: 800;
 }
 .follow-up-list li {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f2eadb;
 }
@@ -1078,14 +1074,39 @@ a:focus-visible {
 .follow-up-list.is-scrollable li:last-child {
   padding-bottom: 12px;
 }
-.follow-up-list a {
-  font-weight: 750;
-  text-decoration: none;
+.follow-up-detail-trigger {
+  width: 100%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 4px;
+  border: 0;
+  border-radius: 10px;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease;
 }
-.follow-up-list a:hover {
-  color: var(--brand);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.follow-up-detail-trigger:hover {
+  background: rgba(224, 195, 137, 0.14);
+}
+.follow-up-detail-trigger:focus-visible {
+  outline: 3px solid rgba(8, 127, 115, 0.24);
+  outline-offset: 2px;
+}
+.follow-up-company {
+  min-width: 0;
+}
+.follow-up-company strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink-strong);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .company-avatar {
   width: 40px;
@@ -1143,7 +1164,7 @@ a:focus-visible {
 .filter-bar {
   display: grid;
   grid-template-columns:
-    minmax(230px, 2fr) repeat(2, minmax(140px, 1fr))
+    minmax(230px, 2fr) repeat(3, minmax(130px, 1fr))
     auto auto;
   gap: 12px;
   align-items: end;
@@ -1266,22 +1287,25 @@ table {
   table-layout: fixed;
 }
 .application-table .company-column {
-  width: 30%;
+  width: 25%;
 }
 .application-table .link-column {
-  width: 16%;
-}
-.application-table .stage-column {
   width: 14%;
 }
-.application-table .status-column {
-  width: 15%;
+.application-table .type-column {
+  width: 11%;
 }
-.application-table .date-column {
+.application-table .stage-column {
   width: 13%;
 }
-.application-table .actions-column {
+.application-table .status-column {
+  width: 14%;
+}
+.application-table .date-column {
   width: 12%;
+}
+.application-table .actions-column {
+  width: 11%;
 }
 th,
 td {
@@ -1337,6 +1361,35 @@ tbody tr:last-child td {
   margin-top: 5px;
   color: var(--muted);
   font-size: 0.82rem;
+}
+.type-badge {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid #d5e6e1;
+  border-radius: 999px;
+  color: #315f58;
+  background: #f2f8f6;
+  font-size: 0.76rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.type-summer_internship {
+  color: #176f65;
+  border-color: #bfe5dc;
+  background: #eaf8f4;
+}
+.type-daily_internship {
+  color: #23647a;
+  border-color: #c9e1e9;
+  background: #edf7fa;
+}
+.type-social_recruitment {
+  color: #80581b;
+  border-color: #ead9b9;
+  background: #fcf6e9;
 }
 .job-link,
 .edit-link {
@@ -1875,7 +1928,7 @@ dialog::backdrop {
 }
 .detail-meta-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
 }
 .detail-meta-grid > div {
@@ -2537,6 +2590,14 @@ dialog::backdrop {
   }
   .summary-card:last-child {
     grid-column: 1 / -1;
+  }
+  .follow-up-detail-trigger {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .follow-up-detail-trigger > .follow-up {
+    grid-column: 2;
+    margin-top: 0;
+    white-space: normal;
   }
   .filter-bar,
   .stage-form {

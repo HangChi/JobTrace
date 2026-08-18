@@ -9,6 +9,20 @@ import {
 } from "@/modules/applications/domain/application";
 
 describe("投递领域", () => {
+  it("新记录默认属于秋招且拒绝未知类型", () => {
+    const parsed = createApplicationSchema.parse({
+      companyName: "甲",
+      positionName: "开发",
+      appliedDate: "2026-08-13",
+    });
+    expect(parsed.type).toBe("campus_recruitment");
+    expect(
+      createApplicationSchema.safeParse({
+        ...parsed,
+        type: "unknown",
+      }).success,
+    ).toBe(false);
+  });
   it("校验必要字段、URL 和日期关系", () => {
     expect(
       createApplicationSchema.safeParse({

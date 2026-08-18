@@ -35,7 +35,7 @@ export async function fetchAnalyticsSummary(
   }
   const followUps = await sql<Record<string, unknown>[]>`
     select a.id, a.company_name, a.position_name, a.city, a.job_url,
-      a.applied_date, a.status, a.latest_date, a.version,
+      a.applied_date, a.type, a.status, a.latest_date, a.version,
       case
         when timeline.latest_date is not null
           and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
@@ -82,6 +82,7 @@ export async function fetchAnalyticsSummary(
         row.appliedDate instanceof Date
           ? row.appliedDate.toISOString().slice(0, 10)
           : String(row.appliedDate).slice(0, 10),
+      type: row.type as never,
       status: row.status as never,
       latestDate:
         row.latestDate instanceof Date

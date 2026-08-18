@@ -13,8 +13,10 @@ export {
 } from "./domain/application.schema";
 export {
   APPLICATION_STATUSES,
+  APPLICATION_TYPES,
   RECRUITMENT_STAGES,
   STATUS_LABELS,
+  TYPE_LABELS,
   STAGE_LABELS,
 } from "./domain/catalog";
 export type {

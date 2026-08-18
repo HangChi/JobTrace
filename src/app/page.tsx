@@ -39,7 +39,9 @@ export default async function HomePage({
     listApplications(toSearchParams(listSearch)),
     getAnalyticsSummary(),
   ]);
-  const filtered = [search.q, search.status, search.sort].some(Boolean);
+  const filtered = [search.q, search.status, search.type, search.sort].some(
+    Boolean,
+  );
   const exportSearch = { ...search };
   delete exportSearch.cursor;
   delete exportSearch.history;

@@ -3,18 +3,17 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { useState } from "react";
-import { Dialog } from "@/shared/ui/dialog";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { EditApplicationDialog } from "./application-dialogs";
-import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
 import { ApplicationStatusSelect } from "./application-status-select";
+import { ApplicationDetailDialog } from "./application-detail-dialog";
 import type {
   ApplicationDetail,
   ApplicationPage,
   ApplicationSummary,
 } from "../application/contracts";
-import { STAGE_LABELS, STATUS_LABELS } from "../domain/catalog";
+import { STAGE_LABELS, TYPE_LABELS } from "../domain/catalog";
 
 function latestStage(item: ApplicationSummary) {
   return item.stages.at(-1);
@@ -74,10 +73,7 @@ export function ApplicationTable({
   query?: Search;
 }) {
   const [selected, setSelected] = useState<ApplicationSummary | null>(null);
-  const [detail, setDetail] = useState<ApplicationDetail | null>(null);
   const [editing, setEditing] = useState<ApplicationDetail | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const pageSize =
     typeof query.limit === "string" &&
     PAGE_SIZES.includes(query.limit as (typeof PAGE_SIZES)[number])
@@ -86,32 +82,13 @@ export function ApplicationTable({
   const pageNumber = page.page;
   const totalPages = Math.max(1, Math.ceil(page.total / page.limit));
 
-  async function openDetail(item: ApplicationSummary) {
-    setSelected(item);
-    setDetail(null);
-    setError("");
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/applications/${item.id}`);
-      if (!response.ok) throw new Error("暂时无法加载详情");
-      setDetail(await response.json());
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "暂时无法加载详情");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function openEditor(item: ApplicationSummary) {
-    setError("");
     try {
       const response = await fetch(`/api/applications/${item.id}`);
       if (!response.ok) throw new Error("暂时无法加载投递信息");
       setEditing(await response.json());
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "暂时无法加载投递信息",
-      );
+    } catch {
+      setSelected(item);
     }
   }
 
@@ -132,6 +109,7 @@ export function ApplicationTable({
           <colgroup>
             <col className="company-column" />
             <col className="link-column" />
+            <col className="type-column" />
             <col className="stage-column" />
             <col className="status-column" />
             <col className="date-column" />
@@ -141,6 +119,7 @@ export function ApplicationTable({
             <tr>
               <th>公司与岗位</th>
               <th>投递链接</th>
+              <th>类型</th>
               <th>阶段</th>
               <th>状态</th>
               <th>投递日期</th>
@@ -150,6 +129,7 @@ export function ApplicationTable({
           <tbody>
             {page.items.map((item) => {
               const stage = latestStage(item);
+              const applicationType = item.type ?? "campus_recruitment";
               return (
                 <tr
                   key={item.id}
@@ -162,7 +142,7 @@ export function ApplicationTable({
                         "a, button, select, input",
                       )
                     ) {
-                      void openDetail(item);
+                      setSelected(item);
                     }
                   }}
                   onKeyDown={(event) => {
@@ -174,7 +154,7 @@ export function ApplicationTable({
                       return;
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      void openDetail(item);
+                      setSelected(item);
                     }
                   }}
                 >
@@ -201,6 +181,11 @@ export function ApplicationTable({
                     ) : (
                       <span className="table-placeholder">未填写</span>
                     )}
+                  </td>
+                  <td data-label="类型">
+                    <span className={`type-badge type-${applicationType}`}>
+                      {TYPE_LABELS[applicationType]}
+                    </span>
                   </td>
                   <td data-label="阶段">
                     {stage ? (
@@ -342,102 +327,10 @@ export function ApplicationTable({
         </div>
       </nav>
 
-      <Dialog
-        open={Boolean(selected)}
-        kicker="APPLICATION DETAIL"
-        title={
-          selected
-            ? `${selected.companyName} · ${selected.positionName}`
-            : "投递详情"
-        }
+      <ApplicationDetailDialog
+        application={selected}
         onClose={() => setSelected(null)}
-      >
-        <div className="detail-dialog-body">
-          {selected && !detail && (
-            <div className="detail-meta-grid">
-              <div>
-                <span>当前状态</span>
-                <strong>{STATUS_LABELS[selected.status]}</strong>
-              </div>
-              <div>
-                <span>投递日期</span>
-                <strong>{selected.appliedDate}</strong>
-              </div>
-              <div>
-                <span>工作城市</span>
-                <strong>{selected.city || "未填写"}</strong>
-              </div>
-              <div>
-                <span>最近更新</span>
-                <strong>{selected.latestDate}</strong>
-              </div>
-            </div>
-          )}
-          {loading && (
-            <p className="detail-loading detail-loading-inline">
-              正在加载阶段和备注…
-            </p>
-          )}
-          {error && <p className="field-error">{error}</p>}
-          {detail && (
-            <>
-              <div className="detail-meta-grid">
-                <div>
-                  <span>当前状态</span>
-                  <strong>{STATUS_LABELS[detail.status]}</strong>
-                </div>
-                <div>
-                  <span>投递日期</span>
-                  <strong>{detail.appliedDate}</strong>
-                </div>
-                <div>
-                  <span>工作城市</span>
-                  <strong>{detail.city || "未填写"}</strong>
-                </div>
-                <div>
-                  <span>最近更新</span>
-                  <strong>{detail.latestDate}</strong>
-                </div>
-              </div>
-              <RecruitmentStageTimeline
-                application={detail}
-                onUpdate={(updated) => {
-                  setDetail(updated);
-                  setSelected(updated);
-                }}
-              />
-              {detail.notes && (
-                <section className="detail-section">
-                  <h3>备注</h3>
-                  <p className="detail-notes">{detail.notes}</p>
-                </section>
-              )}
-              <div className="detail-dialog-actions">
-                {detail.jobUrl && (
-                  <a
-                    className="button secondary"
-                    href={detail.jobUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    打开投递链接 ↗
-                  </a>
-                )}
-                <button
-                  className="button"
-                  type="button"
-                  onClick={() => {
-                    setSelected(null);
-                    setEditing(detail);
-                  }}
-                >
-                  编辑这条投递
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </Dialog>
+      />
       <EditApplicationDialog
         application={editing}
         open={Boolean(editing)}

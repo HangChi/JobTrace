@@ -15,6 +15,7 @@ const application: ApplicationDetail = {
   city: "上海",
   jobUrl: null,
   appliedDate: "2026-08-10",
+  type: "campus_recruitment",
   status: "submitted",
   latestDate: "2026-08-10",
   stages: ["screening"],

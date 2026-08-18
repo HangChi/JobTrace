@@ -2,7 +2,12 @@
 
 import { useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { APPLICATION_STATUSES, STATUS_LABELS } from "../domain/catalog";
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_TYPES,
+  STATUS_LABELS,
+  TYPE_LABELS,
+} from "../domain/catalog";
 
 const PAGE_SIZES = ["10", "20", "50", "100"];
 
@@ -64,6 +69,25 @@ export function ApplicationFilters({
             {APPLICATION_STATUSES.map((status) => (
               <option value={status} key={status}>
                 {STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+          </svg>
+        </span>
+      </label>
+      <label>
+        类型
+        <span className="select-wrap">
+          <select
+            name="type"
+            defaultValue={typeof query.type === "string" ? query.type : ""}
+          >
+            <option value="">全部类型</option>
+            {APPLICATION_TYPES.map((type) => (
+              <option value={type} key={type}>
+                {TYPE_LABELS[type]}
               </option>
             ))}
           </select>

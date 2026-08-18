@@ -58,6 +58,7 @@ function mapSummary(row: DbRecord): ApplicationSummary {
     city: row.city as string | null,
     jobUrl: row.jobUrl as string | null,
     appliedDate: dateOnly(row.appliedDate),
+    type: row.type as never,
     status: row.status as never,
     latestDate: latest,
     stages: (row.stages ?? []) as never[],
@@ -207,6 +208,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       where a.owner_id = ${ownerId}
         ${query.q ? this.sql`and lower(a.company_name || ' ' || a.position_name) like ${`%${query.q.toLowerCase()}%`}` : this.sql``}
         ${query.status.length ? this.sql`and a.status = any(${query.status}::application_status[])` : this.sql``}
+        ${query.type.length ? this.sql`and a.type = any(${query.type}::application_type[])` : this.sql``}
         ${query.stage.length ? this.sql`and exists (select 1 from public.application_stage_occurrences fs where fs.application_id = a.id and fs.stage = any(${query.stage}::recruitment_stage[]))` : this.sql``}
         ${query.city.length ? this.sql`and a.city = any(${query.city})` : this.sql``}
         ${query.appliedFrom ? this.sql`and a.applied_date >= ${query.appliedFrom}::date` : this.sql``}

@@ -1,5 +1,12 @@
 export const APPLICATION_STATUSES = ["submitted", "offer", "refused"] as const;
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
+export const APPLICATION_TYPES = [
+  "summer_internship",
+  "daily_internship",
+  "campus_recruitment",
+  "social_recruitment",
+] as const;
+export type ApplicationType = (typeof APPLICATION_TYPES)[number];
 export const RECRUITMENT_STAGES = [
   "screening",
   "assessment",
@@ -16,6 +23,12 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   submitted: "已投递",
   offer: "Offer",
   refused: "拒绝",
+};
+export const TYPE_LABELS: Record<ApplicationType, string> = {
+  summer_internship: "暑期实习",
+  daily_internship: "日常实习",
+  campus_recruitment: "秋招",
+  social_recruitment: "社招",
 };
 export const STAGE_LABELS: Record<RecruitmentStage, string> = {
   screening: "简历筛选",
