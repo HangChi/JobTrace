@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { APPLICATION_STATUSES, RECRUITMENT_STAGES } from "./catalog";
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_TYPES,
+  RECRUITMENT_STAGES,
+} from "./catalog";
 
 const date = z.iso.date();
 const optionalText = (max: number) =>
@@ -16,6 +20,7 @@ export const createApplicationSchema = z.object({
     .union([z.url({ protocol: /^https?$/ }).max(2048), z.literal(""), z.null()])
     .optional(),
   appliedDate: date,
+  type: z.enum(APPLICATION_TYPES).default("campus_recruitment"),
   status: z.enum(APPLICATION_STATUSES).default("submitted"),
   notes: optionalText(10000),
   stages: z.array(stageInputSchema).max(100).default([]),

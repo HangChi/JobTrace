@@ -17,6 +17,7 @@ test("列表搜索筛选分页契约", async ({ request }) => {
     expect(item).toMatchObject({
       id: expect.any(String),
       companyName: expect.any(String),
+      type: expect.any(String),
       status: expect.any(String),
       version: expect.any(Number),
     });

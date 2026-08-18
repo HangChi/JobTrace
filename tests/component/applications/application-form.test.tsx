@@ -21,6 +21,7 @@ describe("投递表单", () => {
       }),
     );
     render(<ApplicationForm />);
+    expect(screen.getByLabelText("类型")).toHaveValue("campus_recruitment");
     fireEvent.change(screen.getByLabelText("公司名称 *"), {
       target: { value: "保留公司" },
     });
@@ -53,7 +54,16 @@ describe("投递表单", () => {
     fireEvent.change(screen.getByLabelText("投递日期 *"), {
       target: { value: "2026-08-13" },
     });
+    fireEvent.change(screen.getByLabelText("类型"), {
+      target: { value: "daily_internship" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "保存投递" }));
     await waitFor(() => expect(push).toHaveBeenCalledWith("/applications/abc"));
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/applications",
+      expect.objectContaining({
+        body: expect.stringContaining('"type":"daily_internship"'),
+      }),
+    );
   });
 });

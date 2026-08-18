@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { APPLICATION_STATUSES, RECRUITMENT_STAGES } from "../domain/catalog";
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_TYPES,
+  RECRUITMENT_STAGES,
+} from "../domain/catalog";
 
 export type ListQuery = ReturnType<typeof parseListQuery>;
 const sortValues = [
@@ -16,6 +20,11 @@ export function parseListQuery(params: URLSearchParams) {
       .getAll("status")
       .filter((v): v is (typeof APPLICATION_STATUSES)[number] =>
         APPLICATION_STATUSES.includes(v as never),
+      ),
+    type: params
+      .getAll("type")
+      .filter((v): v is (typeof APPLICATION_TYPES)[number] =>
+        APPLICATION_TYPES.includes(v as never),
       ),
     stage: params
       .getAll("stage")

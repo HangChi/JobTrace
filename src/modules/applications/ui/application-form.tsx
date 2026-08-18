@@ -2,7 +2,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ApplicationDetail } from "../application/contracts";
-import { APPLICATION_STATUSES, STATUS_LABELS } from "../domain/catalog";
+import {
+  APPLICATION_STATUSES,
+  APPLICATION_TYPES,
+  STATUS_LABELS,
+  TYPE_LABELS,
+} from "../domain/catalog";
 import { FormField, TextAreaField } from "@/shared/ui/form-field";
 import { Feedback } from "@/shared/ui/feedback";
 
@@ -89,6 +94,24 @@ export function ApplicationForm({
           required
           defaultValue={application?.appliedDate ?? today()}
         />
+        <label>
+          类型
+          <span className="select-wrap">
+            <select
+              name="type"
+              defaultValue={application?.type ?? "campus_recruitment"}
+            >
+              {APPLICATION_TYPES.map((type) => (
+                <option value={type} key={type}>
+                  {TYPE_LABELS[type]}
+                </option>
+              ))}
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+            </svg>
+          </span>
+        </label>
         <FormField
           label="城市"
           name="city"

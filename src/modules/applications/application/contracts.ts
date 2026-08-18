@@ -1,4 +1,8 @@
-import type { ApplicationStatus, RecruitmentStage } from "../domain/catalog";
+import type {
+  ApplicationStatus,
+  ApplicationType,
+  RecruitmentStage,
+} from "../domain/catalog";
 export type ApplicationSummary = {
   id: string;
   companyName: string;
@@ -6,6 +10,7 @@ export type ApplicationSummary = {
   city: string | null;
   jobUrl: string | null;
   appliedDate: string;
+  type: ApplicationType;
   status: ApplicationStatus;
   latestDate: string;
   stages: RecruitmentStage[];

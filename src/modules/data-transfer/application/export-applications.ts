@@ -4,7 +4,9 @@ import { rowsToCsv, rowsToXlsx } from "../infrastructure/spreadsheet-writer";
 import { requireUser } from "@/modules/identity-access";
 import {
   STATUS_LABELS,
+  TYPE_LABELS,
   type ApplicationStatus,
+  type ApplicationType,
 } from "@/modules/applications/domain/catalog";
 
 export type ExportOptions = {
@@ -12,6 +14,7 @@ export type ExportOptions = {
   format: "csv" | "xlsx";
   q?: string;
   status: string[];
+  type: string[];
   city: string[];
   appliedFrom?: string;
   appliedTo?: string;
@@ -21,11 +24,12 @@ export async function exportApplications(options: ExportOptions) {
   const actor = await requireUser();
   const sql = createServerDatabase();
   const data = await sql<Record<string, unknown>[]>`
-    select company_name, position_name, city, job_url, applied_date, status, notes
+    select company_name, position_name, city, job_url, applied_date, type, status, notes
     from public.applications
     where owner_id=${actor.id}
       ${options.scope === "filtered" && options.q ? sql`and lower(company_name || ' ' || position_name) like ${`%${options.q.toLowerCase()}%`}` : sql``}
       ${options.scope === "filtered" && options.status.length ? sql`and status = any(${options.status}::application_status[])` : sql``}
+      ${options.scope === "filtered" && options.type.length ? sql`and type = any(${options.type}::application_type[])` : sql``}
       ${options.scope === "filtered" && options.city.length ? sql`and city = any(${options.city})` : sql``}
       ${options.scope === "filtered" && options.appliedFrom ? sql`and applied_date >= ${options.appliedFrom}::date` : sql``}
       ${options.scope === "filtered" && options.appliedTo ? sql`and applied_date <= ${options.appliedTo}::date` : sql``}
@@ -39,6 +43,7 @@ export async function exportApplications(options: ExportOptions) {
     城市: row.city ?? "",
     职位链接: row.jobUrl ?? "",
     投递日期: String(row.appliedDate),
+    类型: TYPE_LABELS[row.type as ApplicationType],
     状态: STATUS_LABELS[row.status as ApplicationStatus],
     备注: row.notes ?? "",
   }));

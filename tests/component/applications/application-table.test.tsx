@@ -14,6 +14,7 @@ const application: ApplicationDetail = {
   city: "上海",
   jobUrl: "https://example.com/job",
   appliedDate: "2026-08-13",
+  type: "summer_internship",
   status: "submitted",
   latestDate: "2026-08-13",
   stages: ["screening"],
@@ -52,6 +53,7 @@ describe("投递记录列表", () => {
     expect(
       screen.getByRole("link", { name: /打开 测试科技 的投递链接/ }),
     ).toHaveTextContent("example.com");
+    expect(screen.getByText("暑期实习")).toBeVisible();
     expect(screen.getByLabelText("每页显示 20 条，打开选项")).toBeVisible();
     expect(screen.getByRole("link", { name: "100 条" })).toHaveAttribute(
       "href",
