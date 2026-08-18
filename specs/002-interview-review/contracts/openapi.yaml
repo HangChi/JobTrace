@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Interview Review Boundary
+  version: 1.0.0
+  description: 面经列表、阶段关联、复盘编辑和 owner 隔离的 HTTP 契约。
+servers:
+  - url: /api
+security:
+  - cookieSession: []
+paths:
+  /interviews:
+    get:
+      operationId: listInterviewReviews
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: status, in: query, schema: { type: array, items: { $ref: '#/components/schemas/ReviewStatus' } }, explode: true }
+        - { name: stage, in: query, schema: { type: array, items: { $ref: '#/components/schemas/InterviewStage' } }, explode: true }
+        - { name: result, in: query, schema: { type: array, items: { $ref: '#/components/schemas/RoundResult' } }, explode: true }
+        - { name: interviewedFrom, in: query, schema: { type: string, format: date } }
+        - { name: interviewedTo, in: query, schema: { type: string, format: date } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: 按面试日期倒序的游标分页列表
+          content: { application/json: { schema: { $ref: '#/components/schemas/InterviewPage' } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+    post:
+      operationId: createInterviewReview
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateInterviewReview' } } }
+      responses:
+        '201':
+          description: 已创建面经；若未提供阶段 ID，则同时创建阶段发生记录
+          content: { application/json: { schema: { $ref: '#/components/schemas/InterviewDetail' } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /interviews/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getInterviewReview
+      responses:
+        '200':
+          description: 面经及问题、行动项、阶段关联摘要
+          content: { application/json: { schema: { $ref: '#/components/schemas/InterviewDetail' } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateInterviewReview
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateInterviewReview' } } }
+      responses:
+        '200':
+          description: 已原子更新面经及其问题、行动项
+          content: { application/json: { schema: { $ref: '#/components/schemas/InterviewDetail' } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      operationId: deleteInterviewReview
+      responses:
+        '204': { description: 已删除面经及其问题、行动项 }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    cookieSession:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+  schemas:
+    InterviewStage:
+      type: string
+      enum: [interview_1, interview_2, interview_3, hr_interview, final_interview]
+    ReviewStatus:
+      type: string
+      enum: [draft, pending_review, completed]
+    RoundResult:
+      type: string
+      enum: [pending, passed, failed]
+    InterviewFormat:
+      type: string
+      enum: [online, offline, phone]
+    QuestionCategory:
+      type: string
+      enum: [technical, project, behavioral, system_design, other]
+    StageLink:
+      type: object
+      required: [stageOccurrenceId, stage, occurredOn, linked]
+      properties:
+        stageOccurrenceId: { type: [string, 'null'], format: uuid }
+        stage: { $ref: '#/components/schemas/InterviewStage' }
+        occurredOn: { type: string, format: date }
+        linked: { type: boolean }
+    QuestionInput:
+      type: object
+      required: [category, question]
+      additionalProperties: false
+      properties:
+        id: { type: [string, 'null'], format: uuid }
+        category: { $ref: '#/components/schemas/QuestionCategory' }
+        question: { type: string, minLength: 1, maxLength: 4000 }
+        originalAnswer: { type: [string, 'null'], maxLength: 10000 }
+        followUpNotes: { type: [string, 'null'], maxLength: 10000 }
+        improvedAnswer: { type: [string, 'null'], maxLength: 10000 }
+        selfRating: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+    ActionItemInput:
+      type: object
+      required: [content, completed]
+      additionalProperties: false
+      properties:
+        id: { type: [string, 'null'], format: uuid }
+        content: { type: string, minLength: 1, maxLength: 1000 }
+        completed: { type: boolean }
+    CreateInterviewReview:
+      type: object
+      additionalProperties: false
+      required: [applicationId]
+      properties:
+        applicationId: { type: string, format: uuid }
+        stageOccurrenceId: { type: [string, 'null'], format: uuid }
+        stage: { $ref: '#/components/schemas/InterviewStage' }
+        interviewedOn: { type: string, format: date }
+        format: { oneOf: [{ $ref: '#/components/schemas/InterviewFormat' }, { type: 'null' }] }
+        durationMinutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
+        interviewerNotes: { type: [string, 'null'], maxLength: 2000 }
+        roundResult: { $ref: '#/components/schemas/RoundResult' }
+      description: 必须提供 stageOccurrenceId，或同时提供 stage 与 interviewedOn；两种关联方式互斥。
+    UpdateInterviewReview:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        version: { type: integer, minimum: 1 }
+        format: { oneOf: [{ $ref: '#/components/schemas/InterviewFormat' }, { type: 'null' }] }
+        durationMinutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
+        interviewerNotes: { type: [string, 'null'], maxLength: 2000 }
+        roundResult: { $ref: '#/components/schemas/RoundResult' }
+        highlights: { type: [string, 'null'], maxLength: 10000 }
+        gaps: { type: [string, 'null'], maxLength: 10000 }
+        status: { $ref: '#/components/schemas/ReviewStatus' }
+        questions: { type: array, maxItems: 200, items: { $ref: '#/components/schemas/QuestionInput' } }
+        actionItems: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/ActionItemInput' } }
+    InterviewSummary:
+      type: object
+      required: [id, applicationId, companyName, positionName, stage, interviewedOn, status, roundResult, questionCount, actionCount]
+      properties:
+        id: { type: string, format: uuid }
+        applicationId: { type: string, format: uuid }
+        companyName: { type: string }
+        positionName: { type: string }
+        stage: { $ref: '#/components/schemas/InterviewStage' }
+        interviewedOn: { type: string, format: date }
+        status: { $ref: '#/components/schemas/ReviewStatus' }
+        roundResult: { $ref: '#/components/schemas/RoundResult' }
+        linked: { type: boolean }
+        questionCount: { type: integer, minimum: 0 }
+        actionCount: { type: integer, minimum: 0 }
+    InterviewDetail:
+      allOf:
+        - { $ref: '#/components/schemas/InterviewSummary' }
+        - type: object
+          required: [version, format, durationMinutes, interviewerNotes, highlights, gaps, questions, actionItems, createdAt, updatedAt]
+          properties:
+            version: { type: integer, minimum: 1 }
+            format: { type: [string, 'null'] }
+            durationMinutes: { type: [integer, 'null'] }
+            interviewerNotes: { type: [string, 'null'] }
+            highlights: { type: [string, 'null'] }
+            gaps: { type: [string, 'null'] }
+            stageLink: { $ref: '#/components/schemas/StageLink' }
+            questions: { type: array, items: { $ref: '#/components/schemas/QuestionInput' } }
+            actionItems: { type: array, items: { $ref: '#/components/schemas/ActionItemInput' } }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    InterviewPage:
+      type: object
+      required: [items, nextCursor, total, limit]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/InterviewSummary' } }
+        nextCursor: { type: [string, 'null'] }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+    Problem:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string, format: uuid }
+        fieldErrors: { type: array, items: { type: object } }
+  responses:
+    ValidationError:
+      description: 输入校验失败
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    NotFound:
+      description: 资源不存在或不属于当前用户
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Conflict:
+      description: 重复关联或乐观并发冲突
+      content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }

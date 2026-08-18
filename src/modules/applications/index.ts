@@ -5,6 +5,7 @@ export {
   getApplication,
   listApplications,
   removeApplicationStage,
+  updateApplicationStage,
   updateApplication,
 } from "./application/application-service";
 export {

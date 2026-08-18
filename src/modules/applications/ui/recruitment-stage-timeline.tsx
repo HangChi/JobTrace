@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import type { Route } from "next";
+import { isInterviewStage } from "@/modules/interviews/domain/catalog";
 import type { ApplicationDetail } from "../application/contracts";
 import {
   RECRUITMENT_STAGES,
@@ -158,6 +161,26 @@ export function RecruitmentStageTimeline({
     }
   }
 
+  async function reviseStageDate() {
+    if (!selectedOccurrence) return;
+    setUpdating(selectedOccurrence.stage);
+    setError("");
+    try {
+      const response = await fetch(`/api/applications/${application.id}/stages/${selectedOccurrence.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stage: selectedOccurrence.stage, occurredOn, changeDate: today() }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "更新阶段日期失败。");
+      onUpdate(result as ApplicationDetail);
+      setSelectedStage(null);
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "更新阶段日期失败。");
+    } finally { setUpdating(null); }
+  }
+
   return (
     <section className="detail-section recruitment-stage-panel">
       <div className="recruitment-stage-heading">
@@ -185,7 +208,11 @@ export function RecruitmentStageTimeline({
               aria-pressed={selectedStage === stage}
               onClick={() => {
                 setSelectedStage(stage);
-                if (selectedStage !== stage) setOccurredOn(today());
+                if (selectedStage !== stage) {
+                  setOccurredOn(
+                    application.stageOccurrences.findLast((item) => item.stage === stage)?.occurredOn ?? today(),
+                  );
+                }
                 setError("");
               }}
             >
@@ -210,15 +237,27 @@ export function RecruitmentStageTimeline({
         >
           <div className="stage-cancel-copy">
             <div>
-              <span>准备取消</span>
+              <span>阶段记录</span>
               <strong>{STAGE_LABELS[selectedOccurrence.stage]}</strong>
               <time dateTime={selectedOccurrence.occurredOn}>
                 {selectedOccurrence.occurredOn}
               </time>
             </div>
-            <p>这条记录将从阶段时间线中移除，当前阶段会自动回退。</p>
+            <p>可以修正日期；若移除阶段，关联面经会保留并解除关联。</p>
           </div>
+          <label>
+            发生日期
+            <input type="date" value={occurredOn} min={application.appliedDate} max={today()} onChange={(event) => setOccurredOn(event.target.value)} />
+          </label>
           <div className="stage-date-actions">
+            <button
+              type="button"
+              className="button secondary"
+              disabled={Boolean(updating) || occurredOn === selectedOccurrence.occurredOn}
+              onClick={() => void reviseStageDate()}
+            >
+              保存日期
+            </button>
             <button
               type="button"
               className="button secondary"
@@ -312,6 +351,14 @@ export function RecruitmentStageTimeline({
                     : STATUS_LABELS[item.value]}
                 </strong>
                 <time dateTime={item.occurredOn}>{item.occurredOn}</time>
+                {item.kind === "stage" && isInterviewStage(item.value) && (
+                  <Link
+                    className="stage-review-link"
+                    href={`/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}` as Route}
+                  >
+                    记录面经
+                  </Link>
+                )}
               </li>
             ))}
           </ol>

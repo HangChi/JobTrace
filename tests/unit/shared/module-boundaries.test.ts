@@ -9,4 +9,11 @@ describe("client module boundaries", () => {
     expect(config).toContain('"@/modules/*/infrastructure/**"');
     expect(config).not.toContain("supabase.admin.server");
   });
+
+  it("applies the same dependency rules to the interviews module", async () => {
+    const config = await readFile("eslint.config.mjs", "utf8");
+    expect(config).toContain('"src/modules/*/domain/**/*.{ts,tsx}"');
+    expect(config).toContain('"src/modules/*/application/**/*.{ts,tsx}"');
+    expect(config).toContain('"src/modules/*/ui/**/*.{ts,tsx}"');
+  });
 });

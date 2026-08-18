@@ -4,6 +4,10 @@ import { ApplicationEditor } from "@/modules/applications/ui/application-editor"
 import { ApplicationHistory } from "@/modules/applications/ui/application-history";
 import { DeleteApplicationDialog } from "@/modules/applications/ui/delete-application-dialog";
 import { requirePageUser } from "@/modules/identity-access";
+import Link from "next/link";
+import type { Route } from "next";
+import { listApplicationInterviews, REVIEW_STATUS_LABELS } from "@/modules/interviews";
+import { STAGE_LABELS } from "@/modules/applications";
 
 export default async function ApplicationPage({
   params,
@@ -17,6 +21,7 @@ export default async function ApplicationPage({
   } catch {
     return notFound();
   }
+  const interviews = await listApplicationInterviews(application.id);
   return (
     <section className="stack">
       <div>
@@ -40,6 +45,10 @@ export default async function ApplicationPage({
         </section>
       )}
       <ApplicationEditor application={application} />
+      <section className="panel stack">
+        <div className="section-heading"><div><p className="section-kicker">INTERVIEW REVIEWS</p><h2>面经复盘</h2></div><Link className="button secondary" href={`/interviews/new?applicationId=${application.id}` as Route}>记录面经</Link></div>
+        {interviews.length ? <ul className="application-interview-list">{interviews.map((item) => <li key={item.id}><span>{STAGE_LABELS[item.stage]} · {item.interviewedOn}</span><span className={`review-status status-${item.status}`}>{REVIEW_STATUS_LABELS[item.status]}</span><Link href={`/interviews/${item.id}` as Route}>打开复盘</Link></li>)}</ul> : <p className="muted">阶段时间线中的一面、二面等面试阶段可以直接记录面经。</p>}
+      </section>
       <ApplicationHistory application={application} />
     </section>
   );

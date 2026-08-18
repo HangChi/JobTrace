@@ -2489,7 +2489,237 @@ dialog::backdrop {
   gap: 14px;
 }
 
+.app-primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+}
+.app-primary-nav a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 9px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+.app-primary-nav a:hover,
+.app-primary-nav a:focus-visible {
+  color: var(--brand-dark);
+  background: var(--surface-soft);
+}
+.interview-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(5, minmax(120px, 0.8fr)) auto;
+  align-items: end;
+  gap: 12px;
+  box-shadow: none;
+}
+.interview-filters label,
+.interview-create-form label,
+.interview-editor label,
+.interview-section label,
+.stage-cancel-confirm label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+.filter-actions {
+  display: flex;
+  gap: 8px;
+}
+.interview-list-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.interview-list-panel > .section-heading {
+  padding: 24px;
+}
+.interview-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.interview-list > li {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 100px minmax(220px, 1fr) auto auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+}
+.interview-list > li:hover {
+  background: #f9fdfc;
+}
+.interview-list time {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.interview-list-main {
+  min-width: 0;
+}
+.interview-list-main a {
+  color: var(--ink-strong);
+  text-decoration: none;
+}
+.interview-list-main a:hover {
+  color: var(--brand-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.interview-list-main p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.review-status,
+.round-result {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.status-draft { color: #5d6774; background: #eef1f4; }
+.status-pending_review { color: var(--warning); background: var(--warm); }
+.status-completed { color: var(--brand-dark); background: var(--brand-soft); }
+.round-result { color: var(--lavender-strong); background: var(--lavender); }
+.result-failed { color: var(--danger); background: #fdecef; }
+.result-passed { color: var(--lime-strong); background: var(--lime); }
+.interview-empty-state {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+.interview-empty-state p:not(.section-kicker) {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+.interview-editor {
+  max-width: 980px;
+  margin: 0 auto;
+}
+.interview-editor-header,
+.interview-editor-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.interview-editor-header h1 {
+  margin-bottom: 8px;
+}
+.save-state {
+  min-width: 180px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.save-state[data-state="error"],
+.save-state[data-state="conflict"] { color: var(--danger); }
+.save-state button {
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.interview-section {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+.interview-question {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfefd;
+}
+.interview-question header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.question-actions {
+  display: flex;
+  gap: 6px;
+}
+.question-actions button,
+.action-item-list button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  background: white;
+  cursor: pointer;
+}
+.question-actions button:disabled { opacity: 0.35; cursor: not-allowed; }
+.answer-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.answer-compare label:first-child textarea { border-left: 3px solid #efa67f; }
+.answer-compare label:last-child textarea { border-left: 3px solid var(--lavender-strong); }
+.interview-empty {
+  margin: 0;
+  padding: 22px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 8px;
+  color: var(--muted);
+  text-align: center;
+}
+.action-item-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.action-item-list li {
+  display: grid;
+  grid-template-columns: 24px 1fr 36px;
+  align-items: center;
+  gap: 10px;
+}
+.action-item-list input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+.stage-review-link {
+  margin-left: auto;
+  color: var(--brand-dark);
+  font-size: 0.73rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.stage-review-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
 @media (max-width: 960px) {
+  .interview-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filter-search { grid-column: span 2; }
+  .filter-actions { align-self: end; }
   .auth-page {
     grid-template-columns: minmax(330px, 0.82fr) minmax(400px, 1.18fr);
   }
@@ -2520,6 +2750,19 @@ dialog::backdrop {
 }
 
 @media (max-width: 720px) {
+  .app-header { flex-wrap: wrap; gap: 10px; }
+  .app-primary-nav { order: 3; width: 100%; }
+  .app-primary-nav a { flex: 1; justify-content: center; }
+  .interview-filters { grid-template-columns: 1fr 1fr; }
+  .filter-search, .filter-actions { grid-column: 1 / -1; }
+  .filter-actions .button { flex: 1; }
+  .interview-list > li { grid-template-columns: 1fr auto; gap: 8px 12px; }
+  .interview-list time { grid-column: 1; }
+  .interview-list-main { grid-column: 1 / -1; }
+  .interview-list .table-action { justify-self: end; }
+  .answer-compare { grid-template-columns: 1fr; }
+  .interview-editor-header, .interview-editor-footer { align-items: stretch; flex-direction: column; }
+  .save-state { justify-content: flex-start; }
   .page-shell {
     width: min(100% - 28px, 1180px);
     padding: 36px 0 64px;

@@ -200,6 +200,11 @@ export const databaseSchema = {
       "nullable": false
     },
     {
+      "name": "type",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
       "name": "status",
       "type": "USER-DEFINED",
       "nullable": false

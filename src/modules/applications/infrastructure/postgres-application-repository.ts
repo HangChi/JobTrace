@@ -190,6 +190,28 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     }
   }
 
+  async updateStage(
+    ownerId: string,
+    id: string,
+    occurrenceId: string,
+    stage: string,
+    occurredOn: string,
+    changeDate: string,
+  ) {
+    try {
+      await this.sql`select public.update_stage_occurrence_for_owner(
+        ${ownerId},${occurrenceId},${stage}::recruitment_stage,${occurredOn}::date,${changeDate}::date
+      )`;
+      return this.get(ownerId, id) as Promise<ApplicationDetail>;
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "23505") throw new Problem("conflict", "该阶段日期已经存在。", 409);
+      if (code === "P0002") throw new Problem("not_found", "没有找到该阶段记录。", 404);
+      if (code === "22023") throw new Problem("validation", "阶段日期无效。", 400);
+      throw new Problem("storage", "更新阶段失败", 500);
+    }
+  }
+
   async list(ownerId: string, query: ListQuery): Promise<ApplicationPage> {
     const sortColumn = {
       company: "company_name",

@@ -1,0 +1,55 @@
+import { redirect } from "next/navigation";
+import type { Route } from "next";
+import { getApplication, listApplications } from "@/modules/applications";
+import { listApplicationInterviews } from "@/modules/interviews";
+import { InterviewCreateForm } from "@/modules/interviews/ui/interview-create-form";
+import { requirePageUser } from "@/modules/identity-access";
+
+export const dynamic = "force-dynamic";
+
+export default async function NewInterviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  await requirePageUser();
+  const query = await searchParams;
+  let selected;
+  if (query.applicationId) {
+    selected = await getApplication(query.applicationId);
+    if (query.stageOccurrenceId) {
+      const existing = (
+        await listApplicationInterviews(query.applicationId)
+      ).find((item) => item.stageOccurrenceId === query.stageOccurrenceId);
+      if (existing) redirect(`/interviews/${existing.id}` as Route);
+    }
+  }
+  const page = await listApplications(new URLSearchParams({ limit: "100" }));
+  const occurrence = selected?.stageOccurrences.find(
+    (item) => item.id === query.stageOccurrenceId,
+  );
+  return (
+    <section className="stack page-gap">
+      <div className="hero-row">
+        <div>
+          <p className="eyebrow">
+            <span aria-hidden="true" /> 面试复盘
+          </p>
+          <h1>记录这次面试</h1>
+          <p className="lead">先确认轮次和日期，再把问题与思考完整留下。</p>
+        </div>
+      </div>
+      <InterviewCreateForm
+        applications={page.items.map((item) => ({
+          id: item.id,
+          label: `${item.companyName} · ${item.positionName}`,
+          appliedDate: item.appliedDate,
+        }))}
+        applicationId={selected?.id}
+        stageOccurrenceId={occurrence?.id}
+        stage={occurrence?.stage ?? query.stage}
+        interviewedOn={occurrence?.occurredOn ?? query.interviewedOn}
+      />
+    </section>
+  );
+}
