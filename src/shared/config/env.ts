@@ -17,6 +17,28 @@ const authEnvSchema = z.object({
   AUTH_CHALLENGE_SECRET: z.string().min(1).optional(),
 });
 
+const cosEnvSchema = z.object({
+  COS_SECRET_ID: z.string().trim().min(1),
+  COS_SECRET_KEY: z.string().trim().min(1),
+  COS_BUCKET: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9][a-z0-9-]*-\d+$/),
+  COS_REGION: z
+    .string()
+    .trim()
+    .regex(/^[a-z]+-[a-z0-9-]+$/),
+  COS_PUBLIC_BASE_URL: z.url().optional(),
+});
+
+export type CosEnv = {
+  secretId: string;
+  secretKey: string;
+  bucket: string;
+  region: string;
+  publicBaseUrl?: string;
+};
+
 export function getDatabaseEnv() {
   return databaseEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
@@ -30,6 +52,23 @@ export function getAuthEnv() {
     AUTH_CHALLENGE_VERIFY_URL: process.env.AUTH_CHALLENGE_VERIFY_URL,
     AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET,
   });
+}
+
+export function getCosEnv(): CosEnv {
+  const value = cosEnvSchema.parse({
+    COS_SECRET_ID: process.env.COS_SECRET_ID,
+    COS_SECRET_KEY: process.env.COS_SECRET_KEY,
+    COS_BUCKET: process.env.COS_BUCKET,
+    COS_REGION: process.env.COS_REGION,
+    COS_PUBLIC_BASE_URL: process.env.COS_PUBLIC_BASE_URL || undefined,
+  });
+  return {
+    secretId: value.COS_SECRET_ID,
+    secretKey: value.COS_SECRET_KEY,
+    bucket: value.COS_BUCKET,
+    region: value.COS_REGION,
+    publicBaseUrl: value.COS_PUBLIC_BASE_URL,
+  };
 }
 
 export function hasAuthConfiguration() {

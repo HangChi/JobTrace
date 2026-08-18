@@ -7,7 +7,7 @@ export function isTerminalStatus(status: ApplicationStatus) {
 export function uniqueStages(stages: StageInput[]) {
   const seen = new Set<string>();
   return stages.filter((item) => {
-    const key = `${item.stage}:${item.occurredOn}`;
+    const key = item.stage;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;

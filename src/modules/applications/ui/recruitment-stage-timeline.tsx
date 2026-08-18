@@ -166,11 +166,18 @@ export function RecruitmentStageTimeline({
     setUpdating(selectedOccurrence.stage);
     setError("");
     try {
-      const response = await fetch(`/api/applications/${application.id}/stages/${selectedOccurrence.id}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ stage: selectedOccurrence.stage, occurredOn, changeDate: today() }),
-      });
+      const response = await fetch(
+        `/api/applications/${application.id}/stages/${selectedOccurrence.id}`,
+        {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            stage: selectedOccurrence.stage,
+            occurredOn,
+            changeDate: today(),
+          }),
+        },
+      );
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "更新阶段日期失败。");
       onUpdate(result as ApplicationDetail);
@@ -178,7 +185,9 @@ export function RecruitmentStageTimeline({
       router.refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "更新阶段日期失败。");
-    } finally { setUpdating(null); }
+    } finally {
+      setUpdating(null);
+    }
   }
 
   return (
@@ -204,13 +213,15 @@ export function RecruitmentStageTimeline({
               type="button"
               key={stage}
               className={`${recorded ? "is-recorded" : ""} ${isCurrent ? "is-current" : ""} ${selectedStage === stage ? "is-selected" : ""}`}
-              disabled={Boolean(updating)}
+              disabled={Boolean(updating) || Boolean(currentTerminalStatus)}
               aria-pressed={selectedStage === stage}
               onClick={() => {
                 setSelectedStage(stage);
                 if (selectedStage !== stage) {
                   setOccurredOn(
-                    application.stageOccurrences.findLast((item) => item.stage === stage)?.occurredOn ?? today(),
+                    application.stageOccurrences.findLast(
+                      (item) => item.stage === stage,
+                    )?.occurredOn ?? today(),
                   );
                 }
                 setError("");
@@ -229,6 +240,13 @@ export function RecruitmentStageTimeline({
         })}
       </div>
 
+      {currentTerminalStatus && (
+        <p className="terminal-stage-notice" role="status">
+          {STATUS_LABELS[currentTerminalStatus]}{" "}
+          后流程已结束，不能再添加招聘阶段。
+        </p>
+      )}
+
       {selectedStage && selectedOccurrence ? (
         <div
           className="stage-cancel-confirm"
@@ -243,17 +261,29 @@ export function RecruitmentStageTimeline({
                 {selectedOccurrence.occurredOn}
               </time>
             </div>
-            <p>可以修正日期；若移除阶段，关联面经会保留并解除关联。</p>
+            <p>
+              <strong>准备取消</strong>
+              <span>可以修正日期；若移除阶段，关联面经会保留并解除关联。</span>
+            </p>
           </div>
           <label>
             发生日期
-            <input type="date" value={occurredOn} min={application.appliedDate} max={today()} onChange={(event) => setOccurredOn(event.target.value)} />
+            <input
+              type="date"
+              value={occurredOn}
+              min={application.appliedDate}
+              max={today()}
+              onChange={(event) => setOccurredOn(event.target.value)}
+            />
           </label>
           <div className="stage-date-actions">
             <button
               type="button"
               className="button secondary"
-              disabled={Boolean(updating) || occurredOn === selectedOccurrence.occurredOn}
+              disabled={
+                Boolean(updating) ||
+                occurredOn === selectedOccurrence.occurredOn
+              }
               onClick={() => void reviseStageDate()}
             >
               保存日期
@@ -350,15 +380,17 @@ export function RecruitmentStageTimeline({
                     ? STAGE_LABELS[item.value]
                     : STATUS_LABELS[item.value]}
                 </strong>
-                <time dateTime={item.occurredOn}>{item.occurredOn}</time>
                 {item.kind === "stage" && isInterviewStage(item.value) && (
                   <Link
                     className="stage-review-link"
-                    href={`/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}` as Route}
+                    href={
+                      `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}` as Route
+                    }
                   >
                     记录面经
                   </Link>
                 )}
+                <time dateTime={item.occurredOn}>{item.occurredOn}</time>
               </li>
             ))}
           </ol>

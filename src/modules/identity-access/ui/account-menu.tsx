@@ -9,6 +9,26 @@ function initials(email: string) {
   return email.slice(0, 2).toUpperCase();
 }
 
+function Avatar({
+  actor,
+  className = "user-avatar",
+}: {
+  actor: Actor;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`${className} ${actor.image ? "has-image" : ""}`}
+      style={
+        actor.image ? { backgroundImage: `url(${actor.image})` } : undefined
+      }
+      aria-hidden="true"
+    >
+      {!actor.image && initials(actor.email)}
+    </span>
+  );
+}
+
 export function AccountMenu({ actor }: { actor: Actor }) {
   return (
     <nav className="app-header" aria-label="账号导航">
@@ -31,11 +51,9 @@ export function AccountMenu({ actor }: { actor: Actor }) {
       </div>
       <DismissibleDetails className="account-menu">
         <summary aria-label="打开用户菜单">
-          <span className="user-avatar" aria-hidden="true">
-            {initials(actor.email)}
-          </span>
+          <Avatar actor={actor} />
           <span className="user-summary">
-            <strong>{actor.email.split("@")[0]}</strong>
+            <strong>{actor.displayName}</strong>
             <small>{actor.role === "admin" ? "管理员" : "普通用户"}</small>
           </span>
           <svg aria-hidden="true" viewBox="0 0 16 16">
@@ -44,9 +62,7 @@ export function AccountMenu({ actor }: { actor: Actor }) {
         </summary>
         <div className="account-popover">
           <div className="account-identity">
-            <span className="user-avatar" aria-hidden="true">
-              {initials(actor.email)}
-            </span>
+            <Avatar actor={actor} />
             <span>
               <strong>{actor.email}</strong>
               <small>
@@ -54,6 +70,7 @@ export function AccountMenu({ actor }: { actor: Actor }) {
               </small>
             </span>
           </div>
+          <Link href={"/profile" as Route}>个人中心</Link>
           <Link href="/import">导入投递记录</Link>
           {actor.role === "admin" && <Link href="/admin">管理后台</Link>}
           <form action={logoutAction}>

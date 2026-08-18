@@ -24,6 +24,8 @@ export function ApplicationEditor({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const terminal =
+    application.status === "offer" || application.status === "refused";
 
   async function update(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -134,37 +136,65 @@ export function ApplicationEditor({
         </button>
       </form>
       <section className="panel stack">
-        <h2>招聘阶段</h2>
+        <div className="section-heading">
+          <div>
+            <p className="section-kicker">PIPELINE</p>
+            <h2>招聘阶段</h2>
+          </div>
+          {terminal && <span className="status-badge">流程已结束</span>}
+        </div>
         {application.stageOccurrences.length > 0 && (
-          <ul className="stage-list">
+          <ul className="stage-record-list">
             {application.stageOccurrences.map((item) => (
               <li key={item.id}>
-                <span>
-                  {STAGE_LABELS[item.stage]} · {item.occurredOn}
+                <span className="stage-record-name">
+                  <i aria-hidden="true" />
+                  <strong>{STAGE_LABELS[item.stage]}</strong>
+                  <time dateTime={item.occurredOn}>{item.occurredOn}</time>
                 </span>
                 <button
+                  type="button"
                   className="button secondary"
                   onClick={() => removeStage(item.id)}
+                  aria-label={`移除${STAGE_LABELS[item.stage]}阶段`}
                 >
-                  移除
+                  移除阶段
                 </button>
               </li>
             ))}
           </ul>
         )}
+        {terminal && (
+          <p className="terminal-stage-notice">
+            {STATUS_LABELS[application.status]} 后不再进入新的招聘阶段。
+          </p>
+        )}
         <form className="stage-form" onSubmit={addStage}>
           <label>
             阶段
-            <select name="stage">
-              {RECRUITMENT_STAGES.map((stage) => (
-                <option value={stage} key={stage}>
-                  {STAGE_LABELS[stage]}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select name="stage" disabled={terminal}>
+                {RECRUITMENT_STAGES.map((stage) => (
+                  <option value={stage} key={stage}>
+                    {STAGE_LABELS[stage]}
+                  </option>
+                ))}
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 16 16">
+                <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+              </svg>
+            </span>
           </label>
-          <FormField label="发生日期" name="occurredOn" type="date" required />
-          <button className="button">添加阶段</button>
+          <FormField
+            label="发生日期"
+            name="occurredOn"
+            type="date"
+            required
+            disabled={terminal}
+          />
+          <button className="button" disabled={terminal}>
+            添加阶段
+          </button>
         </form>
       </section>
     </div>

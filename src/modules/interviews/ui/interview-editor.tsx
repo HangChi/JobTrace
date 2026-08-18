@@ -36,7 +36,11 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
     }),
     [draft],
   );
-  const onSaved = useCallback((value: InterviewDetail) => setDraft(value), []);
+  const onSaved = useCallback((value: InterviewDetail) => {
+    // Keep the locally edited fields and caret position; autosave only returns
+    // the server version needed for the next optimistic-concurrency update.
+    setDraft((current) => ({ ...current, version: value.version }));
+  }, []);
   const autosave = useInterviewAutosave({
     id: draft.id,
     revision,
@@ -92,22 +96,27 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
         <div className="grid">
           <label>
             面试形式
-            <select
-              value={draft.format ?? ""}
-              onChange={(event) =>
-                change({
-                  format:
-                    (event.target.value as InterviewDetail["format"]) || null,
-                })
-              }
-            >
-              <option value="">未记录</option>
-              {INTERVIEW_FORMATS.map((format) => (
-                <option key={format} value={format}>
-                  {INTERVIEW_FORMAT_LABELS[format]}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select
+                value={draft.format ?? ""}
+                onChange={(event) =>
+                  change({
+                    format:
+                      (event.target.value as InterviewDetail["format"]) || null,
+                  })
+                }
+              >
+                <option value="">未记录</option>
+                {INTERVIEW_FORMATS.map((format) => (
+                  <option key={format} value={format}>
+                    {INTERVIEW_FORMAT_LABELS[format]}
+                  </option>
+                ))}
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 16 16">
+                <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+              </svg>
+            </span>
           </label>
           <label>
             时长（分钟）
@@ -127,33 +136,28 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           </label>
           <label>
             本轮结果
-            <select
-              value={draft.roundResult}
-              onChange={(event) =>
-                change({
-                  roundResult: event.target
-                    .value as InterviewDetail["roundResult"],
-                })
-              }
-            >
-              {ROUND_RESULTS.map((result) => (
-                <option key={result} value={result}>
-                  {ROUND_RESULT_LABELS[result]}
-                </option>
-              ))}
-            </select>
+            <span className="select-wrap">
+              <select
+                value={draft.roundResult}
+                onChange={(event) =>
+                  change({
+                    roundResult: event.target
+                      .value as InterviewDetail["roundResult"],
+                  })
+                }
+              >
+                {ROUND_RESULTS.map((result) => (
+                  <option key={result} value={result}>
+                    {ROUND_RESULT_LABELS[result]}
+                  </option>
+                ))}
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 16 16">
+                <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+              </svg>
+            </span>
           </label>
         </div>
-        <label>
-          面试官信息
-          <textarea
-            rows={3}
-            value={draft.interviewerNotes ?? ""}
-            onChange={(event) =>
-              change({ interviewerNotes: event.target.value })
-            }
-          />
-        </label>
       </section>
       <InterviewQuestionList
         questions={draft.questions}
@@ -204,12 +208,17 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
         }
       />
       <footer className="interview-editor-footer">
-        <Link
-          className="button secondary"
-          href={`/applications/${draft.applicationId}`}
-        >
-          返回投递
-        </Link>
+        <nav className="interview-editor-nav" aria-label="离开面经编辑">
+          <Link className="button secondary" href="/interviews">
+            返回面经列表
+          </Link>
+          <Link
+            className="button secondary"
+            href={`/applications/${draft.applicationId}`}
+          >
+            查看关联投递
+          </Link>
+        </nav>
         <button
           type="button"
           className="button"

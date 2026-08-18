@@ -18,18 +18,14 @@ export function useInterviewAutosave({
 }) {
   const [state, setState] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
+  const [lastSavedRevision, setLastSavedRevision] = useState(0);
   const latest = useRef(payload);
-  const lastSavedRevision = useRef(0);
   useEffect(() => {
     latest.current = payload;
   }, [payload]);
 
   const save = useCallback(async () => {
-    if (
-      !revision ||
-      revision <= lastSavedRevision.current ||
-      state === "saving"
-    )
+    if (!revision || revision <= lastSavedRevision || state === "saving")
       return;
     setState("saving");
     setMessage("");
@@ -48,7 +44,7 @@ export function useInterviewAutosave({
         }
         throw new Error(result.message || "保存失败，请重试。");
       }
-      lastSavedRevision.current = revision;
+      setLastSavedRevision(revision);
       onSaved(result as InterviewDetail);
       setState("saved");
       setMessage(
@@ -60,7 +56,7 @@ export function useInterviewAutosave({
         reason instanceof Error ? reason.message : "保存失败，请重试。",
       );
     }
-  }, [id, onSaved, revision, state]);
+  }, [id, lastSavedRevision, onSaved, revision, state]);
 
   useEffect(() => {
     if (!revision || state === "conflict" || state === "error") return;
@@ -76,5 +72,9 @@ export function useInterviewAutosave({
     return () => document.removeEventListener("visibilitychange", flush);
   }, [save]);
 
-  return { state, message, retry: save };
+  return {
+    state,
+    message,
+    retry: save,
+  };
 }

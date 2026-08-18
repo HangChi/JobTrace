@@ -18,6 +18,8 @@ export async function getActor(): Promise<Actor | null> {
   return {
     id: user.id,
     email: user.email,
+    displayName: user.name,
+    image: user.image ?? null,
     role: user.role === "admin" ? "admin" : "user",
     disabled: Boolean(user.banned),
   };

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { Route } from "next";
 import { Dialog } from "@/shared/ui/dialog";
 import type {
   ApplicationDetail,
@@ -80,6 +82,7 @@ function ApplicationDetailContent({
         open
         kicker="APPLICATION DETAIL"
         title={`${application.companyName} · ${application.positionName}`}
+        className="application-detail-dialog"
         onClose={onClose}
       >
         <div className="detail-dialog-body">
@@ -130,7 +133,7 @@ function ApplicationDetailContent({
               <div className="detail-dialog-actions">
                 {detail.jobUrl && (
                   <a
-                    className="button secondary"
+                    className="button secondary detail-action-link"
                     href={detail.jobUrl}
                     target="_blank"
                     rel="noreferrer"
@@ -138,8 +141,14 @@ function ApplicationDetailContent({
                     打开投递链接 ↗
                   </a>
                 )}
+                <Link
+                  className="button secondary detail-action-full"
+                  href={`/applications/${detail.id}` as Route}
+                >
+                  查看完整详情
+                </Link>
                 <button
-                  className="button"
+                  className="button detail-action-edit"
                   type="button"
                   onClick={() => onEdit(detail)}
                 >
