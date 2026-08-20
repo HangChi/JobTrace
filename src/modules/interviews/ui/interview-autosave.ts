@@ -18,45 +18,75 @@ export function useInterviewAutosave({
 }) {
   const [state, setState] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
-  const [lastSavedRevision, setLastSavedRevision] = useState(0);
-  const latest = useRef(payload);
-  useEffect(() => {
-    latest.current = payload;
-  }, [payload]);
+  const latestPayload = useRef(payload);
+  const latestRevision = useRef(revision);
+  const lastSavedRevision = useRef(0);
+  const stateRef = useRef<SaveState>("idle");
+  const saving = useRef(false);
 
-  const save = useCallback(async () => {
-    if (!revision || revision <= lastSavedRevision || state === "saving")
-      return;
-    setState("saving");
-    setMessage("");
-    try {
-      const response = await fetch(`/api/interviews/${id}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(latest.current),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        if (response.status === 409) {
-          setState("conflict");
-          setMessage("面经已在其他页面更新，请刷新后继续。");
-          return;
-        }
-        throw new Error(result.message || "保存失败，请重试。");
+  const transition = useCallback((next: SaveState, nextMessage = "") => {
+    stateRef.current = next;
+    setState(next);
+    setMessage(nextMessage);
+  }, []);
+
+  useEffect(() => {
+    latestPayload.current = payload;
+    latestRevision.current = revision;
+  }, [payload, revision]);
+
+  const save = useCallback(
+    async (force = false, keepalive = false) => {
+      const targetRevision = latestRevision.current;
+      if (
+        !targetRevision ||
+        targetRevision <= lastSavedRevision.current ||
+        stateRef.current === "conflict"
+      ) {
+        return;
       }
-      setLastSavedRevision(revision);
-      onSaved(result as InterviewDetail);
-      setState("saved");
-      setMessage(
-        `已保存 ${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`,
-      );
-    } catch (reason) {
-      setState("error");
-      setMessage(
-        reason instanceof Error ? reason.message : "保存失败，请重试。",
-      );
-    }
-  }, [id, lastSavedRevision, onSaved, revision, state]);
+      if (saving.current) {
+        return;
+      }
+      if (!force && stateRef.current === "error") return;
+
+      saving.current = true;
+      transition("saving");
+      try {
+        const response = await fetch(`/api/interviews/${id}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(latestPayload.current),
+          keepalive,
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          if (response.status === 409) {
+            transition("conflict", "面经已在其他页面更新，请刷新后继续。");
+            return;
+          }
+          throw new Error(result.message || "保存失败，请重试。");
+        }
+        lastSavedRevision.current = targetRevision;
+        onSaved(result as InterviewDetail);
+        transition(
+          "saved",
+          `已保存 ${new Date().toLocaleTimeString("zh-CN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`,
+        );
+      } catch (reason) {
+        transition(
+          "error",
+          reason instanceof Error ? reason.message : "保存失败，请重试。",
+        );
+      } finally {
+        saving.current = false;
+      }
+    },
+    [id, onSaved, transition],
+  );
 
   useEffect(() => {
     if (!revision || state === "conflict" || state === "error") return;
@@ -66,15 +96,21 @@ export function useInterviewAutosave({
 
   useEffect(() => {
     const flush = () => {
-      if (document.visibilityState === "hidden") void save();
+      if (document.visibilityState === "hidden") void save(true, true);
     };
+    const pagehide = () => void save(true, true);
     document.addEventListener("visibilitychange", flush);
-    return () => document.removeEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", pagehide);
+    return () => {
+      document.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("pagehide", pagehide);
+    };
   }, [save]);
 
   return {
     state,
     message,
-    retry: save,
+    retry: () => save(true),
+    flush: () => save(true, true),
   };
 }

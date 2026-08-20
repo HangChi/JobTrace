@@ -50,7 +50,7 @@ export default async function ApplicationPage({
           <p>{application.notes}</p>
         </section>
       )}
-      <ApplicationEditor application={application} />
+      <ApplicationEditor application={application} interviews={interviews} />
       <section className="panel stack">
         <div className="section-heading">
           <div>

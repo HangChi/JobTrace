@@ -16,6 +16,7 @@ JobTrace 是一个面向个人求职者的多用户 Web 应用，用于替代分
 
 - **多用户安全隔离**：每个用户只能访问自己的投递、统计、导入和导出数据，跨用户数据混入率为 0%。
 - **完整的求职轨迹**：状态、招聘阶段与备注的每次变化都会留下可回顾的历史记录。
+- **Markdown 面试复盘**：按具体面试阶段用一个 Markdown 文档自由记录面经，支持即时预览、自动保存和并发编辑保护。
 - **可操作的跟进提醒**：自动标记连续 15 个完整日未更新的投递记录。
 - **数据可迁移**：通用表格文件的批量预检导入，以及全部或筛选结果的导出。
 
@@ -70,7 +71,8 @@ src/
 │   ├── applications/ 投递聚合、查询、仓储与界面
 │   ├── analytics/    只读统计与跟进提醒
 │   ├── data-transfer/ CSV/XLSX 预检和导出
-│   └── identity-access/ 认证、角色与后台管理
+│   ├── identity-access/ 认证、角色与后台管理
+│   └── interviews/   面经、问题、行动项、筛选与自动保存
 └── shared/           日期、游标、错误、日志、数据库客户端和 UI 原语
 supabase/migrations/  SQL 迁移（沿用规格目录）
 specs/                需求规格、数据模型、OpenAPI 契约
@@ -107,7 +109,7 @@ pnpm db:owner:test      # 在临时库演练 owner 回填
 pnpm contract       # 契约测试
 pnpm integration    # 集成测试
 pnpm e2e            # 端到端测试
-pnpm performance    # 性能检查
+pnpm performance    # 投递与 10k 面经数据库性能检查
 pnpm lighthouse     # Lighthouse CI
 ```
 

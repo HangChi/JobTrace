@@ -1,7 +1,10 @@
 {
   "ci": {
     "collect": {
-      "url": ["http://127.0.0.1:3000/"],
+      "startServerCommand": "pnpm start --port 3100",
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 30000,
+      "url": ["http://127.0.0.1:3100/"],
       "numberOfRuns": 3,
       "settings": {
         "formFactor": "desktop",

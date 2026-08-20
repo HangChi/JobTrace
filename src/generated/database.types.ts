@@ -200,11 +200,6 @@ export const databaseSchema = {
       "nullable": false
     },
     {
-      "name": "type",
-      "type": "USER-DEFINED",
-      "nullable": false
-    },
-    {
       "name": "status",
       "type": "USER-DEFINED",
       "nullable": false
@@ -237,6 +232,11 @@ export const databaseSchema = {
     {
       "name": "owner_id",
       "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "type",
+      "type": "USER-DEFINED",
       "nullable": false
     }
   ],
@@ -347,6 +347,182 @@ export const databaseSchema = {
       "name": "decision",
       "type": "text",
       "nullable": true
+    }
+  ],
+  "interview_action_items": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "interview_review_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "sort_order",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "content",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "completed",
+      "type": "boolean",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "interview_questions": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "interview_review_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "sort_order",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "category",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "question",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "original_answer",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "follow_up_notes",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "improved_answer",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "self_rating",
+      "type": "integer",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "interview_reviews": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "application_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "stage_occurrence_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "stage_snapshot",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "interviewed_on",
+      "type": "date",
+      "nullable": false
+    },
+    {
+      "name": "format",
+      "type": "USER-DEFINED",
+      "nullable": true
+    },
+    {
+      "name": "duration_minutes",
+      "type": "integer",
+      "nullable": true
+    },
+    {
+      "name": "interviewer_notes",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "round_result",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "highlights",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "gaps",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "version",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
     }
   ],
   "sessions": [

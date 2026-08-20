@@ -57,9 +57,9 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] 先编写 POST/GET 面经成功、校验、404 和重复关联 409 契约测试 `tests/contract/interview-review.contract.test.ts`
-- [ ] T014 [P] [US1] 先编写已有阶段创建、新阶段+面经原子创建、重复 occurrence 和事务回滚集成测试 `tests/integration/interviews/interview-creation.test.ts`
-- [ ] T015 [P] [US1] 先编写阶段时间线“记录面经/继续复盘”和创建表单预填组件测试 `tests/component/interviews/interview-create-flow.test.tsx`
+- [X] T013 [P] [US1] 先编写 POST/GET 面经成功、校验、404 和重复关联 409 契约测试 `tests/contract/interview-review.contract.test.ts`
+- [X] T014 [P] [US1] 先编写已有阶段创建、新阶段+面经原子创建、重复 occurrence 和事务回滚集成测试 `tests/integration/interviews/interview-creation.test.ts`
+- [X] T015 [P] [US1] 先编写阶段时间线“记录面经/继续复盘”和创建表单预填组件测试 `tests/component/interviews/interview-create-flow.test.tsx`
 
 ### Implementation for User Story 1
 
@@ -75,27 +75,27 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 
 ---
 
-## Phase 4: User Story 2 - 记录问题并完成复盘 (Priority: P1) MVP Part 2
+## Phase 4: User Story 2 - 使用 Markdown 记录并完成复盘 (Priority: P1) MVP Part 2
 
-**Goal**: 用户可编辑问题、回答、整体反思和行动项，获得可靠自动保存、版本冲突保护和可验证的完成状态。
+**Goal**: 用户可在单一 Markdown 文档中自由记录面经并预览，获得可靠自动保存、版本冲突保护和可验证的完成状态。
 
-**Independent Test**: 保存含多个问题、复盘内容和行动项的面经，刷新后内容/顺序完整；不满足条件时不能完成；双标签冲突不会覆盖较新内容。
+**Independent Test**: 保存含标题、列表和代码的 Markdown 面经，刷新后原文与预览完整；空内容不能完成；双标签冲突不会覆盖较新内容。
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] 先扩展 PATCH 聚合更新、完成条件、字段错误和 version 409 契约测试 `tests/contract/interview-review.contract.test.ts`
-- [ ] T024 [P] [US2] 先编写问题/行动项原子替换、排序、删除和乐观冲突集成测试 `tests/integration/interviews/interview-update.test.ts`
-- [ ] T025 [P] [US2] 先编写问题增删排序、行动项勾选、完成校验和删除撤销组件测试 `tests/component/interviews/interview-editor.test.tsx`
-- [ ] T026 [P] [US2] 先编写 800ms 防抖、flush、保存成功/失败/冲突状态组件测试 `tests/component/interviews/interview-autosave.test.tsx`
+- [X] T023 [P] [US2] 先扩展 PATCH 聚合更新、完成条件、字段错误和 version 409 契约测试 `tests/contract/interview-review.contract.test.ts`
+- [X] T024 [P] [US2] 先编写问题/行动项原子替换、排序、删除和乐观冲突集成测试 `tests/integration/interviews/interview-update.test.ts`
+- [X] T025 [P] [US2] 编写 Markdown 编辑/预览、旧数据兼容和完成校验组件测试 `tests/component/interviews/interview-editor.test.tsx`
+- [X] T026 [P] [US2] 先编写 800ms 防抖、flush、保存成功/失败/冲突状态组件测试 `tests/component/interviews/interview-autosave.test.tsx`
 
 ### Implementation for User Story 2
 
 - [X] T027 [US2] 实现面经聚合锁定、version 校验、问题/行动项原子替换和完成规则 `src/modules/interviews/infrastructure/postgres-interview-repository.ts`
 - [X] T028 [US2] 实现更新用例、状态转换和冲突/字段错误映射 `src/modules/interviews/application/interview-service.ts`
 - [X] T029 [US2] 实现 PATCH `/api/interviews/{id}` 聚合更新契约 `src/app/api/interviews/[id]/route.ts`
-- [X] T030 [P] [US2] 实现可排序问题块、回答对照、自评分和可撤销删除 `src/modules/interviews/ui/interview-question-list.tsx`
-- [X] T031 [P] [US2] 实现整体亮点/待改进区域和可排序勾选行动项 `src/modules/interviews/ui/interview-action-items.tsx`
-- [X] T032 [US2] 实现面试背景、问题、整体复盘和完成控制的聚合编辑器 `src/modules/interviews/ui/interview-editor.tsx`
+- [X] T030 [P] [US2] 实现单一 Markdown 编辑框与安全预览 `src/modules/interviews/ui/interview-question-list.tsx`
+- [X] T031 [P] [US2] 将旧版问题、反思和行动项兼容转换为可读 Markdown `src/modules/interviews/ui/interview-editor.tsx`
+- [X] T032 [US2] 实现面试背景、Markdown 内容和完成控制的聚合编辑器 `src/modules/interviews/ui/interview-editor.tsx`
 - [X] T033 [US2] 实现 800ms 防抖自动保存、离开前 flush、aria-live 状态及冲突恢复 `src/modules/interviews/ui/interview-autosave.ts`
 - [X] T034 [US2] 实现 Server Component 面经详情页并挂载客户端编辑器 `src/app/interviews/[id]/page.tsx`
 
@@ -112,9 +112,9 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 ### Tests for User Story 3
 
 - [X] T035 [P] [US3] 先编写关键词、状态/阶段/结果/日期筛选、稳定游标和默认排序单元测试 `tests/unit/interviews/interview-list-query.test.ts`
-- [ ] T036 [P] [US3] 先扩展 GET 列表和 DELETE 成功/404 契约测试 `tests/contract/interview-review.contract.test.ts`
-- [ ] T037 [P] [US3] 先编写公司/岗位/问题搜索、组合筛选、分页和删除级联集成测试 `tests/integration/interviews/interview-list.test.ts`
-- [ ] T038 [P] [US3] 先编写列表空状态、筛选 URL、删除确认和导航组件测试 `tests/component/interviews/interview-list.test.tsx`
+- [X] T036 [P] [US3] 先扩展 GET 列表和 DELETE 成功/404 契约测试 `tests/contract/interview-review.contract.test.ts`
+- [X] T037 [P] [US3] 先编写公司/岗位/问题搜索、组合筛选、分页和删除级联集成测试 `tests/integration/interviews/interview-list.test.ts`
+- [X] T038 [P] [US3] 先编写列表空状态、筛选 URL、删除确认和导航组件测试 `tests/component/interviews/interview-list.test.tsx`
 
 ### Implementation for User Story 3
 
@@ -138,14 +138,14 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 
 ### Tests for User Story 4
 
-- [ ] T046 [P] [US4] 先编写阶段更新保持 occurrence ID、阶段删除 SET NULL、投递级联和本轮结果独立性集成测试 `tests/integration/interviews/interview-lifecycle.test.ts`
-- [ ] T047 [P] [US4] 先编写双用户列表/详情/创建/更新/删除隔离集成测试 `tests/integration/interviews/interview-owner-isolation.test.ts`
-- [ ] T048 [P] [US4] 先编写阶段解除提示、投递级联提示和未关联快照显示组件测试 `tests/component/interviews/interview-lifecycle.test.tsx`
-- [ ] T049 [P] [US4] 先编写跨用户拒绝、阶段解除和投递删除关键旅程 E2E `tests/e2e/interview-review-isolation.spec.ts`
+- [X] T046 [P] [US4] 先编写阶段更新保持 occurrence ID、阶段删除 SET NULL、投递级联和本轮结果独立性集成测试 `tests/integration/interviews/interview-lifecycle.test.ts`
+- [X] T047 [P] [US4] 先编写双用户列表/详情/创建/更新/删除隔离集成测试 `tests/integration/interviews/interview-owner-isolation.test.ts`
+- [X] T048 [P] [US4] 先编写阶段解除提示、投递级联提示和未关联快照显示组件测试 `tests/component/interviews/interview-lifecycle.test.tsx`
+- [X] T049 [P] [US4] 先编写跨用户拒绝、阶段解除和投递删除关键旅程 E2E `tests/e2e/interview-review-isolation.spec.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] 增加 stage_changed 事件、保持 occurrence ID 的阶段更新函数及 owner 校验迁移 `supabase/migrations/20260818000300_interview_stage_lifecycle.sql`
+- [X] T050 [US4] 增加 stage_changed 事件、保持 occurrence ID 的阶段更新函数及 owner 校验迁移 `supabase/migrations/20260820000200_interview_stage_changed_event.sql`
 - [X] T051 [US4] 扩展阶段仓储/服务以更新 occurrence 并返回面经关联摘要 `src/modules/applications/infrastructure/postgres-application-repository.ts`
 - [X] T052 [US4] 实现 PATCH 阶段 occurrence 的 Route Handler 和统一错误映射 `src/app/api/applications/[id]/stages/[occurrenceId]/route.ts`
 - [X] T053 [US4] 更新阶段删除、投递删除确认文案和面经解除/级联数量提示 `src/modules/applications/ui/delete-application-dialog.tsx`
@@ -160,12 +160,12 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 **Purpose**: 完成跨故事的视觉、无障碍、性能、文档和发布门禁。
 
 - [X] T055 [P] 为面经列表、编辑器、状态徽标、问题对照和窄视口布局添加共享 token 样式 `src/app/globals.css`
-- [ ] T056 [P] 扩展键盘、焦点、aria-live、对比度和 375/768/1280px 视口可访问性 E2E `tests/e2e/accessibility.spec.ts`
-- [ ] T057 [P] 增加完整阶段创建→多问题复盘→筛选回顾→删除主流程 E2E `tests/e2e/interview-review.spec.ts`
-- [ ] T058 [P] 增加 10,000 篇面经及问题/行动项的固定性能种子 `tests/performance/seed-interviews.ts`
-- [ ] T059 增加面经搜索/筛选/更新 p95 基准并接入脚本 `tests/performance/interview_performance.py`
-- [ ] T060 [P] 更新模块边界、隐私日志和面经运维说明 `docs/architecture.md`
-- [ ] T061 按 quickstart 运行格式、lint、类型、覆盖率、数据库、契约、E2E、可访问性、性能和生产构建并记录结果 `specs/002-interview-review/quickstart.md`
+- [X] T056 [P] 扩展键盘、焦点、aria-live、对比度和 375/768/1280px 视口可访问性 E2E `tests/e2e/accessibility.spec.ts`
+- [X] T057 [P] 增加完整阶段创建→多问题复盘→筛选回顾→删除主流程 E2E `tests/e2e/interview-review.spec.ts`
+- [X] T058 [P] 增加 10,000 篇面经及问题/行动项的固定性能种子 `tests/performance/seed-interviews.ts`
+- [X] T059 增加面经搜索/筛选/更新 p95 基准并接入脚本 `tests/performance/interview_performance.py`
+- [X] T060 [P] 更新模块边界、隐私日志和面经运维说明 `docs/architecture.md`
+- [X] T061 按 quickstart 运行格式、lint、类型、覆盖率、数据库、契约、E2E、可访问性、性能和生产构建并记录结果 `specs/002-interview-review/quickstart.md`
 
 ---
 

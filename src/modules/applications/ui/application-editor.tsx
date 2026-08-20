@@ -11,14 +11,20 @@ import {
 } from "../domain/catalog";
 import { Feedback } from "@/shared/ui/feedback";
 import { FormField, TextAreaField } from "@/shared/ui/form-field";
+import Link from "next/link";
+import type { Route } from "next";
+import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
+import { isInterviewStage } from "@/modules/interviews/domain/catalog";
 
 const today = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
 
 export function ApplicationEditor({
   application,
+  interviews = [],
 }: {
   application: ApplicationDetail;
+  interviews?: StageInterviewSummary[];
 }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -152,6 +158,24 @@ export function ApplicationEditor({
                   <strong>{STAGE_LABELS[item.stage]}</strong>
                   <time dateTime={item.occurredOn}>{item.occurredOn}</time>
                 </span>
+                {isInterviewStage(item.stage) &&
+                  (() => {
+                    const review = interviews.find(
+                      (candidate) => candidate.stageOccurrenceId === item.id,
+                    );
+                    return (
+                      <Link
+                        className="button secondary"
+                        href={
+                          (review
+                            ? `/interviews/${review.id}`
+                            : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
+                        }
+                      >
+                        {review ? "继续复盘" : "记录面经"}
+                      </Link>
+                    );
+                  })()}
                 <button
                   type="button"
                   className="button secondary"

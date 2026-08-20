@@ -10,7 +10,9 @@ test("新增、编辑阶段并删除投递", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "E2E 生命周期公司" }),
   ).toBeVisible();
-  await page.getByLabel("阶段").selectOption("screening");
+  await page
+    .getByRole("combobox", { name: "阶段", exact: true })
+    .selectOption("screening");
   await page.getByLabel("发生日期").fill("2026-08-13");
   await page.getByRole("button", { name: "添加阶段" }).click();
   await expect(page.getByText("简历筛选 · 2026-08-13").first()).toBeVisible();
