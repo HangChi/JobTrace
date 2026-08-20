@@ -3764,10 +3764,11 @@ dialog::backdrop {
     flex-wrap: wrap;
   }
   .stage-record-actions {
-    justify-content: flex-start;
+    justify-content: flex-end;
   }
   .stage-record-actions .button {
-    flex: 1;
+    flex: 0 0 auto;
+    min-width: 88px;
   }
   .interview-section .section-heading {
     align-items: flex-start;
