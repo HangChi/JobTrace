@@ -12,7 +12,11 @@ JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。S
 - `src/modules/interviews`：Markdown 面经、阶段关联、自动保存和搜索筛选。
 - `src/shared`：日期、游标、错误、日志、数据库客户端和 UI 原语。
 
-依赖方向为 `app → application → domain`。模块间只允许通过各模块的 `index.ts` 公开接口协作。写操作通过 PostgreSQL 函数原子写入投递与历史事件；浏览器不接触服务角色密钥。
+依赖方向为 `app/UI → application → domain`。跨模块业务调用通过各模块的 `index.ts` 公开接口协作；页面组合组件可以引用模块公开 UI。写操作通过 PostgreSQL 函数原子写入投递与历史事件；浏览器不接触数据库凭据。
+
+首页由 Server Component 提供首屏列表和统计，再交给客户端 `ApplicationDashboard` 维护局部快照。新增和编辑使用同源 Route Handler 返回的权威记录直接更新列表；状态切换使用专用 `PATCH /api/applications/{id}/status`，只提交 `status` 与乐观锁 `version`，服务器负责生成业务日期。界面确认成功后立即结束保存状态，再以无全局 loading 的后台请求并行对账列表和统计。
+
+分析摘要的总量、阶段分布、进展提醒和待跟进查询并行发送到 PostgreSQL。写入函数仍负责快照、版本和历史事件的原子一致性；局部 UI 更新不是数据库一致性的替代品，409 冲突会回滚乐观状态并提示用户。
 
 业务日期以 `Asia/Shanghai` 自然日解释。投递状态和阶段在数据库中保存稳定英文代码，中文只作为展示标签。
 

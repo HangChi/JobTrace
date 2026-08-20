@@ -57,7 +57,6 @@ export function ApplicationForm({
       if (!response.ok) throw new Error(result.message);
       if (onSuccess) {
         onSuccess(result as ApplicationDetail);
-        if (!application) router.refresh();
       } else {
         router.push(`/applications/${result.id}`);
       }
@@ -74,6 +73,7 @@ export function ApplicationForm({
       {error && <Feedback kind="error">{error}</Feedback>}
       <div className="application-form-grid">
         <FormField
+          fieldClassName="application-field-half"
           label="公司名称 *"
           name="companyName"
           required
@@ -83,6 +83,7 @@ export function ApplicationForm({
           autoFocus={embedded}
         />
         <FormField
+          fieldClassName="application-field-half"
           label="岗位名称 *"
           name="positionName"
           required
@@ -91,13 +92,14 @@ export function ApplicationForm({
           placeholder="例如：前端开发工程师"
         />
         <FormField
+          fieldClassName="application-field-third"
           label="投递日期 *"
           name="appliedDate"
           type="date"
           required
           defaultValue={application?.appliedDate ?? today()}
         />
-        <label>
+        <label className="application-field-third">
           类型
           <span className="select-wrap">
             <select
@@ -116,45 +118,49 @@ export function ApplicationForm({
           </span>
         </label>
         <FormField
+          fieldClassName="application-field-third"
           label="城市"
           name="city"
           maxLength={100}
           defaultValue={application?.city ?? ""}
           placeholder="例如：上海"
         />
+        <FormField
+          fieldClassName="application-field-link"
+          label="职位链接"
+          name="jobUrl"
+          type="url"
+          placeholder="https://"
+          defaultValue={application?.jobUrl ?? ""}
+        />
+        <label className="application-field-status">
+          当前状态
+          <span className="select-wrap">
+            <select
+              name="status"
+              defaultValue={application?.status ?? "submitted"}
+            >
+              {APPLICATION_STATUSES.map((v) => (
+                <option value={v} key={v}>
+                  {STATUS_LABELS[v]}
+                </option>
+              ))}
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 16 16">
+              <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+            </svg>
+          </span>
+        </label>
+        <TextAreaField
+          fieldClassName="application-field-full"
+          label="备注"
+          name="notes"
+          rows={2}
+          maxLength={10000}
+          defaultValue={application?.notes ?? ""}
+          placeholder="记录联系人、面试准备或下一步安排……"
+        />
       </div>
-      <FormField
-        label="职位链接"
-        name="jobUrl"
-        type="url"
-        placeholder="https://"
-        defaultValue={application?.jobUrl ?? ""}
-      />
-      <label>
-        当前状态
-        <span className="select-wrap">
-          <select
-            name="status"
-            defaultValue={application?.status ?? "submitted"}
-          >
-            {APPLICATION_STATUSES.map((v) => (
-              <option value={v} key={v}>
-                {STATUS_LABELS[v]}
-              </option>
-            ))}
-          </select>
-          <svg aria-hidden="true" viewBox="0 0 16 16">
-            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
-          </svg>
-        </span>
-      </label>
-      <TextAreaField
-        label="备注"
-        name="notes"
-        maxLength={10000}
-        defaultValue={application?.notes ?? ""}
-        placeholder="记录联系人、面试准备或下一步安排……"
-      />
       <div className="application-form-actions">
         {onCancel && (
           <button

@@ -56,6 +56,7 @@ export function ApplicationFilters({
           defaultValue={typeof query.q === "string" ? query.q : ""}
           maxLength={200}
           placeholder="例如：产品经理"
+          disabled={pending}
         />
       </label>
       <label>
@@ -63,6 +64,7 @@ export function ApplicationFilters({
         <span className="select-wrap">
           <select
             name="status"
+            disabled={pending}
             defaultValue={typeof query.status === "string" ? query.status : ""}
           >
             <option value="">全部状态</option>
@@ -82,6 +84,7 @@ export function ApplicationFilters({
         <span className="select-wrap">
           <select
             name="type"
+            disabled={pending}
             defaultValue={typeof query.type === "string" ? query.type : ""}
           >
             <option value="">全部类型</option>
@@ -101,6 +104,7 @@ export function ApplicationFilters({
         <span className="select-wrap">
           <select
             name="sort"
+            disabled={pending}
             defaultValue={
               typeof query.sort === "string" ? query.sort : "latestDate"
             }

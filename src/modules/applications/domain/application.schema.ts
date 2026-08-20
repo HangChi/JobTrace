@@ -32,5 +32,12 @@ export const updateApplicationSchema = createApplicationSchema
     path: ["changeDate"],
     message: "变更日期不能早于投递日期",
   });
+export const updateApplicationStatusSchema = z.object({
+  status: z.enum(APPLICATION_STATUSES),
+  version: z.number().int().positive(),
+});
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
 export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;
+export type UpdateApplicationStatusInput = z.infer<
+  typeof updateApplicationStatusSchema
+>;

@@ -9,6 +9,7 @@ import type {
 } from "../application/contracts";
 import type {
   CreateApplicationInput,
+  UpdateApplicationStatusInput,
   UpdateApplicationInput,
 } from "../domain/application.schema";
 import type { ListQuery } from "../application/list-query";
@@ -174,6 +175,37 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     }
   }
 
+  async updateStatus(
+    ownerId: string,
+    id: string,
+    input: UpdateApplicationStatusInput,
+    changeDate: string,
+  ) {
+    try {
+      const [row] = await this.sql<DbRecord[]>`
+        select * from public.update_application_for_owner(
+          ${ownerId}, ${id}, ${input.version}, ${changeDate}::date,
+          ${this.sql.json({ status: input.status })}::jsonb
+        )
+      `;
+      return {
+        id: String(row.id),
+        status: row.status as never,
+        latestDate: dateOnly(row.latestDate),
+        version: Number(row.version),
+      };
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "40001") {
+        throw new Problem("conflict", "记录已被更新，请刷新后重试。", 409);
+      }
+      if (code === "P0002") {
+        throw new Problem("not_found", "没有找到这条投递记录。", 404);
+      }
+      throw new Problem("storage", "更新投递状态失败", 500);
+    }
+  }
+
   async delete(ownerId: string, id: string) {
     const rows = await this
       .sql`delete from public.applications where id = ${id} and owner_id=${ownerId} returning id`;
@@ -281,16 +313,43 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       appliedDate: "applied_date",
       latestDate: "latest_date",
     }[query.sort];
+    const groupByStatus = query.sort === "latestDate";
+    const statusRank = this.sql`
+      case a.status
+        when 'offer' then 0
+        when 'submitted' then 1
+        when 'refused' then 2
+        else 1
+      end
+    `;
     const direction =
       query.direction === "asc" ? this.sql`asc` : this.sql`desc`;
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
     const offset = cursor ? 0 : (query.page - 1) * query.limit;
     const cursorCondition = cursor
-      ? this
-          .sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)`
+      ? groupByStatus
+        ? query.direction === "asc"
+          ? this.sql`and (
+              ${statusRank} > ${cursor.statusRank ?? 0}
+              or (
+                ${statusRank} = ${cursor.statusRank ?? 0}
+                and (a.latest_date, a.id) > (${cursor.value}::date, ${cursor.id}::uuid)
+              )
+            )`
+          : this.sql`and (
+              ${statusRank} > ${cursor.statusRank ?? 0}
+              or (
+                ${statusRank} = ${cursor.statusRank ?? 0}
+                and (a.latest_date, a.id) < (${cursor.value}::date, ${cursor.id}::uuid)
+              )
+            )`
+        : this
+            .sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)`
       : this.sql``;
-    const orderBy = this
-      .sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
+    const orderBy = groupByStatus
+      ? this
+          .sql`${statusRank} asc, a.latest_date ${direction}, a.id ${direction}`
+      : this.sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
     const rows = await this.sql<DbRecord[]>`
       select a.*, count(*) over() as total_count,
         max(s.occurred_on) as timeline_latest_date,
@@ -327,6 +386,16 @@ export class PostgresApplicationRepository implements ApplicationRepository {
                 ],
               ),
               id: String(last.id),
+              ...(groupByStatus
+                ? {
+                    statusRank:
+                      String(last.status) === "offer"
+                        ? 0
+                        : String(last.status) === "refused"
+                          ? 2
+                          : 1,
+                  }
+                : {}),
             })
           : null,
     };

@@ -1,5 +1,13 @@
 # Quickstart & Validation: 职迹
 
+## 2026-08-21 当前验证记录
+
+- Vitest：34 个文件、86 项通过；ESLint、TypeScript、Prettier 与 Next.js 生产构建通过。
+- HTTP 契约 10/10、数据库集成 16/16；E2E 全套 26 项先通过，唯一筛选过渡回归修复后定向复测通过，27 个场景均已验证。
+- 当前数据库中遗留的 10,000 条 `interview-performance-owner` 数据及关联测试账号已删除；raw 性能基准复跑后 `Perf Company %` 与 `Interview Company %` 均为 0 条。
+- 10,000 条事务回滚基准 p95：投递列表 28.92ms、筛选 27.64ms、统计 28.01ms；面经列表 26.72ms、筛选 26.22ms、搜索 35.03ms、更新 29.27ms。
+- 新增、编辑和状态切换使用局部 UI 更新；状态切换只发送一次轻量 PATCH，分析查询并行执行，后台对账不触发整页 loading。
+
 ## 2026-08-13 实现验证记录
 
 - 远程 PostgreSQL `jobtrace` 已应用 4 个迁移，迁移器复跑均为 `SKIP` 且校验和无漂移。
@@ -126,8 +134,8 @@ pnpm dev
 ## 5. Accessibility and End-to-End
 
 ```bash
-npm run test:e2e
-npm run test:a11y
+pnpm e2e
+pnpm e2e --grep accessibility
 ```
 
 预期：仅键盘可完成四条 Journey；表单错误、对话框、加载/空/成功/失败状态可由辅助技术识别；自动检查无 WCAG 2.2 AA 严重违规。人工确认对话框焦点回归、状态不只依赖颜色、表格在较窄桌面窗口仍可操作。
@@ -135,9 +143,9 @@ npm run test:a11y
 ## 6. Performance Validation
 
 ```bash
-npm run seed:performance -- --applications=10000
-npm run test:performance
-npm run test:web-vitals
+pnpm performance
+pnpm performance:auth
+pnpm lighthouse
 ```
 
 在固定硬件/容器配额和清晰记录的构建模式下运行至少三轮，预热后统计：
@@ -158,8 +166,8 @@ npm run test:web-vitals
 
 ```bash
 npx supabase db reset
-npm run build
-npm run start
+pnpm build
+pnpm start
 ```
 
 预期：全新数据库可重建、生产构建成功、健康检查通过。部署数据库迁移前审查 SQL 并保留数据库备份；应用部署保留上一构建以快速回滚。对破坏性 schema 变化采用“扩展 → 数据迁移 → 收缩”，不得让应用回滚依赖已被删除的列。

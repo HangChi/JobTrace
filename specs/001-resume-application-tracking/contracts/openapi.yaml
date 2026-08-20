@@ -168,6 +168,26 @@ paths:
       responses:
         '204': { description: Deleted after explicit UI confirmation }
         '404': { $ref: '#/components/responses/NotFound' }
+  /applications/{id}/status:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: updateApplicationStatus
+      description: Lightweight optimistic status mutation; the server supplies the business change date.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateApplicationStatus' }
+      responses:
+        '200':
+          description: Minimal fields required to update the current list row locally
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationStatusUpdate' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /analytics/summary:
     get:
       operationId: getAnalyticsSummary
@@ -178,7 +198,7 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [total, submitted, refused, offers, addedThisWeek, stageDistribution, followUps]
+                required: [total, submitted, refused, offers, addedThisWeek, stageDistribution, followUps, progressReminders]
                 properties:
                   total: { type: integer, minimum: 0 }
                   submitted: { type: integer, minimum: 0 }
@@ -191,6 +211,9 @@ paths:
                   followUps:
                     type: array
                     items: { $ref: '#/components/schemas/ApplicationSummary' }
+                  progressReminders:
+                    type: array
+                    items: { type: object }
   /imports/preview:
     post:
       operationId: previewImport
@@ -298,6 +321,9 @@ components:
     ApplicationStatus:
       type: string
       enum: [submitted, offer, refused]
+    ApplicationType:
+      type: string
+      enum: [summer_internship, daily_internship, campus_recruitment, social_recruitment]
     RecruitmentStage:
       type: string
       enum: [screening, assessment, written_test, interview_1, interview_2, interview_3, hr_interview, final_interview]
@@ -311,6 +337,7 @@ components:
         city: { type: [string, 'null'], maxLength: 100 }
         jobUrl: { type: [string, 'null'], format: uri, maxLength: 2048 }
         appliedDate: { type: string, format: date }
+        type: { $ref: '#/components/schemas/ApplicationType' }
         status: { $ref: '#/components/schemas/ApplicationStatus' }
         notes: { type: [string, 'null'], maxLength: 10000 }
         stages:
@@ -324,6 +351,22 @@ components:
           properties:
             version: { type: integer, minimum: 1 }
             changeDate: { type: string, format: date }
+    UpdateApplicationStatus:
+      type: object
+      additionalProperties: false
+      required: [status, version]
+      properties:
+        status: { $ref: '#/components/schemas/ApplicationStatus' }
+        version: { type: integer, minimum: 1 }
+    ApplicationStatusUpdate:
+      type: object
+      additionalProperties: false
+      required: [id, status, latestDate, version]
+      properties:
+        id: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/ApplicationStatus' }
+        latestDate: { type: string, format: date }
+        version: { type: integer, minimum: 1 }
     StageInput:
       type: object
       required: [stage, occurredOn]
@@ -332,7 +375,7 @@ components:
         occurredOn: { type: string, format: date }
     ApplicationSummary:
       type: object
-      required: [id, companyName, positionName, appliedDate, status, latestDate, stages, version]
+      required: [id, companyName, positionName, appliedDate, type, status, latestDate, stages, needsFollowUp, followUpDays, followUpReason, version]
       properties:
         id: { type: string, format: uuid }
         companyName: { type: string }
@@ -340,11 +383,13 @@ components:
         city: { type: [string, 'null'] }
         jobUrl: { type: [string, 'null'], format: uri }
         appliedDate: { type: string, format: date }
+        type: { $ref: '#/components/schemas/ApplicationType' }
         status: { $ref: '#/components/schemas/ApplicationStatus' }
         latestDate: { type: string, format: date }
         stages: { type: array, uniqueItems: true, items: { $ref: '#/components/schemas/RecruitmentStage' } }
         needsFollowUp: { type: boolean }
         followUpDays: { type: integer, minimum: 0 }
+        followUpReason: { type: [string, 'null'], enum: [timeline, application, null] }
         version: { type: integer, minimum: 1 }
     ApplicationDetail:
       allOf:
@@ -375,10 +420,13 @@ components:
         createdAt: { type: string, format: date-time }
     ApplicationPage:
       type: object
-      required: [items, nextCursor]
+      required: [items, nextCursor, total, page, limit]
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/ApplicationSummary' } }
         nextCursor: { type: [string, 'null'] }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
     ImportPreview:
       type: object
       required: [id, expiresAt, totalRows, validRows, invalidRows, duplicateRows, columns, rows]

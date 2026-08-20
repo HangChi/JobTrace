@@ -11,7 +11,7 @@ export async function fetchAnalyticsSummary(
   ownerId: string,
 ): Promise<AnalyticsSummary> {
   const sql = createServerDatabase();
-  const [summary] = await sql<Record<string, unknown>[]>`
+  const summaryQuery = sql<Record<string, unknown>[]>`
     select count(*)::int as total,
       count(*) filter(where status='submitted')::int as submitted,
       count(*) filter(where status='refused')::int as refused,
@@ -19,21 +19,14 @@ export async function fetchAnalyticsSummary(
       count(*) filter(where applied_date>=date_trunc('week',${businessToday()}::date)::date)::int as added_this_week
     from applications where owner_id=${ownerId}
   `;
-  const stageRows = await sql<Record<string, unknown>[]>`
+  const stageRowsQuery = sql<Record<string, unknown>[]>`
     select s.stage::text as stage, count(distinct s.application_id)::int as total
     from public.application_stage_occurrences s
     join public.applications a on a.id=s.application_id
     where a.owner_id=${ownerId}
     group by s.stage
   `;
-  const stageDistribution: Partial<Record<RecruitmentStage, number>> = {};
-  for (const row of stageRows) {
-    const stage = String(row.stage);
-    if (RECRUITMENT_STAGES.includes(stage as RecruitmentStage)) {
-      stageDistribution[stage as RecruitmentStage] = Number(row.total);
-    }
-  }
-  const progressReminders = await sql<Record<string, unknown>[]>`
+  const progressRemindersQuery = sql<Record<string, unknown>[]>`
     select
       a.id as application_id,
       a.company_name,
@@ -75,7 +68,7 @@ export async function fetchAnalyticsSummary(
     order by latest_stage.occurred_on desc, a.id
     limit 20
   `;
-  const followUps = await sql<Record<string, unknown>[]>`
+  const followUpsQuery = sql<Record<string, unknown>[]>`
     select a.id, a.company_name, a.position_name, a.city, a.job_url,
       a.applied_date, a.type, a.status, a.latest_date, a.version,
       case
@@ -107,6 +100,20 @@ export async function fetchAnalyticsSummary(
     order by follow_up_days desc, a.id
     limit 20
   `;
+  const [[summary], stageRows, progressReminders, followUps] =
+    await Promise.all([
+      summaryQuery,
+      stageRowsQuery,
+      progressRemindersQuery,
+      followUpsQuery,
+    ]);
+  const stageDistribution: Partial<Record<RecruitmentStage, number>> = {};
+  for (const row of stageRows) {
+    const stage = String(row.stage);
+    if (RECRUITMENT_STAGES.includes(stage as RecruitmentStage)) {
+      stageDistribution[stage as RecruitmentStage] = Number(row.total);
+    }
+  }
   return {
     total: Number(summary.total),
     submitted: Number(summary.submitted),

@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import type {
-  ApplicationDetail,
   ApplicationSummary,
+  ApplicationStatusUpdate,
 } from "../application/contracts";
 import {
   APPLICATION_STATUSES,
@@ -13,17 +12,13 @@ import {
   type ApplicationStatus,
 } from "../domain/catalog";
 
-const today = () =>
-  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
-
 export function ApplicationStatusSelect({
   application,
   onUpdate,
 }: {
   application: ApplicationSummary;
-  onUpdate?: (application: ApplicationDetail) => void;
+  onUpdate: (application: ApplicationSummary) => void;
 }) {
-  const router = useRouter();
   const [status, setStatus] = useState(application.status);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -89,33 +84,31 @@ export function ApplicationStatusSelect({
     setSaving(true);
     setError("");
     try {
-      const detailResponse = await fetch(`/api/applications/${application.id}`);
-      if (!detailResponse.ok) throw new Error("暂时无法读取投递信息。");
-      const detail = (await detailResponse.json()) as ApplicationDetail;
-      const response = await fetch(`/api/applications/${application.id}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          companyName: detail.companyName,
-          positionName: detail.positionName,
-          city: detail.city,
-          jobUrl: detail.jobUrl,
-          appliedDate: detail.appliedDate,
-          status: nextStatus,
-          notes: detail.notes,
-          stages: [],
-          version: detail.version,
-          changeDate: today(),
-        }),
-      });
+      const response = await fetch(
+        `/api/applications/${application.id}/status`,
+        {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            status: nextStatus,
+            version: application.version,
+          }),
+        },
+      );
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.message || "状态更新失败，请稍后重试。");
       }
-      const updated = result as ApplicationDetail;
-      setStatus(updated.status);
-      if (onUpdate) onUpdate(updated);
-      else router.refresh();
+      const updated = result as ApplicationStatusUpdate;
+      const summary: ApplicationSummary = {
+        ...application,
+        ...updated,
+        needsFollowUp: false,
+        followUpDays: 0,
+        followUpReason: null,
+      };
+      setStatus(summary.status);
+      onUpdate(summary);
     } catch (reason) {
       setStatus(previousStatus);
       setError(

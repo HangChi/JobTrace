@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { NewApplicationDialog } from "./application-dialogs";
+import type { ApplicationDetail } from "../application/contracts";
 
 export function ApplicationListEmpty({
   filtered = false,
+  onCreated,
 }: {
   filtered?: boolean;
+  onCreated?: (application: ApplicationDetail) => void;
 }) {
   return (
     <section className="panel empty-state">
@@ -19,7 +22,7 @@ export function ApplicationListEmpty({
           清空条件
         </Link>
       ) : (
-        <NewApplicationDialog />
+        <NewApplicationDialog onSuccess={onCreated} />
       )}
     </section>
   );

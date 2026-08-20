@@ -9,6 +9,7 @@ export {
   removeApplicationStage,
   updateApplicationStage,
   updateApplication,
+  updateApplicationStatus,
 } from "./application/application-service";
 export {
   createApplicationSchema,
@@ -26,4 +27,5 @@ export type {
   ApplicationDetail,
   ApplicationPage,
   ApplicationSummary,
+  ApplicationStatusUpdate,
 } from "./application/contracts";

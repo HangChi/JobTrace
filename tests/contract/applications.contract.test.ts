@@ -51,6 +51,17 @@ test("投递 CRUD、Problem 和 409 契约", async ({ request }) => {
         })
       ).status(),
     ).toBe(200);
+    const statusUpdate = await request.patch(
+      `/api/applications/${application.id}/status`,
+      { data: { status: "offer", version: 2 } },
+    );
+    expect(statusUpdate.status()).toBe(200);
+    expect(await statusUpdate.json()).toMatchObject({
+      id: application.id,
+      status: "offer",
+      version: 3,
+      latestDate: expect.any(String),
+    });
     const conflict = await request.patch(
       `/api/applications/${application.id}`,
       { data: update },

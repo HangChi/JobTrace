@@ -108,8 +108,6 @@ def main() -> None:
                 """,
                 (owner_id,),
             )
-            connection.commit()
-
             measure(
                 cursor,
                 "list",

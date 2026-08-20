@@ -1,5 +1,7 @@
 # Data Model: 职迹简历投递管理
 
+> 实现对账说明（2026-08-21）：迁移文件是数据库结构的唯一事实来源；`supabase/` 仅为历史目录名，运行时使用自有 PostgreSQL。应用层通过 Better Auth actor 和显式 `owner_id` 谓词隔离数据，不依赖浏览器 JWT 访问业务表。
+
 ## Conventions
 
 - 主键使用 UUID；系统时间使用 `timestamptz`；用户业务日期使用 `date`。

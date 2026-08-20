@@ -1,5 +1,7 @@
 # Tasks: 职迹简历投递管理
 
+> 实现对账说明（2026-08-21）：本文件保留任务执行历史；当前代码已从早期 Supabase 客户端/Server Actions 方案收敛为自有 PostgreSQL、Better Auth 和同源 Route Handlers。运行时事实以 `src/`、`supabase/migrations/`、OpenAPI 契约及 `docs/architecture.md` 为准。
+
 **Input**: Design documents from `/specs/001-resume-application-tracking/`
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/openapi.yaml, quickstart.md

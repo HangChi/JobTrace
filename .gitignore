@@ -9,6 +9,8 @@ dist/
 build/
 coverage/
 .next/
+.next-*/
+.playwright/
 .turbo/
 tsconfig.tsbuildinfo
 .pnpm-store/
