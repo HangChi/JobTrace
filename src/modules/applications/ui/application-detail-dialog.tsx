@@ -9,6 +9,7 @@ import type {
   ApplicationSummary,
 } from "../application/contracts";
 import { STATUS_LABELS, TYPE_LABELS } from "../domain/catalog";
+import { formatCompanyWithCity } from "../application/display";
 import { EditApplicationDialog } from "./application-dialogs";
 import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
 
@@ -76,12 +77,16 @@ function ApplicationDetailContent({
   }, [application]);
 
   const current = detail ?? application;
+  const companyDisplayName = formatCompanyWithCity(
+    application.companyName,
+    application.city,
+  );
   return (
     <>
       <Dialog
         open
         kicker="APPLICATION DETAIL"
-        title={`${application.companyName} · ${application.positionName}`}
+        title={`${companyDisplayName} · ${application.positionName}`}
         className="application-detail-dialog"
         onClose={onClose}
       >

@@ -10,7 +10,7 @@ import {
   listApplicationInterviews,
   REVIEW_STATUS_LABELS,
 } from "@/modules/interviews";
-import { STAGE_LABELS } from "@/modules/applications";
+import { STAGE_LABELS, formatCompanyWithCity } from "@/modules/applications";
 
 export default async function ApplicationPage({
   params,
@@ -25,6 +25,10 @@ export default async function ApplicationPage({
     return notFound();
   }
   const interviews = await listApplicationInterviews(application.id);
+  const companyDisplayName = formatCompanyWithCity(
+    application.companyName,
+    application.city,
+  );
   return (
     <section className="stack application-detail-page">
       <header className="application-detail-header">
@@ -33,7 +37,7 @@ export default async function ApplicationPage({
         </Link>
         <div>
           <span className="badge">{STATUS_LABELS[application.status]}</span>
-          <h1>{application.companyName}</h1>
+          <h1>{companyDisplayName}</h1>
           <p className="lead">
             {application.positionName} · {application.city ?? "城市未填写"} ·
             投递于 {application.appliedDate}
@@ -92,7 +96,7 @@ export default async function ApplicationPage({
         </div>
         <DeleteApplicationDialog
           id={application.id}
-          name={`${application.companyName} ${application.positionName}`}
+          name={`${companyDisplayName} ${application.positionName}`}
         />
       </section>
     </section>

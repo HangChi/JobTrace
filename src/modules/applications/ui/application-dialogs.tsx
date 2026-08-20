@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Dialog } from "@/shared/ui/dialog";
 import type { ApplicationDetail } from "../application/contracts";
+import { formatCompanyWithCity } from "../application/display";
 import { ApplicationForm } from "./application-form";
 
 export function NewApplicationDialog({
@@ -51,7 +52,7 @@ export function EditApplicationDialog({
     <Dialog
       open={open}
       kicker="EDIT APPLICATION"
-      title={`编辑 ${application.companyName}`}
+      title={`编辑 ${formatCompanyWithCity(application.companyName, application.city)}`}
       description={application.positionName}
       className="application-dialog"
       onClose={onClose}

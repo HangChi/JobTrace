@@ -51,7 +51,7 @@ describe("投递记录列表", () => {
       />,
     );
     expect(
-      screen.getByRole("link", { name: /打开 测试科技 的投递链接/ }),
+      screen.getByRole("link", { name: /打开 测试科技（上海） 的投递链接/ }),
     ).toHaveTextContent("example.com");
     expect(screen.getByText("暑期实习")).toBeVisible();
     expect(screen.getByLabelText("每页显示 20 条，打开选项")).toBeVisible();
@@ -64,18 +64,20 @@ describe("投递记录列表", () => {
     ).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "第 13 页" })).toBeVisible();
     fireEvent.click(
-      screen.getByRole("row", { name: /查看 测试科技 前端工程师 详情/ }),
+      screen.getByRole("row", {
+        name: /查看 测试科技（上海） 前端工程师 详情/,
+      }),
     );
 
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveAttribute("open");
     expect(
-      screen.getByRole("heading", { name: "测试科技 · 前端工程师" }),
+      screen.getByRole("heading", { name: "测试科技（上海） · 前端工程师" }),
     ).toBeVisible();
     await waitFor(() => expect(screen.getByText("准备技术面试")).toBeVisible());
     fireEvent.click(screen.getByRole("button", { name: "编辑这条投递" }));
     expect(
-      screen.getByRole("heading", { name: "编辑 测试科技" }),
+      screen.getByRole("heading", { name: "编辑 测试科技（上海）" }),
     ).toBeVisible();
     expect(screen.getByLabelText("公司名称 *")).toHaveValue("测试科技");
   });

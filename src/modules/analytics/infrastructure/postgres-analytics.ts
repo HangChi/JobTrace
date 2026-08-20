@@ -33,6 +33,43 @@ export async function fetchAnalyticsSummary(
       stageDistribution[stage as RecruitmentStage] = Number(row.total);
     }
   }
+  const progressReminders = await sql<Record<string, unknown>[]>`
+    select
+      a.id as application_id,
+      a.company_name,
+      a.position_name,
+      a.city,
+      latest_stage.id as stage_occurrence_id,
+      latest_stage.stage::text as stage,
+      latest_stage.occurred_on,
+      review.id as review_id,
+      review.status::text as review_status
+    from public.applications a
+    join lateral (
+      select s.id, s.stage, s.occurred_on, s.created_at
+      from public.application_stage_occurrences s
+      where s.application_id = a.id
+      order by s.occurred_on desc, s.created_at desc, s.id desc
+      limit 1
+    ) latest_stage on true
+    left join public.interview_reviews review
+      on review.stage_occurrence_id = latest_stage.id
+      and review.owner_id = a.owner_id
+    where a.owner_id=${ownerId}
+      and a.status='submitted'
+      and (
+        latest_stage.stage in ('assessment', 'written_test')
+        or (
+          latest_stage.stage in (
+            'interview_1', 'interview_2', 'interview_3',
+            'hr_interview', 'final_interview'
+          )
+          and coalesce(review.status::text, 'draft') <> 'completed'
+        )
+      )
+    order by latest_stage.occurred_on desc, a.id
+    limit 20
+  `;
   const followUps = await sql<Record<string, unknown>[]>`
     select a.id, a.company_name, a.position_name, a.city, a.job_url,
       a.applied_date, a.type, a.status, a.latest_date, a.version,
@@ -72,6 +109,21 @@ export async function fetchAnalyticsSummary(
     offers: Number(summary.offers),
     addedThisWeek: Number(summary.addedThisWeek),
     stageDistribution,
+    progressReminders: progressReminders.map((row) => ({
+      id: String(row.stageOccurrenceId),
+      applicationId: String(row.applicationId),
+      companyName: String(row.companyName),
+      positionName: String(row.positionName),
+      city: row.city as string | null,
+      stageOccurrenceId: String(row.stageOccurrenceId),
+      stage: row.stage as never,
+      occurredOn:
+        row.occurredOn instanceof Date
+          ? row.occurredOn.toISOString().slice(0, 10)
+          : String(row.occurredOn).slice(0, 10),
+      reviewId: row.reviewId ? String(row.reviewId) : null,
+      reviewStatus: row.reviewStatus as never,
+    })),
     followUps: followUps.map((row) => ({
       id: String(row.id),
       companyName: String(row.companyName),

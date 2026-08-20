@@ -42,13 +42,13 @@ describe("需要跟进列表", () => {
     expect(screen.queryByRole("link", { name: "待跟进科技" })).toBeNull();
     fireEvent.click(
       screen.getByRole("button", {
-        name: "查看 待跟进科技 后端工程师 详情",
+        name: "查看 待跟进科技（杭州） 后端工程师 详情",
       }),
     );
 
     expect(screen.getByRole("dialog")).toHaveAttribute("open");
     expect(
-      screen.getByRole("heading", { name: "待跟进科技 · 后端工程师" }),
+      screen.getByRole("heading", { name: "待跟进科技（杭州） · 后端工程师" }),
     ).toBeVisible();
     await waitFor(() =>
       expect(screen.getByText("联系招聘负责人")).toBeVisible(),
