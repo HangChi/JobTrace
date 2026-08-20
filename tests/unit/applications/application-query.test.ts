@@ -15,6 +15,7 @@ describe("列表查询", () => {
       limit: 100,
       page: 7,
       sort: "company",
+      direction: "asc",
     });
   });
   it("未知排序回退默认值", () =>

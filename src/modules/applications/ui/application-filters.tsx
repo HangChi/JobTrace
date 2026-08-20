@@ -105,10 +105,10 @@ export function ApplicationFilters({
               typeof query.sort === "string" ? query.sort : "latestDate"
             }
           >
-            <option value="latestDate">最近进展</option>
-            <option value="appliedDate">投递日期</option>
-            <option value="company">公司名称</option>
-            <option value="position">岗位名称</option>
+            <option value="latestDate">最近进展（新 → 旧）</option>
+            <option value="appliedDate">投递日期（新 → 旧）</option>
+            <option value="company">公司名称（A → Z）</option>
+            <option value="position">岗位名称（A → Z）</option>
           </select>
           <svg aria-hidden="true" viewBox="0 0 16 16">
             <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
