@@ -82,27 +82,60 @@ export class PostgresApplicationRepository implements ApplicationRepository {
 
   async get(ownerId: string, id: string) {
     const [row] = await this.sql<DbRecord[]>`
-      select a.*, max(s.occurred_on) as timeline_latest_date,
-        coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
+      select
+        a.*,
+        max(s.occurred_on) as timeline_latest_date,
+        coalesce(
+          array_agg(distinct s.stage) filter (where s.stage is not null),
+          '{}'
+        ) as stages,
+        coalesce(
+          (
+            select jsonb_agg(
+              jsonb_build_object(
+                'id', stage_row.id,
+                'stage', stage_row.stage,
+                'occurredOn', stage_row.occurred_on
+              )
+              order by stage_row.occurred_on, stage_row.created_at
+            )
+            from public.application_stage_occurrences stage_row
+            where stage_row.application_id = a.id
+          ),
+          '[]'::jsonb
+        ) as stage_occurrences,
+        coalesce(
+          (
+            select jsonb_agg(
+              jsonb_build_object(
+                'id', event_row.id,
+                'type', event_row.type,
+                'occurredOn', event_row.occurred_on,
+                'before', event_row.before,
+                'after', event_row.after,
+                'createdAt', event_row.created_at
+              )
+              order by event_row.occurred_on desc, event_row.created_at desc
+            )
+            from public.application_events event_row
+            where event_row.application_id = a.id
+          ),
+          '[]'::jsonb
+        ) as events
       from public.applications a
       left join public.application_stage_occurrences s on s.application_id = a.id
       where a.id = ${id} and a.owner_id = ${ownerId}
       group by a.id
     `;
     if (!row) return null;
-    const stages = await this.sql<DbRecord[]>`
-      select id, stage, occurred_on from public.application_stage_occurrences
-      where application_id = ${id} and exists(select 1 from applications a where a.id=${id} and a.owner_id=${ownerId}) order by occurred_on, created_at
-    `;
-    const events = await this.sql<DbRecord[]>`
-      select id, type, occurred_on, before, after, created_at
-      from public.application_events where application_id = ${id} and exists(select 1 from applications a where a.id=${id} and a.owner_id=${ownerId})
-      order by occurred_on desc, created_at desc
-    `;
+    const stageOccurrences = Array.isArray(row.stageOccurrences)
+      ? (row.stageOccurrences as DbRecord[])
+      : [];
+    const events = Array.isArray(row.events) ? (row.events as DbRecord[]) : [];
     return {
       ...mapSummary(row),
       notes: row.notes as string | null,
-      stageOccurrences: stages.map((item) => ({
+      stageOccurrences: stageOccurrences.map((item) => ({
         id: String(item.id),
         stage: item.stage as never,
         occurredOn: dateOnly(item.occurredOn),

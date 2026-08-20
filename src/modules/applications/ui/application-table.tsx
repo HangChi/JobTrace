@@ -73,8 +73,37 @@ export function ApplicationTable({
   page: ApplicationPage;
   query?: Search;
 }) {
+  const [overrides, setOverrides] = useState<
+    Record<string, ApplicationSummary>
+  >({});
   const [selected, setSelected] = useState<ApplicationSummary | null>(null);
   const [editing, setEditing] = useState<ApplicationDetail | null>(null);
+
+  const items = page.items.map((item) => {
+    const override = overrides[item.id];
+    return override && override.version >= item.version ? override : item;
+  });
+
+  function replaceItem(detail: ApplicationDetail) {
+    const summary: ApplicationSummary = {
+      id: detail.id,
+      companyName: detail.companyName,
+      positionName: detail.positionName,
+      city: detail.city,
+      jobUrl: detail.jobUrl,
+      appliedDate: detail.appliedDate,
+      type: detail.type,
+      status: detail.status,
+      latestDate: detail.latestDate,
+      stages: detail.stages,
+      needsFollowUp: detail.needsFollowUp,
+      followUpDays: detail.followUpDays,
+      followUpReason: detail.followUpReason,
+      version: detail.version,
+    };
+    setOverrides((current) => ({ ...current, [summary.id]: summary }));
+    setSelected((current) => (current?.id === summary.id ? summary : current));
+  }
   const pageSize =
     typeof query.limit === "string" &&
     PAGE_SIZES.includes(query.limit as (typeof PAGE_SIZES)[number])
@@ -128,7 +157,7 @@ export function ApplicationTable({
             </tr>
           </thead>
           <tbody>
-            {page.items.map((item) => {
+            {items.map((item) => {
               const stage = latestStage(item);
               const applicationType = item.type ?? "campus_recruitment";
               const companyDisplayName = formatCompanyWithCity(
@@ -206,7 +235,10 @@ export function ApplicationTable({
                     )}
                   </td>
                   <td data-label="状态">
-                    <ApplicationStatusSelect application={item} />
+                    <ApplicationStatusSelect
+                      application={item}
+                      onUpdate={replaceItem}
+                    />
                     {item.needsFollowUp && (
                       <span className="follow-up">
                         {item.followUpReason === "timeline"
@@ -337,11 +369,13 @@ export function ApplicationTable({
       <ApplicationDetailDialog
         application={selected}
         onClose={() => setSelected(null)}
+        onUpdate={replaceItem}
       />
       <EditApplicationDialog
         application={editing}
         open={Boolean(editing)}
         onClose={() => setEditing(null)}
+        onSuccess={replaceItem}
       />
     </section>
   );

@@ -1,34 +1,40 @@
-import Link from "next/link";
-import type { Route } from "next";
+"use client";
+
+import { useState } from "react";
 import { formatCompanyWithCity } from "@/modules/applications/application/display";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import type { ProgressReminder } from "../application/contracts";
 
-function actionFor(item: ProgressReminder) {
-  if (item.reviewId) {
-    return {
-      href: `/interviews/${item.reviewId}`,
-      label: "继续完成复盘",
-    };
-  }
-  if (
-    item.stage.startsWith("interview_") ||
-    item.stage === "hr_interview" ||
-    item.stage === "final_interview"
-  ) {
-    return {
-      href: `/interviews/new?applicationId=${item.applicationId}&stageOccurrenceId=${item.stageOccurrenceId}`,
-      label: "记录面经",
-    };
-  }
-  return {
-    href: `/applications/${item.applicationId}`,
-    label: item.stage === "assessment" ? "补充测评结果" : "补充笔试结果",
-  };
-}
-
 export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
-  if (!items.length) return null;
+  const [remaining, setRemaining] = useState(items);
+  const [completing, setCompleting] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  async function complete(item: ProgressReminder) {
+    setCompleting(item.id);
+    setError("");
+    try {
+      const response = await fetch(
+        `/api/analytics/progress-reminders/${item.stageOccurrenceId}/complete`,
+        { method: "POST" },
+      );
+      if (!response.ok) {
+        const result = (await response.json()) as { message?: string };
+        throw new Error(result.message || "完成提醒失败，请稍后重试。");
+      }
+      setRemaining((current) =>
+        current.filter((value) => value.id !== item.id),
+      );
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "完成提醒失败，请稍后重试。",
+      );
+    } finally {
+      setCompleting(null);
+    }
+  }
+
+  if (!remaining.length) return null;
   return (
     <section
       className="panel progress-reminder-panel"
@@ -39,11 +45,15 @@ export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
           <p className="section-kicker">ACTION NEEDED</p>
           <h3 id="progress-reminder-title">待处理进展</h3>
         </div>
-        <span className="follow-up-count">{items.length}</span>
+        <span className="follow-up-count">{remaining.length}</span>
       </div>
+      {error && (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      )}
       <ul className="progress-reminder-list">
-        {items.map((item) => {
-          const action = actionFor(item);
+        {remaining.map((item) => {
           const company = formatCompanyWithCity(item.companyName, item.city);
           return (
             <li key={item.id} className="progress-reminder-item">
@@ -53,16 +63,25 @@ export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
               <span className="progress-reminder-detail">
                 <strong>{company}</strong>
                 <span className="table-subline">
-                  {item.positionName} · {STAGE_LABELS[item.stage]} ·{" "}
-                  {item.occurredOn}
+                  {item.positionName}
+                  <span className="progress-reminder-date">
+                    · {item.occurredOn}
+                  </span>
                 </span>
               </span>
-              <Link
-                className="button secondary progress-reminder-action"
-                href={action.href as Route}
-              >
-                {action.label}
-              </Link>
+              <span className={`progress-reminder-stage stage-${item.stage}`}>
+                {STAGE_LABELS[item.stage]}
+              </span>
+              <span className="progress-reminder-actions">
+                <button
+                  className="button secondary progress-reminder-complete"
+                  type="button"
+                  disabled={completing === item.id}
+                  onClick={() => void complete(item)}
+                >
+                  {completing === item.id ? "保存中…" : "已完成"}
+                </button>
+              </span>
             </li>
           );
         })}

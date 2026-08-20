@@ -16,9 +16,11 @@ import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
 export function ApplicationDetailDialog({
   application,
   onClose,
+  onUpdate,
 }: {
   application: ApplicationSummary | null;
   onClose: () => void;
+  onUpdate?: (application: ApplicationDetail) => void;
 }) {
   const [editing, setEditing] = useState<ApplicationDetail | null>(null);
   return (
@@ -28,6 +30,7 @@ export function ApplicationDetailDialog({
           key={application.id}
           application={application}
           onClose={onClose}
+          onUpdate={onUpdate}
           onEdit={(detail) => {
             onClose();
             setEditing(detail);
@@ -38,6 +41,7 @@ export function ApplicationDetailDialog({
         application={editing}
         open={Boolean(editing)}
         onClose={() => setEditing(null)}
+        onSuccess={onUpdate}
       />
     </>
   );
@@ -46,10 +50,12 @@ export function ApplicationDetailDialog({
 function ApplicationDetailContent({
   application,
   onClose,
+  onUpdate,
   onEdit,
 }: {
   application: ApplicationSummary;
   onClose: () => void;
+  onUpdate?: (application: ApplicationDetail) => void;
   onEdit: (application: ApplicationDetail) => void;
 }) {
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
@@ -74,19 +80,19 @@ function ApplicationDetailContent({
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [application]);
+  }, [application.id]);
 
   const current = detail ?? application;
   const companyDisplayName = formatCompanyWithCity(
-    application.companyName,
-    application.city,
+    current.companyName,
+    current.city,
   );
   return (
     <>
       <Dialog
         open
         kicker="APPLICATION DETAIL"
-        title={`${companyDisplayName} · ${application.positionName}`}
+        title={`${companyDisplayName} · ${current.positionName}`}
         className="application-detail-dialog"
         onClose={onClose}
       >
@@ -127,7 +133,10 @@ function ApplicationDetailContent({
             <>
               <RecruitmentStageTimeline
                 application={detail}
-                onUpdate={setDetail}
+                onUpdate={(updated) => {
+                  setDetail(updated);
+                  onUpdate?.(updated);
+                }}
               />
               {detail.notes && (
                 <section className="detail-section">

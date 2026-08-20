@@ -21,7 +21,7 @@ export function ApplicationForm({
   embedded = false,
 }: {
   application?: ApplicationDetail;
-  onSuccess?: () => void;
+  onSuccess?: (application: ApplicationDetail) => void;
   onCancel?: () => void;
   embedded?: boolean;
 } = {}) {
@@ -55,9 +55,12 @@ export function ApplicationForm({
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
-      if (onSuccess) onSuccess();
-      else router.push(`/applications/${result.id}`);
-      router.refresh();
+      if (onSuccess) {
+        onSuccess(result as ApplicationDetail);
+        if (!application) router.refresh();
+      } else {
+        router.push(`/applications/${result.id}`);
+      }
     } catch (value) {
       setError(value instanceof Error ? value.message : "保存失败");
       setBusy(false);
