@@ -1371,15 +1371,16 @@ table {
 }
 .application-table {
   table-layout: fixed;
+  min-width: 1080px;
 }
 .application-table .company-column {
-  width: 25%;
+  width: 23%;
 }
 .application-table .link-column {
-  width: 14%;
+  width: 13%;
 }
 .application-table .type-column {
-  width: 11%;
+  width: 10%;
 }
 .application-table .stage-column {
   width: 13%;
@@ -1391,7 +1392,7 @@ table {
   width: 12%;
 }
 .application-table .actions-column {
-  width: 11%;
+  width: 15%;
 }
 th,
 td {
@@ -1399,6 +1400,11 @@ td {
   border-bottom: 1px solid #e5f0ed;
   text-align: left;
   vertical-align: middle;
+}
+.application-table th,
+.application-table td {
+  padding-right: 16px;
+  padding-left: 16px;
 }
 th {
   color: var(--muted);
@@ -1503,6 +1509,14 @@ tbody tr:last-child td {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+}
+.application-table th:last-child {
+  text-align: right;
+}
+.application-table td:last-child .table-actions {
+  justify-content: flex-end;
+  margin-right: 0;
+  margin-left: auto;
 }
 .table-action {
   min-height: 36px;
@@ -3670,6 +3684,13 @@ dialog::backdrop {
   }
   .application-table td:not(:first-child) > * {
     margin-right: 0;
+    margin-left: 0;
+  }
+  .application-table {
+    min-width: 0;
+  }
+  .application-table td:last-child .table-actions {
+    justify-content: flex-start;
     margin-left: 0;
   }
   .table-pagination {
