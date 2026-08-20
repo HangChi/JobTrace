@@ -54,6 +54,12 @@ describe("投递记录列表", () => {
       screen.getByRole("link", { name: /打开 测试科技（上海） 的投递链接/ }),
     ).toHaveTextContent("example.com");
     expect(screen.getByText("暑期实习")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "编辑" }).querySelector("svg"),
+    ).not.toBeNull();
+    expect(
+      screen.getByRole("button", { name: "删除" }).querySelector("svg"),
+    ).not.toBeNull();
     expect(screen.getByLabelText("每页显示 20 条，打开选项")).toBeVisible();
     expect(screen.getByRole("link", { name: "100 条" })).toHaveAttribute(
       "href",

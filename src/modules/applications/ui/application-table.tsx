@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useState } from "react";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
+import { EditIcon } from "@/shared/ui/action-icons";
 import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { EditApplicationDialog } from "./application-dialogs";
 import { ApplicationStatusSelect } from "./application-status-select";
@@ -259,7 +260,8 @@ export function ApplicationTable({
                         type="button"
                         onClick={() => void openEditor(item)}
                       >
-                        编辑
+                        <EditIcon />
+                        <span>编辑</span>
                       </button>
                       <DeleteApplicationDialog
                         compact

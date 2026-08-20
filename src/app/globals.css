@@ -1508,6 +1508,7 @@ tbody tr:last-child td {
   min-height: 36px;
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   padding: 0 8px;
   border: 0;
   border-radius: 8px;
@@ -1523,6 +1524,20 @@ tbody tr:last-child td {
 }
 .table-action-danger {
   color: var(--danger);
+}
+.action-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.button .action-icon {
+  width: 17px;
+  height: 17px;
 }
 .table-pagination {
   min-height: 64px;
