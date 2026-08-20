@@ -37,6 +37,10 @@ export type ApplicationDetail = ApplicationSummary & {
   createdAt: string;
   updatedAt: string;
 };
+export type ApplicationStatusUpdate = Pick<
+  ApplicationSummary,
+  "id" | "status" | "latestDate" | "version"
+>;
 export type ApplicationPage = {
   items: ApplicationSummary[];
   nextCursor: string | null;

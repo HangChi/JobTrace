@@ -9,9 +9,11 @@ import { ApplicationForm } from "./application-form";
 export function NewApplicationDialog({
   className = "button",
   label = "新增投递",
+  onSuccess,
 }: {
   className?: string;
   label?: string;
+  onSuccess?: (application: ApplicationDetail) => void;
 }) {
   const [open, setOpen] = useState(false);
   function close() {
@@ -31,7 +33,14 @@ export function NewApplicationDialog({
         onClose={close}
       >
         {open && (
-          <ApplicationForm embedded onCancel={close} onSuccess={close} />
+          <ApplicationForm
+            embedded
+            onCancel={close}
+            onSuccess={(application) => {
+              onSuccess?.(application);
+              close();
+            }}
+          />
         )}
       </Dialog>
     </>

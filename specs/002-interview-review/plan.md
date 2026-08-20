@@ -16,7 +16,7 @@
 
 **Storage**: 现有 PostgreSQL schema；新增面经、问题、行动项表及原子数据库函数，生成类型更新到 `src/generated/database.types.ts`
 
-**Testing**: Vitest 单元/组件、PostgreSQL 集成与 schema 测试、Playwright HTTP 契约/E2E、axe 可访问性、固定 10,000 条面经性能数据
+**Testing**: Vitest 单元/组件、临时 PostgreSQL 集成与 schema 测试、Playwright HTTP 契约/E2E、axe 可访问性、事务内固定 10,000 条面经性能数据（结束后回滚）
 
 **Target Platform**: Next.js 服务端渲染 Web 应用；Chrome/Edge/Firefox 当前及前一主要版本；桌面与较窄视口均可完成核心流程
 

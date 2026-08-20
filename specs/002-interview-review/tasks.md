@@ -5,6 +5,8 @@ description: "面试面经记录与复盘的依赖顺序实施任务"
 
 # Tasks: 面试面经记录与复盘
 
+> 实现对账说明（2026-08-21）：性能种子必须与基准处于同一事务并在结束后回滚；当前运行方式以 `package.json`、`tests/performance/` 和 `docs/operations.md` 为准。
+
 **Input**: Design documents from `/specs/002-interview-review/`
 
 **Prerequisites**: plan.md、spec.md、research.md、data-model.md、contracts/openapi.yaml、quickstart.md

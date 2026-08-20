@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import type { ApplicationDetail } from "../application/contracts";
 import {
   APPLICATION_STATUSES,
@@ -15,6 +14,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
+import { ApplicationHistory } from "./application-history";
 
 const today = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
@@ -26,12 +26,11 @@ export function ApplicationEditor({
   application: ApplicationDetail;
   interviews?: StageInterviewSummary[];
 }) {
-  const router = useRouter();
+  const [current, setCurrent] = useState(application);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const terminal =
-    application.status === "offer" || application.status === "refused";
+  const terminal = current.status === "offer" || current.status === "refused";
 
   async function update(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,10 +39,10 @@ export function ApplicationEditor({
     const body = {
       ...Object.fromEntries(new FormData(event.currentTarget)),
       stages: [],
-      version: application.version,
+      version: current.version,
       changeDate: today(),
     };
-    const response = await fetch(`/api/applications/${application.id}`, {
+    const response = await fetch(`/api/applications/${current.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
@@ -51,8 +50,8 @@ export function ApplicationEditor({
     const result = await response.json();
     if (!response.ok) setError(result.message);
     else {
+      setCurrent(result as ApplicationDetail);
       setMessage("修改已保存。");
-      router.refresh();
     }
     setBusy(false);
   }
@@ -60,28 +59,30 @@ export function ApplicationEditor({
   async function addStage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    const response = await fetch(`/api/applications/${application.id}/stages`, {
+    const response = await fetch(`/api/applications/${current.id}/stages`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(
         Object.fromEntries(new FormData(event.currentTarget)),
       ),
     });
-    if (!response.ok) setError((await response.json()).message);
-    else router.refresh();
+    const result = await response.json();
+    if (!response.ok) setError(result.message);
+    else setCurrent(result as ApplicationDetail);
   }
 
   async function removeStage(occurrenceId: string) {
     const response = await fetch(
-      `/api/applications/${application.id}/stages/${occurrenceId}`,
+      `/api/applications/${current.id}/stages/${occurrenceId}`,
       {
         method: "DELETE",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ changeDate: today() }),
       },
     );
-    if (!response.ok) setError((await response.json()).message);
-    else router.refresh();
+    const result = await response.json();
+    if (!response.ok) setError(result.message);
+    else setCurrent(result as ApplicationDetail);
   }
 
   return (
@@ -95,36 +96,36 @@ export function ApplicationEditor({
             label="公司名称 *"
             name="companyName"
             required
-            defaultValue={application.companyName}
+            defaultValue={current.companyName}
           />
           <FormField
             label="岗位名称 *"
             name="positionName"
             required
-            defaultValue={application.positionName}
+            defaultValue={current.positionName}
           />
           <FormField
             label="投递日期 *"
             name="appliedDate"
             type="date"
             required
-            defaultValue={application.appliedDate}
+            defaultValue={current.appliedDate}
           />
           <FormField
             label="城市"
             name="city"
-            defaultValue={application.city ?? ""}
+            defaultValue={current.city ?? ""}
           />
         </div>
         <FormField
           label="职位链接"
           name="jobUrl"
           type="url"
-          defaultValue={application.jobUrl ?? ""}
+          defaultValue={current.jobUrl ?? ""}
         />
         <label>
           当前状态
-          <select name="status" defaultValue={application.status}>
+          <select name="status" defaultValue={current.status}>
             {APPLICATION_STATUSES.map((status) => (
               <option value={status} key={status}>
                 {STATUS_LABELS[status]}
@@ -135,7 +136,7 @@ export function ApplicationEditor({
         <TextAreaField
           label="备注"
           name="notes"
-          defaultValue={application.notes ?? ""}
+          defaultValue={current.notes ?? ""}
         />
         <button className="button" disabled={busy}>
           {busy ? "正在保存…" : "保存修改"}
@@ -149,9 +150,9 @@ export function ApplicationEditor({
           </div>
           {terminal && <span className="status-badge">流程已结束</span>}
         </div>
-        {application.stageOccurrences.length > 0 && (
+        {current.stageOccurrences.length > 0 && (
           <ul className="stage-record-list">
-            {application.stageOccurrences.map((item) => (
+            {current.stageOccurrences.map((item) => (
               <li key={item.id}>
                 <span className="stage-record-name">
                   <i aria-hidden="true" />
@@ -170,7 +171,7 @@ export function ApplicationEditor({
                           href={
                             (review
                               ? `/interviews/${review.id}`
-                              : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
+                              : `/interviews/new?applicationId=${current.id}&stageOccurrenceId=${item.id}`) as Route
                           }
                         >
                           {review ? "继续复盘" : "记录面经"}
@@ -192,7 +193,7 @@ export function ApplicationEditor({
         )}
         {terminal && (
           <p className="terminal-stage-notice">
-            {STATUS_LABELS[application.status]} 后不再进入新的招聘阶段。
+            {STATUS_LABELS[current.status]} 后不再进入新的招聘阶段。
           </p>
         )}
         <form className="stage-form" onSubmit={addStage}>
@@ -223,6 +224,7 @@ export function ApplicationEditor({
           </button>
         </form>
       </section>
+      <ApplicationHistory application={current} />
     </div>
   );
 }

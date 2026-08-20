@@ -1,8 +1,13 @@
 import type {
   CreateApplicationInput,
+  UpdateApplicationStatusInput,
   UpdateApplicationInput,
 } from "../domain/application.schema";
-import type { ApplicationDetail, ApplicationPage } from "./contracts";
+import type {
+  ApplicationDetail,
+  ApplicationPage,
+  ApplicationStatusUpdate,
+} from "./contracts";
 import type { ListQuery } from "./list-query";
 export interface ApplicationRepository {
   create(
@@ -15,6 +20,12 @@ export interface ApplicationRepository {
     id: string,
     input: UpdateApplicationInput,
   ): Promise<ApplicationDetail>;
+  updateStatus(
+    ownerId: string,
+    id: string,
+    input: UpdateApplicationStatusInput,
+    changeDate: string,
+  ): Promise<ApplicationStatusUpdate>;
   delete(ownerId: string, id: string): Promise<boolean>;
   addStage(
     ownerId: string,

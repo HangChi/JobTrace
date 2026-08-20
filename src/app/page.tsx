@@ -1,11 +1,6 @@
 import { getAnalyticsSummary } from "@/modules/analytics";
-import { AnalyticsPanel } from "@/modules/analytics/ui/analytics-panel";
 import { listApplications } from "@/modules/applications";
-import { ApplicationFilters } from "@/modules/applications/ui/application-filters";
-import { ApplicationListEmpty } from "@/modules/applications/ui/application-list-empty";
-import { ApplicationTable } from "@/modules/applications/ui/application-table";
-import { NewApplicationDialog } from "@/modules/applications/ui/application-dialogs";
-import { ExportButton } from "@/modules/data-transfer/ui/export-button";
+import { ApplicationDashboard } from "@/modules/applications/ui/application-dashboard";
 import { requirePageUser } from "@/modules/identity-access";
 
 export const dynamic = "force-dynamic";
@@ -39,40 +34,29 @@ export default async function HomePage({
     listApplications(toSearchParams(listSearch)),
     getAnalyticsSummary(),
   ]);
-  const filtered = [search.q, search.status, search.type, search.sort].some(
-    Boolean,
-  );
+  const filtered = [
+    search.q,
+    search.status,
+    search.type,
+    search.stage,
+    search.city,
+    search.appliedFrom,
+    search.appliedTo,
+  ].some(Boolean);
   const exportSearch = { ...search };
   delete exportSearch.cursor;
   delete exportSearch.history;
   delete exportSearch.page;
   delete exportSearch.limit;
+  const listQuery = toSearchParams(listSearch).toString();
   return (
-    <section className="stack page-gap dashboard">
-      <div className="hero-row dashboard-hero">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 求职进度工作台
-          </p>
-          <h1>
-            每一次投递，<span>都有迹可循。</span>
-          </h1>
-          <p className="lead">
-            集中管理岗位、面试阶段和待办跟进，把精力留给真正重要的机会。
-          </p>
-        </div>
-        <div className="actions">
-          <ExportButton query={toSearchParams(exportSearch).toString()} />
-          <NewApplicationDialog />
-        </div>
-      </div>
-      <AnalyticsPanel summary={summary} />
-      <ApplicationFilters query={search} />
-      {page.items.length ? (
-        <ApplicationTable page={page} query={search} />
-      ) : (
-        <ApplicationListEmpty filtered={filtered} />
-      )}
-    </section>
+    <ApplicationDashboard
+      initialPage={page}
+      initialSummary={summary}
+      query={search}
+      filtered={filtered}
+      listQuery={listQuery}
+      exportQuery={toSearchParams(exportSearch).toString()}
+    />
   );
 }

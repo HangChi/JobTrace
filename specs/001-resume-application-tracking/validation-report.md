@@ -1,5 +1,9 @@
 # 实现验证报告
 
+> 本报告保存 2026-08-14 的历史验收快照，不代表当前提交的实时门禁数量；当前命令、架构与接口以 `package.json`、`README.md`、`docs/` 和 OpenAPI 契约为准。
+
+2026-08-21 增量复核结果记录在 [quickstart.md](./quickstart.md)：Vitest 86 项、契约 10 项、集成 16 项及 27 个 E2E 场景均已验证，生产构建和 10,000 条事务回滚性能基准通过。
+
 **日期**：2026-08-14
 **环境**：Windows，Next.js 16.3.0，PostgreSQL，Playwright Chromium
 

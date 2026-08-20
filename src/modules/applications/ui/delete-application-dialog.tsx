@@ -8,10 +8,12 @@ export function DeleteApplicationDialog({
   id,
   name,
   compact = false,
+  onDeleted,
 }: {
   id: string;
   name: string;
   compact?: boolean;
+  onDeleted?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,8 +28,12 @@ export function DeleteApplicationDialog({
       });
       if (!response.ok) throw new Error("删除失败，请稍后重试。");
       setOpen(false);
-      if (compact) router.refresh();
-      else router.replace("/");
+      onDeleted?.();
+      if (compact) {
+        if (!onDeleted) router.refresh();
+      } else {
+        router.replace("/");
+      }
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "删除失败，请稍后重试。",

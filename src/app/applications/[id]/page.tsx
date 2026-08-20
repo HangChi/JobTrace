@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getApplication, STATUS_LABELS } from "@/modules/applications";
 import { ApplicationEditor } from "@/modules/applications/ui/application-editor";
-import { ApplicationHistory } from "@/modules/applications/ui/application-history";
 import { DeleteApplicationDialog } from "@/modules/applications/ui/delete-application-dialog";
 import { requirePageUser } from "@/modules/identity-access";
 import Link from "next/link";
@@ -84,7 +83,6 @@ export default async function ApplicationPage({
           </p>
         )}
       </section>
-      <ApplicationHistory application={application} />
       <section
         className="application-danger-zone"
         aria-labelledby="delete-application-title"

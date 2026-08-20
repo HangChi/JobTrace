@@ -3,11 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { ApplicationStatusSelect } from "@/modules/applications/ui/application-status-select";
 import type { ApplicationDetail } from "@/modules/applications";
 
-const refresh = vi.fn();
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
-}));
-
 const application: ApplicationDetail = {
   id: "application-1",
   companyName: "测试公司",
@@ -35,10 +30,12 @@ describe("表格状态下拉框", () => {
     const updated = { ...application, status: "offer" as const, version: 2 };
     const request = vi
       .fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => application })
       .mockResolvedValueOnce({ ok: true, json: async () => updated });
     vi.stubGlobal("fetch", request);
-    render(<ApplicationStatusSelect application={application} />);
+    const onUpdate = vi.fn();
+    render(
+      <ApplicationStatusSelect application={application} onUpdate={onUpdate} />,
+    );
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -55,27 +52,29 @@ describe("表格状态下拉框", () => {
       ).toBeInTheDocument(),
     );
     expect(request).toHaveBeenLastCalledWith(
-      "/api/applications/application-1",
+      "/api/applications/application-1/status",
       expect.objectContaining({
         method: "PATCH",
         body: expect.stringContaining('\"status\":\"offer\"'),
       }),
     );
-    expect(refresh).toHaveBeenCalled();
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(onUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "offer", version: 2 }),
+    );
   });
 
   it("保存失败后恢复原状态", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValueOnce({ ok: true, json: async () => application })
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({ message: "状态保存失败" }),
-        }),
+      vi.fn().mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: "状态保存失败" }),
+      }),
     );
-    render(<ApplicationStatusSelect application={application} />);
+    render(
+      <ApplicationStatusSelect application={application} onUpdate={vi.fn()} />,
+    );
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -94,7 +93,9 @@ describe("表格状态下拉框", () => {
 
   it("点击菜单外部后收起状态选项", () => {
     vi.stubGlobal("fetch", vi.fn());
-    render(<ApplicationStatusSelect application={application} />);
+    render(
+      <ApplicationStatusSelect application={application} onUpdate={vi.fn()} />,
+    );
 
     fireEvent.click(
       screen.getByRole("button", {

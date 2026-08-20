@@ -2,7 +2,7 @@
 
 ## 1. Next.js 应用边界
 
-**Decision**: 使用 Next.js 16.x App Router。只读首屏采用 Server Components；同源表单变更采用 Server Actions；需要文件上传/下载或稳定 HTTP 契约的能力采用 Route Handlers。三类入口均调用相同模块应用服务。本节原始“单用户”前提已由第 10–12 节的账号范围变更取代。
+**Decision**: 使用 Next.js 16.x App Router。只读首屏采用 Server Components；当前实现的表单变更、文件上传下载和稳定 HTTP 契约统一采用同源 Route Handlers。写入响应先更新客户端局部快照，再后台对账 Server Component 数据。本节原始“单用户”前提已由第 10–12 节的账号范围变更取代。
 
 **Rationale**: App Router 是 Next.js 当前主路由模型，支持 Server Components、Suspense 和 Server Functions；Route Handlers 覆盖标准 HTTP 方法并适合文件与外部契约。入口与业务逻辑分离可避免 Server Action/HTTP 处理器成为领域层。
 
@@ -24,9 +24,9 @@
 - 微服务：首期没有独立扩缩容或组织边界收益。
 - 单一 feature 文件夹：初期简单，但导入/统计会逐渐侵入核心写模型。
 
-## 3. Supabase 与数据库访问
+## 3. PostgreSQL 与数据库访问
 
-**Decision**: Supabase 作为 PostgreSQL 托管平台和本地开发工具。数据库迁移保存在 `supabase/migrations` 并通过 CLI 重放；TypeScript 数据库类型由 schema 生成。浏览器不直接查询业务表；Next.js 服务端使用仅服务端密钥和 `@supabase/supabase-js`。多表写入封装为 PostgreSQL 事务函数/RPC。
+**Decision**: 使用自有 PostgreSQL，迁移因历史目录结构保存在 `supabase/migrations`，由项目 Python 迁移器按校验和重放；TypeScript 数据库类型由 schema 生成。浏览器不直接查询业务表；Next.js 服务端使用 `postgres`/`pg` 直连。多表写入封装为 PostgreSQL 事务函数。
 
 **Rationale**: 官方本地工作流支持将配置、迁移和 seed 纳入版本控制，并用 `db reset` 验证可重现性。首期明确无账号，直接下发可写 anon 权限会使公开部署中的个人数据无法隔离；服务端边界可以在不提前引入账号体系的情况下保护密钥并集中执行业务规则。
 
@@ -85,7 +85,7 @@
 
 ## 8. 测试与质量工具
 
-**Decision**: Vitest + Testing Library 覆盖领域和组件；本地 Supabase + pgTAP/Vitest 覆盖数据库与集成；Playwright + axe 覆盖关键旅程和 WCAG；固定 10k seed 做性能测试。
+**Decision**: Vitest + Testing Library 覆盖领域和组件；临时 PostgreSQL + SQL/Vitest/Playwright 覆盖数据库、集成与契约；Playwright + axe 覆盖关键旅程和 WCAG；固定 10k 事务种子做性能测试并在结束时回滚。
 
 **Rationale**: 测试金字塔覆盖纯逻辑、数据库事实和真实浏览器行为，并直接响应宪章对 80% 覆盖率、关键 E2E、WCAG 2.2 AA 和性能预算的要求。
 
@@ -109,14 +109,14 @@
 
 ## 10. 认证、会话与角色授权（2026-08-13 范围变更）
 
-**Decision**: 使用 Better Auth 用户名密码认证，用户名为 3–30 位字母、数字或下划线，注册密码至少 8 位。Better Auth 以 `<用户名>@users.jobtrace.local` 作为内部账号标识；用户、密码哈希、数据库 Session 与验证令牌全部保存在自有 PostgreSQL。认证表单由 Server Actions 处理，Next.js 16 的 `src/proxy.ts` 只做乐观路由分流，最终授权在 Server Action、Route Handler 和 DAL 中执行。
+**Decision**: 使用 Better Auth 用户名密码认证，用户名为 3–30 位字母、数字或下划线，注册密码至少 8 位。Better Auth 以 `<用户名>@users.jobtrace.local` 作为内部账号标识；用户、密码哈希、数据库 Session 与验证令牌全部保存在自有 PostgreSQL。认证表单由同源 Route Handler 处理，Next.js 16 的 `src/proxy.ts` 只做乐观路由分流，最终授权在 Route Handler、应用服务和 DAL 中执行。
 
 **Rationale**: 用户要求使用自己的服务器数据库。Better Auth 接管密码哈希、Session Cookie、速率限制与认证端点，避免自研凭据算法，同时不依赖外部身份平台。
 
 **Alternatives considered**:
 
 - 自研 users/password_hash/session 表：安全维护面过大，需自行处理哈希升级、令牌轮换、恢复和泄露响应。
-- Auth.js/独立身份 SaaS：能力可行，但在当前 Supabase 栈上增加第二套身份与数据映射。
+- Auth.js/独立身份 SaaS：能力可行，但会在当前 Better Auth + PostgreSQL 栈上增加第二套身份与数据映射。
 - 只在 Proxy 检查角色：容易被直接调用 Server Action/API 绕过，不能作为最终授权。
 
 ## 11. 角色模型与管理员引导

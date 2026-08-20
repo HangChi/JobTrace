@@ -4,11 +4,13 @@ import {
   stageInputSchema,
   stageUpdateSchema,
   updateApplicationSchema,
+  updateApplicationStatusSchema,
 } from "../domain/application.schema";
 import { PostgresApplicationRepository } from "../infrastructure/postgres-application-repository";
 import { parseListQuery } from "./list-query";
 import { z } from "zod";
 import { requireUser } from "@/modules/identity-access";
+import { businessToday } from "@/shared/date/business-date";
 const repository = () => new PostgresApplicationRepository();
 export async function createApplication(input: unknown) {
   const actor = await requireUser();
@@ -26,6 +28,15 @@ export async function updateApplication(id: string, input: unknown) {
     actor.id,
     id,
     updateApplicationSchema.parse(input),
+  );
+}
+export async function updateApplicationStatus(id: string, input: unknown) {
+  const actor = await requireUser();
+  return repository().updateStatus(
+    actor.id,
+    id,
+    updateApplicationStatusSchema.parse(input),
+    businessToday(),
   );
 }
 export async function deleteApplication(id: string) {

@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
 
 describe("投递弹窗", () => {
   it("在当前页面新增并在成功后关闭弹窗", async () => {
+    const onSuccess = vi.fn();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -16,7 +17,7 @@ describe("投递弹窗", () => {
         json: async () => ({ id: "application-2" }),
       }),
     );
-    render(<NewApplicationDialog />);
+    render(<NewApplicationDialog onSuccess={onSuccess} />);
 
     fireEvent.click(screen.getByRole("button", { name: /新增投递/ }));
     expect(screen.getByRole("dialog")).toHaveAttribute("open");
@@ -33,6 +34,7 @@ describe("投递弹窗", () => {
         "open",
       ),
     );
-    expect(refresh).toHaveBeenCalled();
+    expect(onSuccess).toHaveBeenCalledWith({ id: "application-2" });
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useId, useRef } from "react";
+import { CloseIcon } from "./close-icon";
 export function Dialog({
   open,
   title,
@@ -47,11 +48,12 @@ export function Dialog({
             )}
           </div>
           <button
+            type="button"
             className="dialog-close"
             onClick={onClose}
             aria-label="关闭弹窗"
           >
-            ×
+            <CloseIcon />
           </button>
         </div>
         {children}

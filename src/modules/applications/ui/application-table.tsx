@@ -69,9 +69,11 @@ function pageSizeHref(query: Search, limit: string) {
 export function ApplicationTable({
   page,
   query = {},
+  onMutation,
 }: {
   page: ApplicationPage;
   query?: Search;
+  onMutation?: () => void;
 }) {
   const [overrides, setOverrides] = useState<
     Record<string, ApplicationSummary>
@@ -84,7 +86,7 @@ export function ApplicationTable({
     return override && override.version >= item.version ? override : item;
   });
 
-  function replaceItem(detail: ApplicationDetail) {
+  function replaceItem(detail: ApplicationSummary) {
     const summary: ApplicationSummary = {
       id: detail.id,
       companyName: detail.companyName,
@@ -103,6 +105,7 @@ export function ApplicationTable({
     };
     setOverrides((current) => ({ ...current, [summary.id]: summary }));
     setSelected((current) => (current?.id === summary.id ? summary : current));
+    onMutation?.();
   }
   const pageSize =
     typeof query.limit === "string" &&
@@ -236,6 +239,7 @@ export function ApplicationTable({
                   </td>
                   <td data-label="状态">
                     <ApplicationStatusSelect
+                      key={`${item.id}-${item.version}`}
                       application={item}
                       onUpdate={replaceItem}
                     />
@@ -261,6 +265,7 @@ export function ApplicationTable({
                         compact
                         id={item.id}
                         name={`${companyDisplayName} · ${item.positionName}`}
+                        onDeleted={onMutation}
                       />
                     </div>
                   </td>
