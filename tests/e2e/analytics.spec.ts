@@ -28,7 +28,7 @@ test("统计卡、阶段文本与跟进导航", async ({ request, page }) => {
     await expect(page.getByRole("heading", { name: "阶段分布" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "需要跟进" })).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /Analytics Active/ }),
+      page.getByRole("button", { name: /^查看 Analytics Active/ }),
     ).toBeVisible();
   } finally {
     for (const id of created) await request.delete(`/api/applications/${id}`);

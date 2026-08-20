@@ -55,7 +55,7 @@ export function InterviewList({
             </span>
             <DeleteInterviewDialog
               id={item.id}
-              name={`${item.companyName} · ${STAGE_LABELS[item.stage]}`}
+              name={`${item.companyName} · ${item.positionName} · ${STAGE_LABELS[item.stage]}`}
             />
           </li>
         ))}

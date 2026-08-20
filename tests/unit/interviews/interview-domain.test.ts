@@ -33,16 +33,14 @@ describe("interview review domain", () => {
     ).toBe(true);
   });
 
-  it("requires a question and improvement before completion", () => {
+  it("requires non-empty Markdown content before completion", () => {
     const draft = updateInterviewSchema.parse({ version: 1 });
     expect(canCompleteReview(draft)).toBe(false);
     expect(validateCompletion({ ...draft, status: "completed" })).toBe(false);
     const complete = updateInterviewSchema.parse({
       version: 1,
       status: "completed",
-      questions: [
-        { question: "介绍一个项目", improvedAnswer: "使用 STAR 结构" },
-      ],
+      questions: [{ question: "# 项目复盘\n\n使用 STAR 结构" }],
     });
     expect(canCompleteReview(complete)).toBe(true);
   });

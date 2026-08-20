@@ -12,6 +12,7 @@ import { STATUS_LABELS, TYPE_LABELS } from "../domain/catalog";
 import { formatCompanyWithCity } from "../application/display";
 import { EditApplicationDialog } from "./application-dialogs";
 import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
+import type { InterviewPage } from "@/modules/interviews/application/contracts";
 
 export function ApplicationDetailDialog({
   application,
@@ -59,17 +60,27 @@ function ApplicationDetailContent({
   onEdit: (application: ApplicationDetail) => void;
 }) {
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
+  const [interviews, setInterviews] = useState<InterviewPage["items"]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch(`/api/applications/${application.id}`, {
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("暂时无法加载详情");
-        setDetail((await response.json()) as ApplicationDetail);
+    void Promise.all([
+      fetch(`/api/applications/${application.id}`, {
+        signal: controller.signal,
+      }),
+      fetch(`/api/interviews?applicationId=${application.id}&limit=100`, {
+        signal: controller.signal,
+      }),
+    ])
+      .then(async ([detailResponse, interviewResponse]) => {
+        if (!detailResponse.ok || !interviewResponse.ok)
+          throw new Error("暂时无法加载详情");
+        setDetail((await detailResponse.json()) as ApplicationDetail);
+        setInterviews(
+          ((await interviewResponse.json()) as InterviewPage).items,
+        );
       })
       .catch((reason: unknown) => {
         if (reason instanceof DOMException && reason.name === "AbortError")
@@ -133,6 +144,7 @@ function ApplicationDetailContent({
             <>
               <RecruitmentStageTimeline
                 application={detail}
+                interviews={interviews}
                 onUpdate={(updated) => {
                   setDetail(updated);
                   onUpdate?.(updated);

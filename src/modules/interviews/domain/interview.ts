@@ -1,12 +1,7 @@
 import type { UpdateInterviewInput } from "./interview.schema";
 
 export function canCompleteReview(input: UpdateInterviewInput) {
-  if (!input.questions.length) return false;
-  return Boolean(
-    input.gaps?.trim() ||
-    input.actionItems.length ||
-    input.questions.some((item) => item.improvedAnswer?.trim()),
-  );
+  return input.questions.some((item) => item.question.trim());
 }
 
 export function validateCompletion(input: UpdateInterviewInput) {

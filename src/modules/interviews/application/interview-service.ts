@@ -24,11 +24,7 @@ export async function updateInterview(id: string, input: unknown) {
   const actor = await requireUser();
   const value = updateInterviewSchema.parse(input);
   if (!validateCompletion(value)) {
-    throw new Problem(
-      "validation",
-      "至少记录一个问题，并补充改进内容或行动项。",
-      400,
-    );
+    throw new Problem("validation", "请先填写面经内容，再完成复盘。", 400);
   }
   return repository().update(actor.id, id, value);
 }

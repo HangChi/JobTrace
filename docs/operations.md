@@ -32,8 +32,10 @@
 
 ## 发布门禁
 
-依次运行 `pnpm format`、`pnpm lint`、`pnpm typecheck`、`pnpm test`、数据库测试、`pnpm e2e`、性能检查和 `pnpm build`。
+依次运行 `pnpm format`、`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm db:reset:verify`、`pnpm db:types:check`、`pnpm db:test`、`pnpm contract`、`pnpm integration`、`pnpm e2e`、`pnpm performance`、`pnpm performance:auth`、`pnpm lighthouse` 和 `pnpm build`。契约、集成、E2E 与数据库性能脚本均创建隔离临时数据库并在结束后强制删除。
+
+面经性能门禁会生成每用户 10,000 篇面经及对应问题、行动项，验证列表、组合筛选、问题搜索和聚合更新 p95 不超过 1 秒。面经内容属于敏感个人数据，诊断时不得打印请求正文；排障只记录 request ID、状态码、错误代码和耗时。
 
 ## 部署与回滚
 
-数据库迁移应先在临时数据库执行 `pnpm db` 验证。迁移器记录 SHA-256 校验和并拒绝已执行迁移漂移。应用发布保留上一构建；应用回滚时切换到上一构建。数据库变更采用先扩展后收缩，禁止直接回滚已写入业务数据的破坏性迁移。导出 CSV 是首期数据恢复路径。
+数据库迁移应先通过 `pnpm db:reset:verify` 在空库重放，再对预发布备份执行 `pnpm db`。迁移器记录 SHA-256 校验和并拒绝已执行迁移漂移。应用发布保留上一构建；应用回滚时切换到上一构建。数据库变更采用先扩展后收缩，禁止直接回滚已写入业务数据的破坏性迁移。面经表为扩展式迁移，旧构建不会读取；若新版本异常，可先回滚应用并保留面经数据，修复后重新发布。CSV 导出是投递数据恢复路径，数据库备份是面经问题与行动项的恢复路径。

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
+import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 import type { ApplicationDetail } from "../application/contracts";
 import {
   RECRUITMENT_STAGES,
@@ -38,9 +39,11 @@ function terminalStatus(after: unknown) {
 
 export function RecruitmentStageTimeline({
   application,
+  interviews = [],
   onUpdate,
 }: {
   application: ApplicationDetail;
+  interviews?: StageInterviewSummary[];
   onUpdate: (application: ApplicationDetail) => void;
 }) {
   const [selectedStage, setSelectedStage] = useState<RecruitmentStage | null>(
@@ -375,16 +378,25 @@ export function RecruitmentStageTimeline({
                     ? STAGE_LABELS[item.value]
                     : STATUS_LABELS[item.value]}
                 </strong>
-                {item.kind === "stage" && isInterviewStage(item.value) && (
-                  <Link
-                    className="stage-review-link"
-                    href={
-                      `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}` as Route
-                    }
-                  >
-                    记录面经
-                  </Link>
-                )}
+                {item.kind === "stage" &&
+                  isInterviewStage(item.value) &&
+                  (() => {
+                    const review = interviews.find(
+                      (candidate) => candidate.stageOccurrenceId === item.id,
+                    );
+                    return (
+                      <Link
+                        className="stage-review-link"
+                        href={
+                          (review
+                            ? `/interviews/${review.id}`
+                            : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
+                        }
+                      >
+                        {review ? "继续复盘" : "记录面经"}
+                      </Link>
+                    );
+                  })()}
                 <time dateTime={item.occurredOn}>{item.occurredOn}</time>
               </li>
             ))}

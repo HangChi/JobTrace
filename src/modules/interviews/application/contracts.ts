@@ -23,6 +23,7 @@ export type InterviewActionItem = {
 export type InterviewSummary = {
   id: string;
   applicationId: string;
+  stageOccurrenceId: string | null;
   companyName: string;
   positionName: string;
   stage: InterviewStage;
@@ -35,10 +36,14 @@ export type InterviewSummary = {
 };
 export type StageInterviewSummary = Pick<
   InterviewSummary,
-  "id" | "stage" | "interviewedOn" | "status" | "questionCount"
-> & { stageOccurrenceId: string | null };
+  | "id"
+  | "stage"
+  | "interviewedOn"
+  | "status"
+  | "questionCount"
+  | "stageOccurrenceId"
+>;
 export type InterviewDetail = InterviewSummary & {
-  stageOccurrenceId: string | null;
   format: InterviewFormat | null;
   durationMinutes: number | null;
   interviewerNotes: string | null;

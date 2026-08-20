@@ -255,7 +255,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
   ) {
     try {
       await this.sql`select public.update_stage_occurrence_for_owner(
-        ${ownerId},${occurrenceId},${stage}::recruitment_stage,${occurredOn}::date,${changeDate}::date
+        ${ownerId},${id},${occurrenceId},${stage}::recruitment_stage,${occurredOn}::date,${changeDate}::date
       )`;
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {

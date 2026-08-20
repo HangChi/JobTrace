@@ -10,13 +10,64 @@ import {
   ROUND_RESULTS,
   ROUND_RESULT_LABELS,
 } from "../domain/catalog";
+import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import { InterviewQuestionList } from "./interview-question-list";
-import { InterviewActionItems } from "./interview-action-items";
 import { useInterviewAutosave } from "./interview-autosave";
+
+function reviewToMarkdown(review: InterviewDetail) {
+  const onlyQuestion = review.questions[0];
+  const isPlainMarkdown =
+    review.questions.length === 1 &&
+    !onlyQuestion?.originalAnswer &&
+    !onlyQuestion?.followUpNotes &&
+    !onlyQuestion?.improvedAnswer &&
+    onlyQuestion?.selfRating === null &&
+    !review.highlights &&
+    !review.gaps &&
+    review.actionItems.length === 0;
+  if (isPlainMarkdown) return onlyQuestion?.question ?? "";
+
+  const sections: string[] = [];
+  review.questions.forEach((question, index) => {
+    sections.push(
+      review.questions.length > 1 ? `## 问题 ${index + 1}` : "## 面试问题",
+      question.question,
+    );
+    if (question.originalAnswer) {
+      sections.push("### 当时的回答", question.originalAnswer);
+    }
+    if (question.followUpNotes) {
+      sections.push("### 追问或反馈", question.followUpNotes);
+    }
+    if (question.improvedAnswer) {
+      sections.push("### 复盘后的回答", question.improvedAnswer);
+    }
+    if (question.selfRating !== null) {
+      sections.push(`**自评分：${question.selfRating}/5**`);
+    }
+  });
+  if (review.highlights) {
+    sections.push("## 做得好的地方", review.highlights);
+  }
+  if (review.gaps) {
+    sections.push("## 可以改进的地方", review.gaps);
+  }
+  if (review.actionItems.length) {
+    sections.push(
+      "## 下一步行动",
+      review.actionItems
+        .map((item) => `- [${item.completed ? "x" : " "}] ${item.content}`)
+        .join("\n"),
+    );
+  }
+  return sections.join("\n\n");
+}
 
 export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
   const [draft, setDraft] = useState(initial);
+  const [markdown, setMarkdown] = useState(() => reviewToMarkdown(initial));
   const [revision, setRevision] = useState(0);
+  const [completionError, setCompletionError] = useState("");
   const change = useCallback((patch: Partial<InterviewDetail>) => {
     setDraft((current) => ({ ...current, ...patch }));
     setRevision((value) => value + 1);
@@ -31,8 +82,8 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
       highlights: draft.highlights,
       gaps: draft.gaps,
       status: draft.status,
-      questions: draft.questions,
-      actionItems: draft.actionItems,
+      questions: draft.questions.filter((item) => item.question.trim()),
+      actionItems: draft.actionItems.filter((item) => item.content.trim()),
     }),
     [draft],
   );
@@ -47,13 +98,7 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
     payload,
     onSaved,
   });
-  const canComplete =
-    draft.questions.some((item) => item.question.trim()) &&
-    Boolean(
-      draft.gaps?.trim() ||
-      draft.actionItems.some((item) => item.content.trim()) ||
-      draft.questions.some((item) => item.improvedAnswer?.trim()),
-    );
+  const canComplete = Boolean(markdown.trim());
 
   return (
     <div className="interview-editor stack">
@@ -67,7 +112,7 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
             {draft.companyName} · {draft.positionName}
           </h1>
           <p className="lead">
-            {draft.interviewedOn} · {draft.stage}
+            {draft.interviewedOn} · {STAGE_LABELS[draft.stage]}
           </p>
         </div>
         <div
@@ -79,6 +124,11 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           {autosave.state === "error" && (
             <button type="button" onClick={() => void autosave.retry()}>
               重试
+            </button>
+          )}
+          {autosave.state === "conflict" && (
+            <button type="button" onClick={() => window.location.reload()}>
+              刷新页面
             </button>
           )}
         </div>
@@ -160,77 +210,76 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
         </div>
       </section>
       <InterviewQuestionList
-        questions={draft.questions}
-        onChange={(questions) =>
+        value={markdown}
+        onChange={(value) => {
+          setMarkdown(value);
           change({
-            questions,
+            questions: value.trim()
+              ? [
+                  {
+                    id: draft.questions[0]?.id ?? crypto.randomUUID(),
+                    category: "other",
+                    question: value,
+                    originalAnswer: null,
+                    followUpNotes: null,
+                    improvedAnswer: null,
+                    selfRating: null,
+                  },
+                ]
+              : [],
+            highlights: null,
+            gaps: null,
+            actionItems: [],
             status:
               draft.status === "completed"
                 ? "pending_review"
-                : questions.length
+                : value.trim()
                   ? "pending_review"
                   : "draft",
-          })
-        }
-      />
-      <section className="panel stack">
-        <div>
-          <p className="section-kicker">REFLECTION</p>
-          <h2>整体复盘</h2>
-        </div>
-        <div className="answer-compare">
-          <label>
-            做得好的地方
-            <textarea
-              rows={6}
-              value={draft.highlights ?? ""}
-              onChange={(event) => change({ highlights: event.target.value })}
-            />
-          </label>
-          <label>
-            暴露的问题
-            <textarea
-              rows={6}
-              value={draft.gaps ?? ""}
-              onChange={(event) => change({ gaps: event.target.value })}
-            />
-          </label>
-        </div>
-      </section>
-      <InterviewActionItems
-        items={draft.actionItems}
-        onChange={(actionItems) =>
-          change({
-            actionItems,
-            status:
-              draft.status === "completed" ? "pending_review" : draft.status,
-          })
-        }
+          });
+        }}
       />
       <footer className="interview-editor-footer">
         <nav className="interview-editor-nav" aria-label="离开面经编辑">
-          <Link className="button secondary" href="/interviews">
+          <Link
+            className="button secondary"
+            href="/interviews"
+            onClick={() => void autosave.flush()}
+          >
             返回面经列表
           </Link>
           <Link
             className="button secondary"
             href={`/applications/${draft.applicationId}`}
+            onClick={() => void autosave.flush()}
           >
             查看关联投递
           </Link>
         </nav>
-        <button
-          type="button"
-          className="button"
-          disabled={
-            !canComplete ||
-            autosave.state === "saving" ||
-            autosave.state === "conflict"
-          }
-          onClick={() => change({ status: "completed" })}
-        >
-          {draft.status === "completed" ? "复盘已完成" : "完成复盘"}
-        </button>
+        <div className="completion-actions">
+          {completionError && (
+            <p className="field-error" role="alert">
+              {completionError}
+            </p>
+          )}
+          <button
+            type="button"
+            className="button"
+            disabled={
+              autosave.state === "saving" || autosave.state === "conflict"
+            }
+            onClick={() => {
+              if (!canComplete) {
+                setCompletionError("请先填写面经内容，再完成复盘。");
+                return;
+              }
+              setCompletionError("");
+              change({ status: "completed" });
+            }}
+          >
+            {draft.status === "completed" ? "复盘已完成" : "完成复盘"}
+          </button>
+        </div>
       </footer>
     </div>
   );
