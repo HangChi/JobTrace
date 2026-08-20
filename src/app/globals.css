@@ -2297,7 +2297,7 @@ dialog::backdrop {
   min-height: 48px;
   position: relative;
   display: grid;
-  grid-template-columns: 18px minmax(0, 1fr) auto auto;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
   align-items: center;
   gap: 11px;
   color: var(--ink);
@@ -2313,6 +2313,12 @@ dialog::backdrop {
 }
 .stage-timeline strong {
   font-size: 0.86rem;
+}
+.stage-timeline-main {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 .stage-timeline time {
   color: var(--muted);
@@ -2632,9 +2638,9 @@ dialog::backdrop {
   list-style: none;
 }
 .stage-record-list li {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
   min-height: 52px;
   padding: 8px 10px 8px 14px;
@@ -2670,6 +2676,12 @@ dialog::backdrop {
   padding-inline: 12px;
   color: var(--muted);
   font-size: 0.72rem;
+}
+.stage-record-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .terminal-stage-notice {
   margin: 0;
@@ -3745,10 +3757,17 @@ dialog::backdrop {
     width: 100%;
   }
   .stage-record-list li {
-    align-items: flex-start;
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
   .stage-record-name {
     flex-wrap: wrap;
+  }
+  .stage-record-actions {
+    justify-content: flex-start;
+  }
+  .stage-record-actions .button {
+    flex: 1;
   }
   .interview-section .section-heading {
     align-items: flex-start;
@@ -3756,17 +3775,17 @@ dialog::backdrop {
     gap: 10px 14px;
   }
   .stage-timeline li {
-    grid-template-columns: 18px minmax(0, 1fr) auto;
+    grid-template-columns: 18px minmax(0, 1fr);
   }
   .stage-review-link {
-    grid-column: 2 / -1;
+    grid-column: 2;
     grid-row: 2;
     justify-self: start;
     margin-left: 0;
   }
-  .stage-timeline time {
-    grid-column: 3;
-    grid-row: 1;
+  .stage-timeline-main {
+    flex-wrap: wrap;
+    gap: 3px 10px;
   }
   .application-interview-list li {
     grid-template-columns: minmax(0, 1fr) auto;

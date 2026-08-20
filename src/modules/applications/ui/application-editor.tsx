@@ -158,32 +158,34 @@ export function ApplicationEditor({
                   <strong>{STAGE_LABELS[item.stage]}</strong>
                   <time dateTime={item.occurredOn}>{item.occurredOn}</time>
                 </span>
-                {isInterviewStage(item.stage) &&
-                  (() => {
-                    const review = interviews.find(
-                      (candidate) => candidate.stageOccurrenceId === item.id,
-                    );
-                    return (
-                      <Link
-                        className="button secondary"
-                        href={
-                          (review
-                            ? `/interviews/${review.id}`
-                            : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
-                        }
-                      >
-                        {review ? "继续复盘" : "记录面经"}
-                      </Link>
-                    );
-                  })()}
-                <button
-                  type="button"
-                  className="button secondary"
-                  onClick={() => removeStage(item.id)}
-                  aria-label={`移除${STAGE_LABELS[item.stage]}阶段`}
-                >
-                  移除阶段
-                </button>
+                <span className="stage-record-actions">
+                  {isInterviewStage(item.stage) &&
+                    (() => {
+                      const review = interviews.find(
+                        (candidate) => candidate.stageOccurrenceId === item.id,
+                      );
+                      return (
+                        <Link
+                          className="button secondary"
+                          href={
+                            (review
+                              ? `/interviews/${review.id}`
+                              : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
+                          }
+                        >
+                          {review ? "继续复盘" : "记录面经"}
+                        </Link>
+                      );
+                    })()}
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => removeStage(item.id)}
+                    aria-label={`移除${STAGE_LABELS[item.stage]}阶段`}
+                  >
+                    移除阶段
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
