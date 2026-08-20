@@ -373,11 +373,14 @@ export function RecruitmentStageTimeline({
                 >
                   <i />
                 </span>
-                <strong>
-                  {item.kind === "stage"
-                    ? STAGE_LABELS[item.value]
-                    : STATUS_LABELS[item.value]}
-                </strong>
+                <span className="stage-timeline-main">
+                  <strong>
+                    {item.kind === "stage"
+                      ? STAGE_LABELS[item.value]
+                      : STATUS_LABELS[item.value]}
+                  </strong>
+                  <time dateTime={item.occurredOn}>{item.occurredOn}</time>
+                </span>
                 {item.kind === "stage" &&
                   isInterviewStage(item.value) &&
                   (() => {
@@ -397,7 +400,6 @@ export function RecruitmentStageTimeline({
                       </Link>
                     );
                   })()}
-                <time dateTime={item.occurredOn}>{item.occurredOn}</time>
               </li>
             ))}
           </ol>
