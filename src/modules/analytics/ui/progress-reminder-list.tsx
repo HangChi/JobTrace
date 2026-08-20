@@ -79,7 +79,7 @@ export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
                   disabled={completing === item.id}
                   onClick={() => void complete(item)}
                 >
-                  {completing === item.id ? "保存中…" : "已完成"}
+                  {completing === item.id ? "保存中…" : "不再提醒"}
                 </button>
               </span>
             </li>

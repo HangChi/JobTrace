@@ -42,7 +42,7 @@ describe("待处理进展列表", () => {
     expect(screen.queryByText(/进展日期/)).toBeNull();
     expect(screen.queryByRole("link", { name: "补充测评结果" })).toBeNull();
     expect(screen.queryAllByRole("link")).toHaveLength(0);
-    expect(screen.getAllByRole("button", { name: "已完成" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "不再提醒" })).toHaveLength(2);
   });
 
   it("没有提醒时不占用布局", () => {
@@ -50,7 +50,7 @@ describe("待处理进展列表", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("点击已完成后立即移除，并持久化完成状态", async () => {
+  it("点击不再提醒后立即移除，并持久化处理状态", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response(JSON.stringify({ completed: true })));
@@ -73,7 +73,7 @@ describe("待处理进展列表", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "已完成" }));
+    fireEvent.click(screen.getByRole("button", { name: "不再提醒" }));
     await waitFor(() =>
       expect(screen.queryByText("字节跳动（北京）")).toBeNull(),
     );
