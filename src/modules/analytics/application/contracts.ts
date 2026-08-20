@@ -13,6 +13,7 @@ export type ProgressReminder = {
   occurredOn: string;
   reviewId: string | null;
   reviewStatus: ReviewStatus | null;
+  completed?: boolean;
 };
 export type AnalyticsSummary = {
   total: number;

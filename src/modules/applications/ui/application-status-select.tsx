@@ -18,8 +18,10 @@ const today = () =>
 
 export function ApplicationStatusSelect({
   application,
+  onUpdate,
 }: {
   application: ApplicationSummary;
+  onUpdate?: (application: ApplicationDetail) => void;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(application.status);
@@ -110,8 +112,10 @@ export function ApplicationStatusSelect({
       if (!response.ok) {
         throw new Error(result.message || "状态更新失败，请稍后重试。");
       }
-      setStatus((result as ApplicationDetail).status);
-      router.refresh();
+      const updated = result as ApplicationDetail;
+      setStatus(updated.status);
+      if (onUpdate) onUpdate(updated);
+      else router.refresh();
     } catch (reason) {
       setStatus(previousStatus);
       setError(

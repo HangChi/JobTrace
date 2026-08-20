@@ -43,7 +43,8 @@ export async function fetchAnalyticsSummary(
       latest_stage.stage::text as stage,
       latest_stage.occurred_on,
       review.id as review_id,
-      review.status::text as review_status
+      review.status::text as review_status,
+      completion.id is not null as completed
     from public.applications a
     join lateral (
       select s.id, s.stage, s.occurred_on, s.created_at
@@ -55,8 +56,12 @@ export async function fetchAnalyticsSummary(
     left join public.interview_reviews review
       on review.stage_occurrence_id = latest_stage.id
       and review.owner_id = a.owner_id
+    left join public.progress_reminder_completions completion
+      on completion.stage_occurrence_id = latest_stage.id
+      and completion.owner_id = a.owner_id
     where a.owner_id=${ownerId}
       and a.status='submitted'
+      and completion.id is null
       and (
         latest_stage.stage in ('assessment', 'written_test')
         or (
@@ -123,6 +128,7 @@ export async function fetchAnalyticsSummary(
           : String(row.occurredOn).slice(0, 10),
       reviewId: row.reviewId ? String(row.reviewId) : null,
       reviewStatus: row.reviewStatus as never,
+      completed: Boolean(row.completed),
     })),
     followUps: followUps.map((row) => ({
       id: String(row.id),

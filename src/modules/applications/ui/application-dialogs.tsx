@@ -42,10 +42,12 @@ export function EditApplicationDialog({
   application,
   open,
   onClose,
+  onSuccess,
 }: {
   application: ApplicationDetail | null;
   open: boolean;
   onClose: () => void;
+  onSuccess?: (application: ApplicationDetail) => void;
 }) {
   if (!application) return null;
   return (
@@ -62,7 +64,10 @@ export function EditApplicationDialog({
         application={application}
         embedded
         onCancel={onClose}
-        onSuccess={onClose}
+        onSuccess={(updated) => {
+          onSuccess?.(updated);
+          onClose();
+        }}
       />
     </Dialog>
   );

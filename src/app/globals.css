@@ -938,7 +938,7 @@ a:focus-visible {
 }
 .progress-reminder-item {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr) auto minmax(0, auto);
   align-items: center;
   gap: 12px;
   min-width: 0;
@@ -964,18 +964,40 @@ a:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.progress-reminder-action {
-  min-height: 34px;
-  padding-inline: 12px;
-  color: #875d23;
-  border-color: #e4c895;
-  font-size: 0.74rem;
+.progress-reminder-stage {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid color-mix(in srgb, var(--stage-color, #087f73) 30%, white);
+  border-radius: 999px;
+  color: var(--stage-color, var(--brand-dark));
+  background: color-mix(in srgb, var(--stage-color, #087f73) 10%, white);
+  font-size: 0.78rem;
+  font-weight: 800;
   white-space: nowrap;
 }
-.progress-reminder-action:hover {
-  color: #704816;
-  border-color: #c99e59;
-  background: #fff6e5;
+.progress-reminder-date {
+  display: inline;
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.progress-reminder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+.progress-reminder-complete {
+  min-height: 34px;
+  padding-inline: 12px;
+  color: var(--brand-dark);
+  border-color: var(--line-strong);
+  font-size: 0.74rem;
+  white-space: nowrap;
 }
 .insight-panel {
   min-height: 260px;
@@ -3461,9 +3483,13 @@ dialog::backdrop {
   .progress-reminder-item {
     grid-template-columns: 40px minmax(0, 1fr);
   }
-  .progress-reminder-action {
+  .progress-reminder-stage,
+  .progress-reminder-actions {
     grid-column: 2;
     justify-self: start;
+  }
+  .progress-reminder-actions {
+    justify-content: flex-start;
   }
   .follow-up-detail-trigger > .follow-up {
     grid-column: 2;

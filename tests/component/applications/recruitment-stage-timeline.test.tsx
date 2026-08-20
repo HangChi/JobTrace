@@ -9,11 +9,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RecruitmentStageTimeline } from "@/modules/applications/ui/recruitment-stage-timeline";
 import type { ApplicationDetail } from "@/modules/applications";
 
-const refresh = vi.fn();
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
-}));
-
 const application: ApplicationDetail = {
   id: "application-1",
   companyName: "测试公司",
@@ -47,7 +42,6 @@ describe("招聘阶段时间线", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
-    refresh.mockReset();
   });
 
   it.each([
@@ -194,7 +188,6 @@ describe("招聘阶段时间线", () => {
         }),
       }),
     );
-    expect(refresh).toHaveBeenCalled();
   });
 
   it("接口失败时保留原时间线并显示错误", async () => {

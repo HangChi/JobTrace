@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
@@ -44,7 +43,6 @@ export function RecruitmentStageTimeline({
   application: ApplicationDetail;
   onUpdate: (application: ApplicationDetail) => void;
 }) {
-  const router = useRouter();
   const [selectedStage, setSelectedStage] = useState<RecruitmentStage | null>(
     null,
   );
@@ -118,7 +116,6 @@ export function RecruitmentStageTimeline({
       }
       onUpdate(result as ApplicationDetail);
       setSelectedStage(null);
-      router.refresh();
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -149,7 +146,6 @@ export function RecruitmentStageTimeline({
       }
       onUpdate(result as ApplicationDetail);
       setSelectedStage(null);
-      router.refresh();
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -182,7 +178,6 @@ export function RecruitmentStageTimeline({
       if (!response.ok) throw new Error(result.message || "更新阶段日期失败。");
       onUpdate(result as ApplicationDetail);
       setSelectedStage(null);
-      router.refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "更新阶段日期失败。");
     } finally {

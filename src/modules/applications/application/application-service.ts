@@ -9,7 +9,6 @@ import { PostgresApplicationRepository } from "../infrastructure/postgres-applic
 import { parseListQuery } from "./list-query";
 import { z } from "zod";
 import { requireUser } from "@/modules/identity-access";
-import { isTerminalStatus } from "../domain/application";
 const repository = () => new PostgresApplicationRepository();
 export async function createApplication(input: unknown) {
   const actor = await requireUser();
@@ -37,19 +36,6 @@ export async function deleteApplication(id: string) {
 export async function addApplicationStage(id: string, input: unknown) {
   const stage = stageInputSchema.parse(input);
   const actor = await requireUser();
-  const application = await repository().get(actor.id, id);
-  if (!application)
-    throw new Problem("not_found", "没有找到这条投递记录。", 404);
-  if (isTerminalStatus(application.status)) {
-    throw new Problem(
-      "validation",
-      "Offer 或拒绝后的投递不能再添加招聘阶段。",
-      400,
-    );
-  }
-  if (application.stageOccurrences.some((item) => item.stage === stage.stage)) {
-    throw new Problem("conflict", "该招聘阶段已经记录过，不能重复添加。", 409);
-  }
   return repository().addStage(actor.id, id, stage.stage, stage.occurredOn);
 }
 export async function removeApplicationStage(
