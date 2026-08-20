@@ -17,6 +17,22 @@ test("点击分页立即换页，普通刷新回到第一页", async ({ request,
 
     await page.goto("/?q=Pagination%20Live&limit=10");
     await expect(page.locator(".application-row")).toHaveCount(10);
+    const actionsCell = page
+      .locator('.application-row td[data-label="操作"]')
+      .first();
+    await expect(
+      actionsCell.getByRole("button", { name: "编辑" }),
+    ).toBeVisible();
+    await expect(
+      actionsCell.getByRole("button", { name: "删除" }),
+    ).toBeVisible();
+    const actionsOverflow = await actionsCell.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }));
+    expect(actionsOverflow.scrollWidth).toBeLessThanOrEqual(
+      actionsOverflow.clientWidth + 1,
+    );
     await page.getByRole("link", { name: "第 2 页" }).click();
     await expect(page).toHaveURL(/page=2/);
     await expect(page.locator(".application-row")).toHaveCount(1);
