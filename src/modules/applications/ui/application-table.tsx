@@ -14,6 +14,7 @@ import type {
   ApplicationSummary,
 } from "../application/contracts";
 import { STAGE_LABELS, TYPE_LABELS } from "../domain/catalog";
+import { formatCompanyWithCity } from "../application/display";
 
 function latestStage(item: ApplicationSummary) {
   return item.stages.at(-1);
@@ -130,12 +131,16 @@ export function ApplicationTable({
             {page.items.map((item) => {
               const stage = latestStage(item);
               const applicationType = item.type ?? "campus_recruitment";
+              const companyDisplayName = formatCompanyWithCity(
+                item.companyName,
+                item.city,
+              );
               return (
                 <tr
                   key={item.id}
                   className="application-row"
                   tabIndex={0}
-                  aria-label={`查看 ${item.companyName} ${item.positionName} 详情`}
+                  aria-label={`查看 ${companyDisplayName} ${item.positionName} 详情`}
                   onClick={(event) => {
                     if (
                       !(event.target as HTMLElement).closest(
@@ -159,7 +164,9 @@ export function ApplicationTable({
                   }}
                 >
                   <td className="application-name-cell" data-label="公司与岗位">
-                    <strong title={item.companyName}>{item.companyName}</strong>
+                    <strong title={companyDisplayName}>
+                      {companyDisplayName}
+                    </strong>
                     <span className="table-subline" title={item.positionName}>
                       {item.positionName}
                     </span>
@@ -171,7 +178,7 @@ export function ApplicationTable({
                         href={item.jobUrl}
                         target="_blank"
                         rel="noreferrer"
-                        aria-label={`打开 ${item.companyName} 的投递链接`}
+                        aria-label={`打开 ${companyDisplayName} 的投递链接`}
                       >
                         <span className="job-link-label">
                           {jobLinkLabel(item.jobUrl)}
@@ -221,7 +228,7 @@ export function ApplicationTable({
                       <DeleteApplicationDialog
                         compact
                         id={item.id}
-                        name={`${item.companyName} · ${item.positionName}`}
+                        name={`${companyDisplayName} · ${item.positionName}`}
                       />
                     </div>
                   </td>

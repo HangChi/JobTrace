@@ -32,9 +32,9 @@ export const TYPE_LABELS: Record<ApplicationType, string> = {
 };
 export const STAGE_LABELS: Record<RecruitmentStage, string> = {
   screening: "简历筛选",
-  assessment: "测评",
+  assessment: "测评/AI测评",
   written_test: "笔试",
-  interview_1: "一面",
+  interview_1: "一面/AI面",
   interview_2: "二面",
   interview_3: "三面",
   hr_interview: "HR 面",

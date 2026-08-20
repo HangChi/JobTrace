@@ -11,5 +11,6 @@ test("统计摘要契约", async ({ request }) => {
     addedThisWeek: expect.any(Number),
     stageDistribution: expect.any(Object),
     followUps: expect.any(Array),
+    progressReminders: expect.any(Array),
   });
 });

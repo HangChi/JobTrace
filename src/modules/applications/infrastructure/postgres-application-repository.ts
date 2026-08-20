@@ -172,11 +172,22 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         throw new Problem("not_found", "没有找到这条投递记录。", 404);
       }
       if ((error as { code?: string }).code === "22023") {
-        throw new Problem(
-          "validation",
-          "Offer 或拒绝后的投递不能再添加招聘阶段。",
-          400,
-        );
+        const message = String((error as { message?: unknown }).message ?? "");
+        if (message.includes("terminal_application")) {
+          throw new Problem(
+            "validation",
+            "Offer 或拒绝后的投递不能再添加招聘阶段。",
+            400,
+          );
+        }
+        if (message.includes("invalid_stage_date")) {
+          throw new Problem(
+            "validation",
+            "阶段日期不能早于投递日期或晚于今天。",
+            400,
+          );
+        }
+        throw new Problem("validation", "阶段日期无效。", 400);
       }
       throw new Problem("storage", "添加阶段失败", 500);
     }
@@ -237,8 +248,46 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       appliedDate: "applied_date",
       latestDate: "latest_date",
     }[query.sort];
+    const useStatusPriority = query.sort === "latestDate";
+    const statusRank = this.sql`
+      case a.status
+        when 'offer' then 0
+        when 'submitted' then 1
+        when 'refused' then 2
+        else 1
+      end
+    `;
+    const statusDate = this.sql`
+      case when a.status in ('offer', 'refused') then a.applied_date else a.latest_date end
+    `;
+    const direction =
+      query.direction === "asc" ? this.sql`asc` : this.sql`desc`;
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
     const offset = cursor ? 0 : (query.page - 1) * query.limit;
+    const cursorCondition = cursor
+      ? useStatusPriority
+        ? query.direction === "asc"
+          ? this.sql`and (
+              ${statusRank} > ${cursor.statusRank ?? 0}
+              or (
+                ${statusRank} = ${cursor.statusRank ?? 0}
+                and (${statusDate}, a.id) > (${cursor.value}::date, ${cursor.id}::uuid)
+              )
+            )`
+          : this.sql`and (
+              ${statusRank} > ${cursor.statusRank ?? 0}
+              or (
+                ${statusRank} = ${cursor.statusRank ?? 0}
+                and (${statusDate}, a.id) < (${cursor.value}::date, ${cursor.id}::uuid)
+              )
+            )`
+        : this
+            .sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)`
+      : this.sql``;
+    const orderBy = useStatusPriority
+      ? this
+          .sql`${statusRank} asc, ${statusDate} ${direction}, a.id ${direction}`
+      : this.sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
     const rows = await this.sql<DbRecord[]>`
       select a.*, count(*) over() as total_count,
         max(s.occurred_on) as timeline_latest_date,
@@ -253,9 +302,9 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         ${query.city.length ? this.sql`and a.city = any(${query.city})` : this.sql``}
         ${query.appliedFrom ? this.sql`and a.applied_date >= ${query.appliedFrom}::date` : this.sql``}
         ${query.appliedTo ? this.sql`and a.applied_date <= ${query.appliedTo}::date` : this.sql``}
-        ${cursor ? this.sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)` : this.sql``}
+        ${cursorCondition}
       group by a.id
-      order by ${this.sql(sortColumn)} ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}, a.id ${query.direction === "asc" ? this.sql`asc` : this.sql`desc`}
+      order by ${orderBy}
       limit ${query.limit + 1}
       offset ${offset}
     `;
@@ -270,11 +319,28 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         rows.length > query.limit && last
           ? encodeCursor({
               value: String(
-                last[
-                  sortColumn.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-                ],
+                useStatusPriority &&
+                  ["offer", "refused"].includes(String(last.status))
+                  ? last.appliedDate
+                  : useStatusPriority
+                    ? last.latestDate
+                    : last[
+                        sortColumn.replace(/_([a-z])/g, (_, c) =>
+                          c.toUpperCase(),
+                        )
+                      ],
               ),
               id: String(last.id),
+              ...(useStatusPriority
+                ? {
+                    statusRank:
+                      String(last.status) === "offer"
+                        ? 0
+                        : String(last.status) === "refused"
+                          ? 2
+                          : 1,
+                  }
+                : {}),
             })
           : null,
     };

@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import type { Route } from "next";
-import { getApplication, listApplications } from "@/modules/applications";
+import {
+  formatCompanyWithCity,
+  getApplication,
+  listApplications,
+} from "@/modules/applications";
 import { listApplicationInterviews } from "@/modules/interviews";
 import { InterviewCreateForm } from "@/modules/interviews/ui/interview-create-form";
 import { requirePageUser } from "@/modules/identity-access";
@@ -42,7 +46,7 @@ export default async function NewInterviewPage({
       <InterviewCreateForm
         applications={page.items.map((item) => ({
           id: item.id,
-          label: `${item.companyName} · ${item.positionName}`,
+          label: `${formatCompanyWithCity(item.companyName, item.city)} · ${item.positionName}`,
           appliedDate: item.appliedDate,
         }))}
         applicationId={selected?.id}

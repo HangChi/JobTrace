@@ -1,3 +1,5 @@
+export { formatCompanyWithCity } from "./application/display";
+
 export {
   addApplicationStage,
   createApplication,
