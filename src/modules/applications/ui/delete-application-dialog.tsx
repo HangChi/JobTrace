@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@/shared/ui/dialog";
+import { DeleteIcon } from "@/shared/ui/action-icons";
 
 export function DeleteApplicationDialog({
   id,
@@ -46,12 +47,14 @@ export function DeleteApplicationDialog({
   return (
     <>
       <button
+        type="button"
         className={
           compact ? "table-action table-action-danger" : "button danger"
         }
         onClick={() => setOpen(true)}
       >
-        {compact ? "删除" : "删除记录"}
+        <DeleteIcon />
+        <span>{compact ? "删除" : "删除记录"}</span>
       </button>
       <Dialog
         open={open}
@@ -79,7 +82,14 @@ export function DeleteApplicationDialog({
             取消
           </button>
           <button className="button danger" disabled={loading} onClick={remove}>
-            {loading ? "正在删除…" : "确认删除"}
+            {loading ? (
+              "正在删除…"
+            ) : (
+              <>
+                <DeleteIcon />
+                <span>确认删除</span>
+              </>
+            )}
           </button>
         </div>
       </Dialog>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@/shared/ui/dialog";
+import { DeleteIcon } from "@/shared/ui/action-icons";
 
 export function DeleteInterviewDialog({
   id,
@@ -34,7 +35,8 @@ export function DeleteInterviewDialog({
         className="table-action table-action-danger"
         onClick={() => setOpen(true)}
       >
-        删除
+        <DeleteIcon />
+        <span>删除</span>
       </button>
       <Dialog
         open={open}
@@ -71,7 +73,14 @@ export function DeleteInterviewDialog({
             disabled={busy}
             onClick={() => void remove()}
           >
-            {busy ? "正在删除…" : "确认删除"}
+            {busy ? (
+              "正在删除…"
+            ) : (
+              <>
+                <DeleteIcon />
+                <span>确认删除</span>
+              </>
+            )}
           </button>
         </div>
       </Dialog>

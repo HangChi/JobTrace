@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CloseIcon } from "@/shared/ui/close-icon";
+import { DeleteIcon } from "@/shared/ui/action-icons";
 import type { InterviewActionItem } from "../application/contracts";
 
 type DeletedAction = { item: InterviewActionItem; index: number };
@@ -130,7 +130,7 @@ export function InterviewActionItems({
                 aria-label={`删除行动 ${index + 1}`}
                 onClick={() => setConfirming(item.id)}
               >
-                <CloseIcon />
+                <DeleteIcon />
               </button>
             )}
           </li>

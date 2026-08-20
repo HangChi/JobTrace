@@ -20,7 +20,9 @@ describe("删除确认", () => {
     const request = vi.fn();
     vi.stubGlobal("fetch", request);
     render(<DeleteApplicationDialog id="1" name="甲公司 开发" />);
-    fireEvent.click(screen.getByRole("button", { name: "删除记录" }));
+    const trigger = screen.getByRole("button", { name: "删除记录" });
+    expect(trigger.querySelector("svg")).not.toBeNull();
+    fireEvent.click(trigger);
     expect(screen.getByRole("dialog")).toHaveAttribute("open");
     fireEvent.click(screen.getByRole("button", { name: "取消" }));
     expect(request).not.toHaveBeenCalled();

@@ -11,6 +11,7 @@ import {
 import { Feedback } from "@/shared/ui/feedback";
 import { FormField, TextAreaField } from "@/shared/ui/form-field";
 import Link from "next/link";
+import { DeleteIcon } from "@/shared/ui/action-icons";
 import type { Route } from "next";
 import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
@@ -184,7 +185,8 @@ export function ApplicationEditor({
                     onClick={() => removeStage(item.id)}
                     aria-label={`移除${STAGE_LABELS[item.stage]}阶段`}
                   >
-                    移除阶段
+                    <DeleteIcon />
+                    <span>移除阶段</span>
                   </button>
                 </span>
               </li>

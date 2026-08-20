@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { EditIcon } from "@/shared/ui/action-icons";
 import type { Route } from "next";
 import { Dialog } from "@/shared/ui/dialog";
 import type {
@@ -178,7 +179,8 @@ function ApplicationDetailContent({
                   type="button"
                   onClick={() => onEdit(detail)}
                 >
-                  编辑这条投递
+                  <EditIcon />
+                  <span>编辑这条投递</span>
                 </button>
               </div>
             </>
