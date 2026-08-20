@@ -39,9 +39,7 @@ test("部分匹配、组合筛选和游标跨页稳定", async ({ request }) => 
   }
 });
 
-test("默认排序按 Offer、已投递、已拒绝分组，且组内规则正确", async ({
-  request,
-}) => {
+test("默认按最近进展排序，名称排序默认 A 到 Z", async ({ request }) => {
   const ids: string[] = [];
   const create = async (
     status: "submitted" | "offer" | "refused",
@@ -106,12 +104,8 @@ test("默认排序按 Offer、已投递、已拒绝分组，且组内规则正�
     expect(firstResponse.ok()).toBe(true);
     const first = await firstResponse.json();
     expect(first.items.map((item: { id: string }) => item.id)).toEqual([
-      offerLate.id,
-      offerEarly.id,
-    ]);
-    expect(first.items.map((item: { status: string }) => item.status)).toEqual([
-      "offer",
-      "offer",
+      submittedWithRecentStage.id,
+      submittedWithoutStage.id,
     ]);
     expect(first.nextCursor).toEqual(expect.any(String));
 
@@ -121,12 +115,9 @@ test("默认排序按 Offer、已投递、已拒绝分组，且组内规则正�
     expect(secondResponse.ok()).toBe(true);
     const second = await secondResponse.json();
     expect(second.items.map((item: { id: string }) => item.id)).toEqual([
-      submittedWithRecentStage.id,
-      submittedWithoutStage.id,
+      refusedLate.id,
+      offerLate.id,
     ]);
-    expect(second.items.map((item: { status: string }) => item.status)).toEqual(
-      ["submitted", "submitted"],
-    );
     expect(second.nextCursor).toEqual(expect.any(String));
 
     const thirdResponse = await request.get(
@@ -135,12 +126,8 @@ test("默认排序按 Offer、已投递、已拒绝分组，且组内规则正�
     expect(thirdResponse.ok()).toBe(true);
     const third = await thirdResponse.json();
     expect(third.items.map((item: { id: string }) => item.id)).toEqual([
-      refusedLate.id,
       refusedEarly.id,
-    ]);
-    expect(third.items.map((item: { status: string }) => item.status)).toEqual([
-      "refused",
-      "refused",
+      offerEarly.id,
     ]);
     expect(third.nextCursor).toBeNull();
 
@@ -156,6 +143,24 @@ test("默认排序按 Offer、已投递、已拒绝分组，且组内规则正�
       refusedEarly.id,
       submittedWithRecentStage.id,
       offerEarly.id,
+    ]);
+
+    const companySortResponse = await request.get(
+      "/api/applications?q=Status%20Priority&sort=company&limit=20",
+    );
+    expect(companySortResponse.ok()).toBe(true);
+    const companySort = await companySortResponse.json();
+    expect(
+      companySort.items.map(
+        (item: { companyName: string }) => item.companyName,
+      ),
+    ).toEqual([
+      "Status Priority Offer Early",
+      "Status Priority Offer Late",
+      "Status Priority Refused Early",
+      "Status Priority Refused Late",
+      "Status Priority Submitted No Stage",
+      "Status Priority Submitted Recent Stage",
     ]);
   } finally {
     for (const id of ids) await request.delete(`/api/applications/${id}`);

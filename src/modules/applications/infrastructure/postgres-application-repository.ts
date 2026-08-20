@@ -281,46 +281,16 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       appliedDate: "applied_date",
       latestDate: "latest_date",
     }[query.sort];
-    const useStatusPriority = query.sort === "latestDate";
-    const statusRank = this.sql`
-      case a.status
-        when 'offer' then 0
-        when 'submitted' then 1
-        when 'refused' then 2
-        else 1
-      end
-    `;
-    const statusDate = this.sql`
-      case when a.status in ('offer', 'refused') then a.applied_date else a.latest_date end
-    `;
     const direction =
       query.direction === "asc" ? this.sql`asc` : this.sql`desc`;
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
     const offset = cursor ? 0 : (query.page - 1) * query.limit;
     const cursorCondition = cursor
-      ? useStatusPriority
-        ? query.direction === "asc"
-          ? this.sql`and (
-              ${statusRank} > ${cursor.statusRank ?? 0}
-              or (
-                ${statusRank} = ${cursor.statusRank ?? 0}
-                and (${statusDate}, a.id) > (${cursor.value}::date, ${cursor.id}::uuid)
-              )
-            )`
-          : this.sql`and (
-              ${statusRank} > ${cursor.statusRank ?? 0}
-              or (
-                ${statusRank} = ${cursor.statusRank ?? 0}
-                and (${statusDate}, a.id) < (${cursor.value}::date, ${cursor.id}::uuid)
-              )
-            )`
-        : this
-            .sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)`
-      : this.sql``;
-    const orderBy = useStatusPriority
       ? this
-          .sql`${statusRank} asc, ${statusDate} ${direction}, a.id ${direction}`
-      : this.sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
+          .sql`and (${this.sql(sortColumn)}, a.id) ${query.direction === "asc" ? this.sql`>` : this.sql`<`} (${cursor.value}, ${cursor.id}::uuid)`
+      : this.sql``;
+    const orderBy = this
+      .sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
     const rows = await this.sql<DbRecord[]>`
       select a.*, count(*) over() as total_count,
         max(s.occurred_on) as timeline_latest_date,
@@ -352,28 +322,11 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         rows.length > query.limit && last
           ? encodeCursor({
               value: String(
-                useStatusPriority &&
-                  ["offer", "refused"].includes(String(last.status))
-                  ? last.appliedDate
-                  : useStatusPriority
-                    ? last.latestDate
-                    : last[
-                        sortColumn.replace(/_([a-z])/g, (_, c) =>
-                          c.toUpperCase(),
-                        )
-                      ],
+                last[
+                  sortColumn.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+                ],
               ),
               id: String(last.id),
-              ...(useStatusPriority
-                ? {
-                    statusRank:
-                      String(last.status) === "offer"
-                        ? 0
-                        : String(last.status) === "refused"
-                          ? 2
-                          : 1,
-                  }
-                : {}),
             })
           : null,
     };
