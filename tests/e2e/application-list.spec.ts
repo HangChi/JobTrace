@@ -49,10 +49,11 @@ test("全选当前页后可导出所选并批量删除", async ({ request, page 
     await expect(page.locator(".bulk-selection-count")).toContainText(
       "2条记录已选择",
     );
-    await expect(page.getByRole("link", { name: /CSV 文件/ })).toHaveAttribute(
-      "href",
-      /scope=selected.*format=csv.*id=/,
-    );
+    const bulkSelectionBar = page.locator(".bulk-selection-bar");
+    await bulkSelectionBar.locator("summary").click();
+    await expect(
+      bulkSelectionBar.getByRole("link", { name: /CSV 文件/ }),
+    ).toHaveAttribute("href", /scope=selected.*format=csv.*id=/);
 
     await page.getByRole("button", { name: "删除所选" }).click();
     await expect(
