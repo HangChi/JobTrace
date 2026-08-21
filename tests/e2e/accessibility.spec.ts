@@ -49,6 +49,30 @@ for (const width of [375, 768, 1280]) {
   });
 }
 
+for (const route of ["/login", "/register"]) {
+  for (const width of [375, 768, 1280]) {
+    test(`${route} 在 ${width}px 视口可访问且无横向溢出`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext({
+        storageState: { cookies: [], origins: [] },
+        viewport: { width, height: 900 },
+      });
+      const page = await context.newPage();
+      await page.goto(route);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      const result = await new AxeBuilder({ page }).analyze();
+      expect(result.violations).toEqual([]);
+      await context.close();
+    });
+  }
+}
+
 for (const width of [375, 768, 1280]) {
   test(`面经列表在 ${width}px 视口可访问且无横向溢出`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });

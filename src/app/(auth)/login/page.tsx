@@ -1,13 +1,37 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getActor, hasAuthConfiguration } from "@/modules/identity-access";
+import type { Route } from "next";
+import {
+  getActor,
+  hasAuthConfiguration,
+  safeReturnTo,
+  usernameSchema,
+} from "@/modules/identity-access";
 import { AuthForm } from "@/modules/identity-access/ui/auth-form";
 import { AuthShell } from "@/modules/identity-access/ui/auth-shell";
 import { loginAction } from "../actions";
-export default async function Page() {
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+const first = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] : value;
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const configured = hasAuthConfiguration();
   const a = await getActor();
   if (a) redirect(a.role === "admin" ? "/admin" : "/");
+  const query = await searchParams;
+  const returnTo = safeReturnTo(first(query.returnTo));
+  const registered = first(query.registered) === "1";
+  const parsedUsername = usernameSchema.safeParse(first(query.username));
+  const defaultUsername =
+    registered && parsedUsername.success ? parsedUsername.data : undefined;
+  const registerHref = returnTo
+    ? (`/register?returnTo=${encodeURIComponent(returnTo)}` as Route)
+    : "/register";
   return (
     <AuthShell
       title="欢迎回来"
@@ -16,7 +40,7 @@ export default async function Page() {
       footer={
         <>
           <span>还没有账号？</span>
-          <Link href="/register">免费创建账号</Link>
+          <Link href={registerHref}>免费创建账号</Link>
         </>
       }
     >
@@ -26,11 +50,19 @@ export default async function Page() {
           BETTER_AUTH_SECRET 和 BETTER_AUTH_URL，然后重新启动开发服务器。
         </div>
       )}
-      {configured && <AuthForm mode="login" action={loginAction} />}
+      {configured && registered && (
+        <div className="feedback success auth-success" role="status">
+          <strong>账号创建成功</strong>
+          <span>用户名已为你填好，请输入刚刚设置的密码登录。</span>
+        </div>
+      )}
       {configured && (
-        <Link className="auth-forgot-link" href="/forgot-password">
-          忘记密码？
-        </Link>
+        <AuthForm
+          mode="login"
+          action={loginAction}
+          defaultUsername={defaultUsername}
+          returnTo={returnTo ?? undefined}
+        />
       )}
     </AuthShell>
   );

@@ -9,7 +9,7 @@ test("username login and role routing p95 stay below one second", async ({
   baseURL,
 }) => {
   const username = `perf_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;
-  const password = "Performance-123!";
+  const password = "Performance123!";
   const setup = await playwright.request.newContext({
     baseURL,
     extraHTTPHeaders: { origin: baseURL! },

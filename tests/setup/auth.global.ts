@@ -10,10 +10,10 @@ export default async function globalSetup(config: FullConfig) {
     extraHTTPHeaders: { origin: baseURL },
   });
   await context.post("/api/auth/register", {
-    data: { username: "playwright_user", password: "Playwright-Password-123!" },
+    data: { username: "playwright_user", password: "Playwright123!" },
   });
   const login = await context.post("/api/auth/login", {
-    data: { username: "playwright_user", password: "Playwright-Password-123!" },
+    data: { username: "playwright_user", password: "Playwright123!" },
   });
   if (!login.ok())
     throw new Error(

@@ -10,11 +10,11 @@ test("admin dashboard, analytics and export remain scoped to the admin owner", a
   const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
   const adminCredentials = {
     username: `owner_admin_${suffix}`,
-    password: "Owner-Password-123!",
+    password: "OwnerPass123!",
   };
   const userCredentials = {
     username: `owner_user_${suffix}`,
-    password: "Owner-Password-123!",
+    password: "OwnerPass123!",
   };
   const admin = await playwright.request.newContext({
     baseURL,

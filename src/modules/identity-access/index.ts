@@ -8,7 +8,9 @@ export {
 } from "./application/authorization";
 export {
   registerSchema,
+  registerFormSchema,
   loginSchema,
+  passwordSchema,
   usernameSchema,
   safeReturnTo,
 } from "./application/auth-schema";
