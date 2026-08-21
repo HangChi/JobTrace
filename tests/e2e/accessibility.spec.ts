@@ -10,6 +10,7 @@ for (const route of [
   "/login",
   "/register",
   "/forgot-password",
+  "/profile",
 ]) {
   test(`${route} 无严重可访问性问题`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
@@ -36,6 +37,21 @@ for (const width of [375, 768, 1280]) {
   test(`面经列表在 ${width}px 视口可访问且无横向溢出`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/interviews");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+    const result = await new AxeBuilder({ page }).analyze();
+    expect(result.violations).toEqual([]);
+  });
+}
+
+for (const width of [375, 768, 1280]) {
+  test(`个人中心在 ${width}px 视口可访问且无横向溢出`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/profile");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(
       await page.evaluate(

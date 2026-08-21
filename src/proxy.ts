@@ -9,10 +9,8 @@ export function proxy(request: NextRequest) {
     "/forgot-password",
     "/reset-password",
   ].some((path) => request.nextUrl.pathname.startsWith(path));
-  const publicApi =
-    request.nextUrl.pathname.startsWith("/api/auth/") ||
-    request.nextUrl.pathname.startsWith("/api/health");
-  if (!sessionCookie && !publicPath && !publicApi) {
+  const apiRequest = request.nextUrl.pathname.startsWith("/api/");
+  if (!sessionCookie && !publicPath && !apiRequest) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("returnTo", request.nextUrl.pathname);

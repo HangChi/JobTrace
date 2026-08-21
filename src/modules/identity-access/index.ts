@@ -19,6 +19,8 @@ export {
   requestPasswordReset,
   updatePassword,
   updateProfile,
+  getProfile,
+  changePassword,
 } from "./application/auth-service";
 export { listUsers, updateUserAccess } from "./application/admin-user-service";
 export { getAdminSummary } from "./application/admin-summary-service";

@@ -5,8 +5,8 @@ import { logoutAction } from "@/app/(auth)/actions";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import type { Actor } from "../application/contracts";
 
-function initials(email: string) {
-  return email.slice(0, 2).toUpperCase();
+function initials(value: string) {
+  return value.trim().slice(0, 2).toUpperCase() || "JT";
 }
 
 function Avatar({
@@ -24,7 +24,7 @@ function Avatar({
       }
       aria-hidden="true"
     >
-      {!actor.image && initials(actor.email)}
+      {!actor.image && initials(actor.displayName)}
     </span>
   );
 }
@@ -64,7 +64,7 @@ export function AccountMenu({ actor }: { actor: Actor }) {
           <div className="account-identity">
             <Avatar actor={actor} />
             <span>
-              <strong>{actor.email}</strong>
+              <strong>@{actor.username}</strong>
               <small>
                 {actor.role === "admin" ? "管理员账号" : "个人账号"}
               </small>

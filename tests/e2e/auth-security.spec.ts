@@ -143,3 +143,53 @@ test("repeated login failures are rate limited", async ({
   expect(limited.status()).toBe(429);
   expect(await limited.json()).toMatchObject({ code: "rate_limited" });
 });
+
+test("changing password keeps the current device and revokes other sessions", async ({
+  playwright,
+  baseURL,
+}) => {
+  const account = credentials("change_password");
+  const nextPassword = "SecurePass456!";
+  const currentDevice = await register(
+    playwright,
+    baseURL!,
+    account,
+    "198.51.100.21",
+  );
+  const otherDevice = await playwright.request.newContext({
+    baseURL,
+    extraHTTPHeaders: {
+      origin: baseURL!,
+      "x-forwarded-for": "198.51.100.22",
+    },
+  });
+  expect(
+    (await currentDevice.post("/api/auth/login", { data: account })).status(),
+  ).toBe(200);
+  expect(
+    (await otherDevice.post("/api/auth/login", { data: account })).status(),
+  ).toBe(200);
+
+  const changed = await currentDevice.post("/api/profile/password", {
+    data: { currentPassword: account.password, newPassword: nextPassword },
+  });
+  expect(changed.status()).toBe(200);
+  expect(await changed.json()).toMatchObject({
+    message: "密码已更新，其他设备已退出登录。",
+  });
+  expect((await currentDevice.get("/api/applications")).status()).toBe(200);
+  expect(
+    (await otherDevice.get("/api/applications", { maxRedirects: 0 })).status(),
+  ).toBe(401);
+  expect(
+    (await otherDevice.post("/api/auth/login", { data: account })).status(),
+  ).toBe(401);
+  expect(
+    (
+      await otherDevice.post("/api/auth/login", {
+        data: { ...account, password: nextPassword },
+      })
+    ).status(),
+  ).toBe(200);
+  await Promise.all([currentDevice.dispose(), otherDevice.dispose()]);
+});
