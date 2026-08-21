@@ -14,10 +14,17 @@ export async function getActor(): Promise<Actor | null> {
   const user = session.user as typeof session.user & {
     role?: string;
     banned?: boolean | null;
+    username?: string | null;
+    displayUsername?: string | null;
   };
   return {
     id: user.id,
     email: user.email,
+    username:
+      user.displayUsername ??
+      user.username ??
+      user.email.split("@")[0] ??
+      "user",
     displayName: user.name,
     image: user.image ?? null,
     role: user.role === "admin" ? "admin" : "user",

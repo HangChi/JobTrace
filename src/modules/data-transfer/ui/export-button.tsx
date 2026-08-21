@@ -2,8 +2,23 @@
 
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 
-export function ExportButton({ query = "" }: { query?: string }) {
+export function ExportButton({
+  query = "",
+  scope = "filtered",
+  disabled = false,
+}: {
+  query?: string;
+  scope?: "all" | "filtered";
+  disabled?: boolean;
+}) {
   const suffix = query ? `&${query}` : "";
+  if (disabled) {
+    return (
+      <button className="button secondary" disabled>
+        导出投递数据
+      </button>
+    );
+  }
   return (
     <DismissibleDetails className="export-menu">
       <summary className="button secondary">
@@ -15,7 +30,7 @@ export function ExportButton({ query = "" }: { query?: string }) {
       <div className="export-options">
         <p>选择导出格式</p>
         <a
-          href={`/api/exports/applications?scope=filtered&format=xlsx${suffix}`}
+          href={`/api/exports/applications?scope=${scope}&format=xlsx${suffix}`}
         >
           <span className="file-type file-xlsx">X</span>
           <span>
@@ -24,7 +39,7 @@ export function ExportButton({ query = "" }: { query?: string }) {
           </span>
         </a>
         <a
-          href={`/api/exports/applications?scope=filtered&format=csv${suffix}`}
+          href={`/api/exports/applications?scope=${scope}&format=csv${suffix}`}
         >
           <span className="file-type file-csv">C</span>
           <span>
