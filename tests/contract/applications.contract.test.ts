@@ -77,3 +77,42 @@ test("投递 CRUD、Problem 和 409 契约", async ({ request }) => {
     ).toBe(204);
   }
 });
+
+test("批量删除校验选择范围并删除当前用户的所选记录", async ({ request }) => {
+  const invalid = await request.delete("/api/applications", {
+    data: { ids: [] },
+  });
+  expect(invalid.status()).toBe(400);
+  expect(await invalid.json()).toMatchObject({
+    code: "validation",
+    fieldErrors: expect.arrayContaining([
+      expect.objectContaining({ field: "ids" }),
+    ]),
+  });
+
+  const created = await Promise.all(
+    ["批量删除甲", "批量删除乙"].map(async (companyName) => {
+      const response = await request.post("/api/applications", {
+        data: {
+          companyName,
+          positionName: "Engineer",
+          appliedDate: "2026-08-13",
+          status: "submitted",
+        },
+      });
+      expect(response.status()).toBe(201);
+      return response.json();
+    }),
+  );
+
+  const removed = await request.delete("/api/applications", {
+    data: { ids: created.map((item) => item.id) },
+  });
+  expect(removed.status()).toBe(200);
+  expect(await removed.json()).toEqual({ deletedCount: 2 });
+  for (const item of created) {
+    expect((await request.get(`/api/applications/${item.id}`)).status()).toBe(
+      404,
+    );
+  }
+});

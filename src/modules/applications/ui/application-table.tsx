@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import { EditIcon } from "@/shared/ui/action-icons";
 import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { EditApplicationDialog } from "./application-dialogs";
 import { ApplicationStatusSelect } from "./application-status-select";
 import { ApplicationDetailDialog } from "./application-detail-dialog";
+import { BulkApplicationActions } from "./bulk-application-actions";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -27,6 +28,35 @@ function jobLinkLabel(value: string) {
   } catch {
     return "职位链接";
   }
+}
+
+function SelectionCheckbox({
+  checked,
+  indeterminate = false,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  indeterminate?: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate;
+  }, [indeterminate]);
+  return (
+    <label className="selection-control">
+      <input
+        ref={ref}
+        type="checkbox"
+        checked={checked}
+        aria-label={label}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span className="selection-box" aria-hidden="true" />
+    </label>
+  );
 }
 
 type Search = Record<string, string | string[] | undefined>;
@@ -81,11 +111,33 @@ export function ApplicationTable({
   >({});
   const [selected, setSelected] = useState<ApplicationSummary | null>(null);
   const [editing, setEditing] = useState<ApplicationDetail | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [feedback, setFeedback] = useState("");
 
   const items = page.items.map((item) => {
     const override = overrides[item.id];
     return override && override.version >= item.version ? override : item;
   });
+  const currentPageIds = items.map((item) => item.id);
+  const allSelected =
+    currentPageIds.length > 0 &&
+    currentPageIds.every((id) => selectedIds.has(id));
+  const someSelected = currentPageIds.some((id) => selectedIds.has(id));
+
+  function togglePage(checked: boolean) {
+    setFeedback("");
+    setSelectedIds(checked ? new Set(currentPageIds) : new Set());
+  }
+
+  function toggleItem(id: string, checked: boolean) {
+    setFeedback("");
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
 
   function replaceItem(detail: ApplicationSummary) {
     const summary: ApplicationSummary = {
@@ -136,11 +188,53 @@ export function ApplicationTable({
           <h2 id="application-list-title">投递记录</h2>
           <p className="table-hint">点击任意记录可在当前页查看详情</p>
         </div>
-        <span className="record-count">共 {page.total} 条</span>
+        <div className="application-list-heading-meta">
+          <div className="mobile-page-selection">
+            <SelectionCheckbox
+              checked={allSelected}
+              indeterminate={someSelected && !allSelected}
+              label={`选择当前页全部 ${currentPageIds.length} 条记录`}
+              onChange={togglePage}
+            />
+            <span>选择当前页</span>
+          </div>
+          <span className="record-count">共 {page.total} 条</span>
+        </div>
       </div>
+      {selectedIds.size > 0 && (
+        <div className="bulk-selection-bar">
+          <div className="bulk-selection-count" aria-live="polite">
+            <strong>{selectedIds.size}</strong>
+            <span>条记录已选择</span>
+          </div>
+          <div className="bulk-selection-actions">
+            <button
+              type="button"
+              className="bulk-clear-selection"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              取消选择
+            </button>
+            <BulkApplicationActions
+              ids={[...selectedIds]}
+              onDeleted={(count) => {
+                setSelectedIds(new Set());
+                setFeedback(`已删除 ${count} 条投递记录。`);
+                onMutation?.();
+              }}
+            />
+          </div>
+        </div>
+      )}
+      {feedback && (
+        <p className="bulk-operation-feedback" role="status">
+          {feedback}
+        </p>
+      )}
       <div className="table-wrap">
         <table className="application-table">
           <colgroup>
+            <col className="selection-column" />
             <col className="company-column" />
             <col className="link-column" />
             <col className="type-column" />
@@ -151,7 +245,15 @@ export function ApplicationTable({
           </colgroup>
           <thead>
             <tr>
-              <th>公司与岗位</th>
+              <th className="selection-cell">
+                <SelectionCheckbox
+                  checked={allSelected}
+                  indeterminate={someSelected && !allSelected}
+                  label={`选择当前页全部 ${currentPageIds.length} 条记录`}
+                  onChange={togglePage}
+                />
+              </th>
+              <th className="application-name-heading">公司与岗位</th>
               <th>投递链接</th>
               <th>类型</th>
               <th>阶段</th>
@@ -171,7 +273,7 @@ export function ApplicationTable({
               return (
                 <tr
                   key={item.id}
-                  className="application-row"
+                  className={`application-row ${selectedIds.has(item.id) ? "is-selected" : ""}`}
                   tabIndex={0}
                   aria-label={`查看 ${companyDisplayName} ${item.positionName} 详情`}
                   onClick={(event) => {
@@ -196,6 +298,13 @@ export function ApplicationTable({
                     }
                   }}
                 >
+                  <td className="selection-cell" data-label="选择">
+                    <SelectionCheckbox
+                      checked={selectedIds.has(item.id)}
+                      label={`选择 ${companyDisplayName} ${item.positionName}`}
+                      onChange={(checked) => toggleItem(item.id, checked)}
+                    />
+                  </td>
                   <td className="application-name-cell" data-label="公司与岗位">
                     <strong title={companyDisplayName}>
                       {companyDisplayName}

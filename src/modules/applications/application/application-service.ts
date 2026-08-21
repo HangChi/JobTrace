@@ -12,6 +12,13 @@ import { z } from "zod";
 import { requireUser } from "@/modules/identity-access";
 import { businessToday } from "@/shared/date/business-date";
 const repository = () => new PostgresApplicationRepository();
+const bulkSelectionSchema = z.object({
+  ids: z
+    .array(z.uuid("投递记录 ID 格式不正确"))
+    .min(1, "请至少选择一条投递记录")
+    .max(100, "一次最多处理 100 条投递记录")
+    .transform((ids) => [...new Set(ids)]),
+});
 export async function createApplication(input: unknown) {
   const actor = await requireUser();
   return repository().create(actor.id, createApplicationSchema.parse(input));
@@ -43,6 +50,12 @@ export async function deleteApplication(id: string) {
   const actor = await requireUser();
   if (!(await repository().delete(actor.id, id)))
     throw new Problem("not_found", "没有找到这条投递记录。", 404);
+}
+export async function deleteApplications(input: unknown) {
+  const actor = await requireUser();
+  const { ids } = bulkSelectionSchema.parse(input);
+  const deletedCount = await repository().deleteMany(actor.id, ids);
+  return { deletedCount };
 }
 export async function addApplicationStage(id: string, input: unknown) {
   const stage = stageInputSchema.parse(input);

@@ -5,13 +5,21 @@ import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 export function ExportButton({
   query = "",
   scope = "filtered",
+  ids = [],
   disabled = false,
 }: {
   query?: string;
-  scope?: "all" | "filtered";
+  scope?: "all" | "filtered" | "selected";
+  ids?: string[];
   disabled?: boolean;
 }) {
-  const suffix = query ? `&${query}` : "";
+  function exportHref(format: "csv" | "xlsx") {
+    const params = new URLSearchParams(query);
+    params.set("scope", scope);
+    params.set("format", format);
+    ids.forEach((id) => params.append("id", id));
+    return `/api/exports/applications?${params.toString()}`;
+  }
   if (disabled) {
     return (
       <button className="button secondary" disabled>
@@ -29,18 +37,14 @@ export function ExportButton({
       </summary>
       <div className="export-options">
         <p>选择导出格式</p>
-        <a
-          href={`/api/exports/applications?scope=${scope}&format=xlsx${suffix}`}
-        >
+        <a href={exportHref("xlsx")}>
           <span className="file-type file-xlsx">X</span>
           <span>
             <strong>Excel 工作簿</strong>
             <small>.xlsx · 保留表格格式</small>
           </span>
         </a>
-        <a
-          href={`/api/exports/applications?scope=${scope}&format=csv${suffix}`}
-        >
+        <a href={exportHref("csv")}>
           <span className="file-type file-csv">C</span>
           <span>
             <strong>CSV 文件</strong>
