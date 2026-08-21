@@ -7,17 +7,43 @@ export const emailSchema = z
 export const usernameSchema = z
   .string()
   .trim()
-  .min(3)
-  .max(30)
-  .regex(/^[a-zA-Z0-9_]+$/)
+  .min(3, "用户名至少需要 3 位")
+  .max(30, "用户名不能超过 30 位")
+  .regex(/^[a-zA-Z0-9_]+$/, "用户名只能包含字母、数字和下划线")
   .transform((value) => value.toLowerCase());
-export const passwordSchema = z.string().min(8).max(128);
+export const passwordSchema = z
+  .string()
+  .min(8, "密码至少需要 8 位")
+  .max(16, "密码不能超过 16 位");
+
+const displayNameSchema = z
+  .union([
+    z.string().trim().min(1).max(100, "昵称不能超过 100 个字符"),
+    z.literal(""),
+  ])
+  .optional()
+  .transform((value) => value || undefined);
 
 export const registerSchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
-  displayName: z.string().trim().min(1).max(100).optional(),
+  displayName: displayNameSchema,
 });
+
+export const registerFormSchema = registerSchema
+  .extend({
+    confirmPassword: z.string().min(1, "请再次输入密码"),
+    returnTo: z.string().optional(),
+  })
+  .superRefine((value, context) => {
+    if (value.password !== value.confirmPassword) {
+      context.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "两次输入的密码不一致",
+      });
+    }
+  });
 
 export const loginSchema = z.object({
   username: usernameSchema,

@@ -7,7 +7,7 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
 }) => {
   const createUser = async (prefix: string) => {
     const username = `${prefix}_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}`;
-    const password = "Secure-Password-123!";
+    const password = "SecurePass123!";
     const api = await playwright.request.newContext({
       baseURL,
       extraHTTPHeaders: {

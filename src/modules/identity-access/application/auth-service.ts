@@ -41,8 +41,18 @@ export async function register(input: unknown) {
       },
     });
   } catch (error) {
-    if (error instanceof APIError && error.statusCode === 422)
-      throw new Problem("registration_conflict", "该用户名已注册。", 409);
+    const code = error instanceof APIError ? error.body?.code : undefined;
+    if (
+      code === "USERNAME_IS_ALREADY_TAKEN" ||
+      code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+    )
+      throw new Problem("registration_conflict", "该用户名已注册。", 409, [
+        {
+          field: "username",
+          code: "registration_conflict",
+          message: "该用户名已注册，请更换一个。",
+        },
+      ]);
     throw new Problem(
       "registration_failed",
       "暂时无法完成注册，请稍后重试。",

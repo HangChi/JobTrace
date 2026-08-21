@@ -1,79 +1,260 @@
 "use client";
-import { useActionState, useState } from "react";
+
+import { useActionState, useEffect, useRef, useState } from "react";
 import type { AuthActionState } from "@/app/(auth)/actions";
+
 type Mode = "login" | "register" | "forgot" | "reset";
-type Action = (s: AuthActionState, d: FormData) => Promise<AuthActionState>;
-export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
+type Action = (
+  state: AuthActionState,
+  data: FormData,
+) => Promise<AuthActionState>;
+type IconName = "user" | "profile" | "mail" | "lock";
+
+const fieldLabels: Record<string, string> = {
+  displayName: "昵称",
+  email: "邮箱",
+  username: "用户名",
+  password: "密码",
+  confirmPassword: "确认密码",
+};
+
+function AuthIcon({ name }: { name: IconName }) {
+  const paths: Record<IconName, React.ReactNode> = {
+    user: (
+      <>
+        <circle cx="12" cy="8" r="3.25" />
+        <path d="M5.75 19c.55-3.25 2.63-5 6.25-5s5.7 1.75 6.25 5" />
+      </>
+    ),
+    profile: (
+      <>
+        <path d="M12 3.5 13.2 7l3.55.1-2.8 2.2 1 3.4L12 10.75 9.05 12.7l1-3.4-2.8-2.2L10.8 7 12 3.5Z" />
+        <path d="M6.5 18.5h11" />
+      </>
+    ),
+    mail: (
+      <>
+        <rect x="3.5" y="5.25" width="17" height="13.5" rx="2.25" />
+        <path d="m5 7 7 5.25L19 7" />
+      </>
+    ),
+    lock: (
+      <>
+        <rect x="5" y="10" width="14" height="10" rx="2.25" />
+        <path d="M8.25 10V7.5a3.75 3.75 0 0 1 7.5 0V10" />
+        <path d="M12 14v2" />
+      </>
+    ),
+  };
+
+  return (
+    <span className="auth-input-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        {paths[name]}
+      </svg>
+    </span>
+  );
+}
+
+function VisibilityIcon({ visible }: { visible: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      {visible ? (
+        <>
+          <path d="M3.5 12s3.1-5 8.5-5 8.5 5 8.5 5-3.1 5-8.5 5-8.5-5-8.5-5Z" />
+          <circle cx="12" cy="12" r="2.2" />
+        </>
+      ) : (
+        <>
+          <path d="M5.2 5.2 18.8 18.8" />
+          <path d="M9.6 7.35A8.7 8.7 0 0 1 12 7c5.4 0 8.5 5 8.5 5a12.5 12.5 0 0 1-2.3 2.75M14.4 16.65A8.7 8.7 0 0 1 12 17c-5.4 0-8.5-5-8.5-5a12.5 12.5 0 0 1 2.3-2.75" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+function PasswordToggle({
+  visible,
+  onClick,
+}: {
+  visible: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="auth-password-toggle"
+      type="button"
+      aria-label={visible ? "隐藏密码" : "显示密码"}
+      aria-pressed={visible}
+      onClick={onClick}
+    >
+      <VisibilityIcon visible={visible} />
+    </button>
+  );
+}
+
+export function AuthForm({
+  mode,
+  action,
+  defaultUsername,
+  returnTo,
+}: {
+  mode: Mode;
+  action: Action;
+  defaultUsername?: string;
+  returnTo?: string;
+}) {
   const [state, formAction, pending] = useActionState(action, {});
   const [showPassword, setShowPassword] = useState(false);
-  const username = mode === "login" || mode === "register",
-    email = mode === "forgot",
-    password = mode === "login" || mode === "register" || mode === "reset";
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const username = mode === "login" || mode === "register";
+  const email = mode === "forgot";
+  const password = mode === "login" || mode === "register" || mode === "reset";
+  const fieldErrors = state.fieldErrors ?? {};
+  const errorEntries = Object.entries(fieldErrors);
+
+  useEffect(() => {
+    if (state.error) errorSummaryRef.current?.focus();
+  }, [state]);
+
+  const describedBy = (...ids: Array<string | false>) =>
+    ids.filter(Boolean).join(" ") || undefined;
+
   return (
-    <form action={formAction} className="auth-card">
+    <form action={formAction} className="auth-card" aria-busy={pending}>
+      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
+
+      {state.error && (
+        <div
+          className="auth-error-summary"
+          role="alert"
+          tabIndex={-1}
+          ref={errorSummaryRef}
+        >
+          <strong>暂时无法提交</strong>
+          <p>{state.error}</p>
+          {errorEntries.length > 0 && (
+            <ul>
+              {errorEntries.map(([field, message]) => (
+                <li key={field}>
+                  <a href={`#${field}`}>
+                    {fieldLabels[field] ?? "输入内容"}：{message}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {username && (
+        <div className="auth-field">
+          <div className="auth-field-label">
+            <label htmlFor="username">用户名</label>
+            <small>必填</small>
+          </div>
+          <div className="auth-input-wrap">
+            <AuthIcon name="user" />
+            <input
+              id="username"
+              name="username"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              minLength={3}
+              maxLength={30}
+              pattern="[A-Za-z0-9_]+"
+              placeholder="例如：lin_2026"
+              defaultValue={defaultUsername}
+              aria-invalid={Boolean(fieldErrors.username)}
+              aria-describedby={describedBy(
+                mode === "register" && "username-hint",
+                Boolean(fieldErrors.username) && "username-error",
+              )}
+              required
+            />
+          </div>
+          {mode === "register" && (
+            <small className="auth-field-hint" id="username-hint">
+              3–30 位，仅支持字母、数字和下划线，不区分大小写
+            </small>
+          )}
+          {fieldErrors.username && (
+            <small className="auth-field-error" id="username-error">
+              {fieldErrors.username}
+            </small>
+          )}
+        </div>
+      )}
+
       {mode === "register" && (
         <div className="auth-field">
-          <label htmlFor="displayName">怎么称呼你</label>
+          <div className="auth-field-label">
+            <label htmlFor="displayName">昵称</label>
+            <small>选填</small>
+          </div>
           <div className="auth-input-wrap">
-            <span className="auth-input-icon" aria-hidden="true">
-              人
-            </span>
+            <AuthIcon name="profile" />
             <input
               id="displayName"
               name="displayName"
               autoComplete="name"
               maxLength={100}
-              placeholder="例如：小林"
+              placeholder="希望我们怎么称呼你"
+              aria-invalid={Boolean(fieldErrors.displayName)}
+              aria-describedby={
+                fieldErrors.displayName ? "displayName-error" : undefined
+              }
             />
           </div>
+          {fieldErrors.displayName && (
+            <small className="auth-field-error" id="displayName-error">
+              {fieldErrors.displayName}
+            </small>
+          )}
         </div>
       )}
+
       {email && (
         <div className="auth-field">
-          <label htmlFor="email">邮箱</label>
+          <div className="auth-field-label">
+            <label htmlFor="email">邮箱</label>
+            <small>必填</small>
+          </div>
           <div className="auth-input-wrap">
-            <span className="auth-input-icon" aria-hidden="true">
-              @
-            </span>
+            <AuthIcon name="mail" />
             <input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
               placeholder="name@example.com"
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
               required
             />
           </div>
+          {fieldErrors.email && (
+            <small className="auth-field-error" id="email-error">
+              {fieldErrors.email}
+            </small>
+          )}
         </div>
       )}
-      {username && (
-        <div className="auth-field">
-          <label htmlFor="username">用户名</label>
-          <div className="auth-input-wrap">
-            <span className="auth-input-icon" aria-hidden="true">
-              @
-            </span>
-            <input
-              id="username"
-              name="username"
-              autoComplete="username"
-              minLength={3}
-              maxLength={30}
-              pattern="[A-Za-z0-9_]+"
-              placeholder="请输入用户名"
-              required
-            />
-          </div>
-        </div>
-      )}
+
       {password && (
         <div className="auth-field">
-          <label htmlFor="password">密码</label>
+          <div className="auth-field-label">
+            <label htmlFor="password">
+              {mode === "reset" ? "新密码" : "密码"}
+            </label>
+            <small>必填</small>
+          </div>
           <div className="auth-input-wrap">
-            <span
-              className="auth-input-icon auth-lock-icon"
-              aria-hidden="true"
-            />
+            <AuthIcon name="lock" />
             <input
               id="password"
               name="password"
@@ -82,37 +263,80 @@ export function AuthForm({ mode, action }: { mode: Mode; action: Action }) {
                 mode === "login" ? "current-password" : "new-password"
               }
               minLength={mode === "login" ? 1 : 8}
-              placeholder={mode === "login" ? "输入你的密码" : "至少 8 位字符"}
+              maxLength={mode === "login" ? 128 : 16}
+              placeholder={
+                mode === "login" ? "输入你的密码" : "输入 8–16 位密码"
+              }
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={describedBy(
+                mode !== "login" && "password-hint",
+                Boolean(fieldErrors.password) && "password-error",
+              )}
               required
             />
-            <button
-              className="auth-password-toggle"
-              type="button"
-              aria-label={showPassword ? "隐藏密码" : "显示密码"}
-              aria-pressed={showPassword}
+            <PasswordToggle
+              visible={showPassword}
               onClick={() => setShowPassword((visible) => !visible)}
-            >
-              {showPassword ? "隐藏" : "显示"}
-            </button>
+            />
           </div>
           {mode !== "login" && (
-            <small className="auth-field-hint">
-              建议使用字母、数字和符号的组合
+            <small className="auth-field-hint" id="password-hint">
+              8–16 位，不限制字符组合
+            </small>
+          )}
+          {fieldErrors.password && (
+            <small className="auth-field-error" id="password-error">
+              {fieldErrors.password}
             </small>
           )}
         </div>
       )}
-      {state.error && (
-        <p className="feedback error" role="alert">
-          {state.error}
-        </p>
+
+      {mode === "register" && (
+        <div className="auth-field">
+          <div className="auth-field-label">
+            <label htmlFor="confirmPassword">确认密码</label>
+            <small>必填</small>
+          </div>
+          <div className="auth-input-wrap">
+            <AuthIcon name="lock" />
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              minLength={8}
+              maxLength={16}
+              placeholder="再次输入密码"
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              aria-describedby={
+                fieldErrors.confirmPassword
+                  ? "confirmPassword-error"
+                  : undefined
+              }
+              required
+            />
+            <PasswordToggle
+              visible={showPassword}
+              onClick={() => setShowPassword((visible) => !visible)}
+            />
+          </div>
+          {fieldErrors.confirmPassword && (
+            <small className="auth-field-error" id="confirmPassword-error">
+              {fieldErrors.confirmPassword}
+            </small>
+          )}
+        </div>
       )}
+
       {state.message && (
         <p className="feedback success" role="status">
           {state.message}
         </p>
       )}
+
       <button className="button auth-submit" disabled={pending}>
+        {pending && <span className="auth-submit-spinner" aria-hidden="true" />}
         {pending
           ? "正在处理…"
           : (

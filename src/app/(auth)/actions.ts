@@ -6,11 +6,30 @@ import {
   login,
   logout,
   register,
+  registerFormSchema,
   requestPasswordReset,
+  safeReturnTo,
   updatePassword,
 } from "@/modules/identity-access";
-export type AuthActionState = { message?: string; error?: string };
+export type AuthActionState = {
+  message?: string;
+  error?: string;
+  fieldErrors?: Record<string, string>;
+};
 const values = (d: FormData) => Object.fromEntries(d.entries());
+const isRedirect = (error: unknown) =>
+  (error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT");
+
+function actionError(error: unknown): AuthActionState {
+  const problem = asProblem(error);
+  return {
+    error: problem.message,
+    fieldErrors: Object.fromEntries(
+      (problem.fieldErrors ?? []).map((item) => [item.field, item.message]),
+    ),
+  };
+}
+
 export async function loginAction(
   _: AuthActionState,
   d: FormData,
@@ -19,8 +38,8 @@ export async function loginAction(
     const r = await login(values(d));
     redirect(r.redirectTarget as Route);
   } catch (e) {
-    if ((e as { digest?: string }).digest?.startsWith("NEXT_REDIRECT")) throw e;
-    return { error: asProblem(e).message };
+    if (isRedirect(e)) throw e;
+    return actionError(e);
   }
 }
 export async function registerAction(
@@ -28,9 +47,18 @@ export async function registerAction(
   d: FormData,
 ): Promise<AuthActionState> {
   try {
-    return await register(values(d));
+    const value = registerFormSchema.parse(values(d));
+    await register(value);
+    const query = new URLSearchParams({
+      registered: "1",
+      username: value.username,
+    });
+    const returnTo = safeReturnTo(value.returnTo);
+    if (returnTo) query.set("returnTo", returnTo);
+    redirect(`/login?${query.toString()}` as Route);
   } catch (e) {
-    return { error: asProblem(e).message };
+    if (isRedirect(e)) throw e;
+    return actionError(e);
   }
 }
 export async function forgotPasswordAction(
@@ -51,7 +79,7 @@ export async function resetPasswordAction(
     await updatePassword(d.get("password"));
     return { message: "密码已更新，请重新登录。" };
   } catch (e) {
-    return { error: asProblem(e).message };
+    return actionError(e);
   }
 }
 export async function logoutAction() {

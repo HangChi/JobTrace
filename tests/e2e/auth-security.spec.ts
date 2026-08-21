@@ -4,7 +4,7 @@ import { testDatabase } from "../setup/database";
 function credentials(prefix: string) {
   return {
     username: `${prefix}_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`,
-    password: "Security-Password-123!",
+    password: "Security123!",
   };
 }
 
