@@ -22,6 +22,7 @@ describe("投递表单", () => {
     );
     render(<ApplicationForm />);
     expect(screen.getByLabelText("类型")).toHaveValue("campus_recruitment");
+    expect(screen.getByRole("option", { name: "秋招提前批" })).toBeVisible();
     fireEvent.change(screen.getByLabelText("公司名称 *"), {
       target: { value: "保留公司" },
     });

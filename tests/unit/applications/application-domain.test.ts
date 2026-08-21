@@ -23,6 +23,16 @@ describe("投递领域", () => {
       }).success,
     ).toBe(false);
   });
+  it("支持秋招提前批类型", () => {
+    expect(
+      createApplicationSchema.parse({
+        companyName: "甲",
+        positionName: "开发",
+        appliedDate: "2026-08-13",
+        type: "early_campus_recruitment",
+      }).type,
+    ).toBe("early_campus_recruitment");
+  });
   it("校验必要字段、URL 和日期关系", () => {
     expect(
       createApplicationSchema.safeParse({

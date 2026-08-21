@@ -3,6 +3,7 @@ export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 export const APPLICATION_TYPES = [
   "summer_internship",
   "daily_internship",
+  "early_campus_recruitment",
   "campus_recruitment",
   "social_recruitment",
 ] as const;
@@ -27,6 +28,7 @@ export const STATUS_LABELS: Record<ApplicationStatus, string> = {
 export const TYPE_LABELS: Record<ApplicationType, string> = {
   summer_internship: "暑期实习",
   daily_internship: "日常实习",
+  early_campus_recruitment: "秋招提前批",
   campus_recruitment: "秋招",
   social_recruitment: "社招",
 };

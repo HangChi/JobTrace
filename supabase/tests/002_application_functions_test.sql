@@ -1,5 +1,5 @@
 begin;
-select plan(11);
+select plan(13);
 insert into users(id,display_name,email) values ('test-owner','Test Owner','owner@example.test');
 select lives_ok($$select public.create_application_for_owner('test-owner','{"companyName":"测试公司","positionName":"工程师","appliedDate":"2026-08-01"}'::jsonb)$$,'owner create is atomic');
 select is((select count(*) from public.application_events where type='created'),1::bigint,'created event recorded');
@@ -10,7 +10,9 @@ select is((select latest_date from applications limit 1),'2026-08-05'::date,'sta
 select throws_ok(format($sql$select public.update_application_for_owner('test-owner',%L,1,'2026-08-06','{"companyName":"冲突","positionName":"工程师","appliedDate":"2026-08-01"}'::jsonb)$sql$,(select id from applications limit 1)),'40001','application_version_conflict','stale version conflicts');
 select lives_ok(format($sql$select public.update_application_for_owner('test-owner',%L,2,'2026-08-06','{"type":"summer_internship"}'::jsonb)$sql$,(select id from applications limit 1)),'application type can be updated');
 select is((select type::text from applications limit 1),'summer_internship','updated application type is stored');
-select throws_ok(format($sql$select public.update_application_for_owner('other-owner',%L,3,'2026-08-06','{}'::jsonb)$sql$,(select id from applications limit 1)),'P0002','application_not_found','cross-owner update is hidden');
+select lives_ok(format($sql$select public.update_application_for_owner('test-owner',%L,3,'2026-08-06','{"type":"early_campus_recruitment"}'::jsonb)$sql$,(select id from applications limit 1)),'application can use early campus recruitment type');
+select is((select type::text from applications limit 1),'early_campus_recruitment','early campus recruitment type is stored');
+select throws_ok(format($sql$select public.update_application_for_owner('other-owner',%L,4,'2026-08-06','{}'::jsonb)$sql$,(select id from applications limit 1)),'P0002','application_not_found','cross-owner update is hidden');
 select is((select count(*) from application_events where type='stage_added'),1::bigint,'stage event recorded');
 select * from finish();
 rollback;

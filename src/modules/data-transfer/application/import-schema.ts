@@ -14,6 +14,8 @@ const typeAliases: Record<string, string> = {
   summer_internship: "summer_internship",
   日常实习: "daily_internship",
   daily_internship: "daily_internship",
+  秋招提前批: "early_campus_recruitment",
+  early_campus_recruitment: "early_campus_recruitment",
   秋招: "campus_recruitment",
   campus_recruitment: "campus_recruitment",
   社招: "social_recruitment",
