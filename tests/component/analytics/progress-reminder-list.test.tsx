@@ -50,6 +50,32 @@ describe("待处理进展列表", () => {
     expect(container.firstChild).toBeNull();
   });
 
+  it("统计刷新后立即展示新产生的待处理进展", async () => {
+    const { rerender } = render(<ProgressReminderList items={[]} />);
+
+    rerender(
+      <ProgressReminderList
+        items={[
+          {
+            id: "stage-assessment",
+            applicationId: "application-assessment",
+            companyName: "实时刷新科技",
+            positionName: "算法工程师",
+            city: "杭州",
+            stageOccurrenceId: "stage-assessment",
+            stage: "assessment",
+            occurredOn: "2026-08-21",
+            reviewId: null,
+            reviewStatus: null,
+          },
+        ]}
+      />,
+    );
+
+    expect(await screen.findByText("实时刷新科技（杭州）")).toBeVisible();
+    expect(screen.getByText("测评/AI测评")).toBeVisible();
+  });
+
   it("点击不再提醒后立即移除，并持久化处理状态", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")

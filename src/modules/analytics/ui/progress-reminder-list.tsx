@@ -6,9 +6,10 @@ import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import type { ProgressReminder } from "../application/contracts";
 
 export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
-  const [remaining, setRemaining] = useState(items);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [completing, setCompleting] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const remaining = items.filter((item) => !completedIds.has(item.id));
 
   async function complete(item: ProgressReminder) {
     setCompleting(item.id);
@@ -22,9 +23,7 @@ export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
         const result = (await response.json()) as { message?: string };
         throw new Error(result.message || "完成提醒失败，请稍后重试。");
       }
-      setRemaining((current) =>
-        current.filter((value) => value.id !== item.id),
-      );
+      setCompletedIds((current) => new Set(current).add(item.id));
     } catch (reason) {
       setError(
         reason instanceof Error ? reason.message : "完成提醒失败，请稍后重试。",
