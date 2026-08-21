@@ -27,3 +27,17 @@ export function DeleteIcon({ className = "action-icon" }: IconProps) {
     </svg>
   );
 }
+
+export function DownloadIcon({ className = "action-icon" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="none"
+    >
+      <path d="M10 3.5v8.2M6.8 8.8 10 12l3.2-3.2" />
+      <path d="M4.2 13.1v2.4c0 .6.5 1.1 1.1 1.1h9.4c.6 0 1.1-.5 1.1-1.1v-2.4" />
+    </svg>
+  );
+}

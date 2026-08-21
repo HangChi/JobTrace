@@ -35,12 +35,16 @@ describe("表格读取与写出", () => {
     ).toThrow("UTF-8");
   });
   it("写出可往返的 XLSX 并阻止公式注入", () => {
-    const rows = [{ 公司: "=CMD()", 岗位: "开发" }];
+    const rows = [
+      { 公司: "=CMD()", 岗位: "开发", 职位链接: "https://example.com/job" },
+    ];
     expect(rowsToCsv(rows)).toContain("'=CMD()");
-    const workbook = XLSX.read(rowsToXlsx(rows));
-    const value = XLSX.utils.sheet_to_json<Record<string, string>>(
-      workbook.Sheets[workbook.SheetNames[0]],
-    )[0];
+    const workbook = XLSX.read(
+      rowsToXlsx(rows, { hyperlinkColumns: ["职位链接"] }),
+    );
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const value = XLSX.utils.sheet_to_json<Record<string, string>>(sheet)[0];
     expect(value.公司).toBe("'=CMD()");
+    expect(sheet.C2.l?.Target).toBe("https://example.com/job");
   });
 });

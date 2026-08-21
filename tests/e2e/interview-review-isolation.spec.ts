@@ -53,6 +53,9 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
   try {
     expect((await apiA.get(`/api/interviews/${review.id}`)).status()).toBe(404);
     expect(
+      (await apiA.get(`/api/exports/interviews?id=${review.id}`)).status(),
+    ).toBe(404);
+    expect(
       (
         await apiA.patch(`/api/interviews/${review.id}`, {
           data: {

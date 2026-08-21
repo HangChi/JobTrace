@@ -158,3 +158,82 @@ test("未知投递和面经统一返回 404", async ({ request }) => {
     requestId: expect.any(String),
   });
 });
+
+test("面经导出根据选择数量返回 Markdown 或 ZIP", async ({ request }) => {
+  const missing = await request.get("/api/exports/interviews");
+  expect(missing.status()).toBe(400);
+
+  const applicationResponse = await request.post("/api/applications", {
+    data: {
+      companyName: "导出科技",
+      positionName: "后端工程师",
+      appliedDate: "2026-08-01",
+      status: "submitted",
+    },
+  });
+  const application = await applicationResponse.json();
+  try {
+    const reviews = await Promise.all(
+      [
+        { stage: "interview_1", interviewedOn: "2026-08-18", duration: 45 },
+        { stage: "interview_2", interviewedOn: "2026-08-19", duration: 60 },
+      ].map(async ({ stage, interviewedOn, duration }) => {
+        const createdResponse = await request.post("/api/interviews", {
+          data: {
+            applicationId: application.id,
+            stage,
+            interviewedOn,
+          },
+        });
+        expect(createdResponse.status()).toBe(201);
+        const created = await createdResponse.json();
+        const updatedResponse = await request.patch(
+          `/api/interviews/${created.id}`,
+          {
+            data: {
+              version: 1,
+              durationMinutes: duration,
+              status: "completed",
+              roundResult: "passed",
+              questions: [
+                {
+                  category: "other",
+                  question: `# ${stage === "interview_1" ? "一面" : "二面"}复盘\n\n面经正文`,
+                },
+              ],
+              actionItems: [],
+            },
+          },
+        );
+        expect(updatedResponse.status()).toBe(200);
+        return updatedResponse.json();
+      }),
+    );
+
+    const single = await request.get(
+      `/api/exports/interviews?id=${reviews[0].id}`,
+    );
+    expect(single.status()).toBe(200);
+    expect(single.headers()["content-type"]).toContain("text/markdown");
+    expect(
+      decodeURIComponent(single.headers()["content-disposition"]),
+    ).toContain("导出科技-后端工程师-一面面经-45分钟.md");
+    expect(await single.text()).toBe("# 一面复盘\n\n面经正文");
+
+    const multiple = await request.get(
+      `/api/exports/interviews?id=${reviews[0].id}&id=${reviews[1].id}`,
+    );
+    expect(multiple.status()).toBe(200);
+    expect(multiple.headers()["content-type"]).toContain("application/zip");
+    const zip = await multiple.body();
+    expect(zip.readUInt32LE(0)).toBe(0x04034b50);
+    expect(
+      zip.includes(Buffer.from("导出科技-后端工程师-一面面经-45分钟.md")),
+    ).toBe(true);
+    expect(
+      zip.includes(Buffer.from("导出科技-后端工程师-二面面经-60分钟.md")),
+    ).toBe(true);
+  } finally {
+    await request.delete(`/api/applications/${application.id}`);
+  }
+});

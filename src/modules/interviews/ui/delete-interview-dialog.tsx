@@ -8,9 +8,11 @@ import { DeleteIcon } from "@/shared/ui/action-icons";
 export function DeleteInterviewDialog({
   id,
   name,
+  onDeleted,
 }: {
   id: string;
   name: string;
+  onDeleted?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -26,6 +28,7 @@ export function DeleteInterviewDialog({
       return;
     }
     setOpen(false);
+    onDeleted?.();
     router.refresh();
   }
   return (
