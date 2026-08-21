@@ -116,3 +116,21 @@ test("批量删除校验选择范围并删除当前用户的所选记录", async
     );
   }
 });
+
+test("创建秋招提前批投递", async ({ request }) => {
+  const created = await request.post("/api/applications", {
+    data: {
+      companyName: "Contract Early Recruitment",
+      positionName: "Engineer",
+      appliedDate: "2026-08-13",
+      type: "early_campus_recruitment",
+      status: "submitted",
+    },
+  });
+  expect(created.status()).toBe(201);
+  const application = await created.json();
+  expect(application.type).toBe("early_campus_recruitment");
+  expect(
+    (await request.delete(`/api/applications/${application.id}`)).status(),
+  ).toBe(204);
+});

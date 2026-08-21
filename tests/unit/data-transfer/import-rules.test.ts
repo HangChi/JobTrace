@@ -20,6 +20,19 @@ describe("导入导出安全", () => {
       status: "offer",
       type: "summer_internship",
     }));
+  it("归一化秋招提前批类型", () => {
+    expect(
+      validateImportRow({
+        公司: "甲",
+        岗位: "开发",
+        投递日期: "2026-08-13",
+        类型: "秋招提前批",
+      }),
+    ).toMatchObject({
+      success: true,
+      data: { type: "early_campus_recruitment" },
+    });
+  });
   it("阻止公式注入", () =>
     expect(escapeSpreadsheetFormula('=HYPERLINK("bad")')).toBe(
       '\'=HYPERLINK("bad")',

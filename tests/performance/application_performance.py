@@ -39,10 +39,59 @@ def main() -> None:
                 """,
                 (owner_id,),
             )
+            cursor.execute(
+                """
+                insert into application_stage_occurrences(application_id,stage,occurred_on)
+                select id,'screening',applied_date
+                from applications where owner_id=%s
+                """,
+                (owner_id,),
+            )
             benchmarks = {
                 "list": "select id from applications where owner_id=%s order by latest_date desc,id limit 50",
                 "filter": "select id from applications where owner_id=%s and status='submitted' and city='上海' and lower(company_name || ' ' || position_name) like '%%company 12%%' order by latest_date desc,id limit 50",
                 "analytics": "select count(*)::int,count(*) filter(where status='submitted')::int from applications where owner_id=%s",
+                "analytics_report": """
+                    with cohort as (
+                      select a.id,a.applied_date,a.status,
+                        exists(select 1 from application_stage_occurrences s
+                          where s.application_id=a.id and s.stage in (
+                            'interview_1','interview_2','interview_3',
+                            'hr_interview','final_interview'
+                          )) interviewed,
+                        (select min(s.occurred_on)
+                          from application_stage_occurrences s
+                          where s.application_id=a.id and s.stage in (
+                            'interview_1','interview_2','interview_3',
+                            'hr_interview','final_interview'
+                          )) first_interview_on
+                      from applications a
+                      where a.owner_id=%s
+                        and a.applied_date between date '2026-03-01' and date '2026-05-31'
+                    )
+                    select count(*)::int,
+                      count(*) filter(where interviewed)::int,
+                      count(*) filter(where status='offer')::int,
+                      percentile_cont(0.5) within group(
+                        order by first_interview_on-applied_date
+                      ) filter(where first_interview_on is not null)
+                    from cohort
+                """,
+                "analytics_report_trend": """
+                    select date_trunc('week',a.applied_date)::date,
+                      count(*)::int,
+                      count(*) filter(where exists(
+                        select 1 from application_stage_occurrences s
+                        where s.application_id=a.id and s.stage in (
+                          'interview_1','interview_2','interview_3',
+                          'hr_interview','final_interview'
+                        )
+                      ))::int
+                    from applications a
+                    where a.owner_id=%s
+                      and a.applied_date between date '2026-03-01' and date '2026-05-31'
+                    group by 1 order by 1
+                """,
             }
             for name, query in benchmarks.items():
                 timings: list[float] = []

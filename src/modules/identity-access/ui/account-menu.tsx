@@ -4,6 +4,7 @@ import type { Route } from "next";
 import { logoutAction } from "@/app/(auth)/actions";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import type { Actor } from "../application/contracts";
+import { PrimaryNav } from "./primary-nav";
 
 function initials(value: string) {
   return value.trim().slice(0, 2).toUpperCase() || "JT";
@@ -45,10 +46,7 @@ export function AccountMenu({ actor }: { actor: Actor }) {
           <small>求职进度工作台</small>
         </span>
       </Link>
-      <div className="app-primary-nav" aria-label="主要功能">
-        <Link href="/">投递记录</Link>
-        <Link href={"/interviews" as Route}>面经</Link>
-      </div>
+      <PrimaryNav />
       <DismissibleDetails className="account-menu">
         <summary aria-label="打开用户菜单">
           <Avatar actor={actor} />

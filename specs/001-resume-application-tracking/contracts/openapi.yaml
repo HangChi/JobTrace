@@ -323,7 +323,7 @@ components:
       enum: [submitted, offer, refused]
     ApplicationType:
       type: string
-      enum: [summer_internship, daily_internship, campus_recruitment, social_recruitment]
+      enum: [summer_internship, daily_internship, early_campus_recruitment, campus_recruitment, social_recruitment]
     RecruitmentStage:
       type: string
       enum: [screening, assessment, written_test, interview_1, interview_2, interview_3, hr_interview, final_interview]

@@ -6,7 +6,7 @@ JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。S
 
 - `src/app`：页面、Server Components 与 HTTP Route Handlers。
 - `src/modules/applications`：投递聚合、查询、仓储与界面。
-- `src/modules/analytics`：只读统计与跟进提醒。
+- `src/modules/analytics`：首页只读统计、跟进提醒与按投递日期形成 cohort 的周期求职分析。
 - `src/modules/data-transfer`：CSV/XLSX 预检和导出。
 - `src/modules/identity-access`：Better Auth 会话、角色授权、账号管理与个人资料。
 - `src/modules/interviews`：Markdown 面经、阶段关联、自动保存和搜索筛选。
@@ -17,6 +17,8 @@ JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。S
 首页由 Server Component 提供首屏列表和统计，再交给客户端 `ApplicationDashboard` 维护局部快照。新增和编辑使用同源 Route Handler 返回的权威记录直接更新列表；状态切换使用专用 `PATCH /api/applications/{id}/status`，只提交 `status` 与乐观锁 `version`，服务器负责生成业务日期。界面确认成功后立即结束保存状态，再以无全局 loading 的后台请求并行对账列表和统计。
 
 分析摘要的总量、阶段分布、进展提醒和待跟进查询并行发送到 PostgreSQL。写入函数仍负责快照、版本和历史事件的原子一致性；局部 UI 更新不是数据库一致性的替代品，409 冲突会回滚乐观状态并提示用户。
+
+独立求职分析页以投递日期筛选同一批投递，并将这些投递后续发生的阶段、面经和当前最终状态纳入报告。页面由 Server Component 直接调用 analytics 应用服务，不经过自身 HTTP 接口；趋势、漏斗、阶段到达率和维度比较均为只读实时聚合，不保存可能漂移的统计快照。总体 Offer 率包含所有 Offer，记录路径漏斗只包含具备完整前序阶段的 Offer，并对缺失阶段数据给出提示。
 
 业务日期以 `Asia/Shanghai` 自然日解释。投递状态和阶段在数据库中保存稳定英文代码，中文只作为展示标签。
 

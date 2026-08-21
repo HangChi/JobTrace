@@ -1,0 +1,72 @@
+openapi: 3.1.0
+info:
+  title: JobTrace 求职分析 API
+  version: 1.0.0
+paths:
+  /api/analytics/report:
+    get:
+      summary: 获取当前用户的周期求职分析报告
+      parameters:
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [30d, 90d, 180d, ytd, all, custom]
+            default: 90d
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum:
+              [summer_internship, daily_internship, early_campus_recruitment, campus_recruitment, social_recruitment]
+        - in: query
+          name: city
+          schema: { type: string, maxLength: 100 }
+      responses:
+        "200":
+          description: 分析报告
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsReport"
+        "400":
+          description: 自定义日期无效
+        "401":
+          description: 未登录
+components:
+  schemas:
+    MetricComparison:
+      type: object
+      required: [value, previous, delta, deltaKind]
+      properties:
+        value: { type: [number, "null"] }
+        previous: { type: [number, "null"] }
+        delta: { type: [number, "null"] }
+        deltaKind:
+          type: string
+          enum: [percent, percentage_point]
+    AnalyticsReport:
+      type: object
+      required:
+        [query, availableCities, metrics, trend, milestones, stageReach, typeBreakdown, cityBreakdown, interviews, summary, dataQuality, sampleSufficient]
+      properties:
+        query: { type: object }
+        availableCities: { type: array, items: { type: string } }
+        metrics:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/MetricComparison" }
+        trend: { type: array, items: { type: object } }
+        milestones: { type: array, items: { type: object } }
+        stageReach: { type: array, items: { type: object } }
+        typeBreakdown: { type: array, items: { type: object } }
+        cityBreakdown: { type: array, items: { type: object } }
+        interviews: { type: object }
+        summary: { type: array, items: { type: string } }
+        dataQuality: { type: array, items: { type: string } }
+        sampleSufficient: { type: boolean }
