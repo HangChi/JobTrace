@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import { EditIcon } from "@/shared/ui/action-icons";
+import { SelectionCheckbox } from "@/shared/ui/selection-checkbox";
 import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { EditApplicationDialog } from "./application-dialogs";
 import { ApplicationStatusSelect } from "./application-status-select";
@@ -28,35 +29,6 @@ function jobLinkLabel(value: string) {
   } catch {
     return "职位链接";
   }
-}
-
-function SelectionCheckbox({
-  checked,
-  indeterminate = false,
-  label,
-  onChange,
-}: {
-  checked: boolean;
-  indeterminate?: boolean;
-  label: string;
-  onChange: (checked: boolean) => void;
-}) {
-  const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = indeterminate;
-  }, [indeterminate]);
-  return (
-    <label className="selection-control">
-      <input
-        ref={ref}
-        type="checkbox"
-        checked={checked}
-        aria-label={label}
-        onChange={(event) => onChange(event.target.checked)}
-      />
-      <span className="selection-box" aria-hidden="true" />
-    </label>
-  );
 }
 
 type Search = Record<string, string | string[] | undefined>;

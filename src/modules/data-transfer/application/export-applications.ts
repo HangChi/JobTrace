@@ -49,5 +49,7 @@ export async function exportApplications(options: ExportOptions) {
     状态: STATUS_LABELS[row.status as ApplicationStatus],
     备注: row.notes ?? "",
   }));
-  return options.format === "xlsx" ? rowsToXlsx(rows) : rowsToCsv(rows);
+  return options.format === "xlsx"
+    ? rowsToXlsx(rows, { hyperlinkColumns: ["职位链接"] })
+    : rowsToCsv(rows);
 }

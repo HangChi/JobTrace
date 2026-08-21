@@ -2994,6 +2994,26 @@ dialog::backdrop {
 .interview-list-panel > .section-heading {
   padding: 24px;
 }
+.interview-list-heading-meta,
+.interview-page-selection {
+  display: flex;
+  align-items: center;
+}
+.interview-list-heading-meta {
+  gap: 18px;
+}
+.interview-page-selection {
+  gap: 4px;
+  color: var(--brand-dark);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+.interview-selection-bar {
+  margin-bottom: 16px;
+}
+.interview-bulk-export {
+  text-decoration: none;
+}
 .interview-list {
   margin: 0;
   padding: 0;
@@ -3002,7 +3022,7 @@ dialog::backdrop {
 .interview-list > li {
   min-height: 82px;
   display: grid;
-  grid-template-columns: 100px minmax(220px, 1fr) auto auto auto;
+  grid-template-columns: 44px 100px minmax(220px, 1fr) auto auto auto;
   align-items: center;
   gap: 18px;
   padding: 16px 24px;
@@ -3010,6 +3030,9 @@ dialog::backdrop {
 }
 .interview-list > li:hover {
   background: #f9fdfc;
+}
+.interview-list > li.is-selected {
+  background: #eef9f6;
 }
 .interview-list time {
   color: var(--muted);
@@ -3032,6 +3055,15 @@ dialog::backdrop {
   margin: 5px 0 0;
   color: var(--muted);
   font-size: 0.76rem;
+}
+.interview-list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.interview-list-actions > .table-action {
+  text-decoration: none;
 }
 .review-status,
 .round-result {
@@ -4130,14 +4162,34 @@ dialog::backdrop {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .interview-list > li {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 8px 12px;
   }
-  .interview-list time {
+  .interview-list > li > .selection-control {
     grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+  .interview-list time {
+    grid-column: 2 / -1;
+    grid-row: 1;
   }
   .interview-list-main {
     grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .interview-list .review-status {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .interview-list .round-result {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: start;
+  }
+  .interview-list-actions {
+    grid-column: 3;
+    grid-row: 3;
   }
   .interview-list .table-action {
     justify-self: end;
@@ -4501,6 +4553,14 @@ dialog::backdrop {
 }
 
 @media (max-width: 600px) {
+  .interview-list-panel > .section-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .interview-list-heading-meta {
+    justify-content: space-between;
+  }
   .profile-field-grid,
   .profile-account-list {
     grid-template-columns: 1fr;
@@ -4623,6 +4683,11 @@ dialog::backdrop {
 }
 
 @media (max-width: 440px) {
+  .interview-list-actions {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    justify-content: flex-end;
+  }
   .action-item-list li {
     grid-template-columns: 24px 24px minmax(0, 1fr);
   }

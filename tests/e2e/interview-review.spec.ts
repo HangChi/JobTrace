@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 test("阶段创建、Markdown 复盘、筛选回顾并删除面经", async ({
   page,
@@ -62,6 +63,17 @@ test("阶段创建、Markdown 复盘、筛选回顾并删除面经", async ({
     await expect(
       page.getByText("E2E 面经闭环 · 前端工程师", { exact: true }),
     ).toBeVisible();
+    const downloadPromise = page.waitForEvent("download");
+    await page
+      .getByRole("link", { name: /导出 E2E 面经闭环.*Markdown/ })
+      .click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe(
+      "E2E 面经闭环-前端工程师-一面面经-时长未记录.md",
+    );
+    const downloadPath = await download.path();
+    expect(downloadPath).not.toBeNull();
+    expect(await readFile(downloadPath!, "utf8")).toContain("# 一面复盘");
     await page.getByRole("button", { name: "删除" }).click();
     await expect(page.getByRole("dialog")).toContainText(
       "E2E 面经闭环 · 前端工程师 · 一面",
