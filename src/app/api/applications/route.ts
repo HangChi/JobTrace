@@ -1,4 +1,9 @@
-import { createApplication, listApplications } from "@/modules/applications";
+import { revalidatePath } from "next/cache";
+import {
+  createApplication,
+  deleteApplications,
+  listApplications,
+} from "@/modules/applications";
 import { problemResponse } from "@/shared/http/problem-response";
 export async function GET(request: Request) {
   try {
@@ -14,6 +19,15 @@ export async function POST(request: Request) {
     return Response.json(await createApplication(await request.json()), {
       status: 201,
     });
+  } catch (error) {
+    return problemResponse(error);
+  }
+}
+export async function DELETE(request: Request) {
+  try {
+    const result = await deleteApplications(await request.json());
+    revalidatePath("/");
+    return Response.json(result);
   } catch (error) {
     return problemResponse(error);
   }

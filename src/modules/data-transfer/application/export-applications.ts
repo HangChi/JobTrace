@@ -10,8 +10,9 @@ import {
 } from "@/modules/applications/domain/catalog";
 
 export type ExportOptions = {
-  scope: "all" | "filtered";
+  scope: "all" | "filtered" | "selected";
   format: "csv" | "xlsx";
+  ids: string[];
   q?: string;
   status: string[];
   type: string[];
@@ -27,6 +28,7 @@ export async function exportApplications(options: ExportOptions) {
     select company_name, position_name, city, job_url, applied_date, type, status, notes
     from public.applications
     where owner_id=${actor.id}
+      ${options.scope === "selected" ? sql`and id = any(${options.ids}::uuid[])` : sql``}
       ${options.scope === "filtered" && options.q ? sql`and lower(company_name || ' ' || position_name) like ${`%${options.q.toLowerCase()}%`}` : sql``}
       ${options.scope === "filtered" && options.status.length ? sql`and status = any(${options.status}::application_status[])` : sql``}
       ${options.scope === "filtered" && options.type.length ? sql`and type = any(${options.type}::application_type[])` : sql``}

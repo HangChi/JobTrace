@@ -4,6 +4,7 @@ export {
   addApplicationStage,
   createApplication,
   deleteApplication,
+  deleteApplications,
   getApplication,
   listApplications,
   removeApplicationStage,

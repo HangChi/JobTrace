@@ -212,6 +212,15 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     return rows.length > 0;
   }
 
+  async deleteMany(ownerId: string, ids: string[]) {
+    const rows = await this.sql`
+      delete from public.applications
+      where owner_id=${ownerId} and id=any(${ids}::uuid[])
+      returning id
+    `;
+    return rows.length;
+  }
+
   async addStage(
     ownerId: string,
     id: string,

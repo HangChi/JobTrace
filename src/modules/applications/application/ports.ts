@@ -27,6 +27,7 @@ export interface ApplicationRepository {
     changeDate: string,
   ): Promise<ApplicationStatusUpdate>;
   delete(ownerId: string, id: string): Promise<boolean>;
+  deleteMany(ownerId: string, ids: string[]): Promise<number>;
   addStage(
     ownerId: string,
     id: string,

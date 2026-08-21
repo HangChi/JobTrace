@@ -87,4 +87,79 @@ describe("投递记录列表", () => {
     ).toBeVisible();
     expect(screen.getByLabelText("公司名称 *")).toHaveValue("测试科技");
   });
+
+  it("支持选择当前页记录、导出所选并确认批量删除", async () => {
+    const onMutation = vi.fn();
+    const fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ deletedCount: 1 }),
+    });
+    vi.stubGlobal("fetch", fetch);
+
+    render(
+      <ApplicationTable
+        page={{
+          items: [
+            application,
+            {
+              ...application,
+              id: "application-2",
+              companyName: "另一家公司",
+            },
+          ],
+          nextCursor: null,
+          total: 2,
+          page: 1,
+          limit: 10,
+        }}
+        onMutation={onMutation}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText("选择 测试科技（上海） 前端工程师"));
+    expect(
+      screen.getByText("1", { selector: ".bulk-selection-count strong" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: /Excel 工作簿/ })).toHaveAttribute(
+      "href",
+      expect.stringMatching(/scope=selected.*format=xlsx.*id=application-1/),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "删除所选" }));
+    expect(
+      screen.getByRole("heading", { name: "删除所选的 1 条投递？" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "确认删除 1 条" }));
+
+    await waitFor(() => expect(onMutation).toHaveBeenCalledOnce());
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/applications",
+      expect.objectContaining({
+        method: "DELETE",
+        body: JSON.stringify({ ids: ["application-1"] }),
+      }),
+    );
+    expect(screen.getByText("已删除 1 条投递记录。")).toBeVisible();
+  });
+
+  it("支持全选和取消选择当前页", () => {
+    render(
+      <ApplicationTable
+        page={{
+          items: [application, { ...application, id: "application-2" }],
+          nextCursor: null,
+          total: 2,
+          page: 1,
+          limit: 10,
+        }}
+      />,
+    );
+    const pageSelectors = screen.getAllByLabelText("选择当前页全部 2 条记录");
+    fireEvent.click(pageSelectors[0]);
+    expect(
+      screen.getByText("2", { selector: ".bulk-selection-count strong" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "取消选择" }));
+    expect(screen.queryByRole("button", { name: "删除所选" })).toBeNull();
+  });
 });
