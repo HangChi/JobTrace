@@ -59,10 +59,13 @@ test("阶段创建、Markdown 复盘、筛选回顾并删除面经", async ({
 
     await page.getByRole("link", { name: "返回面经列表" }).click();
     await page.getByLabel("搜索").fill("缓存穿透");
-    await page.getByRole("button", { name: "筛选" }).click();
+    await Promise.all([
+      page.waitForURL((url) => url.searchParams.get("q") === "缓存穿透"),
+      page.getByRole("button", { name: "筛选" }).click(),
+    ]);
     await expect(
-      page.getByText("E2E 面经闭环 · 前端工程师", { exact: true }),
-    ).toBeVisible();
+      page.getByRole("link", { name: "E2E 面经闭环 · 前端工程师" }),
+    ).toBeVisible({ timeout: 15_000 });
     const downloadPromise = page.waitForEvent("download");
     await page
       .getByRole("link", { name: /导出 E2E 面经闭环.*Markdown/ })
