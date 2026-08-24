@@ -31,6 +31,7 @@ export const createInterviewSchema = z
     applicationId: z.uuid(),
     stageOccurrenceId: z.uuid().nullable().optional(),
     stage: z.enum(INTERVIEW_STAGES).optional(),
+    stageOccurredOn: z.iso.date().optional(),
     interviewedOn: z.iso.date().optional(),
     format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
     durationMinutes: z.number().int().min(1).max(600).nullable().optional(),
@@ -51,6 +52,7 @@ export const createInterviewSchema = z
 
 export const updateInterviewSchema = z.object({
   version: z.number().int().positive(),
+  interviewedOn: z.iso.date().optional(),
   format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
   durationMinutes: z.number().int().min(1).max(600).nullable().optional(),
   interviewerNotes: optionalText(2000),

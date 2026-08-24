@@ -25,6 +25,7 @@ test("问题和行动项原子替换、排序、删除与乐观冲突", async ({
     ).json();
     const first = {
       version: 1,
+      interviewedOn: "2026-08-19",
       status: "pending_review",
       roundResult: "pending",
       questions: [
@@ -41,6 +42,9 @@ test("问题和行动项原子替换、排序、删除与乐观冲突", async ({
         await request.patch(`/api/interviews/${review.id}`, { data: first })
       ).status(),
     ).toBe(200);
+    expect(
+      await (await request.get(`/api/interviews/${review.id}`)).json(),
+    ).toMatchObject({ interviewedOn: "2026-08-19" });
     const [aggregate] = await sql<
       { questions: string[]; actions: string[] }[]
     >`select

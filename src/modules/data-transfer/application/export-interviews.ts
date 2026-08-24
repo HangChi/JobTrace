@@ -10,6 +10,7 @@ import { createZip } from "../infrastructure/zip-writer";
 type Row = Record<string, unknown>;
 
 const filenameStage: Record<InterviewDetail["stage"], string> = {
+  assessment: "测评",
   interview_1: "一面",
   interview_2: "二面",
   interview_3: "三面",
@@ -94,7 +95,7 @@ export async function exportInterviews(ids: string[]) {
   const rows = await sql<Row[]>`
     select r.*,a.company_name,a.position_name,
       coalesce(s.stage,r.stage_snapshot) as display_stage,
-      coalesce(s.occurred_on,r.interviewed_on) as display_interviewed_on,
+      r.interviewed_on as display_interviewed_on,
       coalesce(
         (
           select jsonb_agg(

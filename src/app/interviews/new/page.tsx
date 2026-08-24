@@ -39,8 +39,10 @@ export default async function NewInterviewPage({
           <p className="eyebrow">
             <span aria-hidden="true" /> 面试复盘
           </p>
-          <h1>记录这次面试</h1>
-          <p className="lead">先确认轮次和日期，再把问题与思考完整留下。</p>
+          <h1>记录这次面试 / 测评</h1>
+          <p className="lead">
+            分别确认阶段记录日期与实际进行日期，再把问题与思考完整留下。
+          </p>
         </div>
       </div>
       <InterviewCreateForm
@@ -52,7 +54,8 @@ export default async function NewInterviewPage({
         applicationId={selected?.id}
         stageOccurrenceId={occurrence?.id}
         stage={occurrence?.stage ?? query.stage}
-        interviewedOn={occurrence?.occurredOn ?? query.interviewedOn}
+        stageOccurredOn={occurrence?.occurredOn}
+        interviewedOn={query.interviewedOn ?? occurrence?.occurredOn}
       />
     </section>
   );

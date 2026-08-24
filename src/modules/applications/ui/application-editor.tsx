@@ -215,7 +215,7 @@ export function ApplicationEditor({
             </span>
           </label>
           <FormField
-            label="发生日期"
+            label="状态变化日期"
             name="occurredOn"
             type="date"
             required

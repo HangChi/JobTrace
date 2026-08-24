@@ -70,7 +70,7 @@ describe("面经创建闭环", () => {
     );
   });
 
-  it("从阶段入口预填并锁定投递、轮次和日期", () => {
+  it("从阶段入口锁定投递和阶段，但允许独立修改实际日期", () => {
     render(
       <InterviewCreateForm
         applications={[
@@ -88,8 +88,32 @@ describe("面经创建闭环", () => {
     );
 
     expect(screen.getByLabelText("关联投递")).toBeDisabled();
-    expect(screen.getByLabelText("面试轮次")).toHaveValue("interview_1");
-    expect(screen.getByLabelText("面试日期")).toHaveValue("2026-08-18");
+    expect(screen.getByLabelText("面试 / 测评阶段")).toHaveValue("interview_1");
+    expect(screen.getByLabelText("面试 / 测评日期")).toHaveValue("2026-08-18");
+    expect(screen.getByLabelText("面试 / 测评日期")).not.toBeDisabled();
+  });
+
+  it("测评阶段也提供记录面经入口", () => {
+    render(
+      <RecruitmentStageTimeline
+        application={{
+          ...application,
+          stageOccurrences: [
+            {
+              id: "55555555-5555-4555-8555-555555555555",
+              stage: "assessment",
+              occurredOn: "2026-08-17",
+            },
+          ],
+        }}
+        onUpdate={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "记录面经" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("55555555-5555-4555-8555-555555555555"),
+    );
   });
 
   it("选择投递后可选择未关联的已有面试阶段", async () => {

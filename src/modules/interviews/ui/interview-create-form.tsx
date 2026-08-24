@@ -10,18 +10,22 @@ import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 
 type ApplicationOption = { id: string; label: string; appliedDate: string };
 type StageOption = ApplicationDetail["stageOccurrences"][number];
+const today = () =>
+  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
 
 export function InterviewCreateForm({
   applications,
   applicationId,
   stageOccurrenceId,
   stage,
+  stageOccurredOn,
   interviewedOn,
 }: {
   applications: ApplicationOption[];
   applicationId?: string;
   stageOccurrenceId?: string;
   stage?: string;
+  stageOccurredOn?: string;
   interviewedOn?: string;
 }) {
   const router = useRouter();
@@ -35,6 +39,10 @@ export function InterviewCreateForm({
   );
   const [availableStages, setAvailableStages] = useState<StageOption[]>([]);
   const [stageChoice, setStageChoice] = useState(stageOccurrenceId ?? "new");
+  const [interviewDate, setInterviewDate] = useState(
+    interviewedOn ?? stageOccurredOn ?? today(),
+  );
+  const [recordedOn, setRecordedOn] = useState(stageOccurredOn ?? today());
 
   const selectedApplicationOption = useMemo(
     () => applications.find((item) => item.id === selectedApplication),
@@ -70,6 +78,8 @@ export function InterviewCreateForm({
         );
         setAvailableStages(stages);
         setStageChoice(stages[0]?.id ?? "new");
+        setRecordedOn(stages[0]?.occurredOn ?? today());
+        setInterviewDate(stages[0]?.occurredOn ?? today());
       })
       .catch((reason: unknown) => {
         if (reason instanceof DOMException && reason.name === "AbortError")
@@ -93,9 +103,10 @@ export function InterviewCreateForm({
       stageOccurrenceId || (stageChoice !== "new" ? stageChoice : null);
     const body = {
       applicationId: values.applicationId,
+      interviewedOn: values.interviewedOn,
       ...(selectedOccurrence
         ? { stageOccurrenceId: selectedOccurrence }
-        : { stage: values.stage, interviewedOn: values.interviewedOn }),
+        : { stage: values.stage, stageOccurredOn: values.stageOccurredOn }),
       format: values.format || null,
       durationMinutes: values.durationMinutes
         ? Number(values.durationMinutes)
@@ -145,6 +156,8 @@ export function InterviewCreateForm({
                 setSelectedApplication(value);
                 setAvailableStages([]);
                 setStageChoice("new");
+                setRecordedOn(today());
+                setInterviewDate(today());
                 setLoadingStages(Boolean(value));
                 setError("");
               }}
@@ -168,20 +181,28 @@ export function InterviewCreateForm({
               <select
                 value={stageChoice}
                 disabled={loadingStages}
-                onChange={(event) => setStageChoice(event.target.value)}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const occurrence = availableStages.find(
+                    (item) => item.id === value,
+                  );
+                  setStageChoice(value);
+                  setRecordedOn(occurrence?.occurredOn ?? today());
+                  setInterviewDate(occurrence?.occurredOn ?? today());
+                }}
               >
                 {availableStages.map((item) => (
                   <option value={item.id} key={item.id}>
                     {STAGE_LABELS[item.stage]} · {item.occurredOn}
                   </option>
                 ))}
-                <option value="new">补录新的面试阶段</option>
+                <option value="new">补录新的面试 / 测评阶段</option>
               </select>
             </span>
           </label>
         )}
         <label>
-          面试轮次
+          面试 / 测评阶段
           <span className="select-wrap">
             <select
               name="stage"
@@ -197,15 +218,35 @@ export function InterviewCreateForm({
             </select>
           </span>
         </label>
+        {creatingStage && (
+          <label>
+            阶段记录日期
+            <input
+              aria-label="阶段记录日期"
+              name="stageOccurredOn"
+              type="date"
+              value={recordedOn}
+              min={selectedApplicationOption?.appliedDate}
+              max={today()}
+              onChange={(event) => setRecordedOn(event.target.value)}
+              required
+            />
+            <span className="field-hint">
+              通常填写收到通知或状态变化的日期。
+            </span>
+          </label>
+        )}
         <label>
-          面试日期
+          面试 / 测评日期
           <input
+            aria-label="面试 / 测评日期"
             name="interviewedOn"
             type="date"
-            defaultValue={interviewedOn}
+            value={interviewDate}
             min={selectedApplicationOption?.appliedDate}
-            disabled={!creatingStage}
-            required={creatingStage}
+            max={today()}
+            onChange={(event) => setInterviewDate(event.target.value)}
+            required
           />
         </label>
         <label>

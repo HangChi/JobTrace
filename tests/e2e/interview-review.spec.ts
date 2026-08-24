@@ -29,7 +29,7 @@ test("阶段创建、Markdown 复盘、筛选回顾并删除面经", async ({
       `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${occurrence.id}`,
     );
     await expect(page.getByLabel("关联投递")).toBeDisabled();
-    await expect(page.getByLabel("面试轮次")).toHaveValue("interview_1");
+    await expect(page.getByLabel("面试 / 测评阶段")).toHaveValue("interview_1");
     await page.getByRole("button", { name: "开始记录" }).click();
     await expect(page).toHaveURL(/\/interviews\/[0-9a-f-]+$/);
 

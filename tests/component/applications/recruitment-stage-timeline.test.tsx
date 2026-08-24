@@ -171,7 +171,7 @@ describe("招聘阶段时间线", () => {
 
     expect(screen.getByText("当前：简历筛选")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /测评/ }));
-    const date = screen.getByLabelText("发生日期");
+    const date = screen.getByLabelText("状态变化日期");
     expect(date).toHaveAttribute("min", "2026-08-10");
     expect(date).toHaveAttribute("max", "2026-08-14");
     fireEvent.change(date, { target: { value: "2026-08-13" } });

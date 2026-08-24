@@ -27,9 +27,14 @@ test("已有阶段创建、新阶段原子创建、重复关联和事务回滚",
       data: {
         applicationId: application.id,
         stageOccurrenceId: occurrence.id,
+        interviewedOn: "2026-08-19",
       },
     });
     expect(existing.status()).toBe(201);
+    expect(await existing.json()).toMatchObject({
+      stage: "interview_1",
+      interviewedOn: "2026-08-19",
+    });
 
     const duplicate = await request.post("/api/interviews", {
       data: {
@@ -42,7 +47,8 @@ test("已有阶段创建、新阶段原子创建、重复关联和事务回滚",
     const atomic = await request.post("/api/interviews", {
       data: {
         applicationId: application.id,
-        stage: "interview_2",
+        stage: "assessment",
+        stageOccurredOn: "2026-08-16",
         interviewedOn: "2026-08-18",
       },
     });
@@ -51,6 +57,16 @@ test("已有阶段创建、新阶段原子创建、重复关联和事务回滚",
         (select count(*)::int from application_stage_occurrences where application_id=${application.id}) stages,
         (select count(*)::int from interview_reviews where application_id=${application.id}) reviews`;
     expect(counts).toMatchObject({ stages: 3, reviews: 2 });
+    const [assessment] = await sql<
+      { stage_date: string; interview_date: string }[]
+    >`select s.occurred_on::text stage_date,r.interviewed_on::text interview_date
+      from interview_reviews r
+      join application_stage_occurrences s on s.id=r.stage_occurrence_id
+      where r.application_id=${application.id} and r.stage_snapshot='assessment'`;
+    expect(assessment).toMatchObject({
+      stage_date: "2026-08-16",
+      interview_date: "2026-08-18",
+    });
 
     const failed = await request.post("/api/interviews", {
       data: {
