@@ -1,31 +1,133 @@
 # JobTrace 架构
 
-JobTrace 是 Next.js App Router + TypeScript + PostgreSQL 的模块化单体。SQL 迁移保存在 `supabase/migrations`（沿用规格目录），运行时通过仅服务端 PostgreSQL 驱动访问。
+本文描述当前实现的系统边界、模块职责、数据流和关键约束。功能需求与验收标准保存在 [`specs/`](../specs/)，部署和故障处理见[运行与运维](operations.md)。
 
-多用户隔离由服务端 actor 与每条查询/原子写函数中的 `owner_id` 谓词共同保证；PostgreSQL 连接不依赖 Supabase JWT/RLS。`applications.owner_id` 与 `import_batches.owner_id` 均为必填外键，跨 owner UUID 统一表现为未找到。
+## 系统概览
 
-- `src/app`：页面、Server Components 与 HTTP Route Handlers。
-- `src/modules/applications`：投递聚合、查询、仓储与界面。
-- `src/modules/analytics`：首页只读统计、跟进提醒与按投递日期形成 cohort 的周期求职分析。
-- `src/modules/data-transfer`：CSV/XLSX 预检和导出。
-- `src/modules/identity-access`：Better Auth 会话、角色授权、账号管理与个人资料。
-- `src/modules/interviews`：Markdown 面经、阶段关联、自动保存和搜索筛选。
-- `src/shared`：日期、游标、错误、日志、数据库客户端和 UI 原语。
+JobTrace 是 Next.js App Router、TypeScript 与 PostgreSQL 组成的模块化单体。页面、同源 HTTP 接口、认证和业务服务运行在同一个 Node.js 应用中；浏览器不会直接连接数据库。
 
-依赖方向为 `app/UI → application → domain`。跨模块业务调用通过各模块的 `index.ts` 公开接口协作；页面组合组件可以引用模块公开 UI。写操作通过 PostgreSQL 函数原子写入投递与历史事件；浏览器不接触数据库凭据。
+```mermaid
+flowchart LR
+  Browser[浏览器] -->|页面与同源请求| Next[Next.js 应用]
+  Next --> Auth[Better Auth]
+  Next --> Modules[业务模块]
+  Auth --> PG[(PostgreSQL 17)]
+  Modules --> PG
+  Next -.头像上传.-> COS[腾讯云 COS]
+```
 
-首页由 Server Component 提供首屏列表和统计，再交给客户端 `ApplicationDashboard` 维护局部快照。新增和编辑使用同源 Route Handler 返回的权威记录直接更新列表；状态切换使用专用 `PATCH /api/applications/{id}/status`，只提交 `status` 与乐观锁 `version`，服务器负责生成业务日期。界面确认成功后立即结束保存状态，再以无全局 loading 的后台请求并行对账列表和统计。
+SQL 迁移位于 `supabase/migrations/`。该目录名沿用早期规格，但运行时使用服务端 PostgreSQL 驱动，不依赖 Supabase Auth、JWT 或客户端 RLS。
 
-分析摘要的总量、阶段分布、进展提醒和待跟进查询并行发送到 PostgreSQL。写入函数仍负责快照、版本和历史事件的原子一致性；局部 UI 更新不是数据库一致性的替代品，409 冲突会回滚乐观状态并提示用户。
+## 模块边界
 
-独立求职分析页以投递日期筛选同一批投递，并将这些投递后续发生的阶段、面经和当前最终状态纳入报告。页面由 Server Component 直接调用 analytics 应用服务，不经过自身 HTTP 接口；趋势、漏斗、阶段到达率和维度比较均为只读实时聚合，不保存可能漂移的统计快照。总体 Offer 率包含所有 Offer，记录路径漏斗只包含具备完整前序阶段的 Offer，并对缺失阶段数据给出提示。
+主要依赖方向是 `app/UI → application → domain`。跨模块调用通过各模块的 `index.ts` 公开接口完成；客户端 UI 不得直接导入数据库或基础设施实现，这些约束由 ESLint 检查。
 
-业务日期以 `Asia/Shanghai` 自然日解释。投递状态和阶段在数据库中保存稳定英文代码，中文只作为展示标签。
+| 目录                          | 职责                                                              |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `src/app`                     | 页面、布局、Server Components、Server Actions 与 Route Handlers。 |
+| `src/modules/applications`    | 投递聚合、招聘阶段、历史事件、列表查询和 PostgreSQL 仓储。        |
+| `src/modules/interviews`      | 面经聚合、Markdown 转换、自动保存、筛选和阶段关联。               |
+| `src/modules/analytics`       | 首页摘要、跟进提醒、进度提醒与周期求职报告。                      |
+| `src/modules/data-transfer`   | CSV/XLSX 解析、预检批次、投递导出和面经导出。                     |
+| `src/modules/identity-access` | Better Auth、服务端 actor、个人资料、角色授权和管理后台。         |
+| `src/shared`                  | 业务日期、游标、统一错误、日志、请求安全与数据库客户端。          |
 
-面经通过 `application_stage_occurrences.id` 关联一次具体招聘阶段；同一阶段类型可在不同日期重复发生，但每个 occurrence 最多关联一篇面经。修改阶段保留 occurrence ID 并记录 `stage_changed` 事件；删除阶段通过 `ON DELETE SET NULL` 解除关联，面经保留阶段和日期快照；删除投递则级联删除面经、问题与行动项。
+每个业务模块内部按职责分为：
 
-面经编辑器向用户提供一个 Markdown 文档编辑框和预览视图，并以约 800ms 防抖向同源 Route Handler 提交完整聚合。为兼容旧数据，历史问题、反思和行动项会在读取时组合成 Markdown，只有用户编辑后才收敛为单一文档记录。数据库函数在事务内替换内容并递增 `version`；旧版本写入返回 409，浏览器停止自动保存，避免覆盖其他标签页的更新。页面隐藏或离开时使用 keepalive 请求尽力 flush 最近编辑。
+- `domain/`：稳定业务词汇、值域和验证规则，不依赖 UI 或基础设施。
+- `application/`：用例、端口、查询解析和公开契约。
+- `infrastructure/`：PostgreSQL、表格、对象存储等技术实现。
+- `ui/`：组件和浏览器交互。
 
-面经内容默认私密。列表、详情、搜索、创建、更新与删除均在应用服务取得 actor，并在仓储查询或数据库函数中带 `owner_id`；跨 owner UUID 统一表现为未找到。日志只允许记录 request ID、错误代码、操作和耗时，不得记录问题、回答、反思、行动项、Session、Cookie 或认证 token。
+## 请求与写入模型
 
-投递状态固定为 `submitted`（已投递）、`offer`（Offer）和 `refused`（拒绝）；Offer 与拒绝为终态。只有已投递记录会在投递内容或招聘时间线连续 15 个完整日未更新时进入跟进提醒。
+### 页面读取
+
+Server Component 取得当前 actor 后直接调用应用服务，不通过自身 HTTP 接口绕行。首页并行读取投递列表和分析摘要；分析页直接执行只读实时聚合。需要用户交互的部分再交给 Client Component。
+
+### 投递写入
+
+1. Route Handler 或 Server Action 解析请求并取得 actor。
+2. Zod 在应用边界校验日期、枚举、长度和 URL。
+3. PostgreSQL 函数在一个事务内更新投递、递增 `version` 并追加历史事件。
+4. 界面用响应中的权威记录局部更新，再在后台并行对账列表和统计。
+
+状态专用接口只接收目标状态与当前 `version`；业务日期由服务端生成。版本不匹配返回 `409`，客户端回滚乐观状态，避免覆盖其他标签页或请求的修改。
+
+### 面经自动保存
+
+面经以 `application_stage_occurrences.id` 关联一次具体阶段，同一阶段类型可以在不同日期重复出现，但每个 occurrence 最多关联一篇面经。
+
+编辑器对完整 Markdown 文档进行约 800ms 防抖保存。数据库事务替换聚合内容并递增版本；并发冲突返回 `409` 后自动保存停止。页面隐藏或离开时会用 keepalive 请求尽力提交最近修改，但这不是持久化成功的绝对保证。
+
+历史结构化问题、反思和行动项会在读取时组合成 Markdown；用户首次编辑后收敛为当前文档模型。删除阶段会通过 `ON DELETE SET NULL` 解除关联，同时保留面经中的阶段与日期快照；删除投递会级联删除其面经。
+
+### 数据导入
+
+导入分为“预检”和“确认”两阶段：
+
+1. 服务端读取首个工作表并逐行规范化、校验。
+2. 以同一 owner 下的公司、岗位和投递日期识别重复候选。
+3. 预览及用户决策保存到有效期 24 小时的导入批次。
+4. 确认时逐行调用正常的投递创建用例，不绕过验证、owner 隔离或历史事件。
+
+详细字段和限制见[数据导入与导出](data-transfer.md)。
+
+## 数据模型
+
+| 聚合     | 主要表                                                                | 关键关系                                                   |
+| -------- | --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 身份     | `users`、`sessions`、`accounts`、`verification_tokens`                | Better Auth 持久化；用户带角色、禁用状态和访问版本。       |
+| 投递     | `applications`、`application_stage_occurrences`、`application_events` | 阶段和事件属于投递；写入函数维护快照、版本和事件一致性。   |
+| 面经     | `interview_reviews`、`interview_questions`、`interview_action_items`  | 面经属于投递，可关联具体阶段；问题和行动项随面经级联删除。 |
+| 导入     | `import_batches`、`import_rows`                                       | 批次属于用户，保存预检、决策和逐行结果。                   |
+| 提醒     | `progress_reminder_completions`                                       | 记录用户对具体阶段提醒的完成状态。                         |
+| 管理审计 | `admin_audit_events`                                                  | 只追加记录访问变更的结果、原因和前后状态快照。             |
+
+数据库中的状态和阶段使用稳定英文代码，中文仅是展示标签。业务日期统一按 `Asia/Shanghai` 自然日解释。
+
+## 身份、授权与数据隔离
+
+`proxy.ts` 只负责未登录页面的快速重定向，不能作为授权边界。每个受保护的页面、Server Action 和 Route Handler 都必须重新取得 actor：
+
+- `requireUser`：要求有效且未禁用的用户。
+- `requireAdmin`：在用户要求之上检查管理员角色。
+- 仓储和 SQL 函数：对所有用户业务数据附加 `owner_id`。
+
+跨 owner UUID 统一表现为未找到，避免泄露记录是否存在。公开注册永远创建普通用户；管理员身份只能通过受控引导或具名管理动作产生。禁用账号会在同一事务撤销其全部 Session。
+
+同源认证写请求检查 `Origin`。认证和 COS 密钥只从未带 `NEXT_PUBLIC_` 前缀的服务端环境变量读取。HTTP 错误统一返回 `code`、安全消息、`requestId` 和可选字段错误，响应头同时带 `x-request-id`。
+
+## 审计与敏感数据
+
+日志只记录定位问题所需的请求 ID、错误代码、操作、对象 ID、数量和耗时。以下内容不得写入应用日志或管理安全日志：
+
+- Cookie、Session、认证 token 和密码；
+- 投递备注、面经正文、问题、回答、反思和行动项；
+- 管理访问原因、邮箱、IP 与 user-agent。
+
+管理账号变更要求 10–500 字原因、目标 `accessVersion` 和稳定 `requestId`。成功、拒绝和冲突均写入只追加审计；查看用户求职档案只记录不含正文的安全元数据。
+
+## 分析口径
+
+- 首页摘要统计当前用户全部投递，并标记连续 15 个完整日未更新且仍为“已投递”的记录。
+- 进度提醒面向已经发生但面经尚未完成的阶段，可由用户标记完成。
+- 周期报告按投递日期形成 cohort，再把这些投递之后发生的阶段、面经和当前最终状态纳入报告。
+- 总体 Offer 率包含所有 Offer；路径漏斗只计算具备完整前序阶段记录的 Offer，并单独报告数据质量。
+- 报告为只读实时聚合，不保存可能随业务数据变化而漂移的统计快照。
+
+## 运行时与扩展约束
+
+- PostgreSQL 客户端单进程连接池最大连接数为 10；部署副本数会乘以该值，应纳入数据库连接预算。
+- `next.config.ts` 使用 `output: "standalone"`，适合 Node.js 或容器部署；应用依赖动态请求、认证和数据库，不能部署为纯静态站点。
+- 当前认证请求的附加限流使用进程内存。单实例可直接使用；水平扩展或无状态多实例部署前，应替换为共享限流存储或在可信网关实现等价策略。
+- COS 只用于头像。所有业务记录、面经、导入批次、Session 和审计均保存在 PostgreSQL。
+- 健康检查 `GET /api/health` 通过查询核心投递表验证应用到数据库的基本连通性，成功返回 `200`，失败返回 `503`。
+
+## 进一步阅读
+
+- [README 与本地启动](../README.md)
+- [运行、部署与故障处理](operations.md)
+- [数据导入与导出](data-transfer.md)
+- [测试策略与命令](testing.md)
+- [功能规格与数据模型](../specs/)
