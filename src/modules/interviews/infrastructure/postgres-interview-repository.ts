@@ -29,7 +29,7 @@ function mapSummary(row: Row): InterviewSummary {
     companyName: String(row.companyName),
     positionName: String(row.positionName),
     stage: (row.displayStage ?? row.stageSnapshot) as never,
-    interviewedOn: dateOnly(row.displayInterviewedOn ?? row.interviewedOn),
+    interviewedOn: dateOnly(row.interviewedOn),
     status: row.status as never,
     roundResult: row.roundResult as never,
     linked: Boolean(row.stageOccurrenceId),
@@ -73,7 +73,6 @@ export class PostgresInterviewRepository implements InterviewRepository {
     const [row] = await this.sql<Row[]>`
       select r.*,a.company_name,a.position_name,
         coalesce(s.stage,r.stage_snapshot) as display_stage,
-        coalesce(s.occurred_on,r.interviewed_on) as display_interviewed_on,
         (select count(*) from interview_questions q where q.interview_review_id=r.id) question_count,
         (select count(*) from interview_action_items i where i.interview_review_id=r.id) action_count
       from interview_reviews r join applications a on a.id=r.application_id
@@ -135,6 +134,8 @@ export class PostgresInterviewRepository implements InterviewRepository {
         throw new Problem("not_found", "没有找到这篇面经。", 404);
       if (code === "23514")
         throw new Problem("validation", "请先填写面经内容，再完成复盘。", 400);
+      if (code === "22023")
+        throw new Problem("validation", "面试 / 测评日期无效。", 400);
       throw new Problem("storage", "保存面经失败，请稍后重试。", 500);
     }
   }
@@ -153,7 +154,6 @@ export class PostgresInterviewRepository implements InterviewRepository {
     const rows = await this.sql<Row[]>`
       select r.*,a.company_name,a.position_name,count(*) over() total_count,
         coalesce(s.stage,r.stage_snapshot) as display_stage,
-        coalesce(s.occurred_on,r.interviewed_on) as display_interviewed_on,
         (select count(*) from interview_questions q where q.interview_review_id=r.id) question_count,
         (select count(*) from interview_action_items i where i.interview_review_id=r.id) action_count
       from interview_reviews r join applications a on a.id=r.application_id
@@ -164,10 +164,10 @@ export class PostgresInterviewRepository implements InterviewRepository {
         ${query.status.length ? this.sql`and r.status=any(${query.status}::review_status[])` : this.sql``}
         ${query.stage.length ? this.sql`and coalesce(s.stage,r.stage_snapshot)=any(${query.stage}::recruitment_stage[])` : this.sql``}
         ${query.result.length ? this.sql`and r.round_result=any(${query.result}::round_result[])` : this.sql``}
-        ${query.interviewedFrom ? this.sql`and coalesce(s.occurred_on,r.interviewed_on)>=${query.interviewedFrom}::date` : this.sql``}
-        ${query.interviewedTo ? this.sql`and coalesce(s.occurred_on,r.interviewed_on)<=${query.interviewedTo}::date` : this.sql``}
-        ${cursor ? this.sql`and (coalesce(s.occurred_on,r.interviewed_on),r.id)<(${cursor.value}::date,${cursor.id}::uuid)` : this.sql``}
-      order by coalesce(s.occurred_on,r.interviewed_on) desc,r.id desc limit ${query.limit + 1}
+        ${query.interviewedFrom ? this.sql`and r.interviewed_on>=${query.interviewedFrom}::date` : this.sql``}
+        ${query.interviewedTo ? this.sql`and r.interviewed_on<=${query.interviewedTo}::date` : this.sql``}
+        ${cursor ? this.sql`and (r.interviewed_on,r.id)<(${cursor.value}::date,${cursor.id}::uuid)` : this.sql``}
+      order by r.interviewed_on desc,r.id desc limit ${query.limit + 1}
     `;
     const items = rows.slice(0, query.limit).map(mapSummary);
     const last = rows[query.limit - 1];
@@ -178,7 +178,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
       nextCursor:
         rows.length > query.limit && last
           ? encodeCursor({
-              value: dateOnly(last.displayInterviewedOn ?? last.interviewedOn),
+              value: dateOnly(last.interviewedOn),
               id: String(last.id),
             })
           : null,
@@ -189,17 +189,16 @@ export class PostgresInterviewRepository implements InterviewRepository {
     const rows = await this.sql<Row[]>`
       select r.id,r.stage_occurrence_id,r.stage_snapshot,r.interviewed_on,r.status,
         coalesce(s.stage,r.stage_snapshot) as display_stage,
-        coalesce(s.occurred_on,r.interviewed_on) as display_interviewed_on,
         (select count(*) from interview_questions q where q.interview_review_id=r.id) question_count
       from interview_reviews r join applications a on a.id=r.application_id
       left join application_stage_occurrences s on s.id=r.stage_occurrence_id
       where r.owner_id=${ownerId} and r.application_id=${applicationId} and a.owner_id=${ownerId}
-      order by coalesce(s.occurred_on,r.interviewed_on) desc,r.id desc
+      order by r.interviewed_on desc,r.id desc
     `;
     return rows.map((item) => ({
       id: String(item.id),
       stage: (item.displayStage ?? item.stageSnapshot) as never,
-      interviewedOn: dateOnly(item.displayInterviewedOn ?? item.interviewedOn),
+      interviewedOn: dateOnly(item.interviewedOn),
       status: item.status as never,
       questionCount: Number(item.questionCount ?? 0),
       stageOccurrenceId: item.stageOccurrenceId

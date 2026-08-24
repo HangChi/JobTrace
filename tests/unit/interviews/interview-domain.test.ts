@@ -14,7 +14,8 @@ import {
 
 describe("interview review domain", () => {
   it("only permits interview stages", () => {
-    expect(INTERVIEW_STAGES).toHaveLength(5);
+    expect(INTERVIEW_STAGES).toHaveLength(6);
+    expect(isInterviewStage("assessment")).toBe(true);
     expect(isInterviewStage("interview_1")).toBe(true);
     expect(isInterviewStage("written_test")).toBe(false);
   });
@@ -27,7 +28,8 @@ describe("interview review domain", () => {
     expect(
       createInterviewSchema.safeParse({
         applicationId: crypto.randomUUID(),
-        stage: "interview_1",
+        stage: "assessment",
+        stageOccurredOn: "2026-08-16",
         interviewedOn: "2026-08-18",
       }).success,
     ).toBe(true);

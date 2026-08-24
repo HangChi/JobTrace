@@ -238,7 +238,7 @@ export async function readManagedUserInterviews(userId: string, page: number) {
     sql<ManagedInterviewRow[]>`
       select r.id,r.application_id,a.company_name,a.position_name,
         coalesce(s.stage,r.stage_snapshot)::text stage,
-        coalesce(s.occurred_on,r.interviewed_on) interviewed_on,
+        r.interviewed_on,
         r.status,r.round_result,r.format,r.duration_minutes,r.interviewer_notes,
         r.highlights,r.gaps,
         coalesce((
@@ -259,7 +259,7 @@ export async function readManagedUserInterviews(userId: string, page: number) {
       join applications a on a.id=r.application_id
       left join application_stage_occurrences s on s.id=r.stage_occurrence_id
       where r.owner_id=${userId}
-      order by coalesce(s.occurred_on,r.interviewed_on) desc,r.id desc
+      order by r.interviewed_on desc,r.id desc
       limit ${contentPageSize} offset ${offset}`,
   ]);
   const total = Number(counts[0]?.total ?? 0);

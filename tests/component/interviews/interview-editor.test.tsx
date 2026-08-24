@@ -38,6 +38,15 @@ const initial: InterviewDetail = {
 };
 
 describe("面经编辑器", () => {
+  it("允许独立修改面试或测评日期", () => {
+    render(<InterviewEditor initial={initial} />);
+
+    const date = screen.getByLabelText("面试 / 测评日期");
+    expect(date).toHaveValue("2026-08-18");
+    fireEvent.change(date, { target: { value: "2026-08-20" } });
+    expect(date).toHaveValue("2026-08-20");
+  });
+
   it("使用单一 Markdown 文稿编辑并预览面经", () => {
     render(<InterviewEditor initial={initial} />);
 

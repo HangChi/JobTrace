@@ -27,6 +27,7 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
   const payload = useMemo(
     () => ({
       version: draft.version,
+      interviewedOn: draft.interviewedOn,
       format: draft.format,
       durationMinutes: draft.durationMinutes,
       interviewerNotes: draft.interviewerNotes,
@@ -96,6 +97,17 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           </span>
         </div>
         <div className="grid">
+          <label>
+            面试 / 测评日期
+            <input
+              type="date"
+              value={draft.interviewedOn}
+              onChange={(event) =>
+                change({ interviewedOn: event.target.value })
+              }
+              required
+            />
+          </label>
           <label>
             面试形式
             <span className="select-wrap">

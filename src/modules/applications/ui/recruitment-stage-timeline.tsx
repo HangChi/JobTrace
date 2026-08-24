@@ -193,7 +193,7 @@ export function RecruitmentStageTimeline({
       <div className="recruitment-stage-heading">
         <div>
           <h3>招聘阶段</h3>
-          <p>点击阶段后确认日期，支持补录过去的进展</p>
+          <p>点击阶段后确认状态变化日期，支持补录过去的进展</p>
         </div>
         {currentStage && (
           <span className={`stage-badge stage-${currentStage}`}>
@@ -265,7 +265,7 @@ export function RecruitmentStageTimeline({
             </p>
           </div>
           <label>
-            发生日期
+            状态变化日期
             <input
               type="date"
               value={occurredOn}
@@ -315,7 +315,7 @@ export function RecruitmentStageTimeline({
             <strong>{STAGE_LABELS[selectedStage]}</strong>
           </div>
           <label>
-            发生日期
+            状态变化日期
             <input
               type="date"
               value={occurredOn}

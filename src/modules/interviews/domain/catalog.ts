@@ -1,4 +1,5 @@
 export const INTERVIEW_STAGES = [
+  "assessment",
   "interview_1",
   "interview_2",
   "interview_3",

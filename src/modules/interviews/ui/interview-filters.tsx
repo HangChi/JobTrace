@@ -44,7 +44,7 @@ export function InterviewFilters({
         </span>
       </label>
       <label>
-        面试轮次
+        面试 / 测评阶段
         <span className="select-wrap">
           <select name="stage" defaultValue={first(query.stage) ?? ""}>
             <option value="">全部</option>

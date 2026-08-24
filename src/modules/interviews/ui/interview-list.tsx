@@ -29,7 +29,7 @@ export function InterviewList({
       <section className="panel interview-empty-state">
         <p className="section-kicker">INTERVIEW NOTES</p>
         <h2>还没有面经</h2>
-        <p>从已有投递选择一次面试，记录问题和复盘。</p>
+        <p>从已有投递选择一次面试或测评，记录问题和复盘。</p>
         <Link className="button" href={"/interviews/new" as Route}>
           记录面经
         </Link>
