@@ -10,7 +10,7 @@ test("role changes are audited and the last active admin is protected", async ()
   try {
     await sql`select update_user_access_as(${admin},${user},'admin',false)`;
     expect(
-      await sql`select id from admin_audit_events where actor_id=${admin} and target_user_id=${user} and event_type='role_changed'`,
+      await sql`select id from admin_audit_events where actor_id=${admin} and target_user_id=${user} and event_type='promote_admin'`,
     ).toHaveLength(1);
     await sql`select update_user_access_as(${user},${admin},'user',false)`;
     await expect(

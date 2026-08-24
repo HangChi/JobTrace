@@ -1,0 +1,387 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Admin Console Boundary
+  version: 1.0.0
+  description: 管理员运营摘要、用户检索与详情、安全访问变更和只读审计的同源 HTTP 契约。
+servers:
+  - url: /api
+security:
+  - cookieSession: []
+paths:
+  /admin/summary:
+    get:
+      operationId: getAdminOperationalSummary
+      responses:
+        '200':
+          description: 带生成时间、统计口径和分区可用状态的运营摘要
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminOperationalSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /admin/users:
+    get:
+      operationId: listManagedUsers
+      parameters:
+        - name: q
+          in: query
+          description: 用户名或内部邮箱，trim 后进行大小写不敏感的完整/部分匹配
+          schema: { type: string, maxLength: 100 }
+        - name: role
+          in: query
+          schema:
+            oneOf:
+              - { $ref: '#/components/schemas/AccountRole' }
+              - { type: string, const: all }
+        - name: status
+          in: query
+          schema: { type: string, enum: [all, active, disabled], default: all }
+        - { name: registeredFrom, in: query, schema: { type: string, format: date } }
+        - { name: registeredTo, in: query, schema: { type: string, format: date } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: 按注册时间及 ID 倒序的稳定页码分页结果
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ManagedUserPage' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, minLength: 1, maxLength: 128 }
+    get:
+      operationId: getManagedUserDetail
+      parameters:
+        - { name: applicationsPage, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: interviewsPage, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+      responses:
+        '200':
+          description: 账号详情、分页只读投递/面经内容和最近管理事件；不含 Session 信息
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ManagedUserDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: changeUserAccess
+      description: 每次只执行一个具名访问动作；同 requestId 与同载荷重试必须幂等重放。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccessChangeRequest' }
+      responses:
+        '200':
+          description: 状态已成功变化或成功结果被幂等重放
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccessChangeResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/audit-events:
+    get:
+      operationId: listAdminAuditEvents
+      parameters:
+        - name: actor
+          in: query
+          description: 操作者当前 ID、用户名或事件时账号快照
+          schema: { type: string, maxLength: 100 }
+        - name: target
+          in: query
+          description: 目标当前 ID、用户名或事件时账号快照
+          schema: { type: string, maxLength: 100 }
+        - name: eventType
+          in: query
+          schema:
+            oneOf:
+              - { $ref: '#/components/schemas/AdminAccessAction' }
+              - { type: string, const: all }
+        - name: outcome
+          in: query
+          schema:
+            oneOf:
+              - { $ref: '#/components/schemas/AdminActionOutcome' }
+              - { type: string, const: all }
+        - { name: occurredFrom, in: query, schema: { type: string, format: date } }
+        - { name: occurredTo, in: query, schema: { type: string, format: date } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: 只读、按事件时间及 ID 倒序的审计分页
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminAuditPage' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    cookieSession:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+  schemas:
+    AccountRole:
+      type: string
+      enum: [user, admin]
+    AdminAccessAction:
+      type: string
+      enum: [promote_admin, demote_admin, disable_user, enable_user]
+    AdminActionOutcome:
+      type: string
+      enum: [succeeded, denied, conflict, failed]
+    SectionStatus:
+      type: string
+      enum: [available, unavailable]
+    AccountAccessState:
+      type: object
+      additionalProperties: false
+      required: [role, disabled, accessVersion]
+      properties:
+        role: { $ref: '#/components/schemas/AccountRole' }
+        disabled: { type: boolean }
+        accessVersion: { type: integer, minimum: 1 }
+    ManagedUserSummary:
+      type: object
+      additionalProperties: false
+      required: [id, username, internalEmail, role, disabled, accessVersion, createdAt, lastSignInAt, applicationCount, interviewCount]
+      properties:
+        id: { type: string }
+        username: { type: string }
+        internalEmail: { type: string, format: email }
+        role: { $ref: '#/components/schemas/AccountRole' }
+        disabled: { type: boolean }
+        accessVersion: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        lastSignInAt: { type: [string, 'null'], format: date-time }
+        applicationCount: { type: integer, minimum: 0 }
+        interviewCount: { type: integer, minimum: 0 }
+    ManagedUserDetail:
+      allOf:
+        - { $ref: '#/components/schemas/ManagedUserSummary' }
+        - type: object
+          additionalProperties: false
+          required: [recentAuditEvents, applications, interviews]
+          properties:
+            recentAuditEvents:
+              type: array
+              maxItems: 10
+              items: { $ref: '#/components/schemas/AdminAuditEvent' }
+            applications: { $ref: '#/components/schemas/AdminApplicationPage' }
+            interviews: { $ref: '#/components/schemas/AdminInterviewPage' }
+    AdminApplicationPage:
+      type: object
+      required: [items, total, page, limit, totalPages]
+      properties:
+        items: { type: array, items: { type: object, description: 只读投递资料、备注与阶段轨迹 } }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, const: 10 }
+        totalPages: { type: integer, minimum: 0 }
+    AdminInterviewPage:
+      type: object
+      required: [items, total, page, limit, totalPages]
+      properties:
+        items: { type: array, items: { type: object, description: 只读面经记录、问题回答与行动项 } }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, const: 10 }
+        totalPages: { type: integer, minimum: 0 }
+    ManagedUserPage:
+      type: object
+      additionalProperties: false
+      required: [items, total, page, limit, totalPages]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ManagedUserSummary' }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        totalPages: { type: integer, minimum: 0 }
+    SummaryCounts:
+      type: object
+      additionalProperties: false
+      required: [users, activeUsers, disabledUsers, administrators, applications, interviews]
+      properties:
+        users: { type: integer, minimum: 0 }
+        activeUsers: { type: integer, minimum: 0 }
+        disabledUsers: { type: integer, minimum: 0 }
+        administrators: { type: integer, minimum: 0 }
+        applications: { type: integer, minimum: 0 }
+        interviews: { type: integer, minimum: 0 }
+    ActivityWindows:
+      type: object
+      additionalProperties: false
+      required: [registered7d, active7d, registered30d, active30d]
+      properties:
+        registered7d: { type: integer, minimum: 0 }
+        active7d: { type: integer, minimum: 0 }
+        registered30d: { type: integer, minimum: 0 }
+        active30d: { type: integer, minimum: 0 }
+    DailyActivityPoint:
+      type: object
+      additionalProperties: false
+      required: [date, registeredUsers, activeUsers]
+      properties:
+        date: { type: string, format: date }
+        registeredUsers: { type: integer, minimum: 0 }
+        activeUsers: { type: integer, minimum: 0 }
+    CountsSection:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [status, value]
+          properties:
+            status: { type: string, const: available }
+            value: { $ref: '#/components/schemas/SummaryCounts' }
+        - type: object
+          additionalProperties: false
+          required: [status]
+          properties:
+            status: { type: string, const: unavailable }
+    ActivitySection:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [status, windows, dailyTrend]
+          properties:
+            status: { type: string, const: available }
+            windows: { $ref: '#/components/schemas/ActivityWindows' }
+            dailyTrend:
+              type: array
+              minItems: 30
+              maxItems: 30
+              items: { $ref: '#/components/schemas/DailyActivityPoint' }
+        - type: object
+          additionalProperties: false
+          required: [status]
+          properties:
+            status: { type: string, const: unavailable }
+    AdminOperationalSummary:
+      type: object
+      additionalProperties: false
+      required: [generatedAt, timeZone, activityDefinition, counts, activity]
+      properties:
+        generatedAt: { type: string, format: date-time }
+        timeZone: { type: string, const: Asia/Shanghai }
+        activityDefinition: { type: string }
+        counts: { $ref: '#/components/schemas/CountsSection' }
+        activity: { $ref: '#/components/schemas/ActivitySection' }
+    AccessChangeRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedVersion, action, reason]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedVersion: { type: integer, minimum: 1 }
+        action: { $ref: '#/components/schemas/AdminAccessAction' }
+        reason: { type: string, minLength: 10, maxLength: 500 }
+        confirmSelf: { type: boolean, default: false }
+    AccessChangeResponse:
+      type: object
+      additionalProperties: false
+      required: [user, auditEventId, replayed]
+      properties:
+        user: { $ref: '#/components/schemas/ManagedUserSummary' }
+        auditEventId: { type: string, format: uuid }
+        replayed: { type: boolean }
+    AdminAuditEvent:
+      type: object
+      additionalProperties: false
+      required: [id, requestId, actorIdentifier, actorDeleted, targetIdentifier, targetDeleted, eventType, outcome, reason, before, after, failureCode, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        requestId: { type: string, format: uuid }
+        actorId: { type: [string, 'null'] }
+        actorIdentifier: { type: string }
+        actorDeleted: { type: boolean }
+        targetUserId: { type: [string, 'null'] }
+        targetIdentifier: { type: string }
+        targetDeleted: { type: boolean }
+        eventType: { $ref: '#/components/schemas/AdminAccessAction' }
+        outcome: { $ref: '#/components/schemas/AdminActionOutcome' }
+        reason: { type: string, minLength: 10, maxLength: 500 }
+        before: { $ref: '#/components/schemas/AccountAccessState' }
+        after:
+          oneOf:
+            - { $ref: '#/components/schemas/AccountAccessState' }
+            - { type: 'null' }
+        failureCode: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }
+    AdminAuditPage:
+      type: object
+      additionalProperties: false
+      required: [items, total, page, limit, totalPages]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AdminAuditEvent' }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        totalPages: { type: integer, minimum: 0 }
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code, message]
+      properties:
+        field: { type: string }
+        code: { type: string }
+        message: { type: string }
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string, format: uuid }
+        auditEventId: { type: string, format: uuid }
+        latestAccessState: { $ref: '#/components/schemas/AccountAccessState' }
+        fieldErrors:
+          type: array
+          items: { $ref: '#/components/schemas/FieldError' }
+  responses:
+    ValidationError:
+      description: 查询或命令输入无效
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: 未建立有效登录 Session
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: 当前账号已禁用或不具备管理员角色
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: 目标用户不存在
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: 访问版本、最后管理员、自我确认、动作状态或幂等载荷冲突；已接受命令包含审计引用
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    InternalError:
+      description: 无法取得管理数据；响应不泄露底层异常或敏感内容
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }

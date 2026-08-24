@@ -93,7 +93,7 @@ test("admin dashboard, analytics and export remain scoped to the admin owner", a
   expect(exported).toContain("Admin Owner Only");
   expect(exported).not.toContain("Other User Secret");
   const globalSummary = await (await admin.get("/api/admin/summary")).json();
-  expect(globalSummary.applications).toBeGreaterThanOrEqual(2);
+  expect(globalSummary.counts.value.applications).toBeGreaterThanOrEqual(2);
 
   const browserContext = await browser.newContext({
     storageState: await admin.storageState(),

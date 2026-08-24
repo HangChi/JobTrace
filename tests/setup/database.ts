@@ -29,3 +29,14 @@ export async function cleanupTestUsers(
   await sql`delete from users where id = any(${ids})`;
   await sql.end();
 }
+
+export async function createTestSession(
+  sql: ReturnType<typeof postgres>,
+  userId: string,
+  createdAt = new Date(),
+) {
+  const id = testId("session");
+  await sql`insert into sessions(id,expires_at,token,created_at,updated_at,user_id)
+    values(${id},${new Date(createdAt.getTime() + 86_400_000)},${testId("token")},${createdAt},${createdAt},${userId})`;
+  return id;
+}
