@@ -1,92 +1,124 @@
-"use client";
-import { useState } from "react";
-type User = {
-  id: string;
-  email: string;
-  role: "user" | "admin";
-  disabled: boolean;
-  createdAt: string;
-  lastSignInAt: string | null;
-};
-export function UserAdminTable({ users }: { users: User[] }) {
-  const [busy, setBusy] = useState<string>();
-  const [error, setError] = useState<string>();
-  async function update(
-    user: User,
-    patch: { role?: string; disabled?: boolean },
-  ) {
-    const action =
-      patch.disabled === true
-        ? "禁用"
-        : patch.disabled === false
-          ? "启用"
-          : patch.role === "admin"
-            ? "设为管理员"
-            : "降为普通用户";
-    if (!window.confirm(`确认将 ${user.email} ${action}？`)) return;
-    setBusy(user.id);
-    setError(undefined);
-    try {
-      const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      if (!response.ok) {
-        const problem = (await response.json().catch(() => null)) as {
-          detail?: string;
-        } | null;
-        throw new Error(problem?.detail ?? "操作失败，请稍后重试。");
-      }
-      location.reload();
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "操作失败，请稍后重试。",
-      );
-      setBusy(undefined);
-    }
+import Link from "next/link";
+import type { ManagedUserSummary } from "../application/contracts";
+
+const date = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+const dateTime = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function initials(username: string) {
+  return username.slice(0, 2).toUpperCase();
+}
+
+export function UserAdminTable({
+  users,
+  returnTo = "/admin/users",
+}: {
+  users: ManagedUserSummary[];
+  returnTo?: string;
+}) {
+  if (!users.length) {
+    return (
+      <section className="admin-empty-state">
+        <span aria-hidden="true">⌕</span>
+        <div>
+          <h2>没有匹配用户</h2>
+          <p>调整筛选条件，或返回完整账号目录。</p>
+        </div>
+        <Link className="button secondary" href="/admin/users">
+          清除筛选
+        </Link>
+      </section>
+    );
   }
   return (
-    <div className="panel">
-      {error ? (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      ) : null}
-      <table>
+    <div className="admin-directory-table-wrap">
+      <table className="admin-user-table">
+        <colgroup>
+          <col className="admin-user-col-identity" />
+          <col className="admin-user-col-access" />
+          <col className="admin-user-col-activity" />
+          <col className="admin-user-col-records" />
+          <col className="admin-user-col-action" />
+        </colgroup>
         <thead>
           <tr>
-            <th>用户</th>
-            <th>角色</th>
-            <th>状态</th>
-            <th>注册时间</th>
+            <th>账号</th>
+            <th>访问状态</th>
+            <th>近期活动</th>
+            <th>求职记录</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td>{u.email}</td>
-              <td>{u.role === "admin" ? "管理员" : "普通用户"}</td>
-              <td>{u.disabled ? "已禁用" : "正常"}</td>
-              <td>{new Date(u.createdAt).toLocaleDateString("zh-CN")}</td>
-              <td className="actions">
-                <button
-                  className="button secondary"
-                  disabled={busy === u.id}
-                  onClick={() =>
-                    update(u, { role: u.role === "admin" ? "user" : "admin" })
-                  }
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td data-label="账号">
+                <div className="admin-user-identity">
+                  <span className="admin-user-avatar" aria-hidden="true">
+                    {initials(user.username)}
+                  </span>
+                  <span>
+                    <strong>{user.username}</strong>
+                    <small>{user.internalEmail}</small>
+                  </span>
+                </div>
+              </td>
+              <td data-label="访问状态">
+                <div className="admin-access-badges">
+                  <span className="admin-role-badge">
+                    {user.role === "admin" ? "管理员" : "普通用户"}
+                  </span>
+                  <span
+                    className={`admin-state-badge ${user.disabled ? "is-disabled" : "is-active"}`}
+                  >
+                    {user.disabled ? "已禁用" : "正常"}
+                  </span>
+                </div>
+              </td>
+              <td data-label="近期活动">
+                <dl className="admin-activity-pair">
+                  <div>
+                    <dt>注册</dt>
+                    <dd>{date.format(new Date(user.createdAt))}</dd>
+                  </div>
+                  <div>
+                    <dt>登录</dt>
+                    <dd>
+                      {user.lastSignInAt
+                        ? dateTime.format(new Date(user.lastSignInAt))
+                        : "从未登录"}
+                    </dd>
+                  </div>
+                </dl>
+              </td>
+              <td data-label="求职记录">
+                <div className="admin-record-counts">
+                  <span>
+                    <strong>{user.applicationCount}</strong> 投递
+                  </span>
+                  <span>
+                    <strong>{user.interviewCount}</strong> 面经
+                  </span>
+                </div>
+              </td>
+              <td data-label="操作">
+                <Link
+                  className="admin-open-profile"
+                  aria-label="查看详情"
+                  href={`/admin/users/${user.id}?returnTo=${encodeURIComponent(returnTo)}`}
                 >
-                  切换角色
-                </button>
-                <button
-                  className="button secondary"
-                  disabled={busy === u.id}
-                  onClick={() => update(u, { disabled: !u.disabled })}
-                >
-                  {u.disabled ? "启用" : "禁用"}
-                </button>
+                  打开档案 <span aria-hidden="true">↗</span>
+                </Link>
               </td>
             </tr>
           ))}

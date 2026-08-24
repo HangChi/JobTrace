@@ -8,17 +8,21 @@ describe("UserAdminTable", () => {
         users={[
           {
             id: "1",
-            email: "user@example.com",
+            username: "user",
+            internalEmail: "user@example.com",
             role: "user",
             disabled: false,
+            accessVersion: 1,
             createdAt: "2026-08-13T00:00:00Z",
             lastSignInAt: null,
+            applicationCount: 0,
+            interviewCount: 0,
           },
         ]}
       />,
     );
     expect(screen.getByText("普通用户")).toBeInTheDocument();
     expect(screen.getByText("正常")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "禁用" })).toBeEnabled();
+    expect(screen.getByRole("link", { name: "查看详情" })).toBeVisible();
   });
 });

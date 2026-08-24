@@ -76,12 +76,12 @@ export const databaseSchema = {
     {
       "name": "actor_id",
       "type": "text",
-      "nullable": false
+      "nullable": true
     },
     {
       "name": "target_user_id",
       "type": "text",
-      "nullable": false
+      "nullable": true
     },
     {
       "name": "event_type",
@@ -91,17 +91,52 @@ export const databaseSchema = {
     {
       "name": "before_data",
       "type": "jsonb",
-      "nullable": true
+      "nullable": false
     },
     {
       "name": "after_data",
       "type": "jsonb",
-      "nullable": false
+      "nullable": true
     },
     {
       "name": "created_at",
       "type": "timestamp with time zone",
       "nullable": false
+    },
+    {
+      "name": "request_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "request_fingerprint",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "actor_identifier_snapshot",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "target_identifier_snapshot",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "outcome",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "reason",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "failure_code",
+      "type": "text",
+      "nullable": true
     }
   ],
   "application_events": [
@@ -637,6 +672,11 @@ export const databaseSchema = {
       "name": "display_username",
       "type": "text",
       "nullable": true
+    },
+    {
+      "name": "access_version",
+      "type": "bigint",
+      "nullable": false
     }
   ],
   "verification_tokens": [

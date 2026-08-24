@@ -95,8 +95,8 @@ test("disabling a user revokes existing sessions and keeps login errors generic"
     { id: string }[]
   >`select id from users where username=${adminAccount.username}`;
   const [userRow] = await sql<
-    { id: string }[]
-  >`select id from users where username=${userAccount.username}`;
+    { id: string; accessVersion: number }[]
+  >`select id,access_version "accessVersion" from users where username=${userAccount.username}`;
   await sql`update users set role='admin' where id=${adminRow.id}`;
   expect(
     (await admin.post("/api/auth/login", { data: adminAccount })).status(),
@@ -109,7 +109,13 @@ test("disabling a user revokes existing sessions and keeps login errors generic"
   ).not.toHaveLength(0);
 
   const disabled = await admin.patch(`/api/admin/users/${userRow.id}`, {
-    data: { disabled: true },
+    data: {
+      requestId: crypto.randomUUID(),
+      expectedVersion: userRow.accessVersion,
+      action: "disable_user",
+      reason: "Security test disables an active user account.",
+      confirmSelf: false,
+    },
   });
   expect(disabled.status()).toBe(200);
   expect(

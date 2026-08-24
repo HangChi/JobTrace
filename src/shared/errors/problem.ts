@@ -1,10 +1,19 @@
 export type FieldError = { field: string; code: string; message: string };
+export type ProblemDetails = {
+  auditEventId?: string;
+  latestAccessState?: {
+    role: "user" | "admin";
+    disabled: boolean;
+    accessVersion: number;
+  };
+};
 export class Problem extends Error {
   constructor(
     public code: string,
     message: string,
     public status = 500,
     public fieldErrors?: FieldError[],
+    public details?: ProblemDetails,
   ) {
     super(message);
   }

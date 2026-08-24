@@ -1,11 +1,28 @@
 import "server-only";
-import { createServerDatabase } from "@/shared/database";
 import { requireAdmin } from "./authorization";
+import type { AdminOperationalSummary } from "./contracts";
+import {
+  readAdminActivity,
+  readAdminCounts,
+} from "../infrastructure/postgres-admin-repository";
+
 export async function getAdminSummary() {
   await requireAdmin();
-  const sql = createServerDatabase();
-  const [summary] = await sql<
-    Array<{ users: number; disabledUsers: number; applications: number }>
-  >`select (select count(*)::int from users) users,(select count(*)::int from users where disabled is true) disabled_users,(select count(*)::int from applications) applications`;
-  return summary;
+  const [counts, activity] = await Promise.allSettled([
+    readAdminCounts(),
+    readAdminActivity(),
+  ]);
+  return {
+    generatedAt: new Date().toISOString(),
+    timeZone: "Asia/Shanghai",
+    activityDefinition: "统计周期内至少创建一次有效登录会话的未禁用用户",
+    counts:
+      counts.status === "fulfilled"
+        ? { status: "available", value: counts.value }
+        : { status: "unavailable" },
+    activity:
+      activity.status === "fulfilled"
+        ? { status: "available", ...activity.value }
+        : { status: "unavailable" },
+  } satisfies AdminOperationalSummary;
 }

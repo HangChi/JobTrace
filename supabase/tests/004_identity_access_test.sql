@@ -13,7 +13,7 @@ select col_not_null('public','import_batches','owner_id','batch owner is require
 select col_default_is('public','users','role','''user''::text','new users default to user');
 insert into users(id,display_name,email,role) values ('admin-a','Admin A','admin-a@example.test','admin'),('user-a','User A','user-a@example.test','user');
 select lives_ok($$select update_user_access_as('admin-a','user-a','admin',false)$$,'admin can promote user');
-select is((select count(*) from admin_audit_events where event_type='role_changed'),1::bigint,'role change is audited');
+select is((select count(*) from admin_audit_events where event_type='promote_admin'),1::bigint,'role change is audited');
 select throws_ok($$select update_user_access_as('user-a','user-a','user',false)$$,'23514','last_admin_guard','last admin is protected');
 select * from finish();
 rollback;

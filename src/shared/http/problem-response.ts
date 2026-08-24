@@ -11,6 +11,7 @@ export function problemResponse(
       message: problem.message,
       requestId,
       fieldErrors: problem.fieldErrors,
+      ...problem.details,
     },
     { status: problem.status, headers: { "x-request-id": requestId } },
   );
