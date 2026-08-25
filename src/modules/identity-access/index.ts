@@ -24,6 +24,7 @@ export {
   loginSchema,
   passwordSchema,
   usernameSchema,
+  verificationCodeSchema,
   safeReturnTo,
 } from "./application/auth-schema";
 export {
@@ -38,6 +39,12 @@ export {
   listAccountSessions,
   revokeAccountSession,
 } from "./application/auth-service";
+export {
+  requestRegistrationEmailCode,
+  requestEmailBindingCode,
+  bindEmail,
+  unbindEmail,
+} from "./application/email-verification-service";
 export {
   listUsers,
   getManagedUserDetail,

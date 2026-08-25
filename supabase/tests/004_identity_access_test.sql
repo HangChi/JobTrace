@@ -1,9 +1,11 @@
 begin;
-select plan(14);
+select plan(16);
 select has_table('public','users','users exists');
 select has_table('public','sessions','sessions exists');
 select has_table('public','accounts','accounts exists');
 select has_table('public','verification_tokens','verification tokens exist');
+select has_table('public','email_verification_codes','email verification codes exist');
+select has_column('public','users','recovery_email_verified_at','verified login email timestamp exists');
 select has_table('public','admin_audit_events','audit table exists');
 select has_column('public','applications','owner_id','applications have owner');
 select has_column('public','import_batches','owner_id','batches have owner');

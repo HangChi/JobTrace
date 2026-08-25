@@ -5,6 +5,7 @@ import { admin, username } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { Pool } from "pg";
 import { getAuthEnv, getDatabaseEnv } from "@/shared/config/env";
+import { deliverEmail } from "./email-delivery.server";
 
 const database = new Pool({ connectionString: getDatabaseEnv().DATABASE_URL });
 const authEnv = getAuthEnv();
@@ -16,7 +17,6 @@ async function sendResetPassword({
   user: { id: string };
   url: string;
 }) {
-  if (!authEnv.AUTH_EMAIL_DELIVERY_URL) return;
   const [target] = await database
     .query<{ recovery_email: string | null }>(
       "select recovery_email from public.users where id=$1",
@@ -24,23 +24,12 @@ async function sendResetPassword({
     )
     .then((result) => result.rows);
   if (!target?.recovery_email) return;
-  const response = await fetch(authEnv.AUTH_EMAIL_DELIVERY_URL, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      ...(authEnv.AUTH_EMAIL_DELIVERY_SECRET
-        ? { authorization: `Bearer ${authEnv.AUTH_EMAIL_DELIVERY_SECRET}` }
-        : {}),
-    },
-    body: JSON.stringify({
-      to: target.recovery_email,
-      template: "password_reset",
-      resetUrl: url,
-      expiresInSeconds: 3600,
-    }),
-    signal: AbortSignal.timeout(10_000),
+  await deliverEmail({
+    to: target.recovery_email,
+    template: "password_reset",
+    resetUrl: url,
+    expiresInSeconds: 3600,
   });
-  if (!response.ok) throw new Error("password reset delivery failed");
 }
 
 export const auth = betterAuth({

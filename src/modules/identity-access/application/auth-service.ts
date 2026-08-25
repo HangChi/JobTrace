@@ -15,6 +15,7 @@ import {
 import { auth } from "../infrastructure/better-auth.server";
 import { checkAuthRateLimit } from "../infrastructure/auth-rate-limit";
 import { requireUser } from "./authorization";
+import { verifyEmailCode } from "./email-verification-service";
 
 const credentialError = () =>
   new Problem("invalid_credentials", "用户名或密码不正确。", 401);
@@ -30,7 +31,25 @@ function requireAuthConfiguration() {
 
 export async function register(input: unknown) {
   requireAuthConfiguration();
-  const value = registerSchema.parse(input);
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const testVerificationCode =
+    process.env.NODE_ENV === "production"
+      ? undefined
+      : process.env.AUTH_EMAIL_VERIFICATION_TEST_CODE;
+  const value = registerSchema.parse(
+    testVerificationCode && !raw.email
+      ? {
+          ...raw,
+          email: `${String(raw.username ?? "test")}@tests.jobtrace.local`,
+          verificationCode: raw.verificationCode ?? testVerificationCode,
+        }
+      : raw,
+  );
+  const verification = await verifyEmailCode(
+    value.email,
+    value.verificationCode,
+    "registration",
+  );
   try {
     const result = await auth.api.signUpEmail({
       body: {
@@ -41,29 +60,36 @@ export async function register(input: unknown) {
         displayUsername: value.username,
       },
     });
-    if (value.recoveryEmail) {
-      const sql = createServerDatabase();
-      try {
-        await sql`update public.users set recovery_email=${value.recoveryEmail}
-          where id=${result.user.id}`;
-      } catch (error) {
-        await sql`delete from public.users where id=${result.user.id}`;
-        if ((error as { code?: string }).code === "23505") {
-          throw new Problem(
-            "registration_conflict",
-            "该恢复邮箱已被使用。",
-            409,
-            [
-              {
-                field: "recoveryEmail",
-                code: "registration_conflict",
-                message: "该恢复邮箱已关联其他账号。",
-              },
-            ],
-          );
+    const sql = createServerDatabase();
+    try {
+      await sql.begin(async (transaction) => {
+        await transaction`
+          update public.users set
+            recovery_email=${verification.email},
+            recovery_email_verified_at=now(),
+            email_verified=true,
+            updated_at=now()
+          where id=${result.user.id}
+        `;
+        if (verification.id) {
+          await transaction`
+            update public.email_verification_codes
+            set consumed_at=now() where id=${verification.id}
+          `;
         }
-        throw error;
+      });
+    } catch (error) {
+      await sql`delete from public.users where id=${result.user.id}`;
+      if ((error as { code?: string }).code === "23505") {
+        throw new Problem("registration_conflict", "该邮箱已被使用。", 409, [
+          {
+            field: "email",
+            code: "registration_conflict",
+            message: "该邮箱已关联其他账号。",
+          },
+        ]);
       }
+      throw error;
     }
   } catch (error) {
     if (error instanceof Problem) throw error;
@@ -92,8 +118,24 @@ export async function login(input: unknown) {
   requireAuthConfiguration();
   const value = loginSchema.parse(input);
   try {
+    let username = value.identifier;
+    if (value.identifier.includes("@")) {
+      const loginEmail = emailSchema.parse(value.identifier);
+      const sql = createServerDatabase();
+      const [matched] = await sql<{ username: string | null }[]>`
+        select username from public.users
+        where lower(recovery_email)=lower(${loginEmail})
+          and recovery_email_verified_at is not null
+          and disabled=false
+        limit 1
+      `;
+      if (!matched?.username) throw credentialError();
+      username = matched.username;
+    } else {
+      username = registerSchema.shape.username.parse(value.identifier);
+    }
     const result = await auth.api.signInUsername({
-      body: { username: value.username, password: value.password },
+      body: { username, password: value.password },
       headers: await headers(),
     });
     const user = result.user as typeof result.user & {
@@ -163,65 +205,25 @@ export async function updateProfile(input: unknown) {
   const value = z
     .object({
       displayName: z.string().trim().min(1, "请输入昵称").max(100),
-      recoveryEmail: z.union([emailSchema, z.literal("")]).optional(),
       image: z.union([z.url(), z.literal(""), z.null()]).optional(),
     })
     .parse(input);
   const sql = createServerDatabase();
-  if (value.recoveryEmail) {
-    const [conflictingUser] = await sql<{ id: string }[]>`
-      select id from public.users
-      where lower(recovery_email)=lower(${value.recoveryEmail})
-        and id<>${actor.id}
-      limit 1
-    `;
-    if (conflictingUser) {
-      throw new Problem("profile_conflict", "该恢复邮箱已关联其他账号。", 409, [
-        {
-          field: "recoveryEmail",
-          code: "profile_conflict",
-          message: "请使用其他恢复邮箱。",
-        },
-      ]);
-    }
-  }
   await auth.api.updateUser({
     body: { name: value.displayName, image: value.image || null },
     headers: await headers(),
   });
-  let recoveryEmail: string | null;
-  try {
-    if (value.recoveryEmail === undefined) {
-      const [current] = await sql<{ recoveryEmail: string | null }[]>`
-        select recovery_email from public.users where id=${actor.id}
-      `;
-      recoveryEmail = current?.recoveryEmail ?? null;
-    } else {
-      const [updated] = await sql<{ recoveryEmail: string | null }[]>`
-        update public.users
-        set recovery_email=${value.recoveryEmail || null},updated_at=now()
-        where id=${actor.id}
-        returning recovery_email
-      `;
-      recoveryEmail = updated?.recoveryEmail ?? null;
-    }
-  } catch (error) {
-    if ((error as { code?: string }).code === "23505") {
-      throw new Problem("profile_conflict", "该恢复邮箱已关联其他账号。", 409, [
-        {
-          field: "recoveryEmail",
-          code: "profile_conflict",
-          message: "请使用其他恢复邮箱。",
-        },
-      ]);
-    }
-    throw error;
-  }
+  const [current] = await sql<
+    Array<{ recoveryEmail: string | null; emailVerified: boolean }>
+  >`select recovery_email,
+      recovery_email_verified_at is not null as email_verified
+    from public.users where id=${actor.id}`;
   return {
     id: actor.id,
     displayName: value.displayName,
     image: value.image || null,
-    recoveryEmail,
+    recoveryEmail: current?.recoveryEmail ?? null,
+    emailVerified: current?.emailVerified ?? false,
   };
 }
 
@@ -235,8 +237,11 @@ export async function getProfile() {
       createdAt: Date;
       updatedAt: Date;
       recoveryEmail: string | null;
+      emailVerified: boolean;
     }>
-  >`select username,display_username,recovery_email,created_at,updated_at
+  >`select username,display_username,recovery_email,
+      recovery_email_verified_at is not null as email_verified,
+      created_at,updated_at
     from public.users where id=${actor.id}`;
   if (!profile) throw new Problem("not_found", "没有找到账号资料。", 404);
   return {
@@ -249,6 +254,7 @@ export async function getProfile() {
     createdAt: profile.createdAt.toISOString(),
     updatedAt: profile.updatedAt.toISOString(),
     recoveryEmail: profile.recoveryEmail,
+    emailVerified: profile.emailVerified,
   };
 }
 

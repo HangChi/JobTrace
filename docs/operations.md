@@ -25,15 +25,16 @@ pnpm dev
 
 ### 核心配置
 
-| 变量                         | 生产要求                                                                                                                      |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`               | 指向 PostgreSQL 17；启用 TLS 时按数据库供应商要求加入连接参数。应用进程每实例最多建立 10 个业务连接，Better Auth 另有连接池。 |
-| `BETTER_AUTH_SECRET`         | 至少 32 个字符，使用密码学安全随机值，通过密钥管理服务注入。轮换会影响现有认证状态，应在维护窗口执行。                        |
-| `BETTER_AUTH_URL`            | 与用户实际访问的规范来源完全一致，生产环境使用 HTTPS；同源写请求会据此校验 `Origin`。                                         |
-| `AUTH_CHALLENGE_VERIFY_URL`  | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
-| `AUTH_CHALLENGE_SECRET`      | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
-| `AUTH_EMAIL_DELIVERY_URL`    | 可选。接收 `{to, template, resetUrl, expiresInSeconds}` 的服务端 Webhook；生产密码恢复必须配置。                              |
-| `AUTH_EMAIL_DELIVERY_SECRET` | 可选。作为 Bearer 凭据调用邮件投递 Webhook，不得暴露给浏览器。                                                                |
+| 变量                                | 生产要求                                                                                                                      |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                      | 指向 PostgreSQL 17；启用 TLS 时按数据库供应商要求加入连接参数。应用进程每实例最多建立 10 个业务连接，Better Auth 另有连接池。 |
+| `BETTER_AUTH_SECRET`                | 至少 32 个字符，使用密码学安全随机值，通过密钥管理服务注入。轮换会影响现有认证状态，应在维护窗口执行。                        |
+| `BETTER_AUTH_URL`                   | 与用户实际访问的规范来源完全一致，生产环境使用 HTTPS；同源写请求会据此校验 `Origin`。                                         |
+| `AUTH_CHALLENGE_VERIFY_URL`         | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
+| `AUTH_CHALLENGE_SECRET`             | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
+| `AUTH_EMAIL_DELIVERY_URL`           | 生产必填。接收 `password_reset` 或 `email_verification_code` 投递任务；注册验证码和密码恢复共用。                             |
+| `AUTH_EMAIL_DELIVERY_SECRET`        | 可选。作为 Bearer 凭据调用邮件投递 Webhook，不得暴露给浏览器。                                                                |
+| `AUTH_EMAIL_VERIFICATION_TEST_CODE` | 仅限隔离测试。生产环境会忽略该值，不得把固定验证码用于真实流量。                                                              |
 
 > [!WARNING]
 > `DATABASE_URL`、`BETTER_AUTH_SECRET`、`AUTH_CHALLENGE_SECRET` 和所有 COS 凭据都只能作为服务端变量存在，不得添加 `NEXT_PUBLIC_` 前缀。
@@ -51,11 +52,15 @@ pnpm dev
 
 使用仅允许目标桶或 `avatars/` 前缀对象上传的子账号凭据，不要使用主账号永久密钥。头像 URL 需要公开读取，因此应为目标前缀配置只读访问策略。未配置 COS 时，除头像上传外的功能仍可使用。
 
-### 密码恢复与会话
+### 登录邮箱、验证码与会话
 
-注册或个人资料页可设置恢复邮箱。忘记密码入口始终返回不枚举账号的统一提示；存在账号时，Better Auth 生成一小时有效的单次 token，并通过邮件投递 Webhook 发送重置链接。没有配置 Webhook 时不要在生产环境承诺自助恢复能力。
+新注册必须提供邮箱和 6 位验证码，验证码有效期 10 分钟、最多尝试 5 次，并按来源 IP 与邮箱共享 PostgreSQL 限流。登录框同时接受已验证邮箱或用户名。历史迁移会把已有恢复邮箱标记为已验证，因此升级不会阻断已注册用户；没有邮箱的历史用户仍可继续使用用户名登录。
 
-个人中心可查看所有未过期会话并逐个撤销；修改密码会撤销其他设备的会话。恢复邮箱、重置 URL、投递凭据和 Session 都不得写入日志。
+个人中心支持绑定、换绑和解绑邮箱。绑定/换绑需要新邮箱验证码与当前密码，解绑需要当前密码；解绑后仍可使用用户名登录，但无法通过邮箱找回密码。忘记密码入口始终返回不枚举账号的统一提示；存在账号时，Better Auth 生成一小时有效的单次 token，并通过邮件投递 Webhook 发送重置链接。
+
+仓库内的 `deploy/mail-adapter` 提供可直接用 Docker Compose 启动的 SMTP Webhook，支持 `password_reset` 与 `email_verification_code` 两种模板。复制其 `.env.example` 为 `.env` 后填入 SMTP 授权码和随机 Bearer 密钥，服务默认仅监听 `127.0.0.1:5590`。
+
+个人中心可查看所有未过期会话并逐个撤销；修改密码会撤销其他设备的会话。邮箱、验证码、重置 URL、投递凭据和 Session 都不得写入日志。
 
 ## 数据库生命周期
 

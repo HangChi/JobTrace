@@ -266,13 +266,11 @@
   gap: 5px;
 }
 .profile-avatar-copy strong,
-.password-form-heading strong,
 .profile-signout strong {
   color: var(--ink-strong);
   font-size: 0.9rem;
 }
 .profile-avatar-copy p,
-.password-form-heading p,
 .profile-signout p {
   margin: 0;
   color: var(--muted);
@@ -343,12 +341,50 @@
   font-weight: 700;
 }
 .password-form-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: none;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.password-form-heading > div {
+  min-width: 0;
   display: grid;
-  gap: 6px;
-  max-width: 560px;
+  gap: 4px;
+}
+.password-form-heading h3 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 0.94rem;
+}
+.password-form-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+.password-form-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  color: var(--lavender-strong);
+  background: var(--lavender);
+}
+.password-form-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .password-form {
-  max-width: 600px;
+  max-width: none;
   gap: 18px;
 }
 .password-fields {
@@ -403,6 +439,188 @@
 }
 .password-form-footer .button {
   min-width: 128px;
+}
+.credential-settings {
+  display: grid;
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.credential-settings-item + .credential-settings-item {
+  border-top: 1px solid var(--line);
+}
+.credential-settings-item.is-open {
+  background: color-mix(in srgb, var(--surface-soft) 46%, var(--surface));
+}
+.credential-settings-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 82px;
+  padding: 15px 18px;
+}
+.credential-settings-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+.credential-settings-icon.password {
+  color: var(--lavender-strong);
+  background: var(--lavender);
+}
+.credential-settings-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.credential-settings-copy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.credential-settings-titleline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.credential-settings-titleline h3 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 0.9rem;
+}
+.credential-settings-copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.credential-settings-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+.credential-settings-toggle {
+  min-width: 110px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  color: var(--brand-dark);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.73rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.credential-settings-toggle:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+.credential-settings-toggle:focus-visible {
+  outline: 3px solid #52c9b7;
+  outline-offset: 2px;
+}
+.credential-settings-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 160ms ease;
+}
+.credential-settings-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.credential-settings-editor {
+  padding: 2px 24px 24px;
+}
+.credential-settings-editor-panel {
+  width: min(100%, 720px);
+  display: grid;
+  gap: 18px;
+  margin-inline: auto;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.credential-settings-editor-intro {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.credential-settings-editor-intro strong {
+  color: var(--ink-strong);
+  font-size: 0.8rem;
+}
+.credential-settings-editor-intro span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.credential-settings-editor .password-form,
+.credential-settings-editor .profile-email-form {
+  width: 100%;
+  max-width: none;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.credential-settings-editor .password-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px;
+}
+.credential-settings-editor .password-fields > :first-child {
+  grid-column: 1 / -1;
+}
+.credential-settings-editor .profile-email-detail-grid {
+  gap: 14px;
+}
+.credential-settings-editor .password-form-footer,
+.credential-settings-editor .profile-email-footer {
+  min-height: 44px;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.credential-settings-editor .password-form-footer .button {
+  margin-left: auto;
+}
+.credential-settings-editor .profile-inline-actions {
+  margin-left: auto;
 }
 .profile-security-sessions {
   display: grid;
@@ -541,4 +759,244 @@
 }
 .profile-signout form {
   flex: 0 0 auto;
+}
+.profile-email-form {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 760px);
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(34, 105, 94, 0.06);
+}
+
+.profile-email-status {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.profile-email-status-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.profile-email-status-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.profile-email-status-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.profile-email-status-copy small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.profile-email-status-copy strong {
+  color: var(--ink-strong);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.profile-email-status-copy > span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.profile-email-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--brand-dark);
+  background: var(--surface);
+  font-size: 0.68rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.profile-email-verified svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.profile-email-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-email-address-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.profile-email-code-button {
+  min-width: 136px;
+  box-shadow: none;
+}
+
+.profile-email-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.profile-email-footer {
+  align-items: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.profile-email-footer .profile-inline-actions {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.profile-email-unbind {
+  border-color: transparent;
+}
+
+@media (max-width: 700px) {
+  .profile-email-form {
+    padding: 16px;
+  }
+
+  .profile-email-status {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .profile-email-verified {
+    grid-column: 2;
+    width: fit-content;
+  }
+
+  .profile-email-address-control,
+  .profile-email-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-email-code-button {
+    width: 100%;
+  }
+
+  .profile-email-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-email-footer .profile-inline-actions {
+    width: 100%;
+  }
+
+  .profile-email-footer .profile-inline-actions > * {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .credential-settings-editor .password-fields,
+  .credential-settings-editor .profile-email-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .credential-settings-editor .password-form-footer,
+  .credential-settings-editor .profile-email-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .credential-settings-editor .password-form-footer .button,
+  .credential-settings-editor .profile-inline-actions {
+    width: 100%;
+  }
+
+  .credential-settings-editor .password-form-footer .button {
+    align-self: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .credential-settings-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .credential-settings-toggle {
+    grid-column: 2;
+    min-width: 0;
+    width: fit-content;
+  }
+
+  .credential-settings-editor {
+    padding: 0 14px 16px;
+  }
+
+  .credential-settings-editor-panel {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .credential-settings-editor .password-form,
+  .credential-settings-editor .profile-email-form {
+    padding: 0;
+  }
+}
+
+@media (max-width: 460px) {
+  .profile-email-status {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-email-status-icon,
+  .profile-email-verified {
+    grid-column: 1;
+  }
+
+  .profile-email-footer .profile-inline-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .profile-email-footer .profile-inline-actions .profile-email-unbind {
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .credential-settings-toggle svg {
+    transition: none;
+  }
 }

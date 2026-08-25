@@ -14,6 +14,8 @@ const fieldLabels: Record<string, string> = {
   displayName: "昵称",
   email: "邮箱",
   recoveryEmail: "恢复邮箱",
+  identifier: "邮箱或用户名",
+  verificationCode: "邮箱验证码",
   username: "用户名",
   password: "密码",
   confirmPassword: "确认密码",
@@ -98,20 +100,24 @@ function PasswordToggle({
 export function AuthForm({
   mode,
   action,
-  defaultUsername,
+  defaultIdentifier,
   returnTo,
   token,
 }: {
   mode: Mode;
   action: Action;
-  defaultUsername?: string;
+  defaultIdentifier?: string;
   returnTo?: string;
   token?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [showPassword, setShowPassword] = useState(false);
+  const [registrationEmail, setRegistrationEmail] = useState("");
+  const [codeMessage, setCodeMessage] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [sendingCode, setSendingCode] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
-  const username = mode === "login" || mode === "register";
   const email = mode === "forgot" || mode === "register";
   const password = mode === "login" || mode === "register" || mode === "reset";
   const fieldErrors = state.fieldErrors ?? {};
@@ -121,11 +127,48 @@ export function AuthForm({
     if (state.error) errorSummaryRef.current?.focus();
   }, [state]);
 
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
+
+  async function sendRegistrationCode() {
+    if (!registrationEmail) {
+      setCodeError("请先输入邮箱。");
+      return;
+    }
+    setSendingCode(true);
+    setCodeError("");
+    setCodeMessage("");
+    try {
+      const response = await fetch("/api/auth/email-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: registrationEmail }),
+      });
+      const result = (await response.json()) as { message?: string };
+      if (!response.ok) throw new Error(result.message || "验证码发送失败。");
+      setCodeMessage(result.message || "验证码已发送。");
+      setCooldown(60);
+    } catch (reason) {
+      setCodeError(
+        reason instanceof Error ? reason.message : "验证码发送失败。",
+      );
+    } finally {
+      setSendingCode(false);
+    }
+  }
+
   const describedBy = (...ids: Array<string | false>) =>
     ids.filter(Boolean).join(" ") || undefined;
 
   return (
-    <form action={formAction} className="auth-card" aria-busy={pending}>
+    <form
+      action={formAction}
+      className={`auth-card auth-card-${mode}`}
+      aria-busy={pending}
+    >
       {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
       {mode === "reset" && <input type="hidden" name="token" value={token} />}
 
@@ -152,8 +195,40 @@ export function AuthForm({
         </div>
       )}
 
-      {username && (
+      {mode === "login" && (
         <div className="auth-field">
+          <div className="auth-field-label">
+            <label htmlFor="identifier">邮箱或用户名</label>
+            <small>必填</small>
+          </div>
+          <div className="auth-input-wrap">
+            <AuthIcon name="user" />
+            <input
+              id="identifier"
+              name="identifier"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              maxLength={254}
+              placeholder="邮箱或用户名"
+              defaultValue={defaultIdentifier}
+              aria-invalid={Boolean(fieldErrors.identifier)}
+              aria-describedby={
+                fieldErrors.identifier ? "identifier-error" : undefined
+              }
+              required
+            />
+          </div>
+          {fieldErrors.identifier && (
+            <small className="auth-field-error" id="identifier-error">
+              {fieldErrors.identifier}
+            </small>
+          )}
+        </div>
+      )}
+
+      {mode === "register" && (
+        <div className="auth-field auth-register-username">
           <div className="auth-field-label">
             <label htmlFor="username">用户名</label>
             <small>必填</small>
@@ -170,7 +245,6 @@ export function AuthForm({
               maxLength={30}
               pattern="[A-Za-z0-9_]+"
               placeholder="例如：lin_2026"
-              defaultValue={defaultUsername}
               aria-invalid={Boolean(fieldErrors.username)}
               aria-describedby={describedBy(
                 mode === "register" && "username-hint",
@@ -181,7 +255,7 @@ export function AuthForm({
           </div>
           {mode === "register" && (
             <small className="auth-field-hint" id="username-hint">
-              3–30 位，仅支持字母、数字和下划线，不区分大小写
+              3–30 位字母、数字或下划线
             </small>
           )}
           {fieldErrors.username && (
@@ -193,7 +267,7 @@ export function AuthForm({
       )}
 
       {mode === "register" && (
-        <div className="auth-field">
+        <div className="auth-field auth-register-display-name">
           <div className="auth-field-label">
             <label htmlFor="displayName">昵称</label>
             <small>选填</small>
@@ -221,44 +295,108 @@ export function AuthForm({
       )}
 
       {email && (
-        <div className="auth-field">
+        <div
+          className={`auth-field ${mode === "register" ? "auth-register-email" : ""}`}
+        >
           <div className="auth-field-label">
-            <label htmlFor={mode === "register" ? "recoveryEmail" : "email"}>
-              恢复邮箱
-            </label>
-            <small>{mode === "forgot" ? "必填" : "可选"}</small>
+            <label htmlFor="email">邮箱</label>
+            <small>必填</small>
           </div>
-          <div className="auth-input-wrap">
+          <div
+            className={`auth-input-wrap ${mode === "register" ? "auth-input-with-action" : ""}`}
+          >
             <AuthIcon name="mail" />
             <input
-              id={mode === "register" ? "recoveryEmail" : "email"}
-              name={mode === "register" ? "recoveryEmail" : "email"}
+              id="email"
+              name="email"
               type="email"
               autoComplete="email"
               autoCapitalize="none"
               spellCheck={false}
               placeholder="name@example.com"
-              aria-invalid={Boolean(
-                fieldErrors[mode === "register" ? "recoveryEmail" : "email"],
-              )}
-              aria-describedby={
-                fieldErrors[mode === "register" ? "recoveryEmail" : "email"]
-                  ? "email-error"
+              value={mode === "register" ? registrationEmail : undefined}
+              onChange={
+                mode === "register"
+                  ? (event) => {
+                      setRegistrationEmail(event.target.value);
+                      setCodeError("");
+                      setCodeMessage("");
+                    }
                   : undefined
               }
-              required={mode === "forgot"}
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
+              required
+            />
+            {mode === "register" && (
+              <button
+                className="button secondary auth-code-button"
+                type="button"
+                disabled={sendingCode || cooldown > 0}
+                onClick={() => void sendRegistrationCode()}
+              >
+                {sendingCode
+                  ? "发送中…"
+                  : cooldown > 0
+                    ? `${cooldown} 秒`
+                    : "发送验证码"}
+              </button>
+            )}
+          </div>
+          {fieldErrors.email && (
+            <small className="auth-field-error" id="email-error">
+              {fieldErrors.email}
+            </small>
+          )}
+          {codeMessage && (
+            <small className="auth-code-success">{codeMessage}</small>
+          )}
+          {codeError && (
+            <small className="auth-field-error" role="alert">
+              {codeError}
+            </small>
+          )}
+        </div>
+      )}
+
+      {mode === "register" && (
+        <div className="auth-field auth-register-code">
+          <div className="auth-field-label">
+            <label htmlFor="verificationCode">邮箱验证码</label>
+            <small>必填</small>
+          </div>
+          <div className="auth-input-wrap">
+            <AuthIcon name="mail" />
+            <input
+              id="verificationCode"
+              name="verificationCode"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              minLength={6}
+              maxLength={6}
+              pattern="[0-9]{6}"
+              placeholder="6 位验证码"
+              aria-invalid={Boolean(fieldErrors.verificationCode)}
+              aria-describedby={
+                fieldErrors.verificationCode
+                  ? "verification-code-error"
+                  : undefined
+              }
+              required
             />
           </div>
-          {fieldErrors[mode === "register" ? "recoveryEmail" : "email"] && (
-            <small className="auth-field-error" id="email-error">
-              {fieldErrors[mode === "register" ? "recoveryEmail" : "email"]}
+          {fieldErrors.verificationCode && (
+            <small className="auth-field-error" id="verification-code-error">
+              {fieldErrors.verificationCode}
             </small>
           )}
         </div>
       )}
 
       {password && (
-        <div className="auth-field">
+        <div
+          className={`auth-field ${mode === "register" ? "auth-register-password" : ""}`}
+        >
           <div className="auth-field-label">
             <label htmlFor="password">
               {mode === "reset" ? "新密码" : "密码"}
@@ -276,9 +414,7 @@ export function AuthForm({
               }
               minLength={mode === "login" ? 1 : 8}
               maxLength={mode === "login" ? 128 : 16}
-              placeholder={
-                mode === "login" ? "输入你的密码" : "输入 8–16 位密码"
-              }
+              placeholder={mode === "login" ? "输入你的密码" : "8–16 位密码"}
               aria-invalid={Boolean(fieldErrors.password)}
               aria-describedby={describedBy(
                 mode !== "login" && "password-hint",
@@ -293,7 +429,7 @@ export function AuthForm({
           </div>
           {mode !== "login" && (
             <small className="auth-field-hint" id="password-hint">
-              8–16 位，不限制字符组合
+              8–16 位字符
             </small>
           )}
           {fieldErrors.password && (
@@ -305,7 +441,7 @@ export function AuthForm({
       )}
 
       {mode === "register" && (
-        <div className="auth-field">
+        <div className="auth-field auth-register-confirm-password">
           <div className="auth-field-label">
             <label htmlFor="confirmPassword">确认密码</label>
             <small>必填</small>

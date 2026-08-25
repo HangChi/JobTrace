@@ -7,15 +7,15 @@ describe("AuthForm", () => {
       <AuthForm
         mode="login"
         action={vi.fn(async () => ({}))}
-        defaultUsername="trace_user"
+        defaultIdentifier="trace_user"
         returnTo="/analytics"
       />,
     );
-    expect(screen.getByLabelText("用户名")).toHaveAttribute(
+    expect(screen.getByLabelText("邮箱或用户名")).toHaveAttribute(
       "autocomplete",
       "username",
     );
-    expect(screen.getByLabelText("用户名")).toHaveValue("trace_user");
+    expect(screen.getByLabelText("邮箱或用户名")).toHaveValue("trace_user");
     expect(screen.getByLabelText("密码")).toHaveAttribute(
       "autocomplete",
       "current-password",
@@ -32,7 +32,9 @@ describe("AuthForm", () => {
     expect(screen.getByLabelText("用户名")).toHaveAttribute("maxlength", "30");
     expect(screen.getByText(/3–30 位/)).toBeVisible();
     expect(screen.getByLabelText("昵称")).not.toBeRequired();
-    expect(screen.getByLabelText("恢复邮箱")).not.toBeRequired();
+    expect(screen.getByLabelText("邮箱")).toBeRequired();
+    expect(screen.getByLabelText("邮箱验证码")).toBeRequired();
+    expect(screen.getByRole("button", { name: "发送验证码" })).toBeEnabled();
     expect(screen.getByLabelText("密码")).toHaveAttribute("maxlength", "16");
     expect(screen.getByLabelText("确认密码")).toHaveAttribute(
       "autocomplete",

@@ -17,6 +17,10 @@ const authEnvSchema = z.object({
   AUTH_CHALLENGE_SECRET: z.string().min(1).optional(),
   AUTH_EMAIL_DELIVERY_URL: z.url().optional(),
   AUTH_EMAIL_DELIVERY_SECRET: z.string().min(1).optional(),
+  AUTH_EMAIL_VERIFICATION_TEST_CODE: z
+    .string()
+    .regex(/^\d{6}$/)
+    .optional(),
 });
 
 const cosEnvSchema = z.object({
@@ -57,6 +61,8 @@ export function getAuthEnv() {
     AUTH_EMAIL_DELIVERY_URL: process.env.AUTH_EMAIL_DELIVERY_URL || undefined,
     AUTH_EMAIL_DELIVERY_SECRET:
       process.env.AUTH_EMAIL_DELIVERY_SECRET || undefined,
+    AUTH_EMAIL_VERIFICATION_TEST_CODE:
+      process.env.AUTH_EMAIL_VERIFICATION_TEST_CODE || undefined,
   });
 }
 
@@ -87,5 +93,7 @@ export function hasAuthConfiguration() {
     AUTH_EMAIL_DELIVERY_URL: process.env.AUTH_EMAIL_DELIVERY_URL || undefined,
     AUTH_EMAIL_DELIVERY_SECRET:
       process.env.AUTH_EMAIL_DELIVERY_SECRET || undefined,
+    AUTH_EMAIL_VERIFICATION_TEST_CODE:
+      process.env.AUTH_EMAIL_VERIFICATION_TEST_CODE || undefined,
   }).success;
 }

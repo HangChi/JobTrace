@@ -27,7 +27,7 @@ export default async function Page({
   const returnTo = safeReturnTo(first(query.returnTo));
   const registered = first(query.registered) === "1";
   const parsedUsername = usernameSchema.safeParse(first(query.username));
-  const defaultUsername =
+  const defaultIdentifier =
     registered && parsedUsername.success ? parsedUsername.data : undefined;
   const registerHref = returnTo
     ? (`/register?returnTo=${encodeURIComponent(returnTo)}` as Route)
@@ -60,7 +60,7 @@ export default async function Page({
         <AuthForm
           mode="login"
           action={loginAction}
-          defaultUsername={defaultUsername}
+          defaultIdentifier={defaultIdentifier}
           returnTo={returnTo ?? undefined}
         />
       )}

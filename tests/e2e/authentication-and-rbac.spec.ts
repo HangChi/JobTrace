@@ -52,6 +52,10 @@ test("registration returns to the requested page through the login form", async 
 
   await page.getByLabel("用户名").fill(username.toUpperCase());
   await page.getByLabel("昵称").fill("流程测试用户");
+  await page
+    .getByLabel("邮箱", { exact: true })
+    .fill(`${username}@example.com`);
+  await page.getByLabel("邮箱验证码").fill("000000");
   await page.getByLabel("密码", { exact: true }).fill(password);
   await page.getByLabel("确认密码", { exact: true }).fill(password);
   await page.getByRole("button", { name: "创建账号" }).click();

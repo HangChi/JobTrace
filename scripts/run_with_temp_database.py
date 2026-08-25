@@ -37,6 +37,7 @@ def main() -> None:
             connection.commit()
         environment = os.environ.copy()
         environment["DATABASE_URL"] = target
+        environment["AUTH_EMAIL_VERIFICATION_TEST_CODE"] = "000000"
         executable = shutil.which(command[0])
         if not executable:
             raise SystemExit(f"command not found: {command[0]}")

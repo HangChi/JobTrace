@@ -1,0 +1,23 @@
+services:
+  mailer:
+    build: .
+    container_name: jobtrace-mailer
+    restart: unless-stopped
+    env_file: [.env]
+    ports: ["127.0.0.1:5590:5590"]
+    read_only: true
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5590/health', timeout=3)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

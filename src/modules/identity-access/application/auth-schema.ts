@@ -15,6 +15,10 @@ export const passwordSchema = z
   .string()
   .min(8, "密码至少需要 8 位")
   .max(16, "密码不能超过 16 位");
+export const verificationCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, "请输入 6 位邮箱验证码");
 
 const displayNameSchema = z
   .union([
@@ -26,10 +30,8 @@ const displayNameSchema = z
 
 export const registerSchema = z.object({
   username: usernameSchema,
-  recoveryEmail: z.preprocess(
-    (value) => (value === "" ? undefined : value),
-    emailSchema.optional(),
-  ),
+  email: emailSchema,
+  verificationCode: verificationCodeSchema,
   password: passwordSchema,
   displayName: displayNameSchema,
 });
@@ -49,11 +51,30 @@ export const registerFormSchema = registerSchema
     }
   });
 
-export const loginSchema = z.object({
-  username: usernameSchema,
-  password: z.string().min(1).max(128),
-  returnTo: z.string().optional(),
-});
+export const loginSchema = z.preprocess(
+  (input) => {
+    if (!input || typeof input !== "object") return input;
+    const value = input as Record<string, unknown>;
+    return { ...value, identifier: value.identifier ?? value.username };
+  },
+  z.object({
+    identifier: z
+      .string()
+      .trim()
+      .min(1, "请输入邮箱或用户名")
+      .max(254)
+      .transform((value) => value.toLowerCase())
+      .refine(
+        (value) =>
+          value.includes("@")
+            ? emailSchema.safeParse(value).success
+            : usernameSchema.safeParse(value).success,
+        "请输入有效的邮箱或用户名",
+      ),
+    password: z.string().min(1).max(128),
+    returnTo: z.string().optional(),
+  }),
+);
 
 export function safeReturnTo(value: string | undefined) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return null;
