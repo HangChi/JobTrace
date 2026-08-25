@@ -147,8 +147,18 @@ export function AuthForm({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: registrationEmail }),
       });
-      const result = (await response.json()) as { message?: string };
-      if (!response.ok) throw new Error(result.message || "验证码发送失败。");
+      const result = (await response.json()) as {
+        message?: string;
+        fieldErrors?: Array<{ field: string; message: string }>;
+      };
+      if (!response.ok) {
+        const emailError = result.fieldErrors?.find(
+          (item) => item.field === "email",
+        );
+        throw new Error(
+          emailError?.message || result.message || "验证码发送失败。",
+        );
+      }
       setCodeMessage(result.message || "验证码已发送。");
       setCooldown(60);
     } catch (reason) {
@@ -324,8 +334,11 @@ export function AuthForm({
                     }
                   : undefined
               }
-              aria-invalid={Boolean(fieldErrors.email)}
-              aria-describedby={fieldErrors.email ? "email-error" : undefined}
+              aria-invalid={Boolean(fieldErrors.email || codeError)}
+              aria-describedby={describedBy(
+                Boolean(fieldErrors.email) && "email-error",
+                Boolean(codeError) && "email-code-error",
+              )}
               required
             />
             {mode === "register" && (
@@ -352,7 +365,11 @@ export function AuthForm({
             <small className="auth-code-success">{codeMessage}</small>
           )}
           {codeError && (
-            <small className="auth-field-error" role="alert">
+            <small
+              className="auth-field-error"
+              id="email-code-error"
+              role="alert"
+            >
               {codeError}
             </small>
           )}

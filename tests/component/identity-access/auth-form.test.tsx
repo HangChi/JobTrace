@@ -1,6 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthForm } from "@/modules/identity-access/ui/auth-form";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("AuthForm", () => {
   it("uses accessible credential semantics", () => {
     render(
@@ -44,6 +49,37 @@ describe("AuthForm", () => {
     fireEvent.click(screen.getAllByRole("button", { name: "显示密码" })[0]);
     expect(screen.getByLabelText("密码")).toHaveAttribute("type", "text");
     expect(screen.getByLabelText("确认密码")).toHaveAttribute("type", "text");
+  });
+
+  it("shows a duplicate-email error beside the registration email", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => ({
+          code: "email_conflict",
+          message: "该邮箱已绑定账号，请更换邮箱或直接登录。",
+          fieldErrors: [
+            {
+              field: "email",
+              code: "email_conflict",
+              message: "该邮箱已绑定账号，请更换邮箱或直接登录。",
+            },
+          ],
+        }),
+      }),
+    );
+    render(<AuthForm mode="register" action={vi.fn(async () => ({}))} />);
+
+    const email = screen.getByLabelText("邮箱");
+    fireEvent.change(email, { target: { value: "used@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: "发送验证码" }));
+
+    expect(
+      await screen.findByText("该邮箱已绑定账号，请更换邮箱或直接登录。"),
+    ).toBeVisible();
+    expect(email).toHaveAttribute("aria-invalid", "true");
+    expect(email).toHaveAttribute("aria-describedby", "email-code-error");
   });
 
   it("focuses the error summary and connects field-level errors", async () => {

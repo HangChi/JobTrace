@@ -43,8 +43,6 @@ export async function requestEmailVerificationCode(
 ) {
   const email = emailSchema.parse(rawEmail);
   await checkAuthRateLimit(rateKey, "email-code-ip", 20, 60 * 60_000);
-  await checkAuthRateLimit(email, "email-code-address", 5, 60 * 60_000);
-  await checkAuthRateLimit(email, "email-code-cooldown", 1, 60_000);
   const sql = createServerDatabase();
   const [conflict] = await sql<{ id: string }[]>`
     select id from public.users
@@ -54,10 +52,23 @@ export async function requestEmailVerificationCode(
   `;
   if (conflict) {
     if (purpose === "registration") {
-      return { message: "如果该邮箱可用，验证码将发送到该邮箱。" };
+      throw new Problem(
+        "email_conflict",
+        "该邮箱已绑定账号，请更换邮箱或直接登录。",
+        409,
+        [
+          {
+            field: "email",
+            code: "email_conflict",
+            message: "该邮箱已绑定账号，请更换邮箱或直接登录。",
+          },
+        ],
+      );
     }
     throw new Problem("email_conflict", "该邮箱已绑定其他账号。", 409);
   }
+  await checkAuthRateLimit(email, "email-code-address", 5, 60 * 60_000);
+  await checkAuthRateLimit(email, "email-code-cooldown", 1, 60_000);
 
   const code =
     testCode() ?? randomInt(0, 1_000_000).toString().padStart(6, "0");

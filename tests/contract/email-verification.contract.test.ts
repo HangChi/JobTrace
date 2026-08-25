@@ -34,6 +34,22 @@ test("new accounts require a verified email and can log in with it", async ({
   });
   expect(registered.status()).toBe(202);
 
+  const duplicateEmail = await context.post("/api/auth/email-code", {
+    data: { email },
+  });
+  expect(duplicateEmail.status()).toBe(409);
+  expect(await duplicateEmail.json()).toMatchObject({
+    code: "email_conflict",
+    message: "该邮箱已绑定账号，请更换邮箱或直接登录。",
+    fieldErrors: [
+      {
+        field: "email",
+        code: "email_conflict",
+        message: "该邮箱已绑定账号，请更换邮箱或直接登录。",
+      },
+    ],
+  });
+
   const login = await context.post("/api/auth/login", {
     data: { identifier: email.toUpperCase(), password },
   });
