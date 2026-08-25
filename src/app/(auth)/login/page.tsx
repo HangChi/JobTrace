@@ -22,7 +22,7 @@ export default async function Page({
 }) {
   const configured = hasAuthConfiguration();
   const a = await getActor();
-  if (a) redirect(a.role === "admin" ? "/admin" : "/");
+  if (a && !a.disabled) redirect(a.role === "admin" ? "/admin" : "/");
   const query = await searchParams;
   const returnTo = safeReturnTo(first(query.returnTo));
   const registered = first(query.registered) === "1";

@@ -149,6 +149,8 @@ pnpm lighthouse       # Web 性能与可访问性审计
 | 变量                                | 要求           | 用途                                                |
 | ----------------------------------- | -------------- | --------------------------------------------------- |
 | `DATABASE_URL`                      | 必填           | PostgreSQL 连接串，仅服务端使用。                   |
+| `DATABASE_APP_POOL_MAX`             | 可选           | 单实例业务连接池上限，默认 8。                      |
+| `DATABASE_AUTH_POOL_MAX`            | 可选           | 单实例认证连接池上限，默认 2。                      |
 | `BETTER_AUTH_SECRET`                | 必填           | Better Auth 密钥，至少 32 个字符。                  |
 | `BETTER_AUTH_URL`                   | 必填           | 应用的规范访问地址，生产环境必须为 HTTPS。          |
 | `AUTH_CHALLENGE_VERIFY_URL`         | 可选           | CAPTCHA 兼容的服务端验证端点。                      |

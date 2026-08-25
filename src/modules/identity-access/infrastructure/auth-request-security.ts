@@ -14,6 +14,7 @@ export async function verifyAuthChallenge(request: Request) {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ token, secret: env.AUTH_CHALLENGE_SECRET }),
     cache: "no-store",
+    signal: AbortSignal.timeout(5_000),
   });
   const result = (await response.json().catch(() => null)) as {
     success?: boolean;

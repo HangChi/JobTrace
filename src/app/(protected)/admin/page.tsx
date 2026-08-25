@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getAdminSummary } from "@/modules/identity-access";
+import { getAdminSummary, requirePageAdmin } from "@/modules/identity-access";
 import { AdminSummary } from "@/modules/identity-access/ui/admin-summary";
 
 export default async function AdminOverviewPage() {
+  await requirePageAdmin();
   const summary = await getAdminSummary();
   return (
     <section className="stack page-gap">

@@ -8,6 +8,8 @@ const databaseEnvSchema = z.object({
         value.startsWith("postgres://") || value.startsWith("postgresql://"),
       "DATABASE_URL 必须使用 PostgreSQL 协议",
     ),
+  DATABASE_APP_POOL_MAX: z.coerce.number().int().min(1).max(50).default(8),
+  DATABASE_AUTH_POOL_MAX: z.coerce.number().int().min(1).max(20).default(2),
 });
 
 const authEnvSchema = z.object({
@@ -48,6 +50,8 @@ export type CosEnv = {
 export function getDatabaseEnv() {
   return databaseEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_APP_POOL_MAX: process.env.DATABASE_APP_POOL_MAX || undefined,
+    DATABASE_AUTH_POOL_MAX: process.env.DATABASE_AUTH_POOL_MAX || undefined,
   });
 }
 

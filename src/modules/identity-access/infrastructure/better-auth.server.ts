@@ -7,7 +7,13 @@ import { Pool } from "pg";
 import { getAuthEnv, getDatabaseEnv } from "@/shared/config/env";
 import { deliverEmail } from "./email-delivery.server";
 
-const database = new Pool({ connectionString: getDatabaseEnv().DATABASE_URL });
+const databaseEnv = getDatabaseEnv();
+const database = new Pool({
+  connectionString: databaseEnv.DATABASE_URL,
+  max: databaseEnv.DATABASE_AUTH_POOL_MAX,
+  idleTimeoutMillis: 20_000,
+  connectionTimeoutMillis: 10_000,
+});
 const authEnv = getAuthEnv();
 
 async function sendResetPassword({
