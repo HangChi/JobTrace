@@ -87,7 +87,11 @@ function PasswordField({
   );
 }
 
-export function PasswordForm() {
+export function PasswordForm({
+  showHeading = true,
+}: {
+  showHeading?: boolean;
+}) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -142,10 +146,21 @@ export function PasswordForm() {
 
   return (
     <form className="password-form" onSubmit={submit}>
-      <div className="password-form-heading">
-        <strong>更新登录密码</strong>
-        <p>更新后，其他设备将自动退出，当前设备不受影响。</p>
-      </div>
+      {showHeading && (
+        <div className="password-form-heading">
+          <span className="password-form-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="5" y="10" width="14" height="10" rx="2.5" />
+              <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" />
+              <path d="M12 14v2" />
+            </svg>
+          </span>
+          <div>
+            <h3>更新登录密码</h3>
+            <p>更新后其他设备将自动退出。</p>
+          </div>
+        </div>
+      )}
 
       <div className="password-fields">
         <PasswordField

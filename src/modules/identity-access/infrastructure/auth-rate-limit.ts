@@ -12,7 +12,14 @@ export function clientRateLimitKey(request: Request, fallback: string) {
 
 export async function checkAuthRateLimit(
   key: string,
-  action: "login" | "register" | "password-reset",
+  action:
+    | "login"
+    | "register"
+    | "password-reset"
+    | "email-code-ip"
+    | "email-code-address"
+    | "email-code-cooldown"
+    | "email-change",
   limit = 10,
   windowMs = 60_000,
 ) {

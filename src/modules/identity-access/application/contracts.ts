@@ -13,6 +13,7 @@ export type Actor = {
 
 export type Profile = Actor & {
   recoveryEmail: string | null;
+  emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
 };

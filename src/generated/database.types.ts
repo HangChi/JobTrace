@@ -297,6 +297,53 @@ export const databaseSchema = {
       "nullable": false
     }
   ],
+  "email_verification_codes": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "email",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "purpose",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "user_id",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "code_hash",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "consumed_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "attempt_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
   "import_batches": [
     {
       "name": "id",
@@ -703,6 +750,11 @@ export const databaseSchema = {
     {
       "name": "recovery_email",
       "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "recovery_email_verified_at",
+      "type": "timestamp with time zone",
       "nullable": true
     }
   ],

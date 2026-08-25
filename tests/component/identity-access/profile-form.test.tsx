@@ -16,6 +16,7 @@ const profile: Profile = {
   displayName: "小迹",
   image: "https://assets.example/avatar.webp",
   recoveryEmail: "user@example.com",
+  emailVerified: true,
   role: "user",
   disabled: false,
   createdAt: "2026-08-01T00:00:00.000Z",

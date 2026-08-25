@@ -10,6 +10,8 @@ describe("identity access rules", () => {
   it("never accepts a role from public registration", () => {
     const parsed = registerSchema.parse({
       username: "Test_User",
+      email: "USER@example.com",
+      verificationCode: "123456",
       password: "12345678",
       role: "admin",
     });
@@ -38,6 +40,8 @@ describe("identity access rules", () => {
   it("requires matching password confirmation on the registration form", () => {
     const mismatch = registerFormSchema.safeParse({
       username: "Trace_User",
+      email: "trace@example.com",
+      verificationCode: "123456",
       password: "12345678",
       confirmPassword: "87654321",
       displayName: "",
@@ -56,6 +60,8 @@ describe("identity access rules", () => {
 
     const valid = registerFormSchema.parse({
       username: "Trace_User",
+      email: "trace@example.com",
+      verificationCode: "123456",
       password: "12345678",
       confirmPassword: "12345678",
       displayName: "",

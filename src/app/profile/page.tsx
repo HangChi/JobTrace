@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getAnalyticsSummary } from "@/modules/analytics";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
 import { getProfile, listAccountSessions } from "@/modules/identity-access";
-import { PasswordForm } from "@/modules/identity-access/ui/password-form";
+import { CredentialSettings } from "@/modules/identity-access/ui/credential-settings";
 import { ProfileForm } from "@/modules/identity-access/ui/profile-form";
 import { SessionList } from "@/modules/identity-access/ui/session-list";
 import { logoutAction } from "@/app/(auth)/actions";
@@ -91,7 +91,6 @@ export default async function ProfilePage() {
                 displayName: profile.displayName,
                 image: profile.image,
                 username: profile.username,
-                recoveryEmail: profile.recoveryEmail,
               }}
             />
           </section>
@@ -110,7 +109,7 @@ export default async function ProfilePage() {
                 <h2 id="profile-security-title">账号安全</h2>
               </div>
             </div>
-            <PasswordForm />
+            <CredentialSettings email={profile.recoveryEmail} />
             <div className="profile-security-sessions">
               <h3>登录设备</h3>
               <p>撤销不认识或不再使用的登录会话。</p>

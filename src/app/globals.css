@@ -304,6 +304,15 @@ textarea {
 .auth-main-inner {
   width: min(410px, 100%);
 }
+.auth-main-inner:has(.auth-card-register) {
+  width: min(520px, 100%);
+}
+.auth-main:has(.auth-card-register) {
+  padding: 38px clamp(32px, 4vw, 56px);
+}
+.auth-main-inner:has(.auth-card-register) .auth-heading {
+  margin-bottom: 24px;
+}
 .auth-heading {
   margin-bottom: 34px;
 }
@@ -338,6 +347,33 @@ textarea {
 .auth-card {
   display: grid;
   gap: 18px;
+}
+.auth-card-register {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+.auth-card-register > .auth-error-summary,
+.auth-card-register > .auth-register-email,
+.auth-card-register > .auth-register-code,
+.auth-card-register > .feedback,
+.auth-card-register > .auth-submit {
+  grid-column: 1 / -1;
+}
+.auth-register-code {
+  width: 100%;
+}
+.auth-card-register > .auth-field {
+  align-content: start;
+  align-self: start;
+}
+.auth-card-register .auth-input-wrap input {
+  min-height: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.auth-card-register .auth-field-hint {
+  font-size: 0.7rem;
 }
 .auth-field {
   display: grid;
@@ -469,6 +505,30 @@ textarea {
   color: white;
   background: var(--danger);
   font-size: 0.58rem;
+}
+
+.auth-code-button {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 5px;
+  min-width: 120px;
+  min-height: 44px;
+  padding-inline: 13px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+
+.auth-input-with-action input {
+  padding-right: 142px;
+}
+
+.auth-code-success {
+  color: var(--success, #15803d);
+  display: block;
+  margin-top: 0.45rem;
 }
 .auth-error-summary {
   padding: 14px 16px;
@@ -4840,6 +4900,14 @@ dialog::backdrop {
   .auth-input-wrap input {
     font-size: 1rem;
   }
+  .auth-card-register {
+    grid-template-columns: 1fr;
+  }
+  .auth-card-register > *,
+  .auth-register-code {
+    grid-column: 1;
+    width: 100%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -5011,6 +5079,13 @@ dialog::backdrop {
   }
   .auth-main {
     padding-inline: 22px;
+  }
+  .auth-input-with-action input {
+    padding-right: 124px;
+  }
+  .auth-code-button {
+    min-width: 104px;
+    padding-inline: 10px;
   }
   .auth-submit {
     flex: initial;
