@@ -4,6 +4,7 @@ import { Problem } from "@/shared/errors/problem";
 import { problemResponse } from "@/shared/http/problem-response";
 import {
   avatarObjectKey,
+  hasImageSignature,
   uploadCosObject,
 } from "@/shared/storage/tencent-cos.server";
 
@@ -21,11 +22,19 @@ export async function POST(request: Request) {
       throw new Problem("validation", "头像文件不能超过 5MB。", 400);
     }
 
+    const body = await file.arrayBuffer();
     const key = avatarObjectKey(actor.id, file.type);
     if (!key) {
       throw new Problem(
         "validation",
         "头像仅支持 PNG、JPG、WEBP 或 GIF。",
+        400,
+      );
+    }
+    if (!hasImageSignature(body, file.type)) {
+      throw new Problem(
+        "validation",
+        "文件内容与图片格式不匹配，请重新选择图片。",
         400,
       );
     }
@@ -44,7 +53,7 @@ export async function POST(request: Request) {
     let url: string;
     try {
       url = await uploadCosObject({
-        body: await file.arrayBuffer(),
+        body,
         contentType: file.type,
         key,
         config,

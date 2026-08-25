@@ -6,7 +6,7 @@ export default defineConfig({
   globalSetup: "./tests/setup/auth.global.ts",
   use: {
     baseURL: "http://127.0.0.1:3001",
-    storageState: ".playwright/auth.json",
+    storageState: ".playwright/auth-contract.json",
   },
   webServer: {
     command: `"${process.execPath}" ./scripts/next-dev.mjs 3001 .next-contract`,

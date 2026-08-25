@@ -43,3 +43,21 @@ export function logServerEvent(
     }),
   );
 }
+
+export function logServerError(
+  operation: string,
+  error: unknown,
+  context: Record<string, unknown> = {},
+) {
+  const errorType =
+    error instanceof Error ? error.constructor.name : typeof error;
+  console.error(
+    JSON.stringify({
+      level: "error",
+      operation,
+      errorType,
+      ...sanitizeLogContext(context),
+      at: new Date().toISOString(),
+    }),
+  );
+}

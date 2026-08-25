@@ -1,7 +1,29 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
+import { Problem } from "@/shared/errors/problem";
+import { assertMutationRequest } from "@/shared/http/request-security";
 
 export function proxy(request: NextRequest) {
+  const apiRequest = request.nextUrl.pathname.startsWith("/api/");
+  if (apiRequest && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    try {
+      assertMutationRequest(request);
+    } catch (error) {
+      const problem =
+        error instanceof Problem
+          ? error
+          : new Problem("invalid_request", "请求无效。", 400);
+      const requestId = crypto.randomUUID();
+      return NextResponse.json(
+        {
+          code: problem.code,
+          message: problem.message,
+          requestId,
+        },
+        { status: problem.status, headers: { "x-request-id": requestId } },
+      );
+    }
+  }
   const sessionCookie = getSessionCookie(request);
   const publicPath = [
     "/login",
@@ -9,7 +31,6 @@ export function proxy(request: NextRequest) {
     "/forgot-password",
     "/reset-password",
   ].some((path) => request.nextUrl.pathname.startsWith(path));
-  const apiRequest = request.nextUrl.pathname.startsWith("/api/");
   if (!sessionCookie && !publicPath && !apiRequest) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";

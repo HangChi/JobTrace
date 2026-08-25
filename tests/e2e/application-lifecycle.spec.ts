@@ -12,27 +12,15 @@ test("新增、编辑阶段并删除投递", async ({ page }) => {
   ).toBeVisible();
   await page
     .getByRole("combobox", { name: "阶段", exact: true })
-    .selectOption("screening");
-  await page.getByLabel("发生日期").fill("2026-08-13");
+    .selectOption("interview_1");
+  await page.getByLabel("状态变化日期").fill("2026-08-13");
   await page.getByRole("button", { name: "添加阶段" }).click();
-  await expect(page.getByText("简历筛选 · 2026-08-13").first()).toBeVisible();
-  const summary = await (
-    await page.request.get("/api/analytics/summary")
-  ).json();
-  const stageTotal = Object.values(
-    summary.stageDistribution as Record<string, number>,
-  ).reduce((sum, count) => sum + count, 0);
+  await expect(page.getByText("一面/AI面 · 2026-08-13").first()).toBeVisible();
   const accessibility = await new AxeBuilder({ page }).analyze();
   expect(accessibility.violations).toEqual([]);
   await page.getByRole("button", { name: "删除记录" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "确认删除" }).click();
   await expect(page).toHaveURL("/");
-  if (stageTotal === 1) {
-    await expect(page.getByText("尚未记录招聘阶段。")).toBeVisible();
-  } else {
-    await expect(
-      page.getByLabel(`共 ${stageTotal - 1} 次阶段记录`),
-    ).toBeVisible();
-  }
+  await expect(page.getByText("尚未记录招聘阶段。")).toBeVisible();
 });

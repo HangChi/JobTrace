@@ -64,6 +64,45 @@ def main() -> None:
             cursor.execute("select count(*) from information_schema.columns where table_schema='public' and table_name in ('applications','import_batches') and column_name='owner_id' and is_nullable='NO'")
             checks.append(("owner constraints", cursor.fetchone()[0] == 2))
             cursor.execute("select public.analytics_summary(current_date)"); checks.append(("analytics", cursor.fetchone()[0] is not None))
+            cursor.execute(
+                "select public.consume_auth_rate_limit('db-verify-key','login',1,60)"
+            )
+            first_allowed = cursor.fetchone()[0]
+            cursor.execute(
+                "select public.consume_auth_rate_limit('db-verify-key','login',1,60)"
+            )
+            checks.append(("persistent auth rate limit", first_allowed and not cursor.fetchone()[0]))
+            cursor.execute(
+                """
+                insert into import_batches(owner_id,total_rows,valid_rows)
+                values('db-verify',2,2) returning id
+                """
+            )
+            batch_id = cursor.fetchone()[0]
+            cursor.execute(
+                """
+                insert into import_rows(batch_id,row_number,normalized_data)
+                values
+                  (%s,1,'{"companyName":"批量验证","positionName":"工程师","appliedDate":"2026-08-02"}'::jsonb),
+                  (%s,2,'{"companyName":"跳过验证","positionName":"工程师","appliedDate":"2026-08-03"}'::jsonb)
+                """,
+                (batch_id, batch_id),
+            )
+            cursor.execute(
+                """
+                select public.confirm_import_batch_for_owner(
+                  'db-verify',%s,'[{"rowNumber":1,"action":"import"},{"rowNumber":2,"action":"skip"}]'::jsonb
+                )
+                """,
+                (batch_id,),
+            )
+            import_results = cursor.fetchone()[0]
+            checks.append(
+                (
+                    "bulk import confirmation",
+                    [row["result"] for row in import_results] == ["created", "skipped"],
+                )
+            )
     finally:
         connection.rollback(); connection.close()
     for name, passed in checks: print("PASS" if passed else "FAIL", name)

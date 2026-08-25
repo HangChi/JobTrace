@@ -2,6 +2,7 @@ export type {
   AccountRole,
   Actor,
   Profile,
+  AccountSession,
   AdminOperationalSummary,
   ManagedUserSummary,
   ManagedUserDetail,
@@ -34,6 +35,8 @@ export {
   updateProfile,
   getProfile,
   changePassword,
+  listAccountSessions,
+  revokeAccountSession,
 } from "./application/auth-service";
 export {
   listUsers,

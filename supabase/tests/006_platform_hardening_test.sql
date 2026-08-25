@@ -1,0 +1,10 @@
+begin;
+select plan(6);
+select has_column('public','users','recovery_email','recovery email exists');
+select has_table('public','auth_rate_limits','persistent rate limits exist');
+select has_function('public','consume_auth_rate_limit',array['text','text','integer','integer'],'rate limit function exists');
+select has_function('public','confirm_import_batch_for_owner',array['text','uuid','jsonb'],'bulk import confirmation exists');
+select ok(public.consume_auth_rate_limit('test-key','login',1,60),'first request is allowed');
+select isnt(public.consume_auth_rate_limit('test-key','login',1,60),true,'request beyond limit is denied');
+select * from finish();
+rollback;

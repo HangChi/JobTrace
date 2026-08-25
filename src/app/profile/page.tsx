@@ -1,74 +1,25 @@
 import Link from "next/link";
 import { getAnalyticsSummary } from "@/modules/analytics";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
-import { getProfile } from "@/modules/identity-access";
+import { getProfile, listAccountSessions } from "@/modules/identity-access";
 import { PasswordForm } from "@/modules/identity-access/ui/password-form";
 import { ProfileForm } from "@/modules/identity-access/ui/profile-form";
+import { SessionList } from "@/modules/identity-access/ui/session-list";
 import { logoutAction } from "@/app/(auth)/actions";
+import {
+  formatProfileDate,
+  profileInitials,
+  profileSections,
+  ProfileSectionIcon,
+} from "./profile-page-ui";
 
 export const dynamic = "force-dynamic";
 
-type IconName = "profile" | "security" | "data" | "account";
-
-function SectionIcon({ name }: { name: IconName }) {
-  const paths: Record<IconName, React.ReactNode> = {
-    profile: (
-      <>
-        <circle cx="12" cy="8" r="3" />
-        <path d="M5.5 20c.7-4.1 2.8-6 6.5-6s5.8 1.9 6.5 6" />
-      </>
-    ),
-    security: (
-      <>
-        <rect x="5" y="10" width="14" height="10" rx="2" />
-        <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2" />
-      </>
-    ),
-    data: (
-      <>
-        <ellipse cx="12" cy="6" rx="7" ry="3" />
-        <path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" />
-      </>
-    ),
-    account: (
-      <>
-        <rect x="4" y="5" width="16" height="14" rx="3" />
-        <circle cx="9" cy="11" r="2" />
-        <path d="M6.5 16c.4-1.8 1.2-2.7 2.5-2.7s2.1.9 2.5 2.7M14 10h3M14 14h3" />
-      </>
-    ),
-  };
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      {paths[name]}
-    </svg>
-  );
-}
-
-function initials(value: string) {
-  return value.trim().slice(0, 2).toUpperCase() || "JT";
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Shanghai",
-  }).format(new Date(value));
-}
-
-const sections: Array<{ id: string; label: string; icon: IconName }> = [
-  { id: "profile-details", label: "个人资料", icon: "profile" },
-  { id: "profile-security", label: "账号安全", icon: "security" },
-  { id: "profile-data", label: "数据管理", icon: "data" },
-  { id: "profile-account", label: "账号信息", icon: "account" },
-];
-
 export default async function ProfilePage() {
-  const [profile, summary] = await Promise.all([
+  const [profile, summary, sessions] = await Promise.all([
     getProfile(),
     getAnalyticsSummary(),
+    listAccountSessions(),
   ]);
   const roleLabel = profile.role === "admin" ? "管理员账号" : "个人账号";
 
@@ -86,7 +37,7 @@ export default async function ProfilePage() {
             role="img"
             aria-label={`${profile.displayName}头像`}
           >
-            {!profile.image && initials(profile.displayName)}
+            {!profile.image && profileInitials(profile.displayName)}
           </span>
           <div>
             <p className="eyebrow">
@@ -109,10 +60,10 @@ export default async function ProfilePage() {
         <aside className="profile-index panel">
           <p>求职轨迹索引</p>
           <nav aria-label="个人中心分区">
-            {sections.map((section) => (
+            {profileSections.map((section) => (
               <a href={`#${section.id}`} key={section.id}>
                 <span className="profile-index-marker" aria-hidden="true" />
-                <SectionIcon name={section.icon} />
+                <ProfileSectionIcon name={section.icon} />
                 {section.label}
               </a>
             ))}
@@ -128,7 +79,7 @@ export default async function ProfilePage() {
           >
             <div className="profile-section-heading">
               <span className="profile-section-icon">
-                <SectionIcon name="profile" />
+                <ProfileSectionIcon name="profile" />
               </span>
               <div>
                 <p>让工作台更像你</p>
@@ -140,6 +91,7 @@ export default async function ProfilePage() {
                 displayName: profile.displayName,
                 image: profile.image,
                 username: profile.username,
+                recoveryEmail: profile.recoveryEmail,
               }}
             />
           </section>
@@ -151,7 +103,7 @@ export default async function ProfilePage() {
           >
             <div className="profile-section-heading">
               <span className="profile-section-icon security-icon">
-                <SectionIcon name="security" />
+                <ProfileSectionIcon name="security" />
               </span>
               <div>
                 <p>保护每一条求职记录</p>
@@ -159,6 +111,11 @@ export default async function ProfilePage() {
               </div>
             </div>
             <PasswordForm />
+            <div className="profile-security-sessions">
+              <h3>登录设备</h3>
+              <p>撤销不认识或不再使用的登录会话。</p>
+              <SessionList initial={sessions} />
+            </div>
           </section>
 
           <section
@@ -168,7 +125,7 @@ export default async function ProfilePage() {
           >
             <div className="profile-section-heading">
               <span className="profile-section-icon data-icon">
-                <SectionIcon name="data" />
+                <ProfileSectionIcon name="data" />
               </span>
               <div>
                 <p>随时带走你的记录</p>
@@ -202,7 +159,7 @@ export default async function ProfilePage() {
           >
             <div className="profile-section-heading">
               <span className="profile-section-icon account-icon">
-                <SectionIcon name="account" />
+                <ProfileSectionIcon name="account" />
               </span>
               <div>
                 <p>查看登录身份</p>
@@ -220,7 +177,7 @@ export default async function ProfilePage() {
               </div>
               <div>
                 <dt>注册时间</dt>
-                <dd>{formatDate(profile.createdAt)}</dd>
+                <dd>{formatProfileDate(profile.createdAt)}</dd>
               </div>
             </dl>
             <div className="profile-signout">

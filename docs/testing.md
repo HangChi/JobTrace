@@ -14,6 +14,7 @@
 | 数据库重放   | `pnpm db:reset:verify`  | 新建空库，重放全部迁移和种子并验证核心事件。                        |
 | 类型漂移     | `pnpm db:types:check`   | 对比数据库结构与生成的 TypeScript 类型。                            |
 | 数据库烟雾   | `pnpm db:test`          | 在事务中校验核心写函数、事件、owner 约束和分析函数。                |
+| SQL 断言     | `pnpm db:sql:test`      | 用 pgTAP 执行 `supabase/tests/*.sql` 的数据库回归断言。             |
 | 契约         | `pnpm contract`         | Route Handler 状态码、响应和错误契约。                              |
 | 集成         | `pnpm integration`      | PostgreSQL 仓储、模块协作与 owner 隔离。                            |
 | 端到端       | `pnpm e2e`              | Chromium 中的核心用户旅程、认证、后台与无障碍。                     |
@@ -30,6 +31,7 @@
 - `.env.local` 中有可连接的测试 PostgreSQL `DATABASE_URL`；
 - 数据库账号可以连接名为 `postgres` 的维护数据库，并具有 `CREATE DATABASE` 权限；
 - Python 3.12 与 uv；
+- 数据库服务器已安装 pgTAP（仅运行 `db:sql:test` 时需要）；
 - Playwright Chromium：`pnpm exec playwright install chromium`。
 
 > [!IMPORTANT]
@@ -56,9 +58,9 @@ Playwright 套件使用不同端口和独立 Next.js 构建目录：
 
 这种隔离允许测试之间不共享业务数据，也避免并行启动时覆盖默认 `.next`。Playwright 当前统一使用单 worker，以确保数据库场景和认证状态可重复。
 
-### `db:test` 的区别
+### 直接数据库测试的区别
 
-`pnpm db:test` 直接连接 `.env.local` 指向的已迁移数据库。Python 校验在事务中插入验证数据，结束时回滚；仍应按可能接触当前数据库谨慎对待。需要验证完整迁移链时优先使用 `db:reset:verify`。
+`pnpm db:test` 和 `pnpm db:sql:test` 直接连接 `.env.local` 指向的已迁移数据库。Python 烟雾校验和每个 pgTAP 文件都使用事务并回滚验证数据；仍应按可能接触当前数据库谨慎对待。需要验证完整迁移链时优先使用 `db:reset:verify`。
 
 ## 覆盖率与质量门槛
 
@@ -106,6 +108,7 @@ pnpm test
 pnpm db:reset:verify
 pnpm db:types:check
 pnpm db:test
+pnpm db:sql:test
 pnpm contract
 pnpm integration
 pnpm e2e
@@ -115,7 +118,7 @@ pnpm build
 pnpm lighthouse
 ```
 
-CI 当前执行格式、lint、类型、Python 语法、单元测试、迁移、数据库烟雾校验、契约、构建、E2E 和数据性能。集成、认证性能与 Lighthouse 虽未全部列入当前 GitHub Actions 工作流，仍属于本地发布清单。
+CI 执行格式、lint、类型、Python 语法、单元测试、迁移、Python/pgTAP 数据库校验、空库重放、类型漂移、契约、集成、构建、E2E、数据与认证性能以及 Lighthouse。
 
 ## 失败排查
 

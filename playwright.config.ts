@@ -9,7 +9,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3004",
     trace: "retain-on-failure",
-    storageState: ".playwright/auth.json",
+    storageState: ".playwright/auth-e2e.json",
   },
   webServer: {
     command: `"${node}" ./scripts/next-dev.mjs 3004 .next-e2e`,

@@ -13,6 +13,7 @@ type IconName = "user" | "profile" | "mail" | "lock";
 const fieldLabels: Record<string, string> = {
   displayName: "昵称",
   email: "邮箱",
+  recoveryEmail: "恢复邮箱",
   username: "用户名",
   password: "密码",
   confirmPassword: "确认密码",
@@ -99,17 +100,19 @@ export function AuthForm({
   action,
   defaultUsername,
   returnTo,
+  token,
 }: {
   mode: Mode;
   action: Action;
   defaultUsername?: string;
   returnTo?: string;
+  token?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [showPassword, setShowPassword] = useState(false);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const username = mode === "login" || mode === "register";
-  const email = mode === "forgot";
+  const email = mode === "forgot" || mode === "register";
   const password = mode === "login" || mode === "register" || mode === "reset";
   const fieldErrors = state.fieldErrors ?? {};
   const errorEntries = Object.entries(fieldErrors);
@@ -124,6 +127,7 @@ export function AuthForm({
   return (
     <form action={formAction} className="auth-card" aria-busy={pending}>
       {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
+      {mode === "reset" && <input type="hidden" name="token" value={token} />}
 
       {state.error && (
         <div
@@ -219,27 +223,35 @@ export function AuthForm({
       {email && (
         <div className="auth-field">
           <div className="auth-field-label">
-            <label htmlFor="email">邮箱</label>
-            <small>必填</small>
+            <label htmlFor={mode === "register" ? "recoveryEmail" : "email"}>
+              恢复邮箱
+            </label>
+            <small>{mode === "forgot" ? "必填" : "可选"}</small>
           </div>
           <div className="auth-input-wrap">
             <AuthIcon name="mail" />
             <input
-              id="email"
-              name="email"
+              id={mode === "register" ? "recoveryEmail" : "email"}
+              name={mode === "register" ? "recoveryEmail" : "email"}
               type="email"
               autoComplete="email"
               autoCapitalize="none"
               spellCheck={false}
               placeholder="name@example.com"
-              aria-invalid={Boolean(fieldErrors.email)}
-              aria-describedby={fieldErrors.email ? "email-error" : undefined}
-              required
+              aria-invalid={Boolean(
+                fieldErrors[mode === "register" ? "recoveryEmail" : "email"],
+              )}
+              aria-describedby={
+                fieldErrors[mode === "register" ? "recoveryEmail" : "email"]
+                  ? "email-error"
+                  : undefined
+              }
+              required={mode === "forgot"}
             />
           </div>
-          {fieldErrors.email && (
+          {fieldErrors[mode === "register" ? "recoveryEmail" : "email"] && (
             <small className="auth-field-error" id="email-error">
-              {fieldErrors.email}
+              {fieldErrors[mode === "register" ? "recoveryEmail" : "email"]}
             </small>
           )}
         </div>

@@ -9,6 +9,40 @@ import { getAuthEnv, getDatabaseEnv } from "@/shared/config/env";
 const database = new Pool({ connectionString: getDatabaseEnv().DATABASE_URL });
 const authEnv = getAuthEnv();
 
+async function sendResetPassword({
+  user,
+  url,
+}: {
+  user: { id: string };
+  url: string;
+}) {
+  if (!authEnv.AUTH_EMAIL_DELIVERY_URL) return;
+  const [target] = await database
+    .query<{ recovery_email: string | null }>(
+      "select recovery_email from public.users where id=$1",
+      [user.id],
+    )
+    .then((result) => result.rows);
+  if (!target?.recovery_email) return;
+  const response = await fetch(authEnv.AUTH_EMAIL_DELIVERY_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...(authEnv.AUTH_EMAIL_DELIVERY_SECRET
+        ? { authorization: `Bearer ${authEnv.AUTH_EMAIL_DELIVERY_SECRET}` }
+        : {}),
+    },
+    body: JSON.stringify({
+      to: target.recovery_email,
+      template: "password_reset",
+      resetUrl: url,
+      expiresInSeconds: 3600,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error("password reset delivery failed");
+}
+
 export const auth = betterAuth({
   appName: "JobTrace",
   baseURL: authEnv.BETTER_AUTH_URL,
@@ -25,6 +59,8 @@ export const auth = betterAuth({
     maxPasswordLength: 16,
     autoSignIn: false,
     revokeSessionsOnPasswordReset: true,
+    resetPasswordTokenExpiresIn: 3600,
+    sendResetPassword,
   },
   rateLimit: {
     enabled: true,

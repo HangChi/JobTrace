@@ -12,6 +12,7 @@ from env import load_local_env
 TABLES = (
     "accounts", "admin_audit_events", "applications", "application_events",
     "application_stage_occurrences", "import_batches", "import_rows",
+    "auth_rate_limits",
     "interview_action_items", "interview_questions", "interview_reviews",
     "sessions", "users", "verification_tokens",
 )

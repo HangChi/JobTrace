@@ -80,7 +80,7 @@ JobTrace 是面向个人求职者的多用户 Web 应用。它以投递记录为
 > 可用 `openssl rand -base64 32` 生成本地认证密钥。修改环境变量后需要重启开发服务器。
 
 > [!NOTE]
-> 头像上传依赖腾讯云 COS；不使用头像时无需提供 COS 配置。邮件服务尚未接入，因此忘记密码流程当前只返回不枚举账号的统一提示，不能发送重置邮件。
+> 头像上传依赖腾讯云 COS；不使用头像时无需提供 COS 配置。密码恢复使用可选的邮件投递 Webhook；生产环境启用前需配置投递地址，并确认服务能够访问该地址。
 
 ### 引导管理员
 
@@ -133,6 +133,7 @@ pnpm build       # Next.js 生产构建
 pnpm db:reset:verify  # 从空库重放迁移并校验种子
 pnpm db:types:check   # 检查生成的数据库类型是否漂移
 pnpm db:test          # 数据库函数与约束烟雾校验
+pnpm db:sql:test      # 运行 supabase/tests 中的 pgTAP SQL 断言
 pnpm contract         # HTTP 契约测试
 pnpm integration      # 集成测试
 pnpm e2e              # Playwright 端到端与无障碍测试
@@ -152,6 +153,8 @@ pnpm lighthouse       # Web 性能与可访问性审计
 | `BETTER_AUTH_URL`                  | 必填           | 应用的规范访问地址，生产环境必须为 HTTPS。          |
 | `AUTH_CHALLENGE_VERIFY_URL`        | 可选           | CAPTCHA 兼容的服务端验证端点。                      |
 | `AUTH_CHALLENGE_SECRET`            | 按验证服务要求 | 随验证请求传递的服务端密钥。                        |
+| `AUTH_EMAIL_DELIVERY_URL`          | 密码恢复可选   | 接收密码重置投递任务的服务端 Webhook。              |
+| `AUTH_EMAIL_DELIVERY_SECRET`       | 可选           | Webhook 的 Bearer 凭据。                            |
 | `COS_SECRET_ID` / `COS_SECRET_KEY` | 头像上传必填   | 腾讯云 COS 最小权限凭据。                           |
 | `COS_BUCKET` / `COS_REGION`        | 头像上传必填   | COS 存储桶和地域。                                  |
 | `COS_PUBLIC_BASE_URL`              | 可选           | 头像公开访问域名；未设置时使用 COS 源站域名。       |

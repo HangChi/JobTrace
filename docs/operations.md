@@ -25,18 +25,20 @@ pnpm dev
 
 ### 核心配置
 
-| 变量                        | 生产要求                                                                                                                      |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`              | 指向 PostgreSQL 17；启用 TLS 时按数据库供应商要求加入连接参数。应用进程每实例最多建立 10 个业务连接，Better Auth 另有连接池。 |
-| `BETTER_AUTH_SECRET`        | 至少 32 个字符，使用密码学安全随机值，通过密钥管理服务注入。轮换会影响现有认证状态，应在维护窗口执行。                        |
-| `BETTER_AUTH_URL`           | 与用户实际访问的规范来源完全一致，生产环境使用 HTTPS；同源写请求会据此校验 `Origin`。                                         |
-| `AUTH_CHALLENGE_VERIFY_URL` | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
-| `AUTH_CHALLENGE_SECRET`     | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
+| 变量                         | 生产要求                                                                                                                      |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`               | 指向 PostgreSQL 17；启用 TLS 时按数据库供应商要求加入连接参数。应用进程每实例最多建立 10 个业务连接，Better Auth 另有连接池。 |
+| `BETTER_AUTH_SECRET`         | 至少 32 个字符，使用密码学安全随机值，通过密钥管理服务注入。轮换会影响现有认证状态，应在维护窗口执行。                        |
+| `BETTER_AUTH_URL`            | 与用户实际访问的规范来源完全一致，生产环境使用 HTTPS；同源写请求会据此校验 `Origin`。                                         |
+| `AUTH_CHALLENGE_VERIFY_URL`  | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
+| `AUTH_CHALLENGE_SECRET`      | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
+| `AUTH_EMAIL_DELIVERY_URL`    | 可选。接收 `{to, template, resetUrl, expiresInSeconds}` 的服务端 Webhook；生产密码恢复必须配置。                              |
+| `AUTH_EMAIL_DELIVERY_SECRET` | 可选。作为 Bearer 凭据调用邮件投递 Webhook，不得暴露给浏览器。                                                                |
 
 > [!WARNING]
 > `DATABASE_URL`、`BETTER_AUTH_SECRET`、`AUTH_CHALLENGE_SECRET` 和所有 COS 凭据都只能作为服务端变量存在，不得添加 `NEXT_PUBLIC_` 前缀。
 
-当前认证接口还有进程内限流。单实例可直接使用；多实例部署前应接入共享限流存储，或在能够识别真实客户端的反向代理/API 网关实现等价限制。
+登录、注册和密码恢复共享 PostgreSQL 限流状态，可在多实例部署中保持一致。反向代理必须覆盖而不是透传客户端伪造的 `X-Forwarded-For` / `X-Real-IP`，也可以在可信网关叠加更严格的限流。
 
 ### 头像存储
 
@@ -49,9 +51,11 @@ pnpm dev
 
 使用仅允许目标桶或 `avatars/` 前缀对象上传的子账号凭据，不要使用主账号永久密钥。头像 URL 需要公开读取，因此应为目标前缀配置只读访问策略。未配置 COS 时，除头像上传外的功能仍可使用。
 
-### 当前认证限制
+### 密码恢复与会话
 
-SMTP 尚未接入。忘记密码入口会返回不枚举账号的统一提示，重置接口保持 `503`；生产环境需要准备由管理员核验身份后执行的密码恢复流程，或在上线前接入邮件投递。
+注册或个人资料页可设置恢复邮箱。忘记密码入口始终返回不枚举账号的统一提示；存在账号时，Better Auth 生成一小时有效的单次 token，并通过邮件投递 Webhook 发送重置链接。没有配置 Webhook 时不要在生产环境承诺自助恢复能力。
+
+个人中心可查看所有未过期会话并逐个撤销；修改密码会撤销其他设备的会话。恢复邮箱、重置 URL、投递凭据和 Session 都不得写入日志。
 
 ## 数据库生命周期
 
@@ -73,9 +77,10 @@ pnpm db
 pnpm db:reset:verify
 pnpm db:types:check
 pnpm db:test
+pnpm db:sql:test
 ```
 
-`db:reset:verify` 会通过连接串中的服务器创建临时数据库，因此账号还需具有 `CREATE DATABASE` 权限，并能连接名为 `postgres` 的维护数据库。`db:types:check` 直接读取当前已迁移数据库，并检查 `src/generated/database.types.ts` 是否与其一致；`db:test` 也直接连接当前数据库，但验证写入会在结束时回滚。
+`db:reset:verify` 会通过连接串中的服务器创建临时数据库，因此账号还需具有 `CREATE DATABASE` 权限，并能连接名为 `postgres` 的维护数据库。`db:types:check` 直接读取当前已迁移数据库，并检查 `src/generated/database.types.ts` 是否与其一致；`db:test` 也直接连接当前数据库，但验证写入会在结束时回滚。`db:sql:test` 运行 `supabase/tests/*.sql`，数据库服务器必须安装 pgTAP；CI 会在 PostgreSQL 服务容器中安装对应扩展包。
 
 若数据库结构有意变更，先在干净迁移链上确认结果，再运行 `pnpm db:types` 更新生成类型并提交差异。
 
@@ -163,14 +168,20 @@ HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js
 2. 在空库运行迁移重放，并完成类型漂移和数据库烟雾校验。
 3. 构建新应用并完成质量门禁。
 4. 对预发布或生产数据库执行 `pnpm db`。
-5. 发布应用，检查 `GET /api/health`、登录、首页读取和一次非破坏性查询。
+5. 发布应用，检查 `GET /api/health/live`、`GET /api/health/ready`、登录、首页读取和一次非破坏性查询。
 6. 观察错误率、数据库连接数和关键延迟，再结束维护窗口。
 
 迁移采用先扩展后收缩。应用回滚时切换到上一构建，保留已写入的数据和新字段；不要通过删除审计或逆向执行破坏性 SQL 回滚。
 
 ## 健康检查与监控
 
-`GET /api/health` 执行核心投递表查询：
+探针分为三类：
+
+- `GET /api/health/live` 只验证 Node.js 进程可响应，供存活检查使用。
+- `GET /api/health/ready` 验证数据库连接和关键表结构，供流量切换前的就绪检查使用；响应带数据库 `Server-Timing`。
+- `GET /api/health` 保留兼容行为，执行核心投递表查询。
+
+兼容健康检查返回：
 
 - `200 {"status":"ok"}`：应用能够访问已迁移数据库。
 - `503 {"status":"error"}`：配置、网络、权限、连接数或迁移状态异常。
@@ -197,6 +208,7 @@ pnpm test
 pnpm db:reset:verify
 pnpm db:types:check
 pnpm db:test
+pnpm db:sql:test
 pnpm contract
 pnpm integration
 pnpm e2e
