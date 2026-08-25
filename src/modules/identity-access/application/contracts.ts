@@ -12,8 +12,17 @@ export type Actor = {
 };
 
 export type Profile = Actor & {
+  recoveryEmail: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type AccountSession = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  userAgent: string | null;
+  current: boolean;
 };
 
 export type AccountAccessState = {

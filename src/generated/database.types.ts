@@ -275,6 +275,28 @@ export const databaseSchema = {
       "nullable": false
     }
   ],
+  "auth_rate_limits": [
+    {
+      "name": "key_hash",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "action",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "window_started_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "request_count",
+      "type": "integer",
+      "nullable": false
+    }
+  ],
   "import_batches": [
     {
       "name": "id",
@@ -677,6 +699,11 @@ export const databaseSchema = {
       "name": "access_version",
       "type": "bigint",
       "nullable": false
+    },
+    {
+      "name": "recovery_email",
+      "type": "text",
+      "nullable": true
     }
   ],
   "verification_tokens": [

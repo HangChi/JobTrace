@@ -76,7 +76,7 @@ export async function resetPasswordAction(
   d: FormData,
 ): Promise<AuthActionState> {
   try {
-    await updatePassword(d.get("password"));
+    await updatePassword(d.get("password"), d.get("token"));
     return { message: "密码已更新，请重新登录。" };
   } catch (e) {
     return actionError(e);

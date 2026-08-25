@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { testDatabase } from "../../setup/database";
 
-test("阶段修正保持 occurrence、删除 SET NULL、结果独立且投递删除级联", async ({
+test("阶段修正保持 occurrence 和独立面试日期、删除 SET NULL、结果独立且投递删除级联", async ({
   request,
 }) => {
   const sql = testDatabase();
@@ -45,11 +45,11 @@ test("阶段修正保持 occurrence、删除 SET NULL、结果独立且投递删
     expect(changedReview).toMatchObject({
       stageOccurrenceId: occurrenceId,
       stage: "interview_2",
-      interviewedOn: "2026-08-18",
+      interviewedOn: "2026-08-17",
     });
     const changedList = await (
       await request.get(
-        "/api/interviews?stage=interview_2&interviewedFrom=2026-08-18&interviewedTo=2026-08-18",
+        "/api/interviews?stage=interview_2&interviewedFrom=2026-08-17&interviewedTo=2026-08-17",
       )
     ).json();
     expect(changedList.items.map((item: { id: string }) => item.id)).toContain(

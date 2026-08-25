@@ -14,13 +14,21 @@ export async function GET() {
     });
     return Response.json(
       { status: "ok" },
-      { headers: { "cache-control": "no-store" } },
+      {
+        headers: {
+          "cache-control": "no-store",
+          "server-timing": `database;dur=${Math.round(performance.now() - started)}`,
+        },
+      },
     );
   } catch {
     logServerEvent("health_check", {
       durationMs: Math.round(performance.now() - started),
       result: "error",
     });
-    return Response.json({ status: "error" }, { status: 503 });
+    return Response.json(
+      { status: "error" },
+      { status: 503, headers: { "cache-control": "no-store" } },
+    );
   }
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./styles/profile.css";
 import "./globals.css";
 import { getActor } from "@/modules/identity-access";
 import { AccountMenu } from "@/modules/identity-access/ui/account-menu";

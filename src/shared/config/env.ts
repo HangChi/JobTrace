@@ -15,6 +15,8 @@ const authEnvSchema = z.object({
   BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
   AUTH_CHALLENGE_VERIFY_URL: z.url().optional(),
   AUTH_CHALLENGE_SECRET: z.string().min(1).optional(),
+  AUTH_EMAIL_DELIVERY_URL: z.url().optional(),
+  AUTH_EMAIL_DELIVERY_SECRET: z.string().min(1).optional(),
 });
 
 const cosEnvSchema = z.object({
@@ -48,9 +50,13 @@ export function getDatabaseEnv() {
 export function getAuthEnv() {
   return authEnvSchema.parse({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-    AUTH_CHALLENGE_VERIFY_URL: process.env.AUTH_CHALLENGE_VERIFY_URL,
-    AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || undefined,
+    AUTH_CHALLENGE_VERIFY_URL:
+      process.env.AUTH_CHALLENGE_VERIFY_URL || undefined,
+    AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET || undefined,
+    AUTH_EMAIL_DELIVERY_URL: process.env.AUTH_EMAIL_DELIVERY_URL || undefined,
+    AUTH_EMAIL_DELIVERY_SECRET:
+      process.env.AUTH_EMAIL_DELIVERY_SECRET || undefined,
   });
 }
 
@@ -74,8 +80,12 @@ export function getCosEnv(): CosEnv {
 export function hasAuthConfiguration() {
   return authEnvSchema.safeParse({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-    AUTH_CHALLENGE_VERIFY_URL: process.env.AUTH_CHALLENGE_VERIFY_URL,
-    AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || undefined,
+    AUTH_CHALLENGE_VERIFY_URL:
+      process.env.AUTH_CHALLENGE_VERIFY_URL || undefined,
+    AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET || undefined,
+    AUTH_EMAIL_DELIVERY_URL: process.env.AUTH_EMAIL_DELIVERY_URL || undefined,
+    AUTH_EMAIL_DELIVERY_SECRET:
+      process.env.AUTH_EMAIL_DELIVERY_SECRET || undefined,
   }).success;
 }

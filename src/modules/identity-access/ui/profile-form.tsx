@@ -8,22 +8,32 @@ function initials(value: string) {
   return value.trim().slice(0, 2).toUpperCase() || "JT";
 }
 
-type EditableProfile = Pick<Profile, "displayName" | "image" | "username">;
+type EditableProfile = Pick<
+  Profile,
+  "displayName" | "image" | "username" | "recoveryEmail"
+>;
 
 export function ProfileForm({ profile }: { profile: EditableProfile }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [image, setImage] = useState(profile.image ?? "");
+  const [recoveryEmail, setRecoveryEmail] = useState(
+    profile.recoveryEmail ?? "",
+  );
   const [saved, setSaved] = useState({
     displayName: profile.displayName,
     image: profile.image ?? "",
+    recoveryEmail: profile.recoveryEmail ?? "",
   });
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const dirty = displayName !== saved.displayName || image !== saved.image;
+  const dirty =
+    displayName !== saved.displayName ||
+    image !== saved.image ||
+    recoveryEmail !== saved.recoveryEmail;
 
   async function upload(file: File) {
     setUploading(true);
@@ -57,13 +67,14 @@ export function ProfileForm({ profile }: { profile: EditableProfile }) {
       const response = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ displayName, image }),
+        body: JSON.stringify({ displayName, image, recoveryEmail }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "资料保存失败。");
       const next = {
         displayName: result.displayName,
         image: result.image ?? "",
+        recoveryEmail: result.recoveryEmail ?? "",
       };
       setDisplayName(next.displayName);
       setImage(next.image);
@@ -147,6 +158,23 @@ export function ProfileForm({ profile }: { profile: EditableProfile }) {
           />
           <span className="field-hint" id="profile-name-hint">
             用于工作台和账号菜单，最多 100 个字符。
+          </span>
+        </div>
+        <div className="profile-field">
+          <label htmlFor="profile-recovery-email">恢复邮箱</label>
+          <input
+            id="profile-recovery-email"
+            type="email"
+            value={recoveryEmail}
+            autoComplete="email"
+            aria-describedby="profile-recovery-email-hint"
+            onChange={(event) => {
+              setRecoveryEmail(event.target.value);
+              setMessage("");
+            }}
+          />
+          <span className="field-hint" id="profile-recovery-email-hint">
+            用于接收一次性密码重置链接，不作为登录名公开。
           </span>
         </div>
         <div className="profile-field">

@@ -1,6 +1,9 @@
 import { register } from "@/modules/identity-access";
 import { problemResponse } from "@/shared/http/problem-response";
-import { checkAuthRateLimit } from "@/modules/identity-access/infrastructure/auth-rate-limit";
+import {
+  checkAuthRateLimit,
+  clientRateLimitKey,
+} from "@/modules/identity-access/infrastructure/auth-rate-limit";
 import {
   assertSameOrigin,
   verifyAuthChallenge,
@@ -8,8 +11,9 @@ import {
 export async function POST(r: Request) {
   try {
     assertSameOrigin(r);
-    checkAuthRateLimit(
-      r.headers.get("x-forwarded-for") ?? "local-register",
+    await checkAuthRateLimit(
+      clientRateLimitKey(r, "local-register"),
+      "register",
       5,
       60_000,
     );

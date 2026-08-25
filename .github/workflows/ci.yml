@@ -30,8 +30,16 @@ jobs:
       - run: pnpm test
       - run: pnpm db
       - run: pnpm db:test
+      - name: Install pgTAP in PostgreSQL service
+        run: docker exec ${{ job.services.postgres.id }} bash -c "apt-get update && apt-get install -y postgresql-17-pgtap"
+      - run: pnpm db:sql:test
+      - run: pnpm db:reset:verify
+      - run: pnpm db:types:check
       - run: pnpm contract
+      - run: pnpm integration
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
       - run: pnpm performance
+      - run: pnpm performance:auth
+      - run: pnpm lighthouse

@@ -26,6 +26,10 @@ const displayNameSchema = z
 
 export const registerSchema = z.object({
   username: usernameSchema,
+  recoveryEmail: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    emailSchema.optional(),
+  ),
   password: passwordSchema,
   displayName: displayNameSchema,
 });

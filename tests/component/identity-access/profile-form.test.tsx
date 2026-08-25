@@ -15,6 +15,7 @@ const profile: Profile = {
   username: "trace_user",
   displayName: "小迹",
   image: "https://assets.example/avatar.webp",
+  recoveryEmail: "user@example.com",
   role: "user",
   disabled: false,
   createdAt: "2026-08-01T00:00:00.000Z",

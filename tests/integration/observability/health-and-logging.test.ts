@@ -9,3 +9,18 @@ test("健康检查不缓存且不泄露配置", async ({ request }) => {
   expect(text).not.toContain("DATABASE_URL");
   expect(text).not.toContain("password");
 });
+
+test("存活与就绪探针分别报告进程和依赖状态", async ({ request }) => {
+  const live = await request.get("/api/health/live");
+  expect(live.status()).toBe(200);
+  expect(await live.json()).toEqual({ status: "ok" });
+
+  const ready = await request.get("/api/health/ready");
+  expect(ready.status()).toBe(200);
+  expect(ready.headers()["cache-control"]).toBe("no-store");
+  expect(ready.headers()["server-timing"]).toMatch(/^database;dur=/);
+  expect(await ready.json()).toEqual({
+    status: "ready",
+    checks: { database: "ok", schema: "ok" },
+  });
+});

@@ -5,6 +5,10 @@ export default async function globalSetup(config: FullConfig) {
   const baseURL = String(
     config.projects[0]?.use?.baseURL ?? "http://127.0.0.1:3000",
   );
+  const storageState = config.projects[0]?.use?.storageState;
+  if (typeof storageState !== "string") {
+    throw new Error("Playwright storageState path is required");
+  }
   const context = await request.newContext({
     baseURL,
     extraHTTPHeaders: { origin: baseURL },
@@ -20,6 +24,6 @@ export default async function globalSetup(config: FullConfig) {
       `Playwright login failed: ${login.status()} ${await login.text()}`,
     );
   await mkdir(".playwright", { recursive: true });
-  await context.storageState({ path: ".playwright/auth.json" });
+  await context.storageState({ path: storageState });
   await context.dispose();
 }

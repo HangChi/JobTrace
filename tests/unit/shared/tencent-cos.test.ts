@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   avatarObjectKey,
+  hasImageSignature,
   uploadCosObject,
 } from "@/shared/storage/tencent-cos.server";
 
@@ -22,6 +23,24 @@ describe("腾讯云 COS 存储", () => {
       /^avatars\/user-1\/[0-9a-f-]+\.png$/,
     );
     expect(avatarObjectKey("user-1", "image/svg+xml")).toBeNull();
+  });
+
+  it("校验头像实际文件签名而不是只信任 MIME 声明", () => {
+    expect(
+      hasImageSignature(
+        Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 13, 10, 26, 10]).buffer,
+        "image/png",
+      ),
+    ).toBe(true);
+    expect(
+      hasImageSignature(
+        new TextEncoder().encode("not an image").buffer,
+        "image/png",
+      ),
+    ).toBe(false);
+    expect(
+      hasImageSignature(new TextEncoder().encode("GIF89a").buffer, "image/gif"),
+    ).toBe(true);
   });
 
   it("使用签名 PUT 请求上传并返回公开地址", async () => {

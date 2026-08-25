@@ -32,6 +32,7 @@ describe("AuthForm", () => {
     expect(screen.getByLabelText("用户名")).toHaveAttribute("maxlength", "30");
     expect(screen.getByText(/3–30 位/)).toBeVisible();
     expect(screen.getByLabelText("昵称")).not.toBeRequired();
+    expect(screen.getByLabelText("恢复邮箱")).not.toBeRequired();
     expect(screen.getByLabelText("密码")).toHaveAttribute("maxlength", "16");
     expect(screen.getByLabelText("确认密码")).toHaveAttribute(
       "autocomplete",

@@ -2,7 +2,13 @@ import Link from "next/link";
 import { AuthForm } from "@/modules/identity-access/ui/auth-form";
 import { AuthShell } from "@/modules/identity-access/ui/auth-shell";
 import { resetPasswordAction } from "../actions";
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const rawToken = (await searchParams).token;
+  const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
   return (
     <AuthShell
       title="设置新密码"
@@ -10,7 +16,7 @@ export default function Page() {
       eyebrow="保护你的求职记录"
       footer={<Link href="/login">返回登录</Link>}
     >
-      <AuthForm mode="reset" action={resetPasswordAction} />
+      <AuthForm mode="reset" action={resetPasswordAction} token={token} />
     </AuthShell>
   );
 }

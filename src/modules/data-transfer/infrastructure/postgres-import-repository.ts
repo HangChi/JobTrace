@@ -1,5 +1,4 @@
 import { createServerDatabase } from "@/shared/database";
-import { Problem } from "@/shared/errors/problem";
 import type {
   ImportPreview,
   ImportResultRow,
@@ -22,17 +21,47 @@ export class PostgresImportRepository {
   }
 
   async findDuplicates(ownerId: string, rows: ImportRow[]) {
-    for (const row of rows) {
-      if (!row.data) continue;
-      const matches = await this.sql<{ id: string }[]>`
-        select id from public.applications
-        where owner_id=${ownerId} and lower(company_name) = lower(${String(row.data.companyName)})
-          and lower(position_name) = lower(${String(row.data.positionName)})
-          and applied_date = ${String(row.data.appliedDate)}::date
-        order by id
-      `;
-      row.duplicateApplicationIds = matches.map((match) => match.id);
-    }
+    const candidates = rows
+      .filter((row) => row.data)
+      .map((row) => ({
+        rowNumber: row.rowNumber,
+        companyName: String(row.data?.companyName),
+        positionName: String(row.data?.positionName),
+        appliedDate: String(row.data?.appliedDate),
+      }));
+    if (!candidates.length) return rows;
+    const matches = await this.sql<
+      { rowNumber: number; applicationIds: string[] }[]
+    >`
+      with candidates as (
+        select *
+        from jsonb_to_recordset(${this.sql.json(candidates)}::jsonb) as value(
+          "rowNumber" integer,
+          "companyName" text,
+          "positionName" text,
+          "appliedDate" date
+        )
+      )
+      select
+        candidate."rowNumber" as row_number,
+        coalesce(
+          array_agg(application.id order by application.id)
+            filter (where application.id is not null),
+          '{}'
+        ) as application_ids
+      from candidates candidate
+      left join public.applications application
+        on application.owner_id=${ownerId}
+        and lower(application.company_name)=lower(candidate."companyName")
+        and lower(application.position_name)=lower(candidate."positionName")
+        and application.applied_date=candidate."appliedDate"
+      group by candidate."rowNumber"
+    `;
+    const byRow = new Map(
+      matches.map((match) => [Number(match.rowNumber), match.applicationIds]),
+    );
+    for (const row of rows)
+      row.duplicateApplicationIds = byRow.get(row.rowNumber) ?? [];
     return rows;
   }
 
@@ -54,18 +83,34 @@ export class PostgresImportRepository {
         ) values (${ownerId},${fileName}, ${format}, ${rows.length}, ${validRows}, ${invalidRows}, ${duplicateRows})
         returning id, expires_at
       `;
-      for (const row of rows) {
-        await sql`
-          insert into public.import_rows(
-            batch_id, row_number, normalized_data, errors, duplicate_application_ids
-          ) values (
-            ${String(batch.id)}, ${row.rowNumber},
-            ${row.data ? sql.json(row.data as never) : null}::jsonb,
-            ${sql.json(row.errors)}::jsonb,
-            ${row.duplicateApplicationIds}::uuid[]
+      const values = rows.map((row) => ({
+        rowNumber: row.rowNumber,
+        normalizedData: row.data,
+        errors: row.errors,
+        duplicateApplicationIds: row.duplicateApplicationIds,
+      }));
+      await sql`
+        insert into public.import_rows(
+          batch_id, row_number, normalized_data, errors, duplicate_application_ids
+        )
+        select
+          ${String(batch.id)}::uuid,
+          value."rowNumber",
+          value."normalizedData",
+          value.errors,
+          coalesce(
+            array(
+              select jsonb_array_elements_text(value."duplicateApplicationIds")::uuid
+            ),
+            '{}'
           )
-        `;
-      }
+        from jsonb_to_recordset(${sql.json(values as never)}::jsonb) as value(
+          "rowNumber" integer,
+          "normalizedData" jsonb,
+          errors jsonb,
+          "duplicateApplicationIds" jsonb
+        )
+      `;
       return {
         id: String(batch.id),
         expiresAt: new Date(String(batch.expiresAt)).toISOString(),
@@ -79,50 +124,18 @@ export class PostgresImportRepository {
     });
   }
 
-  async getBatch(ownerId: string, id: string) {
-    const [batch] = await this.sql<DbRow[]>`
-      select * from public.import_batches where id = ${id} and owner_id=${ownerId}
-    `;
-    if (!batch) throw new Problem("not_found", "没有找到该导入批次。", 404);
-    if (
-      String(batch.status) !== "previewed" ||
-      new Date(String(batch.expiresAt)) <= new Date()
-    ) {
-      throw new Problem("conflict", "导入批次已过期或已确认。", 409);
-    }
-    const rows = await this.sql<DbRow[]>`
-      select row_number, normalized_data, errors, duplicate_application_ids
-      from public.import_rows where batch_id = ${id} order by row_number
-    `;
-    return { batch, rows };
-  }
-
-  async markProcessing(ownerId: string, id: string) {
-    const rows = await this.sql`
-      update public.import_batches set status = 'processing'
-      where id = ${id} and owner_id=${ownerId} and status = 'previewed' and expires_at > now()
-      returning id
-    `;
-    if (!rows.length)
-      throw new Problem("conflict", "导入批次已过期或正在处理。", 409);
-  }
-
-  async recordResult(
+  async confirmBatch(
     ownerId: string,
     id: string,
-    row: ImportResultRow,
-    decision: "import" | "skip",
+    decisions: { rowNumber: number; action: "import" | "skip" }[],
   ) {
-    await this.sql`
-      update public.import_rows set decision = ${decision}, result = ${row.result}::import_row_result,
-        application_id = ${row.applicationId}::uuid
-      where batch_id = ${id} and row_number = ${row.rowNumber} and exists(select 1 from import_batches b where b.id=${id} and b.owner_id=${ownerId})
+    const [row] = await this.sql<{ result: ImportResultRow[] }[]>`
+      select public.confirm_import_batch_for_owner(
+        ${ownerId},
+        ${id}::uuid,
+        ${this.sql.json(decisions)}::jsonb
+      ) as result
     `;
-  }
-
-  async complete(ownerId: string, id: string) {
-    await this.sql`
-      update public.import_batches set status = 'completed', completed_at = now() where id = ${id} and owner_id=${ownerId}
-    `;
+    return row?.result ?? [];
   }
 }
