@@ -9,7 +9,7 @@ export async function previewImport(file: File): Promise<ImportPreview> {
   const actor = await requireUser();
   const repository = new PostgresImportRepository();
   await repository.cleanupExpired();
-  const raw = readSpreadsheet(await file.arrayBuffer(), file.name);
+  const raw = await readSpreadsheet(await file.arrayBuffer(), file.name);
   const rows = raw.map((value, index) => {
     const result = validateImportRow(value);
     return {

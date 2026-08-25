@@ -1,8 +1,58 @@
-import * as XLSX from "xlsx";
+import { Readable } from "node:stream";
+import ExcelJS from "exceljs";
 import { MAX_IMPORT_BYTES, MAX_IMPORT_ROWS } from "../application/contracts";
 import { Problem } from "@/shared/errors/problem";
 
-export function readSpreadsheet(buffer: ArrayBuffer, fileName: string) {
+const MAX_IMPORT_COLUMNS = 100;
+const MAX_IMPORT_CELLS = 200_000;
+
+function worksheetRows(worksheet: ExcelJS.Worksheet) {
+  const columnCount = worksheet.actualColumnCount;
+  const rowCount = worksheet.actualRowCount;
+  if (
+    columnCount > MAX_IMPORT_COLUMNS ||
+    rowCount * columnCount > MAX_IMPORT_CELLS
+  ) {
+    throw new Problem(
+      "payload_too_large",
+      "表格列数或单元格数量超出允许范围。",
+      413,
+    );
+  }
+  if (rowCount - 1 > MAX_IMPORT_ROWS) {
+    throw new Problem("payload_too_large", "数据不得超过 10,000 行。", 413);
+  }
+
+  const headers = Array.from({ length: columnCount }, (_, index) =>
+    worksheet
+      .getRow(1)
+      .getCell(index + 1)
+      .text.trim(),
+  );
+  if (!headers.some(Boolean)) {
+    throw new Problem("validation", "文件中没有表头。", 400);
+  }
+
+  const rows: Record<string, unknown>[] = [];
+  for (let rowNumber = 2; rowNumber <= rowCount; rowNumber += 1) {
+    const row = worksheet.getRow(rowNumber);
+    const values = headers.map((header, index) => ({
+      header,
+      value: row.getCell(index + 1).text,
+    }));
+    if (!values.some(({ value }) => value !== "")) continue;
+    rows.push(
+      Object.fromEntries(
+        values.flatMap(({ header, value }) =>
+          header ? [[header, value]] : [],
+        ),
+      ),
+    );
+  }
+  return rows;
+}
+
+export async function readSpreadsheet(buffer: ArrayBuffer, fileName: string) {
   if (buffer.byteLength > MAX_IMPORT_BYTES) {
     throw new Problem("payload_too_large", "文件不得超过 5MB。", 413);
   }
@@ -22,29 +72,25 @@ export function readSpreadsheet(buffer: ArrayBuffer, fileName: string) {
       415,
     );
   }
-  let workbook: XLSX.WorkBook;
+
+  const workbook = new ExcelJS.Workbook();
   try {
-    workbook = isCsv
-      ? XLSX.read(new TextDecoder("utf-8", { fatal: true }).decode(bytes), {
-          type: "string",
-          raw: true,
-        })
-      : XLSX.read(buffer, { type: "array", cellDates: false });
-  } catch {
+    if (isCsv) {
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      await workbook.csv.read(Readable.from([text]), { dateFormats: [] });
+    } else {
+      await workbook.xlsx.load(buffer);
+    }
+  } catch (error) {
+    if (error instanceof Problem) throw error;
     throw new Problem(
       "validation",
       "无法读取文件，请确认文件未损坏且采用 UTF-8 编码。",
       400,
     );
   }
-  const firstName = workbook.SheetNames[0];
-  if (!firstName) throw new Problem("validation", "文件中没有工作表。", 400);
-  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(
-    workbook.Sheets[firstName],
-    { defval: "", raw: false },
-  );
-  if (rows.length > MAX_IMPORT_ROWS) {
-    throw new Problem("payload_too_large", "数据不得超过 10,000 行。", 413);
-  }
-  return rows;
+
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) throw new Problem("validation", "文件中没有工作表。", 400);
+  return worksheetRows(worksheet);
 }

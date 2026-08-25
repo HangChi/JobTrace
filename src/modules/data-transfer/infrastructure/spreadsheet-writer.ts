@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { escapeSpreadsheetFormula } from "../application/import-schema";
 
 function safeRows(rows: Record<string, unknown>[]) {
@@ -12,8 +12,20 @@ function safeRows(rows: Record<string, unknown>[]) {
   );
 }
 
+function csvCell(value: unknown) {
+  const text = value == null ? "" : String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
 export function rowsToCsv(rows: Record<string, unknown>[]) {
-  return XLSX.utils.sheet_to_csv(XLSX.utils.json_to_sheet(safeRows(rows)));
+  const safe = safeRows(rows);
+  const headers = Object.keys(safe[0] ?? {});
+  return [
+    headers.map(csvCell).join(","),
+    ...safe.map((row) =>
+      headers.map((header) => csvCell(row[header])).join(","),
+    ),
+  ].join("\n");
 }
 
 function safeHyperlink(value: unknown) {
@@ -26,29 +38,30 @@ function safeHyperlink(value: unknown) {
   }
 }
 
-export function rowsToXlsx(
+export async function rowsToXlsx(
   rows: Record<string, unknown>[],
   options: { hyperlinkColumns?: string[] } = {},
 ) {
-  const workbook = XLSX.utils.book_new();
-  const sheet = XLSX.utils.json_to_sheet(safeRows(rows));
-  const headers = Object.keys(rows[0] ?? {});
+  const safe = safeRows(rows);
+  const headers = Object.keys(safe[0] ?? {});
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("投递记录");
+  worksheet.addRow(headers);
+  safe.forEach((row) => worksheet.addRow(headers.map((header) => row[header])));
+
   for (const column of options.hyperlinkColumns ?? []) {
     const columnIndex = headers.indexOf(column);
     if (columnIndex < 0) continue;
     rows.forEach((row, rowIndex) => {
       const target = safeHyperlink(row[column]);
-      const cell =
-        sheet[XLSX.utils.encode_cell({ r: rowIndex + 1, c: columnIndex })];
-      if (target && cell) {
-        cell.l = { Target: target, Tooltip: "打开职位链接" };
-      }
+      if (!target) return;
+      worksheet.getCell(rowIndex + 2, columnIndex + 1).value = {
+        text: String(safe[rowIndex][column] ?? ""),
+        hyperlink: target,
+        tooltip: "打开职位链接",
+      };
     });
   }
-  XLSX.utils.book_append_sheet(workbook, sheet, "投递记录");
-  return XLSX.write(workbook, {
-    type: "buffer",
-    bookType: "xlsx",
-    compression: true,
-  });
+
+  return new Uint8Array(await workbook.xlsx.writeBuffer());
 }

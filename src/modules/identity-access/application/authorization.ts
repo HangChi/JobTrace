@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { hasAuthConfiguration } from "@/shared/config/env";
@@ -7,7 +8,7 @@ import { Problem } from "@/shared/errors/problem";
 import type { Actor } from "./contracts";
 import { auth } from "../infrastructure/better-auth.server";
 
-export async function getActor(): Promise<Actor | null> {
+export const getActor = cache(async (): Promise<Actor | null> => {
   if (!hasAuthConfiguration()) return null;
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return null;
@@ -30,7 +31,7 @@ export async function getActor(): Promise<Actor | null> {
     role: user.role === "admin" ? "admin" : "user",
     disabled: Boolean(user.banned),
   };
-}
+});
 
 export async function requireUser(): Promise<Actor> {
   const actor = await getActor();

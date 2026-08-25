@@ -39,9 +39,7 @@ export async function GET(request: Request) {
     });
     const date = new Date().toISOString().slice(0, 10);
     return new Response(
-      format === "csv"
-        ? `\uFEFF${String(content)}`
-        : new Uint8Array(content as Buffer),
+      format === "csv" ? `\uFEFF${String(content)}` : content,
       {
         headers: {
           "content-type":

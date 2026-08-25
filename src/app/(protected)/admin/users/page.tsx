@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listUsers } from "@/modules/identity-access";
+import { listUsers, requirePageAdmin } from "@/modules/identity-access";
 import { adminUserQuerySchema } from "@/modules/identity-access/application/admin-query-schema";
 import { AdminUserFilters } from "@/modules/identity-access/ui/admin-user-filters";
 import { UserAdminTable } from "@/modules/identity-access/ui/user-admin-table";
@@ -18,6 +18,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requirePageAdmin();
   const query = adminUserQuerySchema.parse(firstValues(await searchParams));
   const result = await listUsers(query);
   const params = new URLSearchParams();

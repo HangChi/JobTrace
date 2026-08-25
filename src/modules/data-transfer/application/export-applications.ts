@@ -50,6 +50,6 @@ export async function exportApplications(options: ExportOptions) {
     备注: row.notes ?? "",
   }));
   return options.format === "xlsx"
-    ? rowsToXlsx(rows, { hyperlinkColumns: ["职位链接"] })
+    ? await rowsToXlsx(rows, { hyperlinkColumns: ["职位链接"] })
     : rowsToCsv(rows);
 }

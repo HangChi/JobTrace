@@ -39,7 +39,7 @@ pnpm dev
 > [!WARNING]
 > `DATABASE_URL`、`BETTER_AUTH_SECRET`、`AUTH_CHALLENGE_SECRET` 和所有 COS 凭据都只能作为服务端变量存在，不得添加 `NEXT_PUBLIC_` 前缀。
 
-登录、注册和密码恢复共享 PostgreSQL 限流状态，可在多实例部署中保持一致。反向代理必须覆盖而不是透传客户端伪造的 `X-Forwarded-For` / `X-Real-IP`，也可以在可信网关叠加更严格的限流。
+登录、注册和密码恢复共享 PostgreSQL 限流状态，可在多实例部署中保持一致。反向代理必须覆盖而不是透传客户端伪造的 `X-Forwarded-For` / `X-Real-IP`，也可以在可信网关叠加更严格的限流。每个应用实例默认使用 8 条业务连接和 2 条认证连接；多实例部署应通过 `DATABASE_APP_POOL_MAX`、`DATABASE_AUTH_POOL_MAX` 控制总连接数不超过 PostgreSQL 预算。
 
 ### 头像存储
 

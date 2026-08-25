@@ -1,3 +1,4 @@
+import "../../styles/profile.css";
 import Link from "next/link";
 import { getAnalyticsSummary } from "@/modules/analytics";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";

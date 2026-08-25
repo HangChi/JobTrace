@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { listAdminAuditEvents } from "@/modules/identity-access";
+import {
+  listAdminAuditEvents,
+  requirePageAdmin,
+} from "@/modules/identity-access";
 import { adminAuditQuerySchema } from "@/modules/identity-access/application/admin-query-schema";
 import { AdminAuditFilters } from "@/modules/identity-access/ui/admin-audit-filters";
 import { AdminAuditTable } from "@/modules/identity-access/ui/admin-audit-table";
@@ -18,6 +21,7 @@ export default async function AdminAuditPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requirePageAdmin();
   const query = adminAuditQuerySchema.parse(firstValues(await searchParams));
   const result = await listAdminAuditEvents(query);
   const params = new URLSearchParams();
