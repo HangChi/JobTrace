@@ -53,7 +53,6 @@ export default async function ApplicationPage({
       <section className="panel stack">
         <div className="section-heading">
           <div>
-            <p className="section-kicker">INTERVIEW REVIEWS</p>
             <h2>面经复盘</h2>
           </div>
           <Link
@@ -88,7 +87,6 @@ export default async function ApplicationPage({
         aria-labelledby="delete-application-title"
       >
         <div>
-          <p className="section-kicker">DANGER ZONE</p>
           <h2 id="delete-application-title">删除这条投递</h2>
           <p>删除后，招聘阶段、更新历史和面经复盘也会一起移除。</p>
         </div>

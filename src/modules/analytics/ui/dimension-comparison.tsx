@@ -28,7 +28,6 @@ export function DimensionComparison({
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">BREAKDOWN</p>
           <h2 id="dimension-title">维度对比</h2>
         </div>
         <div className="dimension-tabs" role="tablist" aria-label="对比维度">

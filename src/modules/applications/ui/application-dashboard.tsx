@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import type { AnalyticsSummary } from "@/modules/analytics";
 import { AnalyticsPanel } from "@/modules/analytics/ui/analytics-panel";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
+import { PageHeader } from "@/shared/ui/page-header";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -37,6 +38,12 @@ function DashboardState({
 }: ApplicationDashboardProps) {
   const [page, setPage] = useState(initialPage);
   const [summary, setSummary] = useState(initialSummary);
+  const pendingApplications = new Set([
+    ...summary.followUps.map((item) => item.id),
+    ...summary.progressReminders
+      .filter((item) => !item.completed)
+      .map((item) => item.applicationId),
+  ]).size;
 
   const refreshDashboard = useCallback(async () => {
     try {
@@ -80,23 +87,22 @@ function DashboardState({
 
   return (
     <section className="stack page-gap dashboard">
-      <div className="hero-row dashboard-hero">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 求职进度工作台
-          </p>
-          <h1>
-            每一次投递，<span>都有迹可循。</span>
-          </h1>
-          <p className="lead">
-            集中管理岗位、面试阶段和待办跟进，把精力留给真正重要的机会。
-          </p>
-        </div>
-        <div className="actions">
-          <ExportButton query={exportQuery} />
-          <NewApplicationDialog onSuccess={handleCreated} />
-        </div>
-      </div>
+      <PageHeader
+        kicker="岗位进展"
+        title="投递记录"
+        description="查看岗位进展并处理待跟进事项。"
+        meta={[
+          { label: `共 ${summary.total} 条`, tone: "brand" },
+          { label: `本周新增 ${summary.addedThisWeek} 条` },
+          { label: `待处理 ${pendingApplications} 条`, tone: "warning" },
+        ]}
+        actions={
+          <>
+            <ExportButton query={exportQuery} />
+            <NewApplicationDialog onSuccess={handleCreated} />
+          </>
+        }
+      />
       <AnalyticsPanel summary={summary} />
       <ApplicationFilters query={query} />
       {page.items.length ? (

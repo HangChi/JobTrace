@@ -1,4 +1,5 @@
 import "../../styles/profile.css";
+import "../../styles/profile-refined.css";
 import Link from "next/link";
 import { getAnalyticsSummary } from "@/modules/analytics";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
@@ -41,11 +42,10 @@ export default async function ProfilePage() {
             {!profile.image && profileInitials(profile.displayName)}
           </span>
           <div>
-            <p className="eyebrow">
-              <span aria-hidden="true" /> 个人中心
+            <h1>个人中心</h1>
+            <p className="profile-handle">
+              {profile.displayName} · @{profile.username}
             </p>
-            <h1>{profile.displayName}</h1>
-            <p className="profile-handle">@{profile.username}</p>
           </div>
         </div>
         <div className="profile-role-card">
@@ -59,7 +59,7 @@ export default async function ProfilePage() {
 
       <div className="profile-layout">
         <aside className="profile-index panel">
-          <p>求职轨迹索引</p>
+          <p>设置</p>
           <nav aria-label="个人中心分区">
             {profileSections.map((section) => (
               <a href={`#${section.id}`} key={section.id}>
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
               </a>
             ))}
           </nav>
-          <p className="profile-index-note">资料、账号与投递数据都只属于你。</p>
+          <p className="profile-index-note">管理个人资料、账号安全和数据。</p>
         </aside>
 
         <div className="profile-content">
@@ -83,7 +83,6 @@ export default async function ProfilePage() {
                 <ProfileSectionIcon name="profile" />
               </span>
               <div>
-                <p>让工作台更像你</p>
                 <h2 id="profile-details-title">个人资料</h2>
               </div>
             </div>
@@ -106,7 +105,6 @@ export default async function ProfilePage() {
                 <ProfileSectionIcon name="security" />
               </span>
               <div>
-                <p>保护每一条求职记录</p>
                 <h2 id="profile-security-title">账号安全</h2>
               </div>
             </div>
@@ -128,7 +126,6 @@ export default async function ProfilePage() {
                 <ProfileSectionIcon name="data" />
               </span>
               <div>
-                <p>随时带走你的记录</p>
                 <h2 id="profile-data-title">数据管理</h2>
               </div>
             </div>
@@ -162,7 +159,6 @@ export default async function ProfilePage() {
                 <ProfileSectionIcon name="account" />
               </span>
               <div>
-                <p>查看登录身份</p>
                 <h2 id="profile-account-title">账号信息</h2>
               </div>
             </div>
@@ -186,7 +182,10 @@ export default async function ProfilePage() {
                 <p>退出后，需要重新输入用户名和密码才能访问求职记录。</p>
               </div>
               <form action={logoutAction}>
-                <button className="button secondary" type="submit">
+                <button
+                  className="button secondary profile-signout-button"
+                  type="submit"
+                >
                   退出登录
                 </button>
               </form>

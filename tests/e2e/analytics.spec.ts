@@ -50,7 +50,7 @@ test("求职分析默认周期、URL 筛选与导航状态", async ({ request, p
   try {
     await page.goto("/analytics");
     await expect(
-      page.getByRole("heading", { name: "看见趋势，理解每一步转化。" }),
+      page.getByRole("heading", { name: "求职分析", level: 1 }),
     ).toBeVisible();
     await expect(page.locator('select[name="period"]')).toHaveValue("90d");
     await expect(page.getByRole("link", { name: "求职分析" })).toHaveAttribute(

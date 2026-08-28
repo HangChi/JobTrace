@@ -16,7 +16,6 @@ export function InterviewQuestionList({
     <section className="interview-section stack">
       <div className="section-heading">
         <div>
-          <p className="section-kicker">REVIEW NOTES</p>
           <h2>面经内容</h2>
           <p className="section-description">
             用 Markdown 自由记录问题、回答、复盘和下一步。

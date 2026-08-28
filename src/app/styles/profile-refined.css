@@ -1,0 +1,306 @@
+.profile-page {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  gap: 20px;
+}
+
+.profile-hero {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  overflow: visible;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.profile-hero::after {
+  display: none;
+}
+
+.profile-hero-identity {
+  gap: 14px;
+}
+
+.profile-hero h1 {
+  margin: 0;
+  font-size: 1.65rem !important;
+}
+
+.profile-handle {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.profile-avatar,
+.profile-hero-avatar {
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background-color: var(--brand-soft);
+  box-shadow: none;
+}
+
+.profile-role-card {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  box-shadow: none;
+}
+
+.profile-status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  box-shadow: none;
+}
+
+.profile-layout {
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.profile-index {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  padding: 16px;
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+.profile-index > p:first-child {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.profile-index nav {
+  gap: 3px;
+}
+
+.profile-index nav::before,
+.profile-index-marker {
+  display: none;
+}
+
+.profile-index a {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.profile-index a:hover {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.profile-index a svg,
+.profile-section-icon svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.7;
+}
+
+.profile-index-note {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.profile-content {
+  gap: 16px;
+}
+
+.profile-section {
+  padding: 20px;
+  scroll-margin-top: 20px;
+  box-shadow: none;
+}
+
+.profile-section-heading {
+  min-height: 40px;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-section-heading h2 {
+  font-size: 1.25rem;
+}
+
+.profile-section-heading p {
+  display: none;
+}
+
+.profile-section-icon,
+.profile-section-icon.security-icon,
+.profile-section-icon.data-icon,
+.profile-section-icon.account-icon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--brand-dark);
+  background: var(--surface-soft);
+}
+
+.profile-avatar-editor,
+.profile-session-list li,
+.profile-data-note,
+.profile-email-form,
+.credential-settings,
+.profile-signout {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.profile-avatar-editor {
+  background: var(--surface-soft);
+}
+
+.profile-form input[readonly] {
+  background: var(--surface-soft);
+}
+
+.compact-button,
+.credential-settings-toggle,
+.profile-email-code-button {
+  border-radius: 6px;
+}
+
+.credential-settings-icon,
+.credential-settings-icon.password,
+.password-form-icon,
+.profile-email-status-icon {
+  border-radius: 6px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.credential-settings-badge,
+.profile-email-verified,
+.profile-session-list strong small {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.credential-settings-editor-panel {
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.profile-session-list li {
+  background: var(--surface-soft);
+}
+
+.profile-data-overview {
+  align-items: center;
+}
+
+.profile-data-count > span {
+  color: var(--ink-strong);
+  font-family: inherit;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-data-note {
+  background: var(--surface-soft);
+}
+
+.profile-account-list > div {
+  border-color: var(--line);
+}
+
+.profile-signout {
+  padding: 16px 18px;
+  border: 1px solid #ead2d7;
+  border-radius: 6px;
+  background: #fff9fa;
+}
+
+.profile-signout .profile-signout-button {
+  color: #92253a;
+  border-color: #d8aeb7;
+  background: var(--surface);
+}
+
+.profile-signout .profile-signout-button:hover {
+  color: #fff;
+  border-color: var(--danger);
+  background: var(--danger);
+}
+
+@media (max-width: 860px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-index {
+    position: static;
+  }
+
+  .profile-index nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .profile-index-note {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .profile-role-card {
+    width: 100%;
+  }
+
+  .profile-index nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .profile-section {
+    padding: 16px;
+  }
+
+  .profile-avatar-editor,
+  .profile-data-overview,
+  .profile-signout {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-data-actions,
+  .profile-data-actions > *,
+  .profile-signout form,
+  .profile-signout form > * {
+    width: 100%;
+  }
+}

@@ -41,7 +41,6 @@ export function ProgressReminderList({ items }: { items: ProgressReminder[] }) {
     >
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">ACTION NEEDED</p>
           <h3 id="progress-reminder-title">待处理进展</h3>
         </div>
         <span className="follow-up-count">{remaining.length}</span>

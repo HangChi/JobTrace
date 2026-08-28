@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./styles/system.css";
+import "./styles/workspace.css";
+import "./styles/auth.css";
 
 export const metadata: Metadata = {
   title: "JobTrace 职迹",

@@ -30,7 +30,6 @@ export function AnalyticsReportFilters({
     <form className="panel analytics-report-filters" action="/analytics">
       <div className="analytics-filter-heading">
         <div>
-          <p className="section-kicker">ANALYSIS RANGE</p>
           <h2>分析范围</h2>
         </div>
         <Link href={"/analytics" as Route} className="filter-reset-link">

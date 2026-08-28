@@ -34,7 +34,6 @@ export function InterviewActionItems({
     <section className="interview-section stack">
       <div className="section-heading">
         <div>
-          <p className="section-kicker">NEXT STEPS</p>
           <h2>下一步行动</h2>
         </div>
         <span className="action-progress">

@@ -26,9 +26,8 @@ export function NewApplicationDialog({
       </button>
       <Dialog
         open={open}
-        kicker="NEW APPLICATION"
-        title="记录一次新投递"
-        description="先填最重要的信息，后续进展可以随时补充。"
+        title="新增投递"
+        description="填写公司、岗位和投递日期。"
         className="application-dialog"
         onClose={close}
       >
@@ -62,7 +61,6 @@ export function EditApplicationDialog({
   return (
     <Dialog
       open={open}
-      kicker="EDIT APPLICATION"
       title={`编辑 ${formatCompanyWithCity(application.companyName, application.city)}`}
       description={application.positionName}
       className="application-dialog"

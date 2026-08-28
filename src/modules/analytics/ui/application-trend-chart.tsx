@@ -40,7 +40,6 @@ export function ApplicationTrendChart({
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">COHORT TREND</p>
           <h2 id="trend-title">投递趋势</h2>
         </div>
         <span>{points.length ? `${points.length} 个时间段` : "暂无数据"}</span>
