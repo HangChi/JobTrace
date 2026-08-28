@@ -88,6 +88,7 @@ function DashboardState({
   return (
     <section className="stack page-gap dashboard">
       <PageHeader
+        tone="applications"
         kicker="岗位进展"
         title="投递记录"
         description="查看岗位进展并处理待跟进事项。"
@@ -98,8 +99,8 @@ function DashboardState({
         ]}
         actions={
           <>
-            <ExportButton query={exportQuery} />
             <NewApplicationDialog onSuccess={handleCreated} />
+            <ExportButton query={exportQuery} />
           </>
         }
       />

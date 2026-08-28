@@ -205,6 +205,7 @@ export function AnalyticsReport({ report }: { report: AnalyticsReportData }) {
   return (
     <section className="stack page-gap analytics-report-page">
       <PageHeader
+        tone="analytics"
         kicker="数据概览"
         title="求职分析"
         description="按时间、类型和城市查看投递趋势与转化。"
@@ -262,6 +263,7 @@ export function AnalyticsReportValidation({
   return (
     <section className="stack page-gap analytics-report-page">
       <PageHeader
+        tone="analytics"
         kicker="数据概览"
         title="求职分析"
         description="修正分析范围后即可查看结果。"

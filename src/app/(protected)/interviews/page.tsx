@@ -33,6 +33,7 @@ export default async function InterviewsPage({
   return (
     <section className="stack page-gap interviews-page">
       <PageHeader
+        tone="interviews"
         kicker="面试记录"
         title="面试复盘"
         description="整理面试内容、结论和下一步行动。"
