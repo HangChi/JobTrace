@@ -146,7 +146,6 @@ export function ApplicationEditor({
       <section className="panel stack">
         <div className="section-heading">
           <div>
-            <p className="section-kicker">PIPELINE</p>
             <h2>招聘阶段</h2>
           </div>
           {terminal && <span className="status-badge">流程已结束</span>}

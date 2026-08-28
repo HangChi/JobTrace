@@ -58,6 +58,10 @@ export function ImportUploader() {
       {error && <Feedback kind="error">{error}</Feedback>}
       {!preview && !result && (
         <form className="panel stack" onSubmit={upload}>
+          <div className="transfer-form-heading">
+            <h2>选择导入文件</h2>
+            <p>文件只会先进行检查，确认前不会写入数据。</p>
+          </div>
           <label>
             选择文件
             <input

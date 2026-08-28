@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHeader } from "@/shared/ui/page-header";
 import type { AnalyticsReport as AnalyticsReportData } from "../application/contracts";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import {
@@ -19,7 +20,6 @@ function MilestonePanel({ report }: { report: AnalyticsReportData }) {
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">RECORDED PATH</p>
           <h2 id="milestone-title">里程碑转化</h2>
         </div>
         {report.biggestDrop?.count ? (
@@ -63,7 +63,6 @@ function StageReachPanel({ report }: { report: AnalyticsReportData }) {
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">STAGE REACH</p>
           <h2 id="stage-reach-title">阶段到达率</h2>
         </div>
         <span>按独立投递计数</span>
@@ -103,7 +102,6 @@ function InterviewReviewPanel({ report }: { report: AnalyticsReportData }) {
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">INTERVIEW REVIEW</p>
           <h2 id="interview-analysis-title">面试复盘</h2>
         </div>
         <Link href="/interviews">查看面经</Link>
@@ -163,7 +161,6 @@ function ReviewSummary({ report }: { report: AnalyticsReportData }) {
     >
       <div className="analytics-report-panel-heading">
         <div>
-          <p className="section-kicker">REVIEW NOTES</p>
           <h2 id="review-summary-title">复盘摘要</h2>
         </div>
         {!report.sampleSufficient && report.metrics.applications.value ? (
@@ -197,19 +194,26 @@ function ReviewSummary({ report }: { report: AnalyticsReportData }) {
 
 export function AnalyticsReport({ report }: { report: AnalyticsReportData }) {
   const total = report.metrics.applications.value ?? 0;
+  const periodLabels = {
+    "30d": "近 30 天",
+    "90d": "近 90 天",
+    "180d": "近 180 天",
+    ytd: "今年",
+    all: "全部历史",
+    custom: "自定义范围",
+  } as const;
   return (
     <section className="stack page-gap analytics-report-page">
-      <div className="analytics-report-hero">
-        <div>
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 求职数据复盘
-          </p>
-          <h1>看见趋势，理解每一步转化。</h1>
-          <p className="lead">
-            用同一批投递追踪面试与结果，回顾当前周期真实发生了什么。
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        kicker="数据概览"
+        title="求职分析"
+        description="按时间、类型和城市查看投递趋势与转化。"
+        meta={[
+          { label: periodLabels[report.query.period], tone: "brand" },
+          { label: `${total} 次投递` },
+          { label: `${report.interviews.total} 次进入面试` },
+        ]}
+      />
       <AnalyticsReportFilters
         query={report.query}
         cities={report.availableCities}
@@ -257,15 +261,11 @@ export function AnalyticsReportValidation({
 }) {
   return (
     <section className="stack page-gap analytics-report-page">
-      <div className="analytics-report-hero">
-        <div>
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 求职数据复盘
-          </p>
-          <h1>看见趋势，理解每一步转化。</h1>
-          <p className="lead">修正分析范围后即可查看结果。</p>
-        </div>
-      </div>
+      <PageHeader
+        kicker="数据概览"
+        title="求职分析"
+        description="修正分析范围后即可查看结果。"
+      />
       <AnalyticsReportFilters query={query} cities={cities} />
     </section>
   );

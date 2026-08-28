@@ -1,4 +1,5 @@
 import "./admin.css";
+import "./admin-refined.css";
 import { requirePageAdmin } from "@/modules/identity-access";
 import { AdminNav } from "@/modules/identity-access/ui/admin-nav";
 

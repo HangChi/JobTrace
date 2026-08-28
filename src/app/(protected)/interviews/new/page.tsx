@@ -36,13 +36,8 @@ export default async function NewInterviewPage({
     <section className="stack page-gap">
       <div className="hero-row">
         <div>
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 面试复盘
-          </p>
-          <h1>记录这次面试 / 测评</h1>
-          <p className="lead">
-            分别确认阶段记录日期与实际进行日期，再把问题与思考完整留下。
-          </p>
+          <h1>新增面试复盘</h1>
+          <p className="lead">选择关联投递，填写面试日期和复盘内容。</p>
         </div>
       </div>
       <InterviewCreateForm

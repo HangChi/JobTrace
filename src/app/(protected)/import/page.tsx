@@ -5,13 +5,24 @@ export default async function ImportPage() {
   await requirePageUser();
   return (
     <section className="stack">
-      <div>
-        <p className="badge">批量迁移</p>
+      <header className="transfer-page-header">
         <h1>导入投递记录</h1>
-        <p className="lead">
-          上传后先逐行预检，不会直接写入数据库。请使用“公司、岗位、投递日期”等列名。
-        </p>
-      </div>
+        <p className="lead">选择 CSV 或 XLSX 文件，预检无误后再确认导入。</p>
+      </header>
+      <ol className="transfer-steps" aria-label="导入步骤">
+        <li>
+          <span>1</span>
+          <strong>选择文件</strong>
+        </li>
+        <li>
+          <span>2</span>
+          <strong>检查数据</strong>
+        </li>
+        <li>
+          <span>3</span>
+          <strong>确认导入</strong>
+        </li>
+      </ol>
       <ImportUploader />
     </section>
   );

@@ -27,7 +27,6 @@ export function InterviewList({
   if (!page.items.length)
     return (
       <section className="panel interview-empty-state">
-        <p className="section-kicker">INTERVIEW NOTES</p>
         <h2>还没有面经</h2>
         <p>从已有投递选择一次面试或测评，记录问题和复盘。</p>
         <Link className="button" href={"/interviews/new" as Route}>
@@ -56,8 +55,7 @@ export function InterviewList({
     <section className="panel interview-list-panel">
       <div className="section-heading">
         <div>
-          <p className="section-kicker">INTERVIEW ARCHIVE</p>
-          <h2>面经记录</h2>
+          <h2>复盘记录</h2>
         </div>
         <div className="interview-list-heading-meta">
           <div className="interview-page-selection">

@@ -102,3 +102,47 @@ for (const width of [375, 768, 1280]) {
     expect(result.violations).toEqual([]);
   });
 }
+
+test("个人中心与应用栏对齐，设置导航保持单行", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/profile");
+  await expect(
+    page.getByRole("heading", { name: "个人中心", level: 1 }),
+  ).toBeVisible();
+
+  const layout = await page.evaluate(() => {
+    const header = document
+      .querySelector(".app-header")!
+      .getBoundingClientRect();
+    const profile = document
+      .querySelector(".profile-page")!
+      .getBoundingClientRect();
+    const links = [
+      ...document.querySelectorAll<HTMLElement>(".profile-index a"),
+    ];
+    return {
+      leftDifference: Math.abs(header.left - profile.left),
+      rightDifference: Math.abs(header.right - profile.right),
+      navigationFits: links.every(
+        (link) =>
+          link.scrollWidth <= link.clientWidth &&
+          getComputedStyle(link).whiteSpace === "nowrap",
+      ),
+    };
+  });
+
+  expect(layout.leftDifference).toBeLessThanOrEqual(1);
+  expect(layout.rightDifference).toBeLessThanOrEqual(1);
+  expect(layout.navigationFits).toBe(true);
+});
+
+test("投递概览使用可区分的语义色", async ({ page }) => {
+  await page.goto("/");
+  const accents = await page
+    .locator(".summary-card")
+    .evaluateAll((cards) =>
+      cards.map((card) => getComputedStyle(card, "::before").backgroundColor),
+    );
+
+  expect(new Set(accents).size).toBe(accents.length);
+});

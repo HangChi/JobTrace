@@ -1,0 +1,959 @@
+/* Shared workspace pages: applications, interviews, analytics and transfer. */
+.hero-row,
+.section-heading,
+.analytics-filter-heading,
+.analytics-report-panel-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dashboard-hero,
+.analytics-report-hero {
+  min-height: 0;
+  padding: 4px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workspace-page-header {
+  min-height: 188px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px 30px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.workspace-page-header-copy {
+  min-width: 0;
+}
+
+.workspace-page-kicker {
+  margin: 0 0 8px;
+  color: var(--brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.workspace-page-header h1 {
+  font-size: clamp(1.85rem, 3vw, 2.25rem) !important;
+}
+
+.workspace-page-header .lead {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.workspace-page-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  color: #3e4a47;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  list-style: none;
+}
+
+.workspace-page-meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.workspace-page-meta li + li {
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+
+.workspace-page-meta li > span {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--brand);
+}
+
+.workspace-page-meta li.is-warning > span {
+  background: #d9902f;
+}
+
+.workspace-page-actions {
+  flex: 0 0 auto;
+  padding-top: 18px;
+}
+
+.dashboard-hero > .actions {
+  padding-bottom: 0;
+}
+
+.hero-copy {
+  max-width: 760px;
+}
+
+.hero-copy .lead,
+.analytics-report-hero .lead {
+  margin-top: 7px;
+}
+
+.analytics-section {
+  gap: 14px;
+}
+
+.section-heading-copy {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.section-heading-copy .muted {
+  font-size: 0.82rem;
+}
+
+.summary-grid,
+.analytics-report-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.summary-card,
+.report-metric-card {
+  position: relative;
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  padding: 18px 20px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.summary-card:last-child,
+.report-metric-card:last-child {
+  border-right: 0;
+}
+
+.summary-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  content: "";
+  background: var(--summary-accent, var(--brand));
+}
+
+.summary-total {
+  --summary-accent: var(--brand);
+}
+
+.summary-active {
+  --summary-accent: #34778a;
+}
+
+.summary-offer {
+  --summary-accent: var(--success);
+}
+
+.summary-week {
+  --summary-accent: #a56a08;
+}
+
+.summary-rejected {
+  --summary-accent: #b4495d;
+}
+
+.summary-card .metric {
+  color: color-mix(in srgb, var(--summary-accent) 82%, var(--ink-strong));
+}
+
+.summary-card:hover,
+.report-metric-card:hover {
+  border-color: var(--line);
+  background: #fafbfa;
+  box-shadow: none;
+}
+
+.metric-icon,
+.report-metric-accent {
+  display: none;
+}
+
+.metric,
+.report-metric-card > strong {
+  order: -1;
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-label,
+.report-metric-label,
+.report-metric-card > small {
+  min-height: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.summary-active,
+.summary-offer,
+.summary-week,
+.summary-rejected,
+.report-metric-active,
+.report-metric-offer,
+.report-metric-week,
+.report-metric-review {
+  background: var(--surface);
+}
+
+.analytics-grid,
+.analytics-report-two-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 16px;
+}
+
+.distribution-panel,
+.follow-up-panel,
+.progress-reminder-panel,
+.analytics-report-panel {
+  box-shadow: none;
+}
+
+.distribution-layout {
+  gap: 24px;
+}
+
+.distribution-ring {
+  background: none !important;
+  box-shadow: inset 0 0 0 10px var(--surface-soft) !important;
+}
+
+.distribution-list li,
+.follow-up-list li,
+.progress-reminder-item {
+  border-color: var(--line);
+}
+
+.progress-reminder-panel,
+.filter-bar,
+.interview-filters,
+.analytics-report-filters {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.filter-bar {
+  grid-template-columns:
+    minmax(220px, 2fr) repeat(3, minmax(126px, 1fr))
+    auto auto;
+  gap: 10px;
+}
+
+.interview-filters {
+  gap: 10px;
+}
+
+.filter-actions {
+  gap: 8px;
+}
+
+.application-list-panel,
+.interview-list-panel {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.application-list-panel > .section-heading,
+.interview-list-panel > .section-heading {
+  min-height: 72px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.table-hint,
+.section-description {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.application-table th,
+.application-table td {
+  padding: 13px 14px;
+}
+
+.application-row.is-selected,
+.interview-list > li.is-selected {
+  background: var(--brand-soft);
+}
+
+.type-badge,
+.stage-badge,
+.review-status,
+.round-result,
+.status-menu-trigger {
+  border-color: var(--line);
+  color: var(--ink);
+  background: var(--surface-soft);
+  box-shadow: none;
+}
+
+.status-menu-trigger.status-submitted {
+  color: #176b75;
+  border-color: #c7dfe4;
+  background: #edf6f7;
+}
+
+.status-menu-trigger.status-offer {
+  color: #217346;
+  border-color: #c8dfd0;
+  background: #edf7f0;
+}
+
+.status-menu-trigger.status-refused {
+  color: #9a3549;
+  border-color: #e8ccd2;
+  background: #fbf0f2;
+}
+
+.status-menu-trigger:hover {
+  border-color: var(--line-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.stage-badge.stage-screening,
+.stage-badge.stage-assessment,
+.stage-badge.stage-written_test,
+.stage-badge.stage-interview_1,
+.stage-badge.stage-interview_2,
+.stage-badge.stage-interview_3,
+.stage-badge.stage-hr_interview,
+.stage-badge.stage-final_interview,
+.type-badge.type-summer_internship,
+.type-badge.type-daily_internship,
+.type-badge.type-early_campus_recruitment,
+.type-badge.type-campus_recruitment,
+.type-badge.type-social_recruitment {
+  border-color: var(--line);
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.type-badge.type-summer_internship {
+  color: #176f65;
+  border-color: #c4e0da;
+  background: #edf7f4;
+}
+
+.type-badge.type-daily_internship {
+  color: #27677b;
+  border-color: #cddfe5;
+  background: #eff6f8;
+}
+
+.type-badge.type-early_campus_recruitment {
+  color: #695081;
+  border-color: #dbd0e5;
+  background: #f5f1f8;
+}
+
+.type-badge.type-campus_recruitment {
+  color: #875e13;
+  border-color: #e5d6b8;
+  background: #faf5e9;
+}
+
+.type-badge.type-social_recruitment {
+  color: #8c465e;
+  border-color: #e4ced6;
+  background: #faf1f4;
+}
+
+.stage-badge.stage-screening {
+  color: #2d6f82;
+  border-color: #c9dce2;
+  background: #eef5f7;
+}
+
+.stage-badge.stage-assessment {
+  color: #675081;
+  border-color: #d9cfe3;
+  background: #f4f0f7;
+}
+
+.stage-badge.stage-written_test {
+  color: #8a5a00;
+  border-color: #e4d3ad;
+  background: #faf4e7;
+}
+
+.stage-badge.stage-interview_1,
+.stage-badge.stage-interview_2,
+.stage-badge.stage-interview_3 {
+  color: var(--brand-dark);
+  border-color: #c1ddd7;
+  background: var(--brand-soft);
+}
+
+.stage-badge.stage-hr_interview {
+  color: #91445d;
+  border-color: #e2cbd3;
+  background: #f9eff2;
+}
+
+.stage-badge.stage-final_interview {
+  color: #4f7128;
+  border-color: #d1dfc3;
+  background: #f1f6ec;
+}
+
+.stage-badge.stage-none {
+  color: var(--muted);
+  border-color: var(--line);
+  background: var(--surface-soft);
+}
+
+.table-action,
+.edit-link {
+  border-radius: 5px;
+}
+
+.bulk-selection-bar,
+.interview-selection-bar {
+  border-color: #bdd5cf;
+  border-radius: 6px;
+  background: var(--brand-soft);
+}
+
+.table-pagination,
+.pagination {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.pagination-link,
+.pagination-page,
+.page-size-menu summary {
+  border-radius: 5px;
+  box-shadow: none;
+}
+
+.pagination-page.is-current {
+  background: var(--brand);
+  box-shadow: none;
+}
+
+.interview-list {
+  margin: 0;
+  padding: 0;
+}
+
+.interview-list > li {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.interview-list > li:hover {
+  background: #f8faf9;
+}
+
+.interview-list-main p,
+.interview-list > li > time {
+  color: var(--muted);
+}
+
+.interview-empty-state,
+.analytics-report-empty,
+.empty-state {
+  padding-block: 48px;
+  text-align: center;
+}
+
+.analytics-report-hero {
+  display: block;
+}
+
+.analytics-report-filters {
+  display: grid;
+  gap: 14px;
+}
+
+.analytics-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.analytics-filter-grid input,
+.analytics-filter-grid select {
+  border-radius: 6px;
+}
+
+.analytics-report-panel {
+  padding: 20px;
+}
+
+.analytics-report-panel-heading {
+  margin-bottom: 18px;
+}
+
+.trend-chart-scroll,
+.analytics-table-scroll {
+  border-color: var(--line);
+}
+
+.trend-gridline {
+  stroke: var(--line);
+}
+
+.trend-applications {
+  color: var(--brand);
+}
+
+.trend-interviewed {
+  color: #466a82;
+}
+
+.trend-offers {
+  color: #6d5d7f;
+}
+
+.milestone-track,
+.stage-reach-track {
+  background: var(--surface-soft);
+}
+
+.milestone-track > span,
+.stage-reach-track > span {
+  background: var(--brand) !important;
+}
+
+.dimension-tabs {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.dimension-tabs button {
+  border-radius: 4px;
+}
+
+.dimension-tabs button[aria-selected="true"] {
+  color: var(--brand-dark);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.interview-analysis-metrics {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.interview-analysis-metrics > div {
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.interview-analysis-metrics > div:last-child {
+  border-right: 0;
+}
+
+.review-summary-panel,
+.data-quality-note {
+  background: var(--surface);
+}
+
+.interview-editor-header,
+.application-detail-header {
+  padding: 4px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.save-state {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.interview-section,
+.markdown-surface,
+.interview-editor > .panel,
+.interview-create-form,
+.application-detail-page > .panel,
+.application-editor > .panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.interview-section {
+  padding: 20px;
+}
+
+.markdown-surface {
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.markdown-field textarea {
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.markdown-mode-switch {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.markdown-mode-switch button {
+  border-radius: 4px;
+}
+
+.markdown-mode-switch button.is-active {
+  color: var(--brand-dark);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.stage-record-list {
+  position: relative;
+  gap: 0;
+  padding-left: 20px;
+}
+
+.stage-record-list::before,
+.stage-timeline::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 7px;
+  width: 1px;
+  content: "";
+  background: var(--line-strong);
+}
+
+.stage-record-list li {
+  position: relative;
+  min-height: 56px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+.stage-record-list li:last-child {
+  border-bottom: 0;
+}
+
+.stage-record-name i {
+  position: absolute;
+  left: -18px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--surface);
+  background: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+
+.application-danger-zone {
+  border-radius: var(--radius);
+  background: #fffafb;
+}
+
+.detail-meta-grid > div,
+.detail-section,
+.application-interview-list li {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.application-dialog .application-record-form {
+  padding: 18px 0 0;
+}
+
+.application-dialog .dialog-card {
+  background: var(--surface);
+}
+
+.application-detail-dialog .detail-dialog-body {
+  padding-top: 18px;
+}
+
+.file-type,
+.company-avatar,
+.delete-warning-icon {
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.file-xlsx,
+.file-csv {
+  background: var(--brand);
+}
+
+.stack > form.panel:has(input[type="file"]) {
+  max-width: 720px;
+  padding: 20px;
+}
+
+.transfer-page-header .lead {
+  margin-top: 7px;
+}
+
+.transfer-steps {
+  max-width: 720px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 4px 0 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  list-style: none;
+}
+
+.transfer-steps li {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.transfer-steps li:last-child {
+  border-right: 0;
+}
+
+.transfer-steps span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.transfer-steps strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.transfer-form-heading h2,
+.transfer-form-heading p {
+  margin: 0;
+}
+
+.transfer-form-heading p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+input[type="file"] {
+  padding: 8px;
+  border-style: dashed;
+  background: #fafbfa;
+}
+
+@media (max-width: 960px) {
+  .summary-grid,
+  .analytics-report-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-card,
+  .report-metric-card {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .summary-card:nth-child(2n),
+  .report-metric-card:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .summary-card:last-child,
+  .report-metric-card:last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .analytics-grid,
+  .analytics-report-two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analytics-filter-submit {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-row,
+  .section-heading,
+  .analytics-filter-heading,
+  .analytics-report-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dashboard-hero > .actions,
+  .dashboard-hero > .actions > *,
+  .interviews-page .dashboard-hero > .actions,
+  .interviews-page .dashboard-hero > .actions > * {
+    width: 100%;
+  }
+
+  .workspace-page-header {
+    min-height: 0;
+    flex-direction: column;
+    gap: 20px;
+    padding: 22px 20px;
+  }
+
+  .workspace-page-actions,
+  .workspace-page-actions > * {
+    width: 100%;
+  }
+
+  .workspace-page-actions > .export-menu > summary {
+    width: 100%;
+  }
+
+  .workspace-page-actions {
+    padding-top: 0;
+  }
+
+  .workspace-page-meta {
+    margin-top: 16px;
+  }
+
+  .workspace-page-meta li + li {
+    margin-left: 12px;
+    padding-left: 12px;
+  }
+
+  .section-heading-copy {
+    padding-top: 16px;
+  }
+
+  .summary-grid,
+  .analytics-report-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary-card,
+  .report-metric-card {
+    min-height: 100px;
+    padding: 14px;
+  }
+
+  .filter-bar,
+  .interview-filters,
+  .analytics-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions,
+  .filter-actions > *,
+  .analytics-filter-submit {
+    width: 100%;
+  }
+
+  .application-list-panel > .section-heading,
+  .interview-list-panel > .section-heading {
+    padding: 16px;
+  }
+
+  .analytics-report-panel,
+  .interview-section {
+    padding: 16px;
+  }
+
+  .interview-analysis-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .interview-analysis-metrics > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .interview-analysis-metrics > div:last-child {
+    border-bottom: 0;
+  }
+
+  .application-dialog .application-record-form {
+    padding-top: 16px;
+  }
+
+  .transfer-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .transfer-steps li {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .transfer-steps li:last-child {
+    border-bottom: 0;
+  }
+}

@@ -4,6 +4,7 @@ import { listInterviews } from "@/modules/interviews";
 import { InterviewFilters } from "@/modules/interviews/ui/interview-filters";
 import { InterviewList } from "@/modules/interviews/ui/interview-list";
 import { requirePageUser } from "@/modules/identity-access";
+import { PageHeader } from "@/shared/ui/page-header";
 
 export const dynamic = "force-dynamic";
 type Search = Record<string, string | string[] | undefined>;
@@ -26,26 +27,25 @@ export default async function InterviewsPage({
   const page = await listInterviews(params);
   const next = new URLSearchParams(params);
   if (page.nextCursor) next.set("cursor", page.nextCursor);
+  const pendingOnPage = page.items.filter(
+    (interview) => interview.status !== "completed",
+  ).length;
   return (
     <section className="stack page-gap interviews-page">
-      <div className="hero-row dashboard-hero">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span aria-hidden="true" /> 面试复盘工作台
-          </p>
-          <h1 className="interviews-hero-title">
-            把每次面试，<span>变成下一次的准备。</span>
-          </h1>
-          <p className="lead">
-            记录问题、还原回答、明确改进，让经验真正积累下来。
-          </p>
-        </div>
-        <div className="actions">
+      <PageHeader
+        kicker="面试记录"
+        title="面试复盘"
+        description="整理面试内容、结论和下一步行动。"
+        meta={[
+          { label: `共 ${page.total} 次复盘`, tone: "brand" },
+          { label: `本页待完善 ${pendingOnPage} 条`, tone: "warning" },
+        ]}
+        actions={
           <Link className="button" href={"/interviews/new" as Route}>
-            记录面经
+            新增复盘
           </Link>
-        </div>
-      </div>
+        }
+      />
       <InterviewFilters query={search} />
       <InterviewList
         page={page}

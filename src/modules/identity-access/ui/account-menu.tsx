@@ -5,10 +5,7 @@ import { logoutAction } from "@/app/(auth)/actions";
 import { DismissibleDetails } from "@/shared/ui/dismissible-details";
 import type { Actor } from "../application/contracts";
 import { PrimaryNav } from "./primary-nav";
-
-function initials(value: string) {
-  return value.trim().slice(0, 2).toUpperCase() || "JT";
-}
+import { UserAvatar } from "./user-avatar";
 
 function Avatar({
   actor,
@@ -18,15 +15,11 @@ function Avatar({
   className?: string;
 }) {
   return (
-    <span
-      className={`${className} ${actor.image ? "has-image" : ""}`}
-      style={
-        actor.image ? { backgroundImage: `url(${actor.image})` } : undefined
-      }
-      aria-hidden="true"
-    >
-      {!actor.image && initials(actor.displayName)}
-    </span>
+    <UserAvatar
+      className={className}
+      image={actor.image}
+      name={actor.displayName}
+    />
   );
 }
 
@@ -40,10 +33,11 @@ export function AccountMenu({ actor }: { actor: Actor }) {
           alt=""
           width={38}
           height={38}
+          loading="eager"
         />
         <span>
           <strong>JobTrace</strong>
-          <small>求职进度工作台</small>
+          <small>投递与面试</small>
         </span>
       </Link>
       <PrimaryNav />

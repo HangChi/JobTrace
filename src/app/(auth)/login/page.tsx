@@ -34,13 +34,12 @@ export default async function Page({
     : "/register";
   return (
     <AuthShell
-      title="欢迎回来"
-      description="登录后，继续跟进你的每一个求职机会。"
-      eyebrow="继续你的求职轨迹"
+      title="登录 JobTrace"
+      description="使用邮箱或用户名登录。"
       footer={
         <>
           <span>还没有账号？</span>
-          <Link href={registerHref}>免费创建账号</Link>
+          <Link href={registerHref}>创建账号</Link>
         </>
       }
     >

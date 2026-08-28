@@ -103,7 +103,6 @@ function ApplicationDetailContent({
     <>
       <Dialog
         open
-        kicker="APPLICATION DETAIL"
         title={`${companyDisplayName} · ${current.positionName}`}
         className="application-detail-dialog"
         onClose={onClose}

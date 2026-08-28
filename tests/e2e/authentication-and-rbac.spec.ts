@@ -47,7 +47,7 @@ test("registration returns to the requested page through the login form", async 
   await page.goto("/analytics");
   await expect(page).toHaveURL(/\/login\?returnTo=%2Fanalytics/);
   await expect(page.getByRole("link", { name: "忘记密码" })).not.toBeVisible();
-  await page.getByRole("link", { name: "免费创建账号" }).click();
+  await page.getByRole("link", { name: "创建账号", exact: true }).click();
   await expect(page).toHaveURL(/\/register\?returnTo=%2Fanalytics/);
 
   await page.getByLabel("用户名").fill(username.toUpperCase());

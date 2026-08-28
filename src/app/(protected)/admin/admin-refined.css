@@ -1,0 +1,213 @@
+.admin-shell {
+  gap: 20px;
+}
+
+.admin-nav {
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.admin-nav a {
+  min-height: 38px;
+  border-radius: 5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.admin-nav a:hover,
+.admin-nav a:focus-visible,
+.admin-nav a[aria-current="page"] {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.admin-content,
+.admin-list,
+.admin-directory-page,
+.admin-user-detail-page {
+  gap: 20px;
+}
+
+.admin-directory-hero,
+.admin-profile-hero {
+  min-height: 0;
+  padding: 4px 0 16px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-profile-hero::after {
+  display: none;
+}
+
+.admin-directory-hero h1,
+.admin-profile-title h1 {
+  margin: 0;
+  font-size: 2rem !important;
+}
+
+.admin-directory-hero p:last-child,
+.admin-profile-title p {
+  color: var(--muted);
+}
+
+.admin-directory-total {
+  min-width: 112px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.admin-directory-total strong {
+  color: var(--ink-strong);
+  font-size: 1.5rem;
+}
+
+.admin-window-grid > div,
+.admin-profile-metrics,
+.admin-private-banner,
+.admin-content-section,
+.admin-side-panel,
+.admin-detail-grid > div,
+.admin-audit-summary li {
+  border-color: var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.admin-filters {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.admin-filters input,
+.admin-filters select {
+  border-radius: 6px;
+}
+
+.admin-directory-table-wrap {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.admin-user-table th,
+.admin-user-table td {
+  border-color: var(--line);
+}
+
+.admin-user-table tbody tr:hover {
+  background: #f8faf9;
+}
+
+.admin-user-avatar,
+.admin-profile-avatar {
+  border-radius: 50%;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  box-shadow: none;
+}
+
+.admin-role-badge,
+.admin-state-badge,
+.admin-record-counts span,
+.admin-record-tags span,
+.admin-round-result {
+  border-color: var(--line);
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+
+.admin-open-profile,
+.admin-back-link,
+.admin-content-pagination a {
+  color: var(--brand-dark);
+}
+
+.admin-profile-layout {
+  gap: 16px;
+}
+
+.admin-private-banner {
+  background: var(--surface-soft);
+}
+
+.admin-content-heading,
+.admin-side-heading {
+  border-color: var(--line);
+}
+
+.admin-content-record + .admin-content-record,
+.admin-account-facts div,
+.admin-audit-timeline li,
+.admin-stage-track li {
+  border-color: var(--line);
+}
+
+.admin-stage-track,
+.admin-audit-timeline {
+  position: relative;
+}
+
+.admin-stage-track::before,
+.admin-audit-timeline::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 7px;
+  width: 1px;
+  content: "";
+  background: var(--line-strong);
+}
+
+.admin-stage-track li::before,
+.admin-audit-timeline li > span {
+  position: relative;
+  z-index: 1;
+  background: var(--brand);
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.admin-record-disclosure summary,
+.admin-access-dialog .dialog-card {
+  border-radius: 6px;
+}
+
+.admin-directory-pagination,
+.admin-content-pagination {
+  border-color: var(--line);
+}
+
+@media (max-width: 760px) {
+  .admin-nav {
+    overflow-x: auto;
+  }
+
+  .admin-directory-hero,
+  .admin-profile-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .admin-directory-total {
+    width: 100%;
+  }
+
+  .admin-filters {
+    grid-template-columns: 1fr;
+  }
+}

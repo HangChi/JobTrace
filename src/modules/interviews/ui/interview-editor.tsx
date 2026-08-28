@@ -58,7 +58,6 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
       <header className="interview-editor-header">
         <div>
           <p className="eyebrow">
-            <span aria-hidden="true" />{" "}
             {draft.linked ? "已关联招聘阶段" : "阶段已解除关联"}
           </p>
           <h1>
@@ -89,7 +88,6 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
       <section className="panel stack">
         <div className="section-heading">
           <div>
-            <p className="section-kicker">CONTEXT</p>
             <h2>面试背景</h2>
           </div>
           <span className={`review-status status-${draft.status}`}>

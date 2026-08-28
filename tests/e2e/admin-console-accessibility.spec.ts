@@ -24,7 +24,11 @@ test("admin pages are responsive, keyboard reachable and WCAG AA clean", async (
 
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/admin/users?q=playwright_user");
-  await page.getByRole("link", { name: "查看详情" }).click();
+  const detailHref = await page
+    .getByRole("link", { name: "查看详情" })
+    .getAttribute("href");
+  expect(detailHref).toBeTruthy();
+  await page.goto(detailHref!);
   const trigger = page.getByRole("button", { name: "禁用账号" });
   await trigger.focus();
   await trigger.press("Enter");

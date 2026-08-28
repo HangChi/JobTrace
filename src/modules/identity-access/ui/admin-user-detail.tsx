@@ -314,7 +314,7 @@ export function AdminUserDetail({
           >
             <div className="admin-content-heading">
               <div>
-                <p>APPLICATIONS</p>
+                <p>投递记录</p>
                 <h2 id="admin-applications-title">投递记录</h2>
               </div>
               <strong>{user.applications.total}</strong>
@@ -341,7 +341,7 @@ export function AdminUserDetail({
           >
             <div className="admin-content-heading">
               <div>
-                <p>INTERVIEW REVIEWS</p>
+                <p>面试复盘</p>
                 <h2 id="admin-interviews-title">面经复盘</h2>
               </div>
               <strong>{user.interviews.total}</strong>
@@ -365,7 +365,7 @@ export function AdminUserDetail({
 
         <aside className="admin-profile-sidebar">
           <section className="admin-side-panel">
-            <p className="admin-side-kicker">ACCESS CONTROL</p>
+            <p className="admin-side-kicker">访问控制</p>
             <h2>访问控制</h2>
             <dl className="admin-account-facts">
               <div>
@@ -387,7 +387,7 @@ export function AdminUserDetail({
           <section className="admin-side-panel">
             <div className="admin-side-heading">
               <div>
-                <p className="admin-side-kicker">AUDIT TRAIL</p>
+                <p className="admin-side-kicker">审计记录</p>
                 <h2>最近变更</h2>
               </div>
               <Link href={`/admin/audit?target=${encodeURIComponent(user.id)}`}>

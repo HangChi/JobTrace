@@ -39,7 +39,6 @@ export default async function AdminAuditPage({
   return (
     <section className="stack page-gap">
       <header>
-        <p className="eyebrow">管理员后台</p>
         <h1>操作审计</h1>
         <p className="lead">查看不可修改的账号访问操作记录。</p>
       </header>

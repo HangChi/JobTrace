@@ -1,0 +1,334 @@
+.auth-page {
+  width: min(480px, 100%);
+  min-height: calc(100dvh - 48px);
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.auth-page:has(.auth-card-register) {
+  width: min(860px, 100%);
+}
+
+.auth-main {
+  min-height: calc(100dvh - 48px);
+  display: flex;
+  align-items: center;
+  padding: 32px 0;
+  background: transparent;
+}
+
+.auth-main::before,
+.auth-main::after {
+  display: none;
+}
+
+.auth-main:has(.auth-card-register) {
+  padding: 32px 0;
+}
+
+.auth-main-inner,
+.auth-main-inner:has(.auth-card-register) {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  gap: 0;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.auth-main-inner:has(.auth-card-register) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto auto;
+  padding: 32px;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  color: var(--ink-strong);
+  text-decoration: none;
+}
+
+.auth-main-inner:has(.auth-card-register) .auth-brand {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+}
+
+.auth-brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  background: var(--brand);
+  font-size: 1rem;
+  font-weight: 750;
+  transform: none;
+}
+
+.auth-brand > span:last-child {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.auth-brand strong {
+  color: var(--ink-strong);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.auth-brand small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.auth-heading,
+.auth-main-inner:has(.auth-card-register) .auth-heading {
+  margin: 0 0 22px;
+}
+
+.auth-main-inner:has(.auth-card-register) .auth-heading {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: 28px 0 22px;
+}
+
+.auth-heading h1 {
+  margin: 0;
+  font-size: 1.75rem !important;
+}
+
+.auth-heading > p:last-child {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.auth-kicker {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.auth-kicker > span {
+  display: none;
+}
+
+.auth-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.auth-card-register {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.auth-card-register > * {
+  grid-column: 1 / -1;
+}
+
+.auth-field,
+.auth-card-register .auth-field {
+  min-width: 0;
+}
+
+.auth-card-register .auth-register-username,
+.auth-card-register .auth-register-display-name,
+.auth-card-register .auth-register-email,
+.auth-card-register .auth-register-code,
+.auth-card-register .auth-register-password,
+.auth-card-register .auth-register-confirm-password {
+  grid-column: span 6;
+}
+
+.auth-field-label {
+  margin-bottom: 6px;
+}
+
+.auth-field-label label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.auth-field-label small {
+  color: var(--muted);
+}
+
+.auth-field-hint,
+.auth-card-register .auth-field-hint {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.auth-input-wrap input {
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.auth-input-icon {
+  color: var(--muted);
+}
+
+.auth-password-toggle {
+  border-radius: 5px;
+}
+
+.auth-submit,
+.auth-card-register > .auth-submit {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  grid-column: 1 / -1;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.auth-error-summary,
+.auth-success,
+.auth-config-error {
+  grid-column: auto;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.auth-footer {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.auth-main-inner:has(.auth-card-register) .auth-footer {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+  border-top: 0;
+}
+
+.auth-footer a {
+  color: var(--brand-dark);
+  font-weight: 650;
+}
+
+.auth-terms {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.auth-main-inner:has(.auth-card-register) .auth-terms {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin-top: 14px;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .auth-page,
+  .auth-main {
+    min-height: calc(100dvh - 24px);
+  }
+
+  .auth-main {
+    align-items: flex-start;
+    padding: 12px 0;
+  }
+
+  .auth-main:has(.auth-card-register) {
+    padding: 12px 0;
+  }
+
+  .auth-main-inner,
+  .auth-main-inner:has(.auth-card-register) {
+    padding: 22px 18px;
+  }
+
+  .auth-main-inner:has(.auth-card-register) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .auth-main-inner:has(.auth-card-register) .auth-brand,
+  .auth-main-inner:has(.auth-card-register) .auth-heading,
+  .auth-main-inner:has(.auth-card-register) .auth-card-register,
+  .auth-main-inner:has(.auth-card-register) .auth-terms,
+  .auth-main-inner:has(.auth-card-register) .auth-footer {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .auth-main-inner:has(.auth-card-register) .auth-brand {
+    margin-bottom: 24px;
+  }
+
+  .auth-main-inner:has(.auth-card-register) .auth-heading {
+    margin: 0 0 22px;
+  }
+
+  .auth-main-inner:has(.auth-card-register) .auth-footer {
+    justify-content: center;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+
+  .auth-card-register {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card-register > *,
+  .auth-card-register .auth-register-username,
+  .auth-card-register .auth-register-display-name,
+  .auth-card-register .auth-register-email,
+  .auth-card-register .auth-register-code,
+  .auth-card-register .auth-register-password,
+  .auth-card-register .auth-register-confirm-password {
+    grid-column: 1;
+  }
+
+  .auth-brand {
+    margin-bottom: 28px;
+  }
+}

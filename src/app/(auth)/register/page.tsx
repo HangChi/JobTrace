@@ -21,9 +21,8 @@ export default async function Page({
     : "/login";
   return (
     <AuthShell
-      title="创建你的账号"
-      description="从今天开始，把零散的投递整理成看得见的进展。"
-      eyebrow="开始记录求职轨迹"
+      title="创建账号"
+      description="创建账号后即可记录和管理投递。"
       footer={
         <>
           <span>已经有账号？</span>

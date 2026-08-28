@@ -37,9 +37,8 @@ export default async function AdminUsersPage({
     <section className="stack admin-directory-page">
       <header className="admin-directory-hero">
         <div>
-          <p className="eyebrow">ADMIN DIRECTORY</p>
           <h1>账号目录</h1>
-          <p>检索账号、核对访问状态，进入档案查看用户的只读求职记录。</p>
+          <p>检索账号、核对访问状态并查看只读档案。</p>
         </div>
         <div
           className="admin-directory-total"
