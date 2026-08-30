@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const result = await deleteApplications(await request.json());
-    revalidatePath("/");
+    revalidatePath("/applications");
     return Response.json(result);
   } catch (error) {
     return problemResponse(error);

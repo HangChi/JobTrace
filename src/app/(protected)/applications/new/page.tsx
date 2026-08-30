@@ -1,7 +1,19 @@
 import { ApplicationForm } from "@/modules/applications/ui/application-form";
 import { requirePageUser } from "@/modules/identity-access";
-export default async function NewApplicationPage() {
+import { getPublicJobForTracking } from "@/modules/job-market/application/tracking-service";
+import { redirect } from "next/navigation";
+export default async function NewApplicationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ jobMarketPostId?: string }>;
+}) {
   await requirePageUser();
+  const { jobMarketPostId } = await searchParams;
+  const job = jobMarketPostId
+    ? await getPublicJobForTracking(jobMarketPostId)
+    : null;
+  if (job?.existingApplicationId)
+    redirect(`/applications/${job.existingApplicationId}`);
   return (
     <section className="stack">
       <div>
@@ -10,7 +22,19 @@ export default async function NewApplicationPage() {
           先填写公司、岗位和投递日期，其他信息可以稍后补充。
         </p>
       </div>
-      <ApplicationForm />
+      <ApplicationForm
+        defaults={
+          job
+            ? {
+                jobMarketPostId: job.id,
+                companyName: job.companyName,
+                positionName: job.positionName,
+                city: job.city,
+                jobUrl: job.jobUrl,
+              }
+            : undefined
+        }
+      />
     </section>
   );
 }

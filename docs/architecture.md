@@ -131,3 +131,13 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 - [数据导入与导出](data-transfer.md)
 - [测试策略与命令](testing.md)
 - [功能规格与数据模型](../specs/)
+
+## 自动招聘市场边界
+
+`src/modules/job-market` 是公共招聘数据的独立边界：`domain` 负责规范化、保守去重、生命周期和投递目标；`application` 负责编排查询、收藏、来源管理与同步；`infrastructure` 负责 PostgreSQL、受限 HTTP 和 ATS 适配器；`ui` 只消费聚合活动契约。私人投递仍由 `applications` 模块拥有，公共岗位只能通过 `jobMarketPostId` 建立一条 owner-scoped 关联和不可变快照。
+
+每个适配器只接受管理员登记的来源，并输出统一的完整或部分批次。新增适配器必须加入显式注册表，提供本地 fixture 契约测试，并遵守 HTTPS、精确主机白名单、DNS 公网地址、逐跳重定向、超时、响应大小和内容类型限制。Schema.org 适配器只解析 JSON-LD 和纯文本，不执行来源脚本。
+
+去重依次使用同来源外部 ID、同公司规范官方 URL 和保守指纹；模糊或有歧义的数据保持分离并保留来源记录。完整成功快照第一次缺失变为 `stale`，至少六小时后的第二次缺失才 `closed`；失败或部分批次不推进缺失状态，重新出现记录 `reopened`。首页始终按“公司 + 招聘批次”返回一条活动，并合并其岗位与地点。
+
+`job_market_campaign_favorites` 和 `application_job_market_links` 都以登录用户为 owner 边界。公共列表只能投影当前用户的收藏和已记录 ID，不得暴露其他用户的日期、状态、阶段、备注或面试数据。

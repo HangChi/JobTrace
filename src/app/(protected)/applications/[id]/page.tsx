@@ -31,7 +31,10 @@ export default async function ApplicationPage({
   return (
     <section className="stack application-detail-page">
       <header className="application-detail-header">
-        <Link className="application-detail-back" href="/">
+        <Link
+          className="application-detail-back"
+          href={"/applications" as Route}
+        >
           <span aria-hidden="true">←</span> 返回投递记录
         </Link>
         <div>

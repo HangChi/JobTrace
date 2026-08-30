@@ -176,6 +176,58 @@ export const databaseSchema = {
       "nullable": false
     }
   ],
+  "application_job_market_links": [
+    {
+      "name": "application_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "post_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "source_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "external_job_id",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "job_title_snapshot",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "company_name_snapshot",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "location_snapshot",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "apply_url_snapshot",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
   "application_stage_occurrences": [
     {
       "name": "id",
@@ -626,6 +678,581 @@ export const databaseSchema = {
     {
       "name": "updated_at",
       "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_campaign_favorites": [
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "campaign_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_campaigns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "campaign_key",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "recruitment_type",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "batch_label",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "official_apply_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "published_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "valid_through",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "last_confirmed_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_companies": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "canonical_name",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "normalized_name",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "aliases",
+      "type": "ARRAY",
+      "nullable": false
+    },
+    {
+      "name": "company_type",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "industry",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "website_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "identity_key",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_events": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "post_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "campaign_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "source_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "sync_run_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "event_type",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "reason_code",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "change_summary",
+      "type": "jsonb",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_locations": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "normalized_key",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "display_name",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "country",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "region",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "city",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "is_remote",
+      "type": "boolean",
+      "nullable": false
+    }
+  ],
+  "job_market_post_locations": [
+    {
+      "name": "post_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "location_id",
+      "type": "uuid",
+      "nullable": false
+    }
+  ],
+  "job_market_posts": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "campaign_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "normalized_title",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "description_text",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "recruitment_type",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "target",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "education",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "primary_apply_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "published_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "valid_through",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "first_seen_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "last_seen_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "missing_since",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "last_missing_success_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "content_hash",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_source_records": [
+    {
+      "name": "source_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "external_job_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "post_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "external_detail_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "external_apply_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "payload_hash",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "normalized_snapshot",
+      "type": "jsonb",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "first_seen_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "last_seen_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "last_seen_run_id",
+      "type": "uuid",
+      "nullable": true
+    }
+  ],
+  "job_market_sources": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "adapter",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "external_key",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "base_url",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "allowed_hosts",
+      "type": "ARRAY",
+      "nullable": false
+    },
+    {
+      "name": "is_official",
+      "type": "boolean",
+      "nullable": false
+    },
+    {
+      "name": "access_basis",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "sync_interval_minutes",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "next_sync_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "lease_until",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "leased_by",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "consecutive_failures",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "last_attempt_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "last_success_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "etag",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "last_modified",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "job_market_sync_runs": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "source_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "trigger",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "started_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "finished_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "discovered_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "created_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "updated_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "stale_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "closed_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "rejected_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "error_code",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "error_summary",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "request_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "worker_id",
+      "type": "text",
       "nullable": false
     }
   ],

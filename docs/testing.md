@@ -142,3 +142,22 @@ CI 执行格式、lint、类型、Python 语法、单元测试、迁移、Python
 - `playwright.performance.config.ts`：认证性能。
 - `lighthouserc.json`：Lighthouse 门禁。
 - `.github/workflows/ci.yml`：持续集成。
+
+## 自动招聘市场测试规则
+
+ATS 和 Schema.org 适配器测试只能读取 `tests/fixtures/job-market`，不得请求真实招聘站点。每个新适配器至少覆盖正常分页、多地点、缺省字段、部分坏数据、关闭/重开和限流；安全夹具还要覆盖私网 IPv4/IPv6、元数据、DNS 指向私网、重定向复验、userinfo、重定向循环、超大响应和危险投递 URL。
+
+岗位市场变更至少运行：
+
+```bash
+pnpm exec vitest run tests/unit/job-market tests/component/job-market
+pnpm contract
+pnpm integration
+pnpm e2e
+pnpm performance
+pnpm performance:auth
+```
+
+契约、集成和 E2E 包装命令创建隔离临时数据库。100 家企业/100,000 岗位性能种子与测量位于同一事务，并故意回滚。岗位市场读接口 p95 门限为 500ms，收藏/私人记录写为 1s；Playwright 和 Lighthouse 共同检查 LCP 2.5s、INP 200ms、CLS 0.1。axe 在桌面与移动视口运行，并以键盘覆盖筛选、收藏、选择岗位和管理来源。
+
+Vitest 的全局行、分支覆盖率均不得低于 80%；新增领域规则必须有分支测试，数据库 owner 隔离和租约竞争必须有 PostgreSQL 集成测试，不能用组件 mock 代替。

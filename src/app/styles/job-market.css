@@ -1,0 +1,203 @@
+.job-market-page {
+  gap: 20px;
+}
+.job-market-filters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.job-market-filters label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.job-market-filters input,
+.job-market-filters select {
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: white;
+}
+.job-market-check {
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+}
+.job-market-check input {
+  width: 18px;
+  height: 18px;
+}
+.job-market-filter-actions {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+.campaign-list {
+  display: grid;
+  gap: 12px;
+}
+.campaign-card {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 0.7fr) minmax(340px, 1.8fr) minmax(220px, 0.8fr)
+    auto;
+  align-items: center;
+  gap: 22px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 8px 26px rgba(23, 113, 100, 0.05);
+}
+.campaign-card.status-stale {
+  border-color: #e5c98f;
+  background: #fffdf8;
+}
+.campaign-card.status-closed {
+  opacity: 0.78;
+}
+.campaign-company {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.campaign-company h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.campaign-company p,
+.campaign-meta {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.favorite-button {
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+.campaign-fields {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.campaign-fields > div {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 8px;
+}
+.campaign-fields dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.campaign-fields dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.campaign-fields details summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-size: 0.76rem;
+}
+.campaign-fields details p {
+  margin: 6px 0;
+}
+.campaign-meta {
+  display: grid;
+  gap: 7px;
+}
+.campaign-meta a {
+  color: var(--brand);
+}
+.status-pill {
+  width: max-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+.status-pill.stale {
+  background: var(--warm);
+  color: var(--warning);
+}
+.status-pill.closed {
+  background: #edf0ef;
+  color: #5d6866;
+}
+.campaign-actions {
+  display: grid;
+  gap: 8px;
+}
+.job-market-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.job-market-empty {
+  text-align: center;
+}
+.job-market-choice {
+  display: grid;
+  gap: 8px;
+}
+.job-market-choice a {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-decoration: none;
+}
+.job-market-choice a:hover,
+.job-market-choice a:focus-visible {
+  border-color: var(--brand);
+}
+.job-market-choice span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 900px) {
+  .job-market-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .campaign-card {
+    grid-template-columns: 1fr 1.5fr;
+  }
+  .campaign-actions {
+    grid-column: 2;
+  }
+}
+@media (max-width: 620px) {
+  .job-market-filters,
+  .campaign-card {
+    grid-template-columns: 1fr;
+  }
+  .campaign-actions {
+    grid-column: auto;
+    grid-template-columns: 1fr 1fr;
+  }
+}

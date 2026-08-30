@@ -11,7 +11,7 @@ test("筛选、清空与空状态", async ({ request, page }) => {
   });
   const application = await created.json();
   try {
-    await page.goto("/");
+    await page.goto("/applications");
     await page.getByLabel("搜索公司或岗位").fill("E2E 筛选公司");
     await page.getByRole("button", { name: "应用条件" }).click();
     await expect(
@@ -25,7 +25,7 @@ test("筛选、清空与空状态", async ({ request, page }) => {
       page.getByRole("heading", { name: "没有符合条件的记录" }),
     ).toBeVisible();
     await page.getByRole("link", { name: "清空条件" }).click();
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/applications");
   } finally {
     await request.delete(`/api/applications/${application.id}`);
   }
@@ -48,7 +48,7 @@ test("全选当前页后可导出所选并批量删除", async ({ request, page 
     }),
   );
   try {
-    await page.goto(`/?q=${encodeURIComponent(marker)}`);
+    await page.goto(`/applications?q=${encodeURIComponent(marker)}`);
     await page.locator("thead").getByLabel("选择当前页全部 2 条记录").click();
     await expect(page.locator(".bulk-selection-count")).toContainText(
       "2条记录已选择",

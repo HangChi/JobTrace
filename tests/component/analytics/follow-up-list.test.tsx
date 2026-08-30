@@ -35,7 +35,10 @@ describe("需要跟进列表", () => {
   it("点击记录后在当前页面打开共享详情弹窗", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: async () => application }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ application, interviews: [] }),
+      }),
     );
     render(<FollowUpList items={[application]} />);
 
@@ -54,8 +57,11 @@ describe("需要跟进列表", () => {
       expect(screen.getByText("联系招聘负责人")).toBeVisible(),
     );
     expect(fetch).toHaveBeenCalledWith(
-      "/api/applications/follow-up-1",
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      "/api/applications/follow-up-1/detail",
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+        cache: "no-store",
+      }),
     );
   });
 });

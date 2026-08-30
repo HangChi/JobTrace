@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
+  tsconfig: "./tests/setup/playwright.server.tsconfig.json",
   testDir: "tests/integration",
   workers: 1,
   globalSetup: "./tests/setup/auth.global.ts",

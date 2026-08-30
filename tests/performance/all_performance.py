@@ -9,3 +9,6 @@ if __name__ == "__main__":
     subprocess.run(
         ["node", "tests/performance/admin-console-performance.ts"], check=True
     )
+    subprocess.run(
+        ["node", "tests/performance/job-market-performance.ts"], check=True
+    )

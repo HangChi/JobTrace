@@ -6,6 +6,7 @@ export {
   deleteApplication,
   deleteApplications,
   getApplication,
+  getApplicationDialogData,
   listApplications,
   removeApplicationStage,
   updateApplicationStage,
@@ -26,6 +27,7 @@ export {
 } from "./domain/catalog";
 export type {
   ApplicationDetail,
+  ApplicationDialogData,
   ApplicationPage,
   ApplicationSummary,
   ApplicationStatusUpdate,

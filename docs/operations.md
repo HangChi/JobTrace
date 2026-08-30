@@ -257,3 +257,13 @@ pnpm lighthouse
 - [架构与安全边界](architecture.md)
 - [数据导入与导出](data-transfer.md)
 - [测试策略与命令](testing.md)
+
+## 自动招聘同步运维
+
+外部调度器建议每五分钟调用一次 `POST /api/internal/job-market/sync`。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+
+来源上线顺序为：确认公开或书面授权依据、登记精确 HTTPS 入口与主机、默认暂停、用 fixture/预发布验证、启用少量来源、观察运行计数后扩容。429 遵循 `Retry-After`，其他失败指数退避；暂停或撤销会释放租约且不再被计划任务认领。管理员只能看到安全错误码和摘要，原始响应、联系人、凭据和带 userinfo 的 URL 不保留在日志中。
+
+告警至少覆盖连续失败、12 小时未成功、租约超过预期仍未释放、单次发现/关闭数量突变和调度端 401。运行记录和事件为审计数据；按组织保留策略定期归档，不应在故障处理中直接删除。回滚时先停止调度，再设置 `JOB_MARKET_ENABLED=false` 并暂停来源；保留新增表和私人投递快照，`/applications`、分析与面经不受影响。
+
+本机验收说明：2026-08-30 已使用隔离临时数据库完成契约与集成场景。配置的远程 PostgreSQL 未安装 pgTAP，因此本机 `db:sql:test` 只能在安装扩展的 CI PostgreSQL 17 服务执行；这不影响迁移、Python 数据库校验或 TypeScript 类型生成。Quickstart 中原先的 `format:check`、`test:coverage`、`test:e2e` 名称与仓库脚本不同，实际分别使用 `pnpm format`、`pnpm test`、`pnpm e2e`。
