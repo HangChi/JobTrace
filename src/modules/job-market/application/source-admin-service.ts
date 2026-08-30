@@ -8,6 +8,11 @@ import {
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { synchronizeOneSource } from "./synchronize-due-sources";
 import { validateHttpsUrl } from "../infrastructure/secure-source-client.server";
+import {
+  DEFAULT_SOURCE_CATALOG,
+  publicDefaultSourceCatalog,
+} from "./default-source-catalog";
+import { PostgresSourceCatalogRepository } from "../infrastructure/postgres-source-catalog-repository";
 
 const repository = () => new PostgresSyncRepository();
 export async function listSourceHealth() {
@@ -56,4 +61,42 @@ export async function listSyncRuns(params: URLSearchParams) {
   const page = Math.max(1, Number(params.get("page") || 1));
   const limit = Math.min(100, Math.max(1, Number(params.get("limit") || 20)));
   return repository().listRuns(sourceId, page, limit);
+}
+
+export function listDefaultSourceCatalog() {
+  return publicDefaultSourceCatalog();
+}
+
+export async function initializeDefaultSources(requestId: string) {
+  await requireAdmin();
+  for (const entry of DEFAULT_SOURCE_CATALOG)
+    validateHttpsUrl(entry.baseUrl, entry.allowedHosts);
+
+  const initialized = await new PostgresSourceCatalogRepository().initialize(
+    DEFAULT_SOURCE_CATALOG,
+  );
+  const syncResults: Awaited<ReturnType<typeof synchronizeOneSource>>[] = [];
+  const sourceIds = [...initialized.activeSourceIds];
+  while (sourceIds.length) {
+    const batch = sourceIds.splice(0, 3);
+    syncResults.push(
+      ...(await Promise.all(
+        batch.map((sourceId) => synchronizeOneSource(sourceId, requestId)),
+      )),
+    );
+  }
+
+  return {
+    ...initialized,
+    sync: {
+      requested: initialized.activeSourceIds.length,
+      accepted: syncResults.filter((result) => result.accepted).length,
+      succeeded: syncResults.filter((result) => result.status === "succeeded")
+        .length,
+      partial: syncResults.filter((result) => result.status === "partial")
+        .length,
+      failed: syncResults.filter((result) => result.status === "failed").length,
+      skipped: syncResults.filter((result) => !result.accepted).length,
+    },
+  };
 }

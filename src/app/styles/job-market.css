@@ -149,6 +149,41 @@
 .job-market-empty {
   text-align: center;
 }
+.default-source-bootstrap-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.default-source-catalog {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.default-source-catalog li {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.default-source-catalog a {
+  color: var(--brand-dark);
+  font-weight: 750;
+}
+.default-source-catalog span,
+.default-source-catalog small {
+  color: var(--muted);
+}
+.notice.warning {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--warm);
+  color: var(--warning);
+}
 .job-market-choice {
   display: grid;
   gap: 8px;
@@ -190,6 +225,9 @@
   .campaign-actions {
     grid-column: 2;
   }
+  .default-source-catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 620px) {
   .job-market-filters,
@@ -199,5 +237,11 @@
   .campaign-actions {
     grid-column: auto;
     grid-template-columns: 1fr 1fr;
+  }
+  .default-source-bootstrap-heading {
+    display: grid;
+  }
+  .default-source-catalog {
+    grid-template-columns: 1fr;
   }
 }

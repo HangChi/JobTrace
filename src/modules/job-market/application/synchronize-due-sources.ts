@@ -73,6 +73,7 @@ export async function synchronizeOneSource(
     return {
       accepted: false,
       runId: null,
+      status: null,
       reason: "source_unavailable_or_leased",
     };
   const result = await synchronizeSource({
@@ -84,5 +85,10 @@ export async function synchronizeOneSource(
     syncRepository: dependencies.syncRepository,
     jobRepository: dependencies.jobRepository,
   });
-  return { accepted: true, runId: result.runId, reason: null };
+  return {
+    accepted: true,
+    runId: result.runId,
+    status: result.status,
+    reason: null,
+  };
 }
