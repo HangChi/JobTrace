@@ -260,6 +260,10 @@ pnpm lighthouse
 
 ## 自动招聘同步运维
 
+### 本地代理与 Fake-IP DNS
+
+Greenhouse、Lever、Ashby 和 SmartRecruiters 的官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
+
 ### 默认目录一键初始化
 
 管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前目录包含 8 家在 2026-08-30 验证过的公开 ATS 来源。该操作会：

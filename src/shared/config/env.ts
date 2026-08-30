@@ -64,6 +64,7 @@ const jobMarketEnvSchema = z.object({
     .max(10_485_760)
     .default(5_242_880),
   JOB_MARKET_WORKER_ID: z.string().trim().min(1).max(100).default("jobtrace"),
+  JOB_MARKET_ALLOW_PROXY_DNS: z.enum(["true", "false"]).optional(),
 });
 
 export type CosEnv = {
@@ -140,6 +141,8 @@ export function getJobMarketEnv() {
     JOB_MARKET_MAX_RESPONSE_BYTES:
       process.env.JOB_MARKET_MAX_RESPONSE_BYTES || undefined,
     JOB_MARKET_WORKER_ID: process.env.JOB_MARKET_WORKER_ID || undefined,
+    JOB_MARKET_ALLOW_PROXY_DNS:
+      process.env.JOB_MARKET_ALLOW_PROXY_DNS || undefined,
   });
   if (value.JOB_MARKET_ENABLED && !value.JOB_MARKET_SYNC_SECRET) {
     throw new Error(
@@ -153,5 +156,9 @@ export function getJobMarketEnv() {
     fetchTimeoutMs: value.JOB_MARKET_FETCH_TIMEOUT_MS,
     maxResponseBytes: value.JOB_MARKET_MAX_RESPONSE_BYTES,
     workerId: value.JOB_MARKET_WORKER_ID,
+    allowProxyDns:
+      value.JOB_MARKET_ALLOW_PROXY_DNS === undefined
+        ? process.env.NODE_ENV === "development"
+        : value.JOB_MARKET_ALLOW_PROXY_DNS === "true",
   };
 }

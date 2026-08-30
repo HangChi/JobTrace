@@ -1,10 +1,17 @@
 import "server-only";
-import { resolve4, resolve6 } from "node:dns/promises";
+import { lookup, resolve4, resolve6 } from "node:dns/promises";
 import { isIP } from "node:net";
 import { getJobMarketEnv } from "@/shared/config/env";
 import { SourceError } from "../application/source-errors";
 
 type Resolver = (hostname: string) => Promise<string[]>;
+
+const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
+  "boards-api.greenhouse.io",
+  "api.lever.co",
+  "api.ashbyhq.com",
+  "api.smartrecruiters.com",
+]);
 
 function ipv4ToNumber(value: string) {
   return (
@@ -17,6 +24,10 @@ function ipv4ToNumber(value: string) {
 function inV4Range(address: string, network: string, prefix: number) {
   const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
   return (ipv4ToNumber(address) & mask) === (ipv4ToNumber(network) & mask);
+}
+
+export function isSyntheticProxyIp(address: string) {
+  return isIP(address) === 4 && inV4Range(address, "198.18.0.0", 15);
 }
 
 export function isPublicIp(address: string) {
@@ -89,12 +100,29 @@ async function defaultResolver(hostname: string) {
     resolve4(hostname).catch(() => []),
     resolve6(hostname).catch(() => []),
   ]);
-  return [...v4, ...v6];
+  const direct = [...v4, ...v6];
+  if (direct.length) return direct;
+  const system = await lookup(hostname, { all: true, verbatim: true }).catch(
+    () => [],
+  );
+  return system.map((item) => item.address);
 }
 
-async function assertPublicHost(url: URL, resolver: Resolver) {
+async function assertPublicHost(
+  url: URL,
+  resolver: Resolver,
+  allowProxyDns: boolean,
+) {
   const addresses = await resolver(url.hostname);
-  if (!addresses.length || addresses.some((address) => !isPublicIp(address))) {
+  const valid =
+    addresses.length > 0 &&
+    addresses.every(
+      (address) =>
+        isPublicIp(address) ||
+        ((allowProxyDns || PROXY_SAFE_PUBLIC_ATS_HOSTS.has(url.hostname)) &&
+          isSyntheticProxyIp(address)),
+    );
+  if (!valid) {
     throw new SourceError(
       "unsafe_source_url",
       "Source host does not resolve exclusively to public addresses",
@@ -137,12 +165,14 @@ export function createSecureSourceClient(options?: {
   fetcher?: typeof fetch;
   timeoutMs?: number;
   maxResponseBytes?: number;
+  allowProxyDns?: boolean;
 }) {
   const env = getJobMarketEnv();
   const resolver = options?.resolver ?? defaultResolver;
   const fetcher = options?.fetcher ?? fetch;
   const timeoutMs = options?.timeoutMs ?? env.fetchTimeoutMs;
   const maxResponseBytes = options?.maxResponseBytes ?? env.maxResponseBytes;
+  const allowProxyDns = options?.allowProxyDns ?? env.allowProxyDns;
 
   return async function secureFetch(
     value: string,
@@ -157,7 +187,7 @@ export function createSecureSourceClient(options?: {
     const timeout = AbortSignal.timeout(timeoutMs);
     const signal = AbortSignal.any([request.signal, timeout]);
     for (let redirects = 0; redirects <= 3; redirects += 1) {
-      await assertPublicHost(url, resolver);
+      await assertPublicHost(url, resolver, allowProxyDns);
       let response: Response;
       try {
         response = await fetcher(url, {
