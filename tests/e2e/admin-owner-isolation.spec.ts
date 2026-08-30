@@ -99,9 +99,9 @@ test("admin dashboard, analytics and export remain scoped to the admin owner", a
     storageState: await admin.storageState(),
   });
   const page = await browserContext.newPage();
-  await page.goto("/");
+  await page.goto("/applications");
   await expect(
-    page.getByText("Admin Owner Only", { exact: true }),
+    page.getByText("Admin Owner Only", { exact: true }).first(),
   ).toBeVisible();
   await expect(
     page.getByText("Other User Secret", { exact: true }),

@@ -20,7 +20,7 @@ test("统计卡、阶段文本与跟进导航", async ({ request, page }) => {
       const response = await request.post("/api/applications", { data: input });
       created.push((await response.json()).id);
     }
-    await page.goto("/");
+    await page.goto("/applications");
     await expect(page.getByRole("heading", { name: "求职概览" })).toBeVisible();
     await expect(
       page.getByLabel("求职概览").getByText("Offer", { exact: true }),

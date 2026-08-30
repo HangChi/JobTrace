@@ -7,8 +7,13 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   {
     href: "/",
-    label: "投递记录",
-    matches: (path: string) => path === "/" || path.startsWith("/applications"),
+    label: "招聘广场",
+    matches: (path: string) => path === "/",
+  },
+  {
+    href: "/applications",
+    label: "我的投递",
+    matches: (path: string) => path.startsWith("/applications"),
   },
   {
     href: "/interviews",

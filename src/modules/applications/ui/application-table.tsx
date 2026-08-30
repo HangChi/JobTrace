@@ -42,7 +42,7 @@ function pageHref(query: Search, pageNumber: number) {
     else if (value) params.set(key, value);
   }
   if (pageNumber > 1) params.set("page", String(pageNumber));
-  return `/?${params.toString()}#application-list-title` as Route;
+  return `/applications?${params.toString()}#application-list-title` as Route;
 }
 
 function paginationItems(current: number, total: number) {
@@ -66,7 +66,7 @@ function pageSizeHref(query: Search, limit: string) {
     else if (value) params.set(key, value);
   }
   params.set("limit", limit);
-  return `/?${params.toString()}#application-list-title` as Route;
+  return `/applications?${params.toString()}#application-list-title` as Route;
 }
 
 export function ApplicationTable({

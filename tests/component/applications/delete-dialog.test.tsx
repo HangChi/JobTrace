@@ -32,7 +32,7 @@ describe("删除确认", () => {
     render(<DeleteApplicationDialog id="1" name="甲公司 开发" />);
     fireEvent.click(screen.getByRole("button", { name: "删除记录" }));
     fireEvent.click(screen.getByRole("button", { name: "确认删除" }));
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/"));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/applications"));
     expect(refresh).not.toHaveBeenCalled();
   });
   it("列表内删除后刷新当前页统计和记录", async () => {

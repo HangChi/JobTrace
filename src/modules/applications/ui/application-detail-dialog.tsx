@@ -7,13 +7,49 @@ import type { Route } from "next";
 import { Dialog } from "@/shared/ui/dialog";
 import type {
   ApplicationDetail,
+  ApplicationDialogData,
   ApplicationSummary,
 } from "../application/contracts";
 import { STATUS_LABELS, TYPE_LABELS } from "../domain/catalog";
 import { formatCompanyWithCity } from "../application/display";
 import { EditApplicationDialog } from "./application-dialogs";
 import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
-import type { InterviewPage } from "@/modules/interviews/application/contracts";
+import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
+
+const DETAIL_CACHE_TTL_MS = 5 * 60_000;
+const DETAIL_CACHE_LIMIT = 50;
+const detailCache = new Map<
+  string,
+  { value: ApplicationDialogData; cachedAt: number }
+>();
+
+function cacheKey(application: Pick<ApplicationSummary, "id" | "version">) {
+  return `${application.id}:${application.version}`;
+}
+
+function readCachedDetail(application: ApplicationSummary) {
+  const key = cacheKey(application);
+  const cached = detailCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.cachedAt > DETAIL_CACHE_TTL_MS) {
+    detailCache.delete(key);
+    return null;
+  }
+  detailCache.delete(key);
+  detailCache.set(key, cached);
+  return cached.value;
+}
+
+function writeCachedDetail(value: ApplicationDialogData) {
+  const key = cacheKey(value.application);
+  detailCache.delete(key);
+  detailCache.set(key, { value, cachedAt: Date.now() });
+  while (detailCache.size > DETAIL_CACHE_LIMIT) {
+    const oldest = detailCache.keys().next().value;
+    if (!oldest) break;
+    detailCache.delete(oldest);
+  }
+}
 
 export function ApplicationDetailDialog({
   application,
@@ -29,7 +65,7 @@ export function ApplicationDetailDialog({
     <>
       {application && (
         <ApplicationDetailContent
-          key={application.id}
+          key={cacheKey(application)}
           application={application}
           onClose={onClose}
           onUpdate={onUpdate}
@@ -60,28 +96,29 @@ function ApplicationDetailContent({
   onUpdate?: (application: ApplicationDetail) => void;
   onEdit: (application: ApplicationDetail) => void;
 }) {
-  const [detail, setDetail] = useState<ApplicationDetail | null>(null);
-  const [interviews, setInterviews] = useState<InterviewPage["items"]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = readCachedDetail(application);
+  const [detail, setDetail] = useState<ApplicationDetail | null>(
+    cached?.application ?? null,
+  );
+  const [interviews, setInterviews] = useState<StageInterviewSummary[]>(
+    cached?.interviews ?? [],
+  );
+  const [loading, setLoading] = useState(!cached);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (cached) return;
     const controller = new AbortController();
-    void Promise.all([
-      fetch(`/api/applications/${application.id}`, {
-        signal: controller.signal,
-      }),
-      fetch(`/api/interviews?applicationId=${application.id}&limit=100`, {
-        signal: controller.signal,
-      }),
-    ])
-      .then(async ([detailResponse, interviewResponse]) => {
-        if (!detailResponse.ok || !interviewResponse.ok)
-          throw new Error("暂时无法加载详情");
-        setDetail((await detailResponse.json()) as ApplicationDetail);
-        setInterviews(
-          ((await interviewResponse.json()) as InterviewPage).items,
-        );
+    void fetch(`/api/applications/${application.id}/detail`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("暂时无法加载详情");
+        const result = (await response.json()) as ApplicationDialogData;
+        writeCachedDetail(result);
+        setDetail(result.application);
+        setInterviews(result.interviews);
       })
       .catch((reason: unknown) => {
         if (reason instanceof DOMException && reason.name === "AbortError")
@@ -92,7 +129,7 @@ function ApplicationDetailContent({
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [application.id]);
+  }, [application.id, cached]);
 
   const current = detail ?? application;
   const companyDisplayName = formatCompanyWithCity(
@@ -147,6 +184,7 @@ function ApplicationDetailContent({
                 interviews={interviews}
                 onUpdate={(updated) => {
                   setDetail(updated);
+                  writeCachedDetail({ application: updated, interviews });
                   onUpdate?.(updated);
                 }}
               />

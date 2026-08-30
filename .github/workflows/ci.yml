@@ -16,6 +16,8 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://jobtrace:jobtrace@127.0.0.1:5432/jobtrace
+      JOB_MARKET_ENABLED: "false"
+      JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
