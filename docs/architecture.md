@@ -134,6 +134,8 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 
 ## 自动招聘市场边界
 
+默认企业来源目录位于 `src/modules/job-market/application/default-source-catalog.ts`。它属于受审查的出站来源配置，而不是数据库 seed。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。
+
 `src/modules/job-market` 是公共招聘数据的独立边界：`domain` 负责规范化、保守去重、生命周期和投递目标；`application` 负责编排查询、收藏、来源管理与同步；`infrastructure` 负责 PostgreSQL、受限 HTTP 和 ATS 适配器；`ui` 只消费聚合活动契约。私人投递仍由 `applications` 模块拥有，公共岗位只能通过 `jobMarketPostId` 建立一条 owner-scoped 关联和不可变快照。
 
 每个适配器只接受管理员登记的来源，并输出统一的完整或部分批次。新增适配器必须加入显式注册表，提供本地 fixture 契约测试，并遵守 HTTPS、精确主机白名单、DNS 公网地址、逐跳重定向、超时、响应大小和内容类型限制。Schema.org 适配器只解析 JSON-LD 和纯文本，不执行来源脚本。

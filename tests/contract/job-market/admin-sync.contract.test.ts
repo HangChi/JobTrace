@@ -9,6 +9,9 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
   expect((await request.get("/api/admin/job-market/sources")).status()).toBe(
     403,
   );
+  expect((await request.post("/api/admin/job-market/bootstrap")).status()).toBe(
+    403,
+  );
 
   const username = `market_admin_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}`;
   const password = "MarketAdmin123!";

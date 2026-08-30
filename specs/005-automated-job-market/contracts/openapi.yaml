@@ -126,6 +126,35 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /admin/job-market/bootstrap:
+    post:
+      summary: Idempotently initialize the curated public source catalog and run its first sync (admin only)
+      responses:
+        '201':
+          description: Catalog initialization and first-sync summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [companyCount, sourceCount, createdCompanies, createdSources, activeSourceIds, sync]
+                properties:
+                  companyCount: { type: integer, minimum: 0 }
+                  sourceCount: { type: integer, minimum: 0 }
+                  createdCompanies: { type: integer, minimum: 0 }
+                  createdSources: { type: integer, minimum: 0 }
+                  activeSourceIds: { type: array, items: { type: string, format: uuid } }
+                  sync:
+                    type: object
+                    required: [requested, accepted, succeeded, partial, failed, skipped]
+                    properties:
+                      requested: { type: integer, minimum: 0 }
+                      accepted: { type: integer, minimum: 0 }
+                      succeeded: { type: integer, minimum: 0 }
+                      partial: { type: integer, minimum: 0 }
+                      failed: { type: integer, minimum: 0 }
+                      skipped: { type: integer, minimum: 0 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /admin/job-market/sources/{sourceId}:
     patch:
       summary: Pause, enable, or revoke a source (admin only)
@@ -168,6 +197,7 @@ paths:
                 properties:
                   accepted: { type: boolean }
                   runId: { type: [string, 'null'], format: uuid }
+                  status: { type: [string, 'null'], enum: [succeeded, partial, failed, null] }
                   reason: { type: [string, 'null'] }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }

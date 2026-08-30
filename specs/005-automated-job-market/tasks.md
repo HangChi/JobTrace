@@ -210,6 +210,18 @@ description: "Actionable task list for the automated job market feature"
 
 ---
 
+## Phase 8: Default Source Bootstrap
+
+- [X] T103 Add a reviewed, bounded public ATS catalog in `src/modules/job-market/application/default-source-catalog.ts`
+- [X] T104 Add idempotent company/source initialization with operator-state preservation in `src/modules/job-market/infrastructure/postgres-source-catalog-repository.ts`
+- [X] T105 Add admin-only catalog initialization and bounded first-sync orchestration in `src/modules/job-market/application/source-admin-service.ts`
+- [X] T106 Add the bootstrap API and responsive administrator controls in `src/app/api/admin/job-market/bootstrap/route.ts` and `src/modules/job-market/ui/admin/default-source-bootstrap.tsx`
+- [X] T107 Add catalog validation, idempotency, RBAC, component, and admin E2E coverage under `tests/`
+- [X] T108 Document catalog review, initialization, scheduling, and fixture-only test boundaries in `docs/`
+- [X] T109 Update the OpenAPI contract and run format, lint, typecheck, build, contract, integration, and focused E2E gates
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
