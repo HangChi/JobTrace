@@ -3,7 +3,7 @@ import { DEFAULT_SOURCE_CATALOG } from "@/modules/job-market/application/default
 
 describe("default job-market source catalog", () => {
   it("contains unique, bounded, public HTTPS sources", () => {
-    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(5);
+    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(18);
     expect(
       new Set(DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey)).size,
     ).toBe(DEFAULT_SOURCE_CATALOG.length);

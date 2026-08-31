@@ -24,7 +24,8 @@ function source(adapter: JobMarketSource["adapter"]): JobMarketSource {
     externalKey: "fixture",
     baseUrl: "https://jobs.example.com",
     allowedHosts: ["jobs.example.com"],
-    countryCodes: adapter === "smartrecruiters" ? ["cn"] : [],
+    countryCodes:
+      adapter === "smartrecruiters" || adapter === "xiaomi" ? ["cn"] : [],
     isOfficial: true,
     accessBasis: "public",
     status: "active",
@@ -40,7 +41,7 @@ test("xiaomi paginates domestic jobs and preserves official application URLs", a
     {
       code: 0,
       data: {
-        total: 2,
+        total: 3,
         list: [
           {
             id: 1,
@@ -53,13 +54,20 @@ test("xiaomi paginates domestic jobs and preserves official application URLs", a
             type: 1,
             url: "https://xiaomi.jobs.example.com/post-1",
           },
+          {
+            id: 3,
+            title: "海外零售经理",
+            cityZhNames: ["埃尔比勒"],
+            type: 1,
+            url: "https://xiaomi.jobs.example.com/post-3",
+          },
         ],
       },
     },
     {
       code: 0,
       data: {
-        total: 2,
+        total: 3,
         list: [
           {
             id: 2,
