@@ -23,7 +23,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
     return this.sql`
       (${query.campaignId ?? null}::text is null or campaign.id=${query.campaignId ?? null}::uuid)
       and exists(
-        select 1 where campaign.listing_kind='recruitment_directory'
+        select 1 where campaign.listing_kind='recruitment_directory' and campaign.status<>'closed'
         union all
         select 1 from job_market_posts visible_post
           join job_market_source_records visible_record on visible_record.post_id=visible_post.id
@@ -60,7 +60,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
           where p.campaign_id=campaign.id and (campaign.status='closed' or p.status<>'closed')) locations),'[]') as locations,
         campaign.status::text as status,campaign.official_apply_url as "primaryApplyUrl",
         case when campaign.listing_kind='recruitment_directory' then campaign.recruitment_type else source.adapter::text end as "sourceName",
-        case when campaign.listing_kind='recruitment_directory' then campaign.official_apply_url else source.base_url end as "sourceUrl",
+        case when campaign.listing_kind='recruitment_directory' then campaign.official_apply_url else company.website_url end as "sourceUrl",
         campaign.published_at as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"
       from job_market_campaigns campaign join job_market_companies company on company.id=campaign.company_id
@@ -97,9 +97,10 @@ export class PostgresCampaignQuery implements CampaignRepository {
     const rows = await this.sql<
       Array<any>
     >`select p.id,p.title,p.status::text as status,p.primary_apply_url as "applyUrl",p.published_at as "publishedAt",p.valid_through as "validThrough",
-      source.adapter::text as "sourceName",source.base_url as "sourceUrl",link.application_id as "alreadyTrackedApplicationId",
+      source.adapter::text as "sourceName",company.website_url as "sourceUrl",link.application_id as "alreadyTrackedApplicationId",
       coalesce((select jsonb_agg(jsonb_build_object('name',l.display_name,'isRemote',l.is_remote) order by l.display_name) from job_market_post_locations pl join job_market_locations l on l.id=pl.location_id where pl.post_id=p.id),'[]') as locations
-      from job_market_posts p left join lateral(select s.adapter,s.base_url from job_market_source_records r join job_market_sources s on s.id=r.source_id where r.post_id=p.id and s.status='active' order by s.is_official desc,r.last_seen_at desc limit 1) source on true
+      from job_market_posts p join job_market_companies company on company.id=p.company_id
+      left join lateral(select s.adapter from job_market_source_records r join job_market_sources s on s.id=r.source_id where r.post_id=p.id and s.status='active' order by s.is_official desc,r.last_seen_at desc limit 1) source on true
       left join application_job_market_links link on link.post_id=p.id and link.owner_id=${ownerId}
       where p.campaign_id=${campaignId} and source.adapter is not null order by p.title,p.id`;
     return rows.map((row) => ({

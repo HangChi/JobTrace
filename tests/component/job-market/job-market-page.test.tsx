@@ -85,6 +85,44 @@ describe("job market page", () => {
     );
     expect(screen.queryByText("记录投递")).not.toBeInTheDocument();
   });
+  it("distinguishes an official recruitment directory from a WeChat directory", () => {
+    render(
+      <JobMarketPage
+        page={{
+          items: [
+            {
+              ...campaign,
+              id: "33333333-3333-4333-8333-333333333333",
+              listingKind: "recruitment_directory",
+              company: { ...campaign.company, name: "官网企业" },
+              campaignName: "官方招聘网站",
+              recruitmentType: "招聘官网",
+              positions: [],
+              positionCount: 0,
+              locations: [],
+              primaryApplyUrl: "https://company.example.com/careers",
+              source: {
+                name: "招聘官网",
+                url: "https://company.example.com/careers",
+              },
+              lastConfirmedAt: null,
+            },
+          ],
+          page: 1,
+          limit: 20,
+          total: 1,
+        }}
+        query={{}}
+      />,
+    );
+    expect(screen.getByText("官网招聘")).toBeVisible();
+    expect(screen.getByText("岗位以官网发布为准")).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看官网" })).toHaveAttribute(
+      "href",
+      "https://company.example.com/careers",
+    );
+    expect(screen.queryByText("公众号发布")).not.toBeInTheDocument();
+  });
   it("shows a useful filtered empty state", () => {
     render(
       <JobMarketPage

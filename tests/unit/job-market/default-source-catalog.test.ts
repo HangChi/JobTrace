@@ -32,10 +32,10 @@ describe("default job-market source catalog", () => {
     ).toBeGreaterThan(DEFAULT_SOURCE_CATALOG.length / 2);
   });
 
-  it("adds enough domestic directory entries without treating WeChat as an automatic source", () => {
+  it("adds a broad domestic directory without treating directory entries as automatic sources", () => {
     expect(
       DEFAULT_SOURCE_CATALOG.length + DEFAULT_COMPANY_DIRECTORY.length,
-    ).toBeGreaterThanOrEqual(100);
+    ).toBeGreaterThanOrEqual(300);
     expect(
       new Set([
         ...DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey),
@@ -44,10 +44,20 @@ describe("default job-market source catalog", () => {
     ).toBe(DEFAULT_SOURCE_CATALOG.length + DEFAULT_COMPANY_DIRECTORY.length);
 
     for (const entry of DEFAULT_COMPANY_DIRECTORY) {
-      expect(entry.channel).toBe("wechat");
       expect(new URL(entry.entryUrl).protocol).toBe("https:");
-      expect(new URL(entry.entryUrl).hostname).toBe("weixin.sogou.com");
-      expect(entry.channelLabel).toContain("公众号搜索");
+      if (entry.channel === "wechat") {
+        expect(new URL(entry.entryUrl).hostname).toBe("weixin.sogou.com");
+        expect(entry.channelLabel).toContain("公众号搜索");
+      } else {
+        expect(entry.channel).toBe("official_site");
+        expect(entry.channelLabel).toBe("官方招聘网站");
+      }
     }
+
+    expect(
+      DEFAULT_COMPANY_DIRECTORY.filter(
+        (entry) => entry.channel === "official_site",
+      ).length,
+    ).toBeGreaterThanOrEqual(6);
   });
 });

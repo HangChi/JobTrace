@@ -85,12 +85,18 @@ test("directory initialization is idempotent and never creates a sync source", a
   const repository = new PostgresSourceCatalogRepository();
 
   try {
+    const [existingCompany] = await sql<Array<{ id: string }>>`
+      insert into job_market_companies(canonical_name,normalized_name,identity_key)
+      values('公众号目录测试企业','公众号目录测试企业',${identityKey}) returning id`;
+    await sql`
+      insert into job_market_campaigns(company_id,campaign_key,name,recruitment_type,official_apply_url,listing_kind)
+      values(${existingCompany.id},'directory:official_site','旧官网入口','招聘官网','https://old.example.com','recruitment_directory')`;
     const first = await repository.initialize([], directoryEntries);
     expect(first).toMatchObject({
       companyCount: 1,
       sourceCount: 0,
       directoryCount: 1,
-      createdCompanies: 1,
+      createdCompanies: 0,
       createdSources: 0,
       createdDirectoryEntries: 1,
       activeSourceIds: [],
@@ -108,12 +114,17 @@ test("directory initialization is idempotent and never creates a sync source", a
         (select count(*)::int from job_market_sources source where source.company_id=company.id) as "sourceCount"
       from job_market_companies company
       join job_market_campaigns campaign on campaign.company_id=company.id
-      where company.identity_key=${identityKey}`;
+      where company.identity_key=${identityKey}
+        and campaign.campaign_key='directory:wechat'`;
     expect(entry).toEqual({
       listingKind: "recruitment_directory",
       sourceCount: 0,
       url: directoryEntries[0].entryUrl,
     });
+    const [obsolete] = await sql<Array<{ status: string }>>`
+      select status::text from job_market_campaigns
+      where company_id=${existingCompany.id} and campaign_key='directory:official_site'`;
+    expect(obsolete.status).toBe("closed");
   } finally {
     await sql`delete from job_market_campaigns where company_id in(select id from job_market_companies where identity_key=${identityKey})`;
     await sql`delete from job_market_companies where identity_key=${identityKey}`;
