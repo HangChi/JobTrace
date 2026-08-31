@@ -23,10 +23,12 @@ export class PostgresCampaignQuery implements CampaignRepository {
     return this.sql`
       (${query.campaignId ?? null}::text is null or campaign.id=${query.campaignId ?? null}::uuid)
       and exists(
+        select 1 where campaign.listing_kind='recruitment_directory'
+        union all
         select 1 from job_market_posts visible_post
-        join job_market_source_records visible_record on visible_record.post_id=visible_post.id
-        join job_market_sources visible_source on visible_source.id=visible_record.source_id
-        where visible_post.campaign_id=campaign.id and visible_source.status='active'
+          join job_market_source_records visible_record on visible_record.post_id=visible_post.id
+          join job_market_sources visible_source on visible_source.id=visible_record.source_id
+          where visible_post.campaign_id=campaign.id and visible_source.status='active'
       )
       and (${q ?? null}::text is null or lower(company.canonical_name) like ${q ? `%${q}%` : null}::text
         or exists(select 1 from job_market_posts p where p.campaign_id=campaign.id
@@ -47,7 +49,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
     >`select count(*)::int as total from job_market_campaigns campaign
       join job_market_companies company on company.id=campaign.company_id where ${filters}`;
     const rows = await this.sql<CampaignRow[]>`
-      select campaign.id, jsonb_build_object('id',company.id,'name',company.canonical_name,'type',company.company_type,'industry',company.industry) as company,
+      select campaign.id,campaign.listing_kind as "listingKind",jsonb_build_object('id',company.id,'name',company.canonical_name,'type',company.company_type,'industry',company.industry) as company,
         campaign.name as "campaignName",campaign.recruitment_type as "recruitmentType",campaign.batch_label as "batchLabel",
         coalesce((select array_agg(distinct p.title order by p.title) from job_market_posts p where p.campaign_id=campaign.id
           and (campaign.status='closed' or p.status<>'closed')),'{}') as positions,
@@ -56,13 +58,16 @@ export class PostgresCampaignQuery implements CampaignRepository {
         coalesce((select jsonb_agg(x order by x->>'name') from (select distinct jsonb_build_object('name',l.display_name,'isRemote',l.is_remote) x
           from job_market_posts p join job_market_post_locations pl on pl.post_id=p.id join job_market_locations l on l.id=pl.location_id
           where p.campaign_id=campaign.id and (campaign.status='closed' or p.status<>'closed')) locations),'[]') as locations,
-        campaign.status::text as status,campaign.official_apply_url as "primaryApplyUrl",source.adapter::text as "sourceName",source.base_url as "sourceUrl",
+        campaign.status::text as status,campaign.official_apply_url as "primaryApplyUrl",
+        case when campaign.listing_kind='recruitment_directory' then campaign.recruitment_type else source.adapter::text end as "sourceName",
+        case when campaign.listing_kind='recruitment_directory' then campaign.official_apply_url else source.base_url end as "sourceUrl",
         campaign.published_at as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"
       from job_market_campaigns campaign join job_market_companies company on company.id=campaign.company_id
       left join lateral (select s.* from job_market_sources s where s.company_id=company.id and s.status='active' order by s.is_official desc,s.last_success_at desc nulls last limit 1) source on true
       where ${filters}
-      order by case when company.company_type='外企' then 1 else 0 end,
+      order by case when campaign.listing_kind='synced_jobs' then 0 else 1 end,
+        case when company.company_type='外企' then 1 else 0 end,
         campaign.last_confirmed_at desc nulls last,campaign.id
       limit ${query.limit} offset ${(query.page - 1) * query.limit}`;
     const items = await Promise.all(

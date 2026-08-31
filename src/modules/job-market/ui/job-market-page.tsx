@@ -34,8 +34,8 @@ export function JobMarketPage({
       <PageHeader
         kicker="自动更新"
         title="招聘广场"
-        description="一家公司一张卡片，岗位与城市集中查看，并可从官方入口直接投递。"
-        meta={[{ label: `共 ${page.total} 家在招企业`, tone: "brand" }]}
+        description="自动来源集中展示岗位与城市；暂无公开接口的企业提供官网或公众号招聘入口。"
+        meta={[{ label: `共 ${page.total} 家招聘企业`, tone: "brand" }]}
       />
       <JobMarketFilters query={query} />
       {page.items.length ? (

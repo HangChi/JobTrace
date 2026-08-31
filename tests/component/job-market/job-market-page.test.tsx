@@ -7,6 +7,7 @@ vi.mock("next/navigation", () => ({
 }));
 const campaign: CampaignSummary = {
   id: "11111111-1111-4111-8111-111111111111",
+  listingKind: "synced_jobs",
   company: { id: "c", name: "示例科技", type: "民营企业", industry: "软件" },
   campaignName: "2027 秋招",
   recruitmentType: "campus",
@@ -42,6 +43,45 @@ describe("job market page", () => {
       "target",
       "_blank",
     );
+  });
+  it("renders a directory-only company with a clearly labelled public-account link", () => {
+    render(
+      <JobMarketPage
+        page={{
+          items: [
+            {
+              ...campaign,
+              id: "22222222-2222-4222-8222-222222222222",
+              listingKind: "recruitment_directory",
+              company: { ...campaign.company, name: "目录企业" },
+              campaignName: "公众号搜索：目录企业招聘",
+              recruitmentType: "公众号",
+              positions: [],
+              positionCount: 0,
+              locations: [],
+              primaryApplyUrl:
+                "https://weixin.sogou.com/weixin?type=1&query=example",
+              source: {
+                name: "公众号",
+                url: "https://weixin.sogou.com/weixin?type=1&query=example",
+              },
+              lastConfirmedAt: null,
+            },
+          ],
+          page: 1,
+          limit: 20,
+          total: 1,
+        }}
+        query={{}}
+      />,
+    );
+    expect(screen.getByText("公众号招聘目录")).toBeVisible();
+    expect(screen.getByText(/不采集封闭内容/)).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看公众号" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("weixin.sogou.com"),
+    );
+    expect(screen.queryByText("记录投递")).not.toBeInTheDocument();
   });
   it("shows a useful filtered empty state", () => {
     render(

@@ -100,6 +100,7 @@ export type CampaignJob = {
 
 export type CampaignSummary = {
   id: string;
+  listingKind: "synced_jobs" | "recruitment_directory";
   company: {
     id: string;
     name: string;

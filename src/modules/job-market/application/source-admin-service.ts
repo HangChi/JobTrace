@@ -13,6 +13,10 @@ import {
   publicDefaultSourceCatalog,
 } from "./default-source-catalog";
 import { PostgresSourceCatalogRepository } from "../infrastructure/postgres-source-catalog-repository";
+import {
+  DEFAULT_COMPANY_DIRECTORY,
+  publicDefaultCompanyDirectory,
+} from "./default-company-directory";
 
 const repository = () => new PostgresSyncRepository();
 export async function listSourceHealth() {
@@ -64,7 +68,14 @@ export async function listSyncRuns(params: URLSearchParams) {
 }
 
 export function listDefaultSourceCatalog() {
-  return publicDefaultSourceCatalog();
+  return [
+    ...publicDefaultSourceCatalog().map((entry) => ({
+      ...entry,
+      channel: "automatic" as const,
+      channelLabel: `自动同步：${entry.adapter}`,
+    })),
+    ...publicDefaultCompanyDirectory(),
+  ];
 }
 
 export async function initializeDefaultSources(requestId: string) {
@@ -74,6 +85,7 @@ export async function initializeDefaultSources(requestId: string) {
 
   const initialized = await new PostgresSourceCatalogRepository().initialize(
     DEFAULT_SOURCE_CATALOG,
+    DEFAULT_COMPANY_DIRECTORY,
   );
   const syncResults: Awaited<ReturnType<typeof synchronizeOneSource>>[] = [];
   const sourceIds = [...initialized.activeSourceIds];

@@ -333,6 +333,13 @@ T084 health table and T085 source form
 
 Each increment must retain public/private isolation and pass all previously completed story tests. Do not enable an external source until its access basis, exact host allowlist, fixture contract, and rate-limit behavior have been reviewed.
 
+### Phase 8: Domestic recruitment directory expansion
+
+- [X] T090 Add a separate domestic-company recruitment directory with at least 100 total covered companies and explicit WeChat fallback metadata
+- [X] T091 Extend idempotent bootstrap to create company-level directory campaigns without scheduling them as sources
+- [X] T092 Render directory cards with a public-account link and without fabricated job, location, or sync facts
+- [X] T093 Add migration, unit, component, contract, and database coverage for directory listings
+
 ## Notes
 
 - `[P]` never means “use a sub-agent”; it only documents file-level independence for implementers.
