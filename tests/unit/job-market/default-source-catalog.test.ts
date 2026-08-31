@@ -3,7 +3,7 @@ import { DEFAULT_SOURCE_CATALOG } from "@/modules/job-market/application/default
 
 describe("default job-market source catalog", () => {
   it("contains unique, bounded, public HTTPS sources", () => {
-    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(18);
+    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(43);
     expect(
       new Set(DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey)).size,
     ).toBe(DEFAULT_SOURCE_CATALOG.length);
@@ -24,5 +24,10 @@ describe("default job-market source catalog", () => {
       expect(entry.countryCodes).toEqual(["cn"]);
       expect(entry.syncIntervalMinutes).toBeGreaterThanOrEqual(60);
     }
+
+    expect(
+      DEFAULT_SOURCE_CATALOG.filter((entry) => entry.companyType !== "外企")
+        .length,
+    ).toBeGreaterThan(DEFAULT_SOURCE_CATALOG.length / 2);
   });
 });

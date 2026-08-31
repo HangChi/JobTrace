@@ -3,6 +3,7 @@ export const SOURCE_ADAPTERS = [
   "lever",
   "ashby",
   "smartrecruiters",
+  "moka",
   "schema_org",
   "xiaomi",
 ] as const;

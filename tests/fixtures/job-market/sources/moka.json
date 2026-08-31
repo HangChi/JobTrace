@@ -1,0 +1,25 @@
+{
+  "jobs": [
+    {
+      "id": "moka-job-1",
+      "orgId": "fixture",
+      "title": "芯片研发工程师",
+      "status": "open",
+      "description": "<p>负责国产芯片研发</p>",
+      "commitment": "全职",
+      "education": "硕士",
+      "publishedAt": "2026-08-30T03:27:03.000Z",
+      "locations": [
+        {
+          "country": "中国",
+          "province": "上海市",
+          "city": "上海市",
+          "area": "闵行区"
+        }
+      ]
+    }
+  ],
+  "total": 1,
+  "code": 0,
+  "msg": "success"
+}

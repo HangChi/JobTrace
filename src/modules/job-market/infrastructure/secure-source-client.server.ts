@@ -11,6 +11,7 @@ const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
   "api.lever.co",
   "api.ashbyhq.com",
   "api.smartrecruiters.com",
+  "api.mokahr.com",
   "hr.xiaomi.com",
 ]);
 

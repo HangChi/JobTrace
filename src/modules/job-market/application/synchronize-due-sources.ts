@@ -5,6 +5,7 @@ import { GreenhouseAdapter } from "../infrastructure/adapters/greenhouse-adapter
 import { LeverAdapter } from "../infrastructure/adapters/lever-adapter";
 import { AshbyAdapter } from "../infrastructure/adapters/ashby-adapter";
 import { SmartRecruitersAdapter } from "../infrastructure/adapters/smartrecruiters-adapter";
+import { MokaAdapter } from "../infrastructure/adapters/moka-adapter";
 import { SchemaOrgAdapter } from "../infrastructure/adapters/schema-org-adapter";
 import { XiaomiAdapter } from "../infrastructure/adapters/xiaomi-adapter";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
@@ -21,6 +22,7 @@ function productionDependencies() {
       new LeverAdapter(fetcher),
       new AshbyAdapter(fetcher),
       new SmartRecruitersAdapter(fetcher),
+      new MokaAdapter(fetcher),
       new SchemaOrgAdapter(fetcher),
       new XiaomiAdapter(fetcher),
     ]),

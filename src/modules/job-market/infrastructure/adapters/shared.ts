@@ -30,6 +30,7 @@ export type AdapterJobInput = {
   publishedAt?: unknown;
   validThrough?: unknown;
   closed?: unknown;
+  preserveUrlHash?: boolean;
 };
 
 function optionalText(value: unknown, max = 300) {
@@ -59,8 +60,15 @@ export function normalizeAdapterJob(
 ): NormalizedJob {
   const title = optionalText(value.title);
   if (!title) throw new Error("missing title");
-  const detailUrl = canonicalHttpsUrl(optionalText(value.detailUrl, 2048));
-  const applyUrl = canonicalHttpsUrl(optionalText(value.applyUrl, 2048));
+  const urlOptions = { preserveHash: value.preserveUrlHash === true };
+  const detailUrl = canonicalHttpsUrl(
+    optionalText(value.detailUrl, 2048),
+    urlOptions,
+  );
+  const applyUrl = canonicalHttpsUrl(
+    optionalText(value.applyUrl, 2048),
+    urlOptions,
+  );
   const explicitId = optionalText(value.id, 500);
   const externalJobId =
     explicitId ??

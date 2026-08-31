@@ -7,6 +7,7 @@ import { GreenhouseAdapter } from "@/modules/job-market/infrastructure/adapters/
 import { LeverAdapter } from "@/modules/job-market/infrastructure/adapters/lever-adapter";
 import { AshbyAdapter } from "@/modules/job-market/infrastructure/adapters/ashby-adapter";
 import { SmartRecruitersAdapter } from "@/modules/job-market/infrastructure/adapters/smartrecruiters-adapter";
+import { MokaAdapter } from "@/modules/job-market/infrastructure/adapters/moka-adapter";
 import { SchemaOrgAdapter } from "@/modules/job-market/infrastructure/adapters/schema-org-adapter";
 import { XiaomiAdapter } from "@/modules/job-market/infrastructure/adapters/xiaomi-adapter";
 
@@ -25,7 +26,11 @@ function source(adapter: JobMarketSource["adapter"]): JobMarketSource {
     baseUrl: "https://jobs.example.com",
     allowedHosts: ["jobs.example.com"],
     countryCodes:
-      adapter === "smartrecruiters" || adapter === "xiaomi" ? ["cn"] : [],
+      adapter === "smartrecruiters" ||
+      adapter === "xiaomi" ||
+      adapter === "moka"
+        ? ["cn"]
+        : [],
     isOfficial: true,
     accessBasis: "public",
     status: "active",
@@ -104,6 +109,34 @@ test("xiaomi paginates domestic jobs and preserves official application URLs", a
   expect(batch.jobs[0].locations.map((location) => location.name)).toEqual([
     "北京",
     "上海",
+  ]);
+});
+
+test("moka normalizes a domestic job and builds the official application URL", async () => {
+  const adapter = new MokaAdapter(
+    fetcher(await fixture("moka.json"), "application/json"),
+  );
+  const batch = await adapter.fetch(
+    {
+      ...source("moka"),
+      externalKey: "fixture|social|44726",
+      baseUrl: "https://api.mokahr.com/",
+      allowedHosts: ["api.mokahr.com"],
+    },
+    { runId: "run", now: new Date("2026-08-30"), maxItems: 100 },
+    new AbortController().signal,
+  );
+  expect(batch.completeness).toBe("complete");
+  expect(batch.jobs).toHaveLength(1);
+  expect(batch.jobs[0]).toMatchObject({
+    title: "芯片研发工程师",
+    campaignName: "社会招聘",
+    recruitmentType: "全职",
+    applyUrl:
+      "https://app.mokahr.com/apply/fixture/44726#/job/moka-job-1/apply",
+  });
+  expect(batch.jobs[0].locations.map((location) => location.name)).toEqual([
+    "上海市 · 闵行区",
   ]);
 });
 function fetcher(body: string, contentType: string): SecureSourceFetch {

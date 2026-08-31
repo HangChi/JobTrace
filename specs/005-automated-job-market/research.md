@@ -10,11 +10,11 @@
 
 ## 2. 合规来源范围
 
-**Decision**: 首期支持 Greenhouse、Lever、Ashby、SmartRecruiters 的公开岗位接口，以及管理员显式批准域名上的 Schema.org `JobPosting`。只同步公开或已有授权的数据。
+**Decision**: 支持 Greenhouse、Lever、Ashby、SmartRecruiters、Moka 招聘官网的公开岗位接口，以及管理员显式批准域名上的 Schema.org `JobPosting`。只同步公开或已有授权的数据。
 
 **Rationale**: 这些 ATS 提供稳定、结构化的公开职位数据和原始申请 URL，能在不绕过访问控制的前提下覆盖多家公司。Schema.org 是企业官网常见的标准化后备入口，但必须逐域批准，不能演变为任意站点爬虫。
 
-**Alternatives considered**: Moka 等租户接口通常需要企业授权凭据；第三方招聘聚合站的登录接口或数据库不构成可复用授权；搜索引擎抓取和浏览器自动化容易违反站点规则且结构不稳定，均不纳入默认来源。
+**Alternatives considered**: Moka 的企业管理接口需要授权凭据，但其官方招聘官网职位列表与投递页可公开访问，因此仅接入公开只读招聘端点，不接触企业管理接口或候选人数据。第三方招聘聚合站的登录接口或数据库不构成可复用授权；搜索引擎抓取和浏览器自动化容易违反站点规则且结构不稳定，均不纳入默认来源。
 
 **Primary references**:
 
@@ -22,6 +22,7 @@
 - [Lever Postings API](https://github.com/lever/postings-api)
 - [Ashby Public Job Posting API](https://developers.ashbyhq.com/docs/public-job-posting-api)
 - [SmartRecruiters API endpoints](https://developers.smartrecruiters.com/docs/endpoints)
+- [Moka 招聘官网 API](https://www.mokahr.com/docs/api/index.html)
 - [Google JobPosting structured data](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
 
 ## 3. 调度与多实例一致性
