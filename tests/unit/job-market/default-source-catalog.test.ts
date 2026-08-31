@@ -46,8 +46,9 @@ describe("default job-market source catalog", () => {
     for (const entry of DEFAULT_COMPANY_DIRECTORY) {
       expect(new URL(entry.entryUrl).protocol).toBe("https:");
       if (entry.channel === "wechat") {
-        expect(new URL(entry.entryUrl).hostname).toBe("weixin.sogou.com");
-        expect(entry.channelLabel).toContain("公众号搜索");
+        expect(new URL(entry.entryUrl).hostname).toBe("mp.weixin.qq.com");
+        expect(entry.channelLabel).toBe("公众号招聘原文");
+        expect(entry.publishedAt).toMatch(/^2026-08-/);
       } else {
         expect(entry.channel).toBe("official_site");
         expect(entry.channelLabel).toBe("官方招聘网站");
@@ -59,5 +60,9 @@ describe("default job-market source catalog", () => {
         (entry) => entry.channel === "official_site",
       ).length,
     ).toBeGreaterThanOrEqual(6);
+    expect(
+      DEFAULT_COMPANY_DIRECTORY.filter((entry) => entry.channel === "wechat")
+        .length,
+    ).toBeGreaterThanOrEqual(1_000);
   });
 });

@@ -83,6 +83,13 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
         day: "2-digit",
       }).format(new Date(campaign.lastConfirmedAt))
     : null;
+  const publishedDate = campaign.publishedAt
+    ? new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(campaign.publishedAt))
+    : null;
 
   return (
     <tr
@@ -165,12 +172,14 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             "招聘岗位"}
         </span>
         <a href={campaign.source.url} target="_blank" rel="noopener noreferrer">
-          {isDirectory && !isOfficialDirectory ? "公众号搜索" : "官方招聘"}
+          {isDirectory && !isOfficialDirectory ? "公众号原文" : "官方招聘"}
           <ExternalLinkIcon />
         </a>
         <span className="campaign-source-date">
           {isDirectory
-            ? "目录入口 · 非自动同步"
+            ? isOfficialDirectory
+              ? "官方招聘入口 · 非自动同步"
+              : `招聘原文${publishedDate ? ` · 发布 ${publishedDate}` : ""}`
             : `${campaign.source.name}${date ? ` · 更新 ${date}` : " · 尚未确认"}`}
         </span>
       </td>
@@ -195,7 +204,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
               isDirectory
                 ? isOfficialDirectory
                   ? "查看官网"
-                  : "查看公众号"
+                  : "查看原文"
                 : "立即投递"
             }
           />
