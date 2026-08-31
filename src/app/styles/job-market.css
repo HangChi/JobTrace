@@ -3,41 +3,89 @@
 }
 .job-market-filters {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
-  padding: 18px;
+  grid-template-columns: 1.25fr repeat(2, minmax(120px, 1fr)) repeat(
+      2,
+      minmax(112px, 0.85fr)
+    ) minmax(148px, 1fr);
+  gap: 10px 12px;
+  padding: 14px 16px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: 0 4px 16px rgba(23, 113, 100, 0.035);
 }
 .job-market-filters label {
   display: grid;
-  gap: 6px;
-  font-size: 0.78rem;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.7rem;
   font-weight: 700;
 }
 .job-market-filters input,
 .job-market-filters select {
   min-width: 0;
-  height: 40px;
+  height: 36px;
   padding: 0 10px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: 8px;
+  color: var(--ink-strong);
+  background: color-mix(in srgb, var(--surface-soft) 48%, white);
+  font-size: 0.78rem;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+.job-market-filters input:hover,
+.job-market-filters select:hover {
+  border-color: var(--line-strong);
   background: white;
+}
+.job-market-filters input:focus,
+.job-market-filters select:focus {
+  border-color: var(--brand);
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-soft) 72%, transparent);
+}
+.job-market-filter-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 2px;
 }
 .job-market-check {
   display: flex !important;
   align-items: center;
   gap: 8px !important;
+  color: var(--ink) !important;
+  cursor: pointer;
 }
 .job-market-check input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand);
 }
 .job-market-filter-actions {
   display: flex;
-  align-items: end;
+  align-items: center;
   gap: 8px;
+}
+.job-market-filter-actions .button {
+  min-height: 34px;
+  padding-inline: 14px;
+  font-size: 0.76rem;
+}
+.job-market-filter-actions .secondary {
+  border-color: transparent;
+  color: var(--muted);
+  background: transparent;
+}
+.job-market-filter-actions .secondary:hover {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
 }
 .campaign-list {
   display: grid;
@@ -479,44 +527,89 @@
   color: var(--muted);
   font-size: 0.74rem;
 }
-.campaign-table-details summary {
+.campaign-compact-values {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 7px;
-  cursor: pointer;
-  list-style: none;
-}
-.campaign-table-details summary::-webkit-details-marker {
-  display: none;
-}
-.campaign-table-details summary:focus-visible {
-  border-radius: 5px;
-  outline: 2px solid var(--brand);
-  outline-offset: 3px;
 }
 .campaign-more-count {
+  min-width: 30px;
   padding: 3px 6px;
+  border: 0;
   border-radius: 999px;
   color: var(--brand-dark);
   background: var(--brand-soft);
   font-size: 0.64rem;
   font-weight: 750;
   white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease;
 }
-.campaign-table-details > ul {
-  max-height: 240px;
-  display: grid;
-  gap: 6px;
-  padding: 12px 12px 12px 28px;
-  margin: 8px 0 0;
-  overflow-y: auto;
+.campaign-more-count:hover,
+.campaign-more-count:focus-visible {
+  color: white;
+  background: var(--brand);
+  transform: translateY(-1px);
+}
+.campaign-more-count:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.campaign-values-popover {
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(420px, calc(100vh - 48px));
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--line-strong);
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--ink);
   background: var(--surface);
+  box-shadow: 0 22px 64px rgba(22, 67, 61, 0.22);
+}
+.campaign-values-popover::backdrop {
+  background: rgba(18, 42, 39, 0.14);
+  backdrop-filter: blur(2px);
+}
+.campaign-values-popover > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-strong);
+  background: color-mix(in srgb, var(--brand-soft) 58%, var(--surface));
+  font-size: 0.8rem;
+  font-weight: 760;
+}
+.campaign-values-popover > header strong {
+  min-width: 25px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--brand-dark);
+  background: var(--surface);
+  text-align: center;
+}
+.campaign-values-popover > ul {
+  max-height: min(350px, calc(100vh - 110px));
+  display: grid;
+  gap: 0;
+  padding: 6px;
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
   font-size: 0.74rem;
   line-height: 1.4;
+}
+.campaign-values-popover li {
+  padding: 9px 10px;
+  border-radius: 8px;
+}
+.campaign-values-popover li:nth-child(even) {
+  background: color-mix(in srgb, var(--surface-soft) 70%, white);
 }
 .campaign-directory-cell {
   display: grid;
@@ -665,7 +758,7 @@
 }
 @media (max-width: 900px) {
   .job-market-filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .campaign-table {
     min-width: 1040px;
@@ -677,6 +770,14 @@
 @media (max-width: 620px) {
   .job-market-filters {
     grid-template-columns: 1fr;
+    padding: 14px;
+  }
+  .job-market-filter-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .job-market-filter-actions {
+    justify-content: flex-end;
   }
   .campaign-table-shell {
     margin-inline: -4px;

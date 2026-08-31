@@ -44,22 +44,24 @@ export function JobMarketFilters({ query }: { query: Search }) {
           defaultValue={value("postedFrom")}
         />
       </label>
-      <label className="job-market-check">
-        <input
-          type="checkbox"
-          name="favorite"
-          value="true"
-          defaultChecked={value("favorite") === "true"}
-        />
-        仅看收藏
-      </label>
-      <div className="job-market-filter-actions">
-        <button className="button primary" type="submit">
-          筛选
-        </button>
-        <Link className="button secondary" href="/">
-          清除筛选
-        </Link>
+      <div className="job-market-filter-footer">
+        <label className="job-market-check">
+          <input
+            type="checkbox"
+            name="favorite"
+            value="true"
+            defaultChecked={value("favorite") === "true"}
+          />
+          仅看收藏
+        </label>
+        <div className="job-market-filter-actions">
+          <Link className="button secondary" href="/">
+            清除筛选
+          </Link>
+          <button className="button primary" type="submit">
+            筛选
+          </button>
+        </div>
       </div>
     </form>
   );
