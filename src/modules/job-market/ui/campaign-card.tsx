@@ -16,13 +16,15 @@ function ExternalLinkIcon() {
 function CompactValues({
   values,
   count,
-  countLabel,
+  itemLabel,
   emptyLabel,
+  popoverId,
 }: {
   values: string[];
   count: number;
-  countLabel: string;
+  itemLabel: string;
   emptyLabel: string;
+  popoverId: string;
 }) {
   if (!values.length)
     return <span className="campaign-table-empty">{emptyLabel}</span>;
@@ -39,19 +41,34 @@ function CompactValues({
   );
   if (!remaining) return valueList;
   return (
-    <details className="campaign-table-details">
-      <summary>
-        {valueList}
-        <span className="campaign-more-count">
-          +{remaining} {countLabel}
-        </span>
-      </summary>
-      <ul>
-        {values.map((value) => (
-          <li key={value}>{value}</li>
-        ))}
-      </ul>
-    </details>
+    <div className="campaign-compact-values">
+      {valueList}
+      <button
+        type="button"
+        className="campaign-more-count"
+        popoverTarget={popoverId}
+        aria-label={`查看全部 ${count} 个${itemLabel}`}
+      >
+        +{remaining}
+      </button>
+      <div
+        id={popoverId}
+        popover="auto"
+        role="dialog"
+        aria-label={`全部${itemLabel}`}
+        className="campaign-values-popover"
+      >
+        <header>
+          <span>全部{itemLabel}</span>
+          <strong>{count}</strong>
+        </header>
+        <ul>
+          {values.map((value) => (
+            <li key={value}>{value}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 
@@ -113,8 +130,9 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             <CompactValues
               values={campaign.positions}
               count={campaign.positionCount}
-              countLabel="个"
+              itemLabel="岗位"
               emptyLabel="岗位未提供"
+              popoverId={`campaign-${campaign.id}-positions`}
             />
           </>
         )}
@@ -132,8 +150,9 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             <CompactValues
               values={campaign.locations.map((location) => location.name)}
               count={campaign.locations.length}
-              countLabel="个"
+              itemLabel="地点"
               emptyLabel="地点未提供"
+              popoverId={`campaign-${campaign.id}-locations`}
             />
           </>
         )}

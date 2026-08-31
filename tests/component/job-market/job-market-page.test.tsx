@@ -40,6 +40,16 @@ describe("job market page", () => {
     expect(screen.getByText("示例科技")).toBeVisible();
     expect(screen.getAllByText("前端工程师")[0]).toBeVisible();
     expect(screen.getByText("4 个岗位")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "查看全部 4 个岗位" }),
+    ).toHaveAttribute(
+      "popovertarget",
+      "campaign-11111111-1111-4111-8111-111111111111-positions",
+    );
+    expect(screen.getByRole("dialog", { name: "全部岗位" })).toHaveAttribute(
+      "popover",
+      "auto",
+    );
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "target",
       "_blank",
