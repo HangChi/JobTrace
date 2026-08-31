@@ -28,17 +28,18 @@ const campaign: CampaignSummary = {
   isFavorite: false,
 };
 describe("job market page", () => {
-  it("renders one aggregated campaign with compact expandable positions", () => {
+  it("renders one aggregated campaign as a compact table row", () => {
     render(
       <JobMarketPage
         page={{ items: [campaign], page: 1, limit: 20, total: 1 }}
         query={{}}
       />,
     );
-    expect(screen.getAllByRole("article")).toHaveLength(1);
+    expect(screen.getByRole("table")).toBeVisible();
+    expect(screen.getAllByRole("row")).toHaveLength(2);
     expect(screen.getByText("示例科技")).toBeVisible();
     expect(screen.getAllByText("前端工程师")[0]).toBeVisible();
-    expect(screen.getByLabelText("招聘摘要")).toHaveTextContent("4 个岗位");
+    expect(screen.getByText("4 个岗位")).toBeVisible();
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "target",
       "_blank",
@@ -75,8 +76,9 @@ describe("job market page", () => {
         query={{}}
       />,
     );
-    expect(screen.getByText("公众号招聘目录")).toBeVisible();
-    expect(screen.getByText(/不采集封闭内容/)).toBeVisible();
+    expect(screen.getByText("公众号发布")).toBeVisible();
+    expect(screen.getByText("岗位以最新推文为准")).toBeVisible();
+    expect(screen.getByText("目录入口 · 非自动同步")).toBeVisible();
     expect(screen.getByRole("link", { name: "查看公众号" })).toHaveAttribute(
       "href",
       expect.stringContaining("weixin.sogou.com"),
