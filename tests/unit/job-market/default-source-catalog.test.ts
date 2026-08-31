@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SOURCE_CATALOG } from "@/modules/job-market/application/default-source-catalog";
+import { DEFAULT_COMPANY_DIRECTORY } from "@/modules/job-market/application/default-company-directory";
 
 describe("default job-market source catalog", () => {
   it("contains unique, bounded, public HTTPS sources", () => {
@@ -29,5 +30,24 @@ describe("default job-market source catalog", () => {
       DEFAULT_SOURCE_CATALOG.filter((entry) => entry.companyType !== "外企")
         .length,
     ).toBeGreaterThan(DEFAULT_SOURCE_CATALOG.length / 2);
+  });
+
+  it("adds enough domestic directory entries without treating WeChat as an automatic source", () => {
+    expect(
+      DEFAULT_SOURCE_CATALOG.length + DEFAULT_COMPANY_DIRECTORY.length,
+    ).toBeGreaterThanOrEqual(100);
+    expect(
+      new Set([
+        ...DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey),
+        ...DEFAULT_COMPANY_DIRECTORY.map((entry) => entry.identityKey),
+      ]).size,
+    ).toBe(DEFAULT_SOURCE_CATALOG.length + DEFAULT_COMPANY_DIRECTORY.length);
+
+    for (const entry of DEFAULT_COMPANY_DIRECTORY) {
+      expect(entry.channel).toBe("wechat");
+      expect(new URL(entry.entryUrl).protocol).toBe("https:");
+      expect(new URL(entry.entryUrl).hostname).toBe("weixin.sogou.com");
+      expect(entry.channelLabel).toContain("公众号搜索");
+    }
   });
 });

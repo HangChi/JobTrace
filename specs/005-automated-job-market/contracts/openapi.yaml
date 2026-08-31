@@ -136,12 +136,14 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [companyCount, sourceCount, createdCompanies, createdSources, activeSourceIds, sync]
+                required: [companyCount, sourceCount, directoryCount, createdCompanies, createdSources, createdDirectoryEntries, activeSourceIds, sync]
                 properties:
                   companyCount: { type: integer, minimum: 0 }
                   sourceCount: { type: integer, minimum: 0 }
                   createdCompanies: { type: integer, minimum: 0 }
                   createdSources: { type: integer, minimum: 0 }
+                  directoryCount: { type: integer, minimum: 0 }
+                  createdDirectoryEntries: { type: integer, minimum: 0 }
                   activeSourceIds: { type: array, items: { type: string, format: uuid } }
                   sync:
                     type: object
@@ -308,9 +310,10 @@ components:
         alreadyTrackedApplicationId: { type: [string, 'null'], format: uuid }
     CampaignSummary:
       type: object
-      required: [id, company, positions, positionCount, locations, status, applyMode, primaryApplyUrl, source, lastConfirmedAt, isFavorite]
+      required: [id, listingKind, company, positions, positionCount, locations, status, applyMode, primaryApplyUrl, source, lastConfirmedAt, isFavorite]
       properties:
         id: { type: string, format: uuid }
+        listingKind: { type: string, enum: [synced_jobs, recruitment_directory] }
         company: { $ref: '#/components/schemas/Company' }
         campaignName: { type: [string, 'null'] }
         recruitmentType: { type: [string, 'null'] }

@@ -30,6 +30,7 @@ test("authenticated campaign list and detail return aggregated public fields", a
       items: [
         {
           id: campaign.id,
+          listingKind: "synced_jobs",
           company: { name: "Contract Market" },
           positions: ["Contract Engineer"],
           positionCount: 1,
@@ -47,6 +48,7 @@ test("authenticated campaign list and detail return aggregated public fields", a
     expect(detail.status()).toBe(200);
     expect(await detail.json()).toMatchObject({
       id: campaign.id,
+      listingKind: "synced_jobs",
       jobs: [
         {
           id: post.id,

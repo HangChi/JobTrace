@@ -152,6 +152,23 @@
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
 }
+.campaign-directory-note {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--brand-soft), var(--surface));
+}
+.campaign-directory-note strong {
+  color: var(--brand-dark);
+  font-size: 0.86rem;
+}
+.campaign-directory-note span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
 .favorite-button {
   width: 44px;
   height: 44px;

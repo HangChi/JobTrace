@@ -763,6 +763,11 @@ export const databaseSchema = {
       "name": "updated_at",
       "type": "timestamp with time zone",
       "nullable": false
+    },
+    {
+      "name": "listing_kind",
+      "type": "text",
+      "nullable": false
     }
   ],
   "job_market_companies": [

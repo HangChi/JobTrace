@@ -129,6 +129,12 @@ Expected:
 
 Expected: 所有请求在访问受保护目标前被拒绝，安全错误码进入运行记录；响应、日志和 UI 不包含 Bearer 密钥、Cookie、原始响应正文或个人联系人信息。
 
+## Scenario 8.1: Public-account directory fallback
+
+管理员再次执行默认目录初始化，然后在招聘广场搜索一个仅登记公众号入口的国内企业。
+
+Expected: 企业以单张“公众号招聘目录”卡片显示；岗位和地点不被虚构，页面明确说明其不是自动同步结果，“查看公众号”会打开对应公众号搜索入口，并且该企业不会出现在自动来源健康列表中。
+
 ## Scenario 9: Accessibility and responsive behavior
 
 在项目支持的移动和桌面视口运行 axe/Playwright，并只用键盘完成筛选、清除、展开、收藏、岗位选择和记录投递。

@@ -5,15 +5,20 @@ import { useState } from "react";
 
 type CatalogItem = {
   companyName: string;
-  adapter: string;
+  adapter?: string;
   industry: string;
   websiteUrl: string;
+  channel?: "automatic" | "official_site" | "wechat";
+  channelLabel?: string;
 };
 
 type BootstrapResult = {
   companyCount: number;
+  sourceCount?: number;
   createdCompanies: number;
   createdSources: number;
+  directoryCount?: number;
+  createdDirectoryEntries?: number;
   sync: {
     accepted: number;
     succeeded: number;
@@ -46,7 +51,7 @@ export function DefaultSourceBootstrap({
       };
       if (!response.ok) throw new Error(body.message || "初始化失败");
       setMessage(
-        `已处理 ${body.companyCount} 家企业，新建 ${body.createdSources} 个来源；首次同步成功 ${body.sync.succeeded} 个、部分成功 ${body.sync.partial} 个、失败 ${body.sync.failed} 个。`,
+        `已处理 ${body.companyCount} 家企业（自动来源 ${body.sourceCount ?? body.createdSources} 个、公众号目录 ${body.directoryCount ?? 0} 个）；首次同步成功 ${body.sync.succeeded} 个、部分成功 ${body.sync.partial} 个、失败 ${body.sync.failed} 个。`,
       );
       router.refresh();
     } catch (error) {
@@ -62,8 +67,8 @@ export function DefaultSourceBootstrap({
         <div>
           <h2>默认企业来源目录</h2>
           <p className="muted">
-            当前包含 {catalog.length} 家已验证的国内企业及外企中国招聘源。
-            初始化是幂等的，重复执行不会创建重复企业或来源。
+            当前包含 {catalog.length}{" "}
+            家国内企业及外企中国招聘入口。自动来源会同步岗位；公众号目录只提供查询入口，不抓取封闭内容。初始化是幂等的。
           </p>
         </div>
         <button className="button" disabled={busy} onClick={initialize}>
@@ -77,7 +82,7 @@ export function DefaultSourceBootstrap({
               {item.companyName}
             </a>
             <span>{item.industry}</span>
-            <small>{item.adapter}</small>
+            <small>{item.channelLabel ?? item.adapter}</small>
           </li>
         ))}
       </ul>

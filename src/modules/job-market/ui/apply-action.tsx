@@ -8,11 +8,13 @@ export function ApplyAction({
   mode,
   url,
   status,
+  label = "立即投递",
 }: {
   campaignId: string;
   mode: "single" | "select" | "unavailable";
   url: string | null;
   status: string;
+  label?: string;
 }) {
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [open, setOpen] = useState(false);
@@ -26,7 +28,7 @@ export function ApplyAction({
         target="_blank"
         rel="noopener noreferrer"
       >
-        立即投递
+        {label}
       </a>
     );
   async function choose() {
@@ -52,7 +54,7 @@ export function ApplyAction({
         disabled
         title={status !== "open" ? "招聘记录已失效" : "暂无安全的官方投递地址"}
       >
-        立即投递
+        {label}
       </button>
     );
   return (
@@ -62,7 +64,7 @@ export function ApplyAction({
         type="button"
         onClick={choose}
       >
-        立即投递
+        {label}
       </button>
       <Dialog
         open={open}

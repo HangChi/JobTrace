@@ -64,6 +64,7 @@ Unique: `(adapter, external_key, company_id)`. Revoked sources are never schedul
 | `recruitment_type` | text nullable | e.g. campus, experienced, internship |
 | `batch_label` | text nullable | source-provided |
 | `status` | text | derived `open`, `stale`, `closed` |
+| `listing_kind` | text | `synced_jobs` or `recruitment_directory`; directory entries contain no collected jobs |
 | `official_apply_url` | text nullable | only when one safe campaign-wide URL exists |
 | `published_at`, `valid_through` | timestamptz nullable | min/max source facts, no guessing |
 | `last_confirmed_at` | timestamptz nullable | latest successful observation |

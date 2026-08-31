@@ -10,6 +10,7 @@ describe("job market admin health", () => {
       Response.json(
         {
           companyCount: 8,
+          sourceCount: 8,
           createdCompanies: 8,
           createdSources: 8,
           sync: {
