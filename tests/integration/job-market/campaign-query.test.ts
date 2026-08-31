@@ -50,6 +50,18 @@ test("campaign query aggregates child positions and locations while combining fi
       "Shanghai",
     ]);
     expect(result.items[0].applyMode).toBe("select");
+    await sql`update job_market_posts set status='closed' where id=${b.id}`;
+    const withoutClosed = await repo.list(owner, { page: 1, limit: 20 });
+    expect(withoutClosed.items[0].positions).toEqual(["Frontend Engineer"]);
+    expect(withoutClosed.items[0].locations.map((item) => item.name)).toEqual([
+      "Shanghai",
+    ]);
+    const closedSearch = await repo.list(owner, {
+      q: "Backend",
+      page: 1,
+      limit: 20,
+    });
+    expect(closedSearch.total).toBe(0);
     await sql`update job_market_sources set status='revoked' where id=${source.id}`;
     const hidden = await repo.list(owner, { page: 1, limit: 20 });
     expect(hidden).toMatchObject({ total: 0, items: [] });

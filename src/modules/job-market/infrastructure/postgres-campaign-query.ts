@@ -29,10 +29,12 @@ export class PostgresCampaignQuery implements CampaignRepository {
         where visible_post.campaign_id=campaign.id and visible_source.status='active'
       )
       and (${q ?? null}::text is null or lower(company.canonical_name) like ${q ? `%${q}%` : null}::text
-        or exists(select 1 from job_market_posts p where p.campaign_id=campaign.id and lower(p.title) like ${q ? `%${q}%` : null}))
+        or exists(select 1 from job_market_posts p where p.campaign_id=campaign.id
+          and (campaign.status='closed' or p.status<>'closed') and lower(p.title) like ${q ? `%${q}%` : null}))
       and (${query.company ?? null}::text is null or lower(company.canonical_name) like ${query.company ? `%${query.company.toLowerCase()}%` : null}::text)
       and (${query.location ?? null}::text is null or exists(select 1 from job_market_posts p join job_market_post_locations pl on pl.post_id=p.id
-        join job_market_locations l on l.id=pl.location_id where p.campaign_id=campaign.id and lower(l.display_name) like ${query.location ? `%${query.location.toLowerCase()}%` : null}::text))
+        join job_market_locations l on l.id=pl.location_id where p.campaign_id=campaign.id
+          and (campaign.status='closed' or p.status<>'closed') and lower(l.display_name) like ${query.location ? `%${query.location.toLowerCase()}%` : null}::text))
       and (${query.recruitmentType ?? null}::text is null or campaign.recruitment_type=${query.recruitmentType ?? null}::text)
       and (${query.status ?? null}::text is null or campaign.status::text=${query.status ?? null}::text)
       and (${query.postedFrom ?? null}::text is null or campaign.published_at::date>=${query.postedFrom ?? null}::date)
@@ -47,10 +49,13 @@ export class PostgresCampaignQuery implements CampaignRepository {
     const rows = await this.sql<CampaignRow[]>`
       select campaign.id, jsonb_build_object('id',company.id,'name',company.canonical_name,'type',company.company_type,'industry',company.industry) as company,
         campaign.name as "campaignName",campaign.recruitment_type as "recruitmentType",campaign.batch_label as "batchLabel",
-        coalesce((select array_agg(distinct p.title order by p.title) from job_market_posts p where p.campaign_id=campaign.id),'{}') as positions,
-        (select count(distinct p.normalized_title)::int from job_market_posts p where p.campaign_id=campaign.id) as "positionCount",
+        coalesce((select array_agg(distinct p.title order by p.title) from job_market_posts p where p.campaign_id=campaign.id
+          and (campaign.status='closed' or p.status<>'closed')),'{}') as positions,
+        (select count(distinct p.normalized_title)::int from job_market_posts p where p.campaign_id=campaign.id
+          and (campaign.status='closed' or p.status<>'closed')) as "positionCount",
         coalesce((select jsonb_agg(x order by x->>'name') from (select distinct jsonb_build_object('name',l.display_name,'isRemote',l.is_remote) x
-          from job_market_posts p join job_market_post_locations pl on pl.post_id=p.id join job_market_locations l on l.id=pl.location_id where p.campaign_id=campaign.id) locations),'[]') as locations,
+          from job_market_posts p join job_market_post_locations pl on pl.post_id=p.id join job_market_locations l on l.id=pl.location_id
+          where p.campaign_id=campaign.id and (campaign.status='closed' or p.status<>'closed')) locations),'[]') as locations,
         campaign.status::text as status,campaign.official_apply_url as "primaryApplyUrl",source.adapter::text as "sourceName",source.base_url as "sourceUrl",
         campaign.published_at as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"

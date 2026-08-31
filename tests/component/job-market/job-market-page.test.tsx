@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { JobMarketPage } from "@/modules/job-market/ui/job-market-page";
 import type { CampaignSummary } from "@/modules/job-market/domain/entities";
@@ -36,13 +36,8 @@ describe("job market page", () => {
     );
     expect(screen.getAllByRole("article")).toHaveLength(1);
     expect(screen.getByText("示例科技")).toBeVisible();
-    expect(
-      screen.getByText("前端工程师、后端工程师、算法工程师"),
-    ).toBeVisible();
-    fireEvent.click(screen.getByText("查看全部 4 个岗位"));
-    expect(
-      screen.getByText("前端工程师、后端工程师、算法工程师、产品经理"),
-    ).toBeVisible();
+    expect(screen.getAllByText("前端工程师")[0]).toBeVisible();
+    expect(screen.getByLabelText("招聘摘要")).toHaveTextContent("4 个岗位");
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "target",
       "_blank",
