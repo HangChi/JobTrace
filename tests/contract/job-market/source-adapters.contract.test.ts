@@ -8,6 +8,7 @@ import { LeverAdapter } from "@/modules/job-market/infrastructure/adapters/lever
 import { AshbyAdapter } from "@/modules/job-market/infrastructure/adapters/ashby-adapter";
 import { SmartRecruitersAdapter } from "@/modules/job-market/infrastructure/adapters/smartrecruiters-adapter";
 import { SchemaOrgAdapter } from "@/modules/job-market/infrastructure/adapters/schema-org-adapter";
+import { XiaomiAdapter } from "@/modules/job-market/infrastructure/adapters/xiaomi-adapter";
 
 const fixture = (name: string) =>
   readFile(
@@ -23,6 +24,7 @@ function source(adapter: JobMarketSource["adapter"]): JobMarketSource {
     externalKey: "fixture",
     baseUrl: "https://jobs.example.com",
     allowedHosts: ["jobs.example.com"],
+    countryCodes: adapter === "smartrecruiters" ? ["cn"] : [],
     isOfficial: true,
     accessBasis: "public",
     status: "active",
@@ -32,6 +34,70 @@ function source(adapter: JobMarketSource["adapter"]): JobMarketSource {
     lastModified: null,
   };
 }
+
+test("xiaomi paginates domestic jobs and preserves official application URLs", async () => {
+  const pages = [
+    {
+      code: 0,
+      data: {
+        total: 2,
+        list: [
+          {
+            id: 1,
+            jobPostId: "post-1",
+            title: "算法工程师",
+            cityZhNames: ["北京", "上海"],
+            description: "岗位职责",
+            requirement: "岗位要求",
+            publishTime: "2026-08-30",
+            type: 1,
+            url: "https://xiaomi.jobs.example.com/post-1",
+          },
+        ],
+      },
+    },
+    {
+      code: 0,
+      data: {
+        total: 2,
+        list: [
+          {
+            id: 2,
+            title: "产品经理",
+            cityZhNames: ["深圳"],
+            publishTime: "2026-08-29",
+            type: 3,
+            url: "https://xiaomi.jobs.example.com/post-2",
+          },
+        ],
+      },
+    },
+  ];
+  let call = 0;
+  const adapter = new XiaomiAdapter(async () => ({
+    status: 200,
+    headers: new Headers({ "content-type": "application/json" }),
+    text: async () => JSON.stringify(pages[Math.min(call, 1)]),
+    json: async () => pages[Math.min(call++, 1)],
+  }));
+  const batch = await adapter.fetch(
+    { ...source("xiaomi"), baseUrl: "https://jobs.example.com/website/" },
+    { runId: "run", now: new Date("2026-08-30"), maxItems: 100 },
+    new AbortController().signal,
+  );
+  expect(batch.completeness).toBe("complete");
+  expect(batch.jobs).toHaveLength(2);
+  expect(batch.jobs[0]).toMatchObject({
+    externalJobId: "post-1",
+    recruitmentType: "社会招聘",
+    campaignName: "中国区在招岗位",
+    applyUrl: "https://xiaomi.jobs.example.com/post-1",
+  });
+  expect(batch.jobs[0].locations.map((location) => location.name)).toEqual([
+    "北京",
+    "上海",
+  ]);
+});
 function fetcher(body: string, contentType: string): SecureSourceFetch {
   return async () => ({
     status: 200,

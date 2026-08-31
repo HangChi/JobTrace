@@ -22,6 +22,12 @@ export class PostgresCampaignQuery implements CampaignRepository {
     const q = query.q?.toLowerCase();
     return this.sql`
       (${query.campaignId ?? null}::text is null or campaign.id=${query.campaignId ?? null}::uuid)
+      and exists(
+        select 1 from job_market_posts visible_post
+        join job_market_source_records visible_record on visible_record.post_id=visible_post.id
+        join job_market_sources visible_source on visible_source.id=visible_record.source_id
+        where visible_post.campaign_id=campaign.id and visible_source.status='active'
+      )
       and (${q ?? null}::text is null or lower(company.canonical_name) like ${q ? `%${q}%` : null}::text
         or exists(select 1 from job_market_posts p where p.campaign_id=campaign.id and lower(p.title) like ${q ? `%${q}%` : null}))
       and (${query.company ?? null}::text is null or lower(company.canonical_name) like ${query.company ? `%${query.company.toLowerCase()}%` : null}::text)
@@ -49,7 +55,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
         campaign.published_at as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"
       from job_market_campaigns campaign join job_market_companies company on company.id=campaign.company_id
-      left join lateral (select s.* from job_market_sources s where s.company_id=company.id order by s.is_official desc,s.last_success_at desc nulls last limit 1) source on true
+      left join lateral (select s.* from job_market_sources s where s.company_id=company.id and s.status='active' order by s.is_official desc,s.last_success_at desc nulls last limit 1) source on true
       where ${filters} order by campaign.last_confirmed_at desc nulls last,campaign.id
       limit ${query.limit} offset ${(query.page - 1) * query.limit}`;
     const items = await Promise.all(
@@ -81,9 +87,9 @@ export class PostgresCampaignQuery implements CampaignRepository {
     >`select p.id,p.title,p.status::text as status,p.primary_apply_url as "applyUrl",p.published_at as "publishedAt",p.valid_through as "validThrough",
       source.adapter::text as "sourceName",source.base_url as "sourceUrl",link.application_id as "alreadyTrackedApplicationId",
       coalesce((select jsonb_agg(jsonb_build_object('name',l.display_name,'isRemote',l.is_remote) order by l.display_name) from job_market_post_locations pl join job_market_locations l on l.id=pl.location_id where pl.post_id=p.id),'[]') as locations
-      from job_market_posts p left join lateral(select s.adapter,s.base_url from job_market_source_records r join job_market_sources s on s.id=r.source_id where r.post_id=p.id order by s.is_official desc,r.last_seen_at desc limit 1) source on true
+      from job_market_posts p left join lateral(select s.adapter,s.base_url from job_market_source_records r join job_market_sources s on s.id=r.source_id where r.post_id=p.id and s.status='active' order by s.is_official desc,r.last_seen_at desc limit 1) source on true
       left join application_job_market_links link on link.post_id=p.id and link.owner_id=${ownerId}
-      where p.campaign_id=${campaignId} order by p.title,p.id`;
+      where p.campaign_id=${campaignId} and source.adapter is not null order by p.title,p.id`;
     return rows.map((row) => ({
       ...row,
       publishedAt: row.publishedAt

@@ -50,6 +50,9 @@ test("campaign query aggregates child positions and locations while combining fi
       "Shanghai",
     ]);
     expect(result.items[0].applyMode).toBe("select");
+    await sql`update job_market_sources set status='revoked' where id=${source.id}`;
+    const hidden = await repo.list(owner, { page: 1, limit: 20 });
+    expect(hidden).toMatchObject({ total: 0, items: [] });
   } finally {
     await sql`delete from job_market_source_records where source_id=${source.id}`;
     await sql`delete from job_market_post_locations where post_id in(${a.id},${b.id})`;

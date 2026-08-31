@@ -21,6 +21,7 @@ describe("default job-market source catalog", () => {
       expect(sourceUrl.protocol).toBe("https:");
       expect(websiteUrl.protocol).toBe("https:");
       expect(entry.allowedHosts).toContain(sourceUrl.hostname);
+      expect(entry.countryCodes).toEqual(["cn"]);
       expect(entry.syncIntervalMinutes).toBeGreaterThanOrEqual(60);
     }
   });

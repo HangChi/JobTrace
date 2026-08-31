@@ -22,6 +22,7 @@ export function SourceForm() {
           externalKey: values.externalKey,
           baseUrl: url.href,
           allowedHosts: [url.hostname],
+          countryCodes: [],
           accessBasis: values.accessBasis,
           isOfficial: true,
           syncIntervalMinutes: 360,
@@ -56,6 +57,7 @@ export function SourceForm() {
             <option value="lever">Lever</option>
             <option value="ashby">Ashby</option>
             <option value="smartrecruiters">SmartRecruiters</option>
+            <option value="xiaomi">小米招聘</option>
             <option value="schema_org">Schema.org</option>
           </select>
         </label>

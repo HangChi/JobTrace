@@ -18,12 +18,21 @@ test("default source initialization is idempotent and preserves operator state",
       externalKey,
       baseUrl: "https://jobs.example.com/",
       allowedHosts: ["jobs.example.com"],
+      countryCodes: ["cn"],
       syncIntervalMinutes: 360,
     },
   ];
   const repository = new PostgresSourceCatalogRepository();
+  const legacyIdentityKey = `default:${testId("legacy-company")}`;
+  const legacyExternalKey = testId("legacy-source");
 
   try {
+    const [legacyCompany] = await sql<Array<{ id: string }>>`
+      insert into job_market_companies(canonical_name,normalized_name,identity_key)
+      values('Legacy Global Company','legacy global company',${legacyIdentityKey}) returning id`;
+    await sql`
+      insert into job_market_sources(company_id,adapter,external_key,base_url,allowed_hosts,access_basis,status)
+      values(${legacyCompany.id},'greenhouse',${legacyExternalKey},'https://jobs.example.com',array['jobs.example.com'],'public','active')`;
     const first = await repository.initialize(entries);
     expect(first).toMatchObject({
       companyCount: 1,
@@ -32,6 +41,9 @@ test("default source initialization is idempotent and preserves operator state",
       createdSources: 1,
     });
     expect(first.activeSourceIds).toHaveLength(1);
+    const [legacy] = await sql<Array<{ status: string }>>`
+      select status::text from job_market_sources where external_key=${legacyExternalKey}`;
+    expect(legacy.status).toBe("revoked");
 
     await sql`update job_market_sources set status='paused' where id=${first.activeSourceIds[0]}`;
     const second = await repository.initialize(entries);
@@ -48,7 +60,9 @@ test("default source initialization is idempotent and preserves operator state",
     expect(counts).toEqual({ companies: 1, sources: 1 });
   } finally {
     await sql`delete from job_market_sources where external_key=${externalKey}`;
+    await sql`delete from job_market_sources where external_key=${legacyExternalKey}`;
     await sql`delete from job_market_companies where identity_key=${identityKey}`;
+    await sql`delete from job_market_companies where identity_key=${legacyIdentityKey}`;
     await sql.end();
   }
 });

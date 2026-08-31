@@ -10,6 +10,7 @@ type SourceRow = {
   externalKey: string;
   baseUrl: string;
   allowedHosts: string[];
+  countryCodes: string[];
   isOfficial: boolean;
   accessBasis: "public" | "authorized";
   status: JobMarketSource["status"];
@@ -20,8 +21,10 @@ type SourceRow = {
 };
 const selectSource = `select source.id,source.company_id as "companyId",company.canonical_name as "companyName",source.adapter,
 source.external_key as "externalKey",source.base_url as "baseUrl",source.allowed_hosts as "allowedHosts",source.is_official as "isOfficial",
+source.country_codes as "countryCodes",
 source.access_basis as "accessBasis",source.status,source.sync_interval_minutes as "syncIntervalMinutes",source.consecutive_failures as "consecutiveFailures",source.etag,source.last_modified as "lastModified"
 from job_market_sources source join job_market_companies company on company.id=source.company_id`;
+const SOURCE_LEASE_MS = 30 * 60_000;
 
 export class PostgresSyncRepository implements SyncRepository {
   constructor(private readonly sql = createServerDatabase()) {}
@@ -33,7 +36,7 @@ export class PostgresSyncRepository implements SyncRepository {
         and (lease_until is null or lease_until<${now}) order by next_sync_at,id for update skip locked limit ${limit}`;
       if (!ids.length) return [];
       const values = ids.map((row) => row.id);
-      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + 5 * 60_000)},leased_by=${workerId},last_attempt_at=${now} where id=any(${values})`;
+      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},last_attempt_at=${now} where id=any(${values})`;
       return tx.unsafe<SourceRow[]>(
         `${selectSource} where source.id = any($1)`,
         [values],
@@ -47,7 +50,7 @@ export class PostgresSyncRepository implements SyncRepository {
       >`select id from job_market_sources where id=${sourceId} and status='active'
         and (lease_until is null or lease_until<${now}) for update skip locked`;
       if (!rows.length) return [];
-      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + 5 * 60_000)},leased_by=${workerId},last_attempt_at=${now} where id=${sourceId}`;
+      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},last_attempt_at=${now} where id=${sourceId}`;
       return tx.unsafe<SourceRow[]>(`${selectSource} where source.id=$1`, [
         sourceId,
       ]);
@@ -110,14 +113,15 @@ export class PostgresSyncRepository implements SyncRepository {
     externalKey: string;
     baseUrl: string;
     allowedHosts: string[];
+    countryCodes: string[];
     accessBasis: string;
     isOfficial: boolean;
     syncIntervalMinutes: number;
   }) {
     const [row] = await this.sql<
       Array<{ id: string }>
-    >`insert into job_market_sources(company_id,adapter,external_key,base_url,allowed_hosts,access_basis,is_official,sync_interval_minutes,status)
-      values(${input.companyId},${input.adapter},${input.externalKey},${input.baseUrl},${input.allowedHosts},${input.accessBasis},${input.isOfficial},${input.syncIntervalMinutes},'paused') returning id`;
+    >`insert into job_market_sources(company_id,adapter,external_key,base_url,allowed_hosts,country_codes,access_basis,is_official,sync_interval_minutes,status)
+      values(${input.companyId},${input.adapter},${input.externalKey},${input.baseUrl},${input.allowedHosts},${input.countryCodes},${input.accessBasis},${input.isOfficial},${input.syncIntervalMinutes},'paused') returning id`;
     return row.id;
   }
 
