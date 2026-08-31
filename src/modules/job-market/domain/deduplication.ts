@@ -42,14 +42,14 @@ export function findDedupMatch(
   if (exact) return { candidate: exact, reason: "source_identity" as const };
   const incomingUrls = new Set(
     [incoming.job.detailUrl, incoming.job.applyUrl]
-      .map(canonicalHttpsUrl)
+      .map((value) => canonicalHttpsUrl(value))
       .filter((value): value is string => Boolean(value)),
   );
   const url = candidates.find(
     (candidate) =>
       candidate.companyId === incoming.companyId &&
       [candidate.job.detailUrl, candidate.job.applyUrl]
-        .map(canonicalHttpsUrl)
+        .map((value) => canonicalHttpsUrl(value))
         .some((value) => value && incomingUrls.has(value)),
   );
   if (url) return { candidate: url, reason: "canonical_url" as const };

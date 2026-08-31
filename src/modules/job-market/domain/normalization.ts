@@ -47,12 +47,15 @@ export function safeDate(value: unknown) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function canonicalHttpsUrl(value: string | null | undefined) {
+export function canonicalHttpsUrl(
+  value: string | null | undefined,
+  options?: { preserveHash?: boolean },
+) {
   if (!value) return null;
   try {
     const url = new URL(value);
     if (url.protocol !== "https:" || url.username || url.password) return null;
-    url.hash = "";
+    if (!options?.preserveHash) url.hash = "";
     for (const key of [...url.searchParams.keys()]) {
       if (/^utm_|^(ref|source|tracking)$/i.test(key))
         url.searchParams.delete(key);

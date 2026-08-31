@@ -61,7 +61,9 @@ export class PostgresCampaignQuery implements CampaignRepository {
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"
       from job_market_campaigns campaign join job_market_companies company on company.id=campaign.company_id
       left join lateral (select s.* from job_market_sources s where s.company_id=company.id and s.status='active' order by s.is_official desc,s.last_success_at desc nulls last limit 1) source on true
-      where ${filters} order by campaign.last_confirmed_at desc nulls last,campaign.id
+      where ${filters}
+      order by case when company.company_type='外企' then 1 else 0 end,
+        campaign.last_confirmed_at desc nulls last,campaign.id
       limit ${query.limit} offset ${(query.page - 1) * query.limit}`;
     const items = await Promise.all(
       rows.map(async (row) => {

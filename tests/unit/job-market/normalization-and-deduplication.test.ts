@@ -47,6 +47,11 @@ describe("job normalization and conservative deduplication", () => {
     expect(canonicalHttpsUrl("https://jobs.example.com/1?utm_source=x")).toBe(
       "https://jobs.example.com/1",
     );
+    expect(
+      canonicalHttpsUrl("https://jobs.example.com/app#/job/1/apply", {
+        preserveHash: true,
+      }),
+    ).toBe("https://jobs.example.com/app#/job/1/apply");
   });
   it("matches source identity then canonical URLs and never crosses companies", () => {
     const candidate = {

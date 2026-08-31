@@ -7,7 +7,7 @@
 
 - [x] Homepage presents one record per company recruitment campaign; titles and locations are deduplicated and merged.
 - [x] Every valid underlying post retains a selectable official HTTPS application target; unavailable or unsafe targets are disabled.
-- [x] Source ingestion is adapter-based and covered for Greenhouse, Lever, Ashby, SmartRecruiters, and Schema.org.
+- [x] Source ingestion is adapter-based and covered for Greenhouse, Lever, Ashby, SmartRecruiters, Moka, Xiaomi, and Schema.org.
 - [x] Synchronization is idempotent and implements stale, closed, and reopened lifecycle transitions without deleting cached history.
 - [x] Public recruitment data, per-user favorites, and private application snapshots have explicit module and ownership boundaries.
 - [x] Operations, adapter extension, source onboarding, monitoring, secret rotation, and rollback are documented.
@@ -48,4 +48,3 @@
 
 - [x] Constitution review passed for maintainability, ≥80% line/branch coverage, WCAG 2.2 AA, performance budgets, safe logging, and recoverable rollback.
 - [x] Release is ready after deployment supplies the sync secret, approved source allowlist/onboarding, a five-minute scheduler, pgTAP-capable CI database, and documented alerts.
-
