@@ -89,47 +89,89 @@ export class PostgresSourceCatalogRepository {
         if (source.status === "active") activeSourceIds.push(source.id);
       }
 
-      for (const entry of directoryEntries) {
-        let [company] = await tx<Array<{ id: string }>>`
+      if (directoryEntries.length) {
+        const directoryPayload = directoryEntries.map((entry) => ({
+          identity_key: entry.identityKey,
+          company_name: entry.companyName,
+          normalized_name: normalizeText(entry.companyName),
+          company_type: entry.companyType,
+          industry: entry.industry,
+          channel: entry.channel,
+          channel_label: entry.channelLabel,
+          entry_url: entry.entryUrl,
+          published_at: entry.publishedAt ?? null,
+        }));
+        const directoryJson = tx.json(directoryPayload as never);
+        const [existing] = await tx<
+          Array<{ campaigns: number; companies: number }>
+        >`
+          with input as (
+            select * from jsonb_to_recordset(${directoryJson}::jsonb) as value(
+              identity_key text,channel text
+            )
+          )
+          select
+            (select count(*)::int from job_market_companies company
+              join input on input.identity_key=company.identity_key) companies,
+            (select count(*)::int from job_market_campaigns campaign
+              join job_market_companies company on company.id=campaign.company_id
+              join input on input.identity_key=company.identity_key
+              where campaign.campaign_key='directory:' || input.channel) campaigns`;
+        createdCompanies += directoryEntries.length - existing.companies;
+        createdDirectoryEntries += directoryEntries.length - existing.campaigns;
+
+        await tx`
+          with input as (
+            select * from jsonb_to_recordset(${directoryJson}::jsonb) as value(
+              identity_key text,company_name text,normalized_name text,company_type text,
+              industry text,entry_url text
+            )
+          )
           insert into job_market_companies(
             canonical_name,normalized_name,company_type,industry,website_url,identity_key
-          ) values(
-            ${entry.companyName},${normalizeText(entry.companyName)},${entry.companyType},
-            ${entry.industry},${entry.entryUrl},${entry.identityKey}
-          ) on conflict(identity_key) do nothing returning id`;
-        if (company) createdCompanies += 1;
-        else {
-          [company] = await tx<Array<{ id: string }>>`
-            update job_market_companies set
-              canonical_name=${entry.companyName},normalized_name=${normalizeText(entry.companyName)},
-              company_type=${entry.companyType},industry=${entry.industry},website_url=${entry.entryUrl},updated_at=now()
-            where identity_key=${entry.identityKey} returning id`;
-        }
+          )
+          select company_name,normalized_name,company_type,industry,entry_url,identity_key
+          from input
+          on conflict(identity_key) do update set
+            canonical_name=excluded.canonical_name,normalized_name=excluded.normalized_name,
+            company_type=excluded.company_type,industry=excluded.industry,
+            website_url=excluded.website_url,updated_at=now()`;
 
-        const campaignKey = `directory:${entry.channel}`;
         await tx`
-          update job_market_campaigns set status='closed',updated_at=now()
-          where company_id=${company.id}
-            and listing_kind='recruitment_directory'
-            and campaign_key<>${campaignKey}
-            and status<>'closed'`;
+          with input as (
+            select * from jsonb_to_recordset(${directoryJson}::jsonb) as value(
+              identity_key text,channel text
+            )
+          )
+          update job_market_campaigns campaign set status='closed',updated_at=now()
+          from job_market_companies company,input
+          where company.identity_key=input.identity_key
+            and campaign.company_id=company.id
+            and campaign.listing_kind='recruitment_directory'
+            and campaign.campaign_key<>'directory:' || input.channel
+            and campaign.status<>'closed'`;
 
-        const [campaign] = await tx<Array<{ id: string }>>`
+        await tx`
+          with input as (
+            select * from jsonb_to_recordset(${directoryJson}::jsonb) as value(
+              identity_key text,channel text,channel_label text,entry_url text,
+              published_at timestamptz
+            )
+          )
           insert into job_market_campaigns(
-            company_id,campaign_key,name,recruitment_type,status,official_apply_url,listing_kind
-          ) values(
-            ${company.id},${campaignKey},${entry.channelLabel},
-            ${entry.channel === "wechat" ? "公众号" : "招聘官网"},'open',${entry.entryUrl},'recruitment_directory'
-          ) on conflict(company_id,campaign_key) do nothing returning id`;
-        if (campaign) createdDirectoryEntries += 1;
-        else {
-          await tx`
-            update job_market_campaigns set
-              name=${entry.channelLabel},recruitment_type=${entry.channel === "wechat" ? "公众号" : "招聘官网"},
-              status='open',official_apply_url=${entry.entryUrl},listing_kind='recruitment_directory',
-              published_at=null,valid_through=null,last_confirmed_at=null,updated_at=now()
-            where company_id=${company.id} and campaign_key=${campaignKey}`;
-        }
+            company_id,campaign_key,name,recruitment_type,status,official_apply_url,
+            listing_kind,published_at
+          )
+          select company.id,'directory:' || input.channel,input.channel_label,
+            case when input.channel='wechat' then '公众号' else '招聘官网' end,
+            'open',input.entry_url,'recruitment_directory',input.published_at
+          from input
+          join job_market_companies company on company.identity_key=input.identity_key
+          on conflict(company_id,campaign_key) do update set
+            name=excluded.name,recruitment_type=excluded.recruitment_type,status='open',
+            official_apply_url=excluded.official_apply_url,
+            listing_kind='recruitment_directory',published_at=excluded.published_at,
+            valid_through=null,last_confirmed_at=null,updated_at=now()`;
       }
 
       return {

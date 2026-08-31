@@ -78,8 +78,9 @@ test("directory initialization is idempotent and never creates a sync source", a
       companyType: "民营企业",
       industry: "测试",
       channel: "wechat",
-      channelLabel: "公众号搜索：测试企业招聘",
-      entryUrl: "https://weixin.sogou.com/weixin?type=1&query=test-company",
+      channelLabel: "公众号招聘原文",
+      entryUrl: "https://mp.weixin.qq.com/s/test-company-article",
+      publishedAt: "2026-08-30T00:00:00.000+08:00",
     },
   ];
   const repository = new PostgresSourceCatalogRepository();
@@ -108,9 +109,15 @@ test("directory initialization is idempotent and never creates a sync source", a
     });
 
     const [entry] = await sql<
-      Array<{ listingKind: string; sourceCount: number; url: string }>
+      Array<{
+        listingKind: string;
+        publishedAt: string | null;
+        sourceCount: number;
+        url: string;
+      }>
     >`
       select campaign.listing_kind as "listingKind",campaign.official_apply_url as url,
+        campaign.published_at::text as "publishedAt",
         (select count(*)::int from job_market_sources source where source.company_id=company.id) as "sourceCount"
       from job_market_companies company
       join job_market_campaigns campaign on campaign.company_id=company.id
@@ -118,6 +125,7 @@ test("directory initialization is idempotent and never creates a sync source", a
         and campaign.campaign_key='directory:wechat'`;
     expect(entry).toEqual({
       listingKind: "recruitment_directory",
+      publishedAt: "2026-08-29 16:00:00+00",
       sourceCount: 0,
       url: directoryEntries[0].entryUrl,
     });

@@ -65,17 +65,17 @@ describe("job market page", () => {
               id: "22222222-2222-4222-8222-222222222222",
               listingKind: "recruitment_directory",
               company: { ...campaign.company, name: "目录企业" },
-              campaignName: "公众号搜索：目录企业招聘",
+              campaignName: "公众号招聘原文",
               recruitmentType: "公众号",
               positions: [],
               positionCount: 0,
               locations: [],
-              primaryApplyUrl:
-                "https://weixin.sogou.com/weixin?type=1&query=example",
+              primaryApplyUrl: "https://mp.weixin.qq.com/s/example-article",
               source: {
                 name: "公众号",
-                url: "https://weixin.sogou.com/weixin?type=1&query=example",
+                url: "https://mp.weixin.qq.com/s/example-article",
               },
+              publishedAt: "2026-08-30T00:00:00Z",
               lastConfirmedAt: null,
             },
           ],
@@ -88,10 +88,10 @@ describe("job market page", () => {
     );
     expect(screen.getByText("公众号发布")).toBeVisible();
     expect(screen.getByText("岗位以最新推文为准")).toBeVisible();
-    expect(screen.getByText("目录入口 · 非自动同步")).toBeVisible();
-    expect(screen.getByRole("link", { name: "查看公众号" })).toHaveAttribute(
+    expect(screen.getByText(/招聘原文 · 发布/)).toBeVisible();
+    expect(screen.getByRole("link", { name: "查看原文" })).toHaveAttribute(
       "href",
-      expect.stringContaining("weixin.sogou.com"),
+      expect.stringContaining("mp.weixin.qq.com"),
     );
     expect(screen.queryByText("记录投递")).not.toBeInTheDocument();
   });

@@ -1,3 +1,6 @@
+import { DEFAULT_SOURCE_CATALOG } from "./default-source-catalog";
+import recentWechatArticles from "./recent-wechat-articles.json";
+
 export type RecruitmentDirectoryChannel = "official_site" | "wechat";
 
 export type DefaultCompanyDirectoryEntry = {
@@ -8,7 +11,12 @@ export type DefaultCompanyDirectoryEntry = {
   channel: RecruitmentDirectoryChannel;
   channelLabel: string;
   entryUrl: string;
+  publishedAt?: string | null;
 };
+
+const recentWechatArticleByCompany = new Map(
+  recentWechatArticles.map((article) => [article.companyName, article]),
+);
 
 function wechatDirectory(input: {
   identityKey: string;
@@ -16,13 +24,15 @@ function wechatDirectory(input: {
   companyType: string;
   industry: string;
   searchTerm?: string;
-}): DefaultCompanyDirectoryEntry {
-  const searchTerm = input.searchTerm ?? `${input.companyName}招聘`;
+}): DefaultCompanyDirectoryEntry | null {
+  const article = recentWechatArticleByCompany.get(input.companyName);
+  if (!article) return null;
   return {
     ...input,
     channel: "wechat",
-    channelLabel: `公众号搜索：${searchTerm}`,
-    entryUrl: `https://weixin.sogou.com/weixin?type=1&query=${encodeURIComponent(searchTerm)}`,
+    channelLabel: "公众号招聘原文",
+    entryUrl: article.articleUrl,
+    publishedAt: article.publishedAt,
   };
 }
 
@@ -243,7 +253,7 @@ const ADDITIONAL_WECHAT_COMPANIES = [
  * separate from automatic sources: they expose a public recruitment-account
  * lookup without claiming that closed WeChat content has been collected.
  */
-export const DEFAULT_COMPANY_DIRECTORY = [
+const CURATED_COMPANY_DIRECTORY = [
   // Internet, software, and digital platforms
   officialDirectory({
     identityKey: "default:bytedance-cn",
@@ -859,7 +869,43 @@ export const DEFAULT_COMPANY_DIRECTORY = [
         industry,
       }),
   ),
-] as const satisfies readonly DefaultCompanyDirectoryEntry[];
+];
+
+function isDirectoryEntry(
+  entry: DefaultCompanyDirectoryEntry | null,
+): entry is DefaultCompanyDirectoryEntry {
+  return entry !== null;
+}
+
+function inferCompanyType(industries: string[]) {
+  if (industries.some((industry) => /国央企|央企|国企/.test(industry)))
+    return "国有企业";
+  if (industries.includes("外企")) return "外企";
+  if (industries.includes("事业单位")) return "事业单位";
+  return "企业";
+}
+
+const curatedDirectory = CURATED_COMPANY_DIRECTORY.filter(isDirectoryEntry);
+const existingCompanyNames = new Set([
+  ...DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+  ...curatedDirectory.map((entry) => entry.companyName),
+]);
+
+export const DEFAULT_COMPANY_DIRECTORY = [
+  ...curatedDirectory,
+  ...recentWechatArticles
+    .filter((article) => !existingCompanyNames.has(article.companyName))
+    .map((article): DefaultCompanyDirectoryEntry => ({
+      identityKey: `default:wechat-article:${article.companyName}`,
+      companyName: article.companyName,
+      companyType: inferCompanyType(article.industries),
+      industry: article.industries.join(" / ") || "综合行业",
+      channel: "wechat",
+      channelLabel: "公众号招聘原文",
+      entryUrl: article.articleUrl,
+      publishedAt: article.publishedAt,
+    })),
+] satisfies readonly DefaultCompanyDirectoryEntry[];
 
 export function publicDefaultCompanyDirectory() {
   return DEFAULT_COMPANY_DIRECTORY.map(

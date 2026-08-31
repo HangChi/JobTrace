@@ -68,7 +68,7 @@ export function DefaultSourceBootstrap({
           <h2>默认企业来源目录</h2>
           <p className="muted">
             当前包含 {catalog.length}{" "}
-            家国内企业及外企中国招聘入口。自动来源会同步岗位；目录来源提供官网或公众号入口，不抓取封闭内容。初始化是幂等的。
+            家国内企业及外企中国招聘入口。自动来源会同步岗位；目录来源提供官网或公众号招聘原文，不抓取封闭内容。初始化是幂等的。
           </p>
         </div>
         <button className="button" disabled={busy} onClick={initialize}>
