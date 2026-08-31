@@ -40,10 +40,28 @@ export function JobMarketPage({
       <JobMarketFilters query={query} />
       {page.items.length ? (
         <>
-          <div className="campaign-list">
-            {page.items.map((item) => (
-              <CampaignCard key={item.id} campaign={item} />
-            ))}
+          <div className="campaign-table-shell">
+            <table className="campaign-table">
+              <caption className="sr-only">
+                企业招聘岗位、地点、来源与投递入口
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">企业</th>
+                  <th scope="col">岗位</th>
+                  <th scope="col">地点</th>
+                  <th scope="col">招聘渠道</th>
+                  <th scope="col" className="campaign-action-heading">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {page.items.map((item) => (
+                  <CampaignCard key={item.id} campaign={item} />
+                ))}
+              </tbody>
+            </table>
           </div>
           <nav className="job-market-pagination" aria-label="招聘记录分页">
             <Link
