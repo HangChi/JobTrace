@@ -17,6 +17,7 @@ test("source administration preserves uniqueness, scheduling, retry independence
       externalKey,
       baseUrl: "https://jobs.example.com",
       allowedHosts: ["jobs.example.com"],
+      countryCodes: [],
       accessBasis: "public",
       isOfficial: true,
       syncIntervalMinutes: 360,
@@ -28,6 +29,7 @@ test("source administration preserves uniqueness, scheduling, retry independence
         externalKey,
         baseUrl: "https://jobs.example.com",
         allowedHosts: ["jobs.example.com"],
+        countryCodes: [],
         accessBasis: "public",
         isOfficial: true,
         syncIntervalMinutes: 360,
@@ -35,9 +37,15 @@ test("source administration preserves uniqueness, scheduling, retry independence
     ).rejects.toMatchObject({ code: "23505" });
 
     await repository.updateSource(sourceId, { status: "active" });
+    const claimedAt = new Date();
     expect(
-      (await repository.claimOne(sourceId, "worker-a", new Date()))?.id,
+      (await repository.claimOne(sourceId, "worker-a", claimedAt))?.id,
     ).toBe(sourceId);
+    const [lease] = await sql<Array<{ leaseUntil: Date }>>`
+      select lease_until as "leaseUntil" from job_market_sources where id=${sourceId}`;
+    expect(
+      lease.leaseUntil.getTime() - claimedAt.getTime(),
+    ).toBeGreaterThanOrEqual(29 * 60_000);
     expect(
       await repository.claimOne(sourceId, "worker-b", new Date()),
     ).toBeNull();

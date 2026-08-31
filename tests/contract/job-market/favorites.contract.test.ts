@@ -20,6 +20,14 @@ test("favorite PUT/DELETE is idempotent and favorite filtering is owner-scoped",
   const [campaign] = await sql<Array<{ id: string }>>`
     insert into job_market_campaigns(company_id,campaign_key,name)
     values(${company.id},${testId("campaign")},'Favorite Contract') returning id`;
+  const [source] = await sql<Array<{ id: string }>>`
+    insert into job_market_sources(company_id,adapter,external_key,base_url,allowed_hosts,access_basis,status)
+    values(${company.id},'greenhouse',${testId("source")},'https://jobs.example.com',array['jobs.example.com'],'public','active') returning id`;
+  const [post] = await sql<Array<{ id: string }>>`
+    insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash)
+    values(${company.id},${campaign.id},'Favorite Role','favorite role',${"f".repeat(64)}) returning id`;
+  await sql`insert into job_market_source_records(source_id,external_job_id,post_id,payload_hash)
+    values(${source.id},'favorite-role',${post.id},${"f".repeat(64)})`;
   try {
     await sql`insert into job_market_campaign_favorites(owner_id,campaign_id)
       values(${otherOwner},${campaign.id})`;
@@ -68,7 +76,10 @@ test("favorite PUT/DELETE is idempotent and favorite filtering is owner-scoped",
     ).toHaveLength(0);
   } finally {
     await sql`delete from job_market_campaign_favorites where campaign_id=${campaign.id}`;
+    await sql`delete from job_market_source_records where source_id=${source.id}`;
+    await sql`delete from job_market_posts where id=${post.id}`;
     await sql`delete from job_market_campaigns where id=${campaign.id}`;
+    await sql`delete from job_market_sources where id=${source.id}`;
     await sql`delete from job_market_companies where id=${company.id}`;
     await cleanupTestUsers(sql, [otherOwner]);
   }

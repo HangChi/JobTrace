@@ -28,6 +28,10 @@ export const sourceInputSchema = z.object({
   externalKey: z.string().trim().min(1).max(200),
   baseUrl: z.url().refine((url) => url.startsWith("https://")),
   allowedHosts: z.array(z.string().trim().min(1).max(253)).min(1).max(10),
+  countryCodes: z
+    .array(z.string().regex(/^[a-z]{2}$/))
+    .max(10)
+    .default([]),
   accessBasis: z.enum(["public", "authorized"]),
   isOfficial: z.boolean().default(true),
   syncIntervalMinutes: z.number().int().min(60).max(1440).default(360),

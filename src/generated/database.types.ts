@@ -1172,6 +1172,11 @@ export const databaseSchema = {
       "name": "updated_at",
       "type": "timestamp with time zone",
       "nullable": false
+    },
+    {
+      "name": "country_codes",
+      "type": "ARRAY",
+      "nullable": false
     }
   ],
   "job_market_sync_runs": [

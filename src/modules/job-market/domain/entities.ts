@@ -4,6 +4,7 @@ export const SOURCE_ADAPTERS = [
   "ashby",
   "smartrecruiters",
   "schema_org",
+  "xiaomi",
 ] as const;
 export type SourceAdapterKind = (typeof SOURCE_ADAPTERS)[number];
 export type SourceStatus = "active" | "paused" | "revoked";
@@ -28,6 +29,7 @@ export type JobMarketSource = {
   externalKey: string;
   baseUrl: string;
   allowedHosts: string[];
+  countryCodes: string[];
   isOfficial: boolean;
   accessBasis: "public" | "authorized";
   status: SourceStatus;

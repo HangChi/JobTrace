@@ -62,7 +62,7 @@ export function DefaultSourceBootstrap({
         <div>
           <h2>默认企业来源目录</h2>
           <p className="muted">
-            当前包含 {catalog.length} 家已验证的公开 ATS
+            当前包含 {catalog.length} 家已验证的国内企业及外企中国招聘来源
             招聘源。初始化是幂等的，重复执行不会创建重复企业或来源。
           </p>
         </div>

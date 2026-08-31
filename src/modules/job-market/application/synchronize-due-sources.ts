@@ -6,6 +6,7 @@ import { LeverAdapter } from "../infrastructure/adapters/lever-adapter";
 import { AshbyAdapter } from "../infrastructure/adapters/ashby-adapter";
 import { SmartRecruitersAdapter } from "../infrastructure/adapters/smartrecruiters-adapter";
 import { SchemaOrgAdapter } from "../infrastructure/adapters/schema-org-adapter";
+import { XiaomiAdapter } from "../infrastructure/adapters/xiaomi-adapter";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { PostgresJobMarketRepository } from "../infrastructure/postgres-job-market-repository";
 import { synchronizeSource } from "./synchronize-source";
@@ -21,6 +22,7 @@ function productionDependencies() {
       new AshbyAdapter(fetcher),
       new SmartRecruitersAdapter(fetcher),
       new SchemaOrgAdapter(fetcher),
+      new XiaomiAdapter(fetcher),
     ]),
   };
 }

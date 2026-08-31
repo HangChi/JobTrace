@@ -29,6 +29,7 @@ test("job sync is idempotent, auditable, and requires two complete absences to c
     externalKey: identity,
     baseUrl: "https://jobs.example.com",
     allowedHosts: ["jobs.example.com"],
+    countryCodes: [],
     isOfficial: true,
     accessBasis: "public",
     status: "active",

@@ -16,6 +16,7 @@ test("job-market logs retain correlation ids and redact source secrets and paylo
     externalKey: "private-contact@example.test",
     baseUrl: "https://user:secret@jobs.example.com/private?token=hidden",
     allowedHosts: ["jobs.example.com"],
+    countryCodes: [],
     isOfficial: true,
     accessBasis: "authorized",
     status: "active",
