@@ -57,6 +57,8 @@ function CompactValues({
 
 export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
   const isDirectory = campaign.listingKind === "recruitment_directory";
+  const isOfficialDirectory =
+    isDirectory && campaign.recruitmentType === "招聘官网";
   const date = campaign.lastConfirmedAt
     ? new Intl.DateTimeFormat("zh-CN", {
         year: "numeric",
@@ -78,7 +80,11 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             <span className="campaign-title-line">
               <strong>{campaign.company.name}</strong>
               <span className={`status-pill ${campaign.status}`}>
-                {isDirectory ? "公众号" : labels[campaign.status]}
+                {isDirectory
+                  ? isOfficialDirectory
+                    ? "官网"
+                    : "公众号"
+                  : labels[campaign.status]}
               </span>
             </span>
             <span className="campaign-company-meta">
@@ -92,8 +98,12 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
       <td className="campaign-position-cell">
         {isDirectory ? (
           <span className="campaign-directory-cell">
-            <strong>公众号发布</strong>
-            <span>岗位以最新推文为准</span>
+            <strong>{isOfficialDirectory ? "官网招聘" : "公众号发布"}</strong>
+            <span>
+              {isOfficialDirectory
+                ? "岗位以官网发布为准"
+                : "岗位以最新推文为准"}
+            </span>
           </span>
         ) : (
           <>
@@ -111,7 +121,9 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
       </td>
       <td className="campaign-location-cell">
         {isDirectory ? (
-          <span className="campaign-table-empty">以公众号为准</span>
+          <span className="campaign-table-empty">
+            {isOfficialDirectory ? "以招聘官网为准" : "以公众号为准"}
+          </span>
         ) : (
           <>
             <span className="campaign-cell-count">
@@ -134,15 +146,13 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             "招聘岗位"}
         </span>
         <a href={campaign.source.url} target="_blank" rel="noopener noreferrer">
-          {isDirectory ? "公众号搜索" : campaign.source.name}
+          {isDirectory && !isOfficialDirectory ? "公众号搜索" : "官方招聘"}
           <ExternalLinkIcon />
         </a>
         <span className="campaign-source-date">
           {isDirectory
             ? "目录入口 · 非自动同步"
-            : date
-              ? `更新 ${date}`
-              : "尚未确认"}
+            : `${campaign.source.name}${date ? ` · 更新 ${date}` : " · 尚未确认"}`}
         </span>
       </td>
       <td className="campaign-action-cell">
@@ -162,7 +172,13 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             mode={campaign.applyMode}
             url={campaign.primaryApplyUrl}
             status={campaign.status}
-            label={isDirectory ? "查看公众号" : "立即投递"}
+            label={
+              isDirectory
+                ? isOfficialDirectory
+                  ? "查看官网"
+                  : "查看公众号"
+                : "立即投递"
+            }
           />
         </div>
       </td>

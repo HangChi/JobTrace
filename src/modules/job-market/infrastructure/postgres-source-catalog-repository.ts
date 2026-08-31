@@ -106,11 +106,19 @@ export class PostgresSourceCatalogRepository {
             where identity_key=${entry.identityKey} returning id`;
         }
 
+        const campaignKey = `directory:${entry.channel}`;
+        await tx`
+          update job_market_campaigns set status='closed',updated_at=now()
+          where company_id=${company.id}
+            and listing_kind='recruitment_directory'
+            and campaign_key<>${campaignKey}
+            and status<>'closed'`;
+
         const [campaign] = await tx<Array<{ id: string }>>`
           insert into job_market_campaigns(
             company_id,campaign_key,name,recruitment_type,status,official_apply_url,listing_kind
           ) values(
-            ${company.id},${`directory:${entry.channel}`},${entry.channelLabel},
+            ${company.id},${campaignKey},${entry.channelLabel},
             ${entry.channel === "wechat" ? "公众号" : "招聘官网"},'open',${entry.entryUrl},'recruitment_directory'
           ) on conflict(company_id,campaign_key) do nothing returning id`;
         if (campaign) createdDirectoryEntries += 1;
@@ -120,7 +128,7 @@ export class PostgresSourceCatalogRepository {
               name=${entry.channelLabel},recruitment_type=${entry.channel === "wechat" ? "公众号" : "招聘官网"},
               status='open',official_apply_url=${entry.entryUrl},listing_kind='recruitment_directory',
               published_at=null,valid_through=null,last_confirmed_at=null,updated_at=now()
-            where company_id=${company.id} and campaign_key=${`directory:${entry.channel}`}`;
+            where company_id=${company.id} and campaign_key=${campaignKey}`;
         }
       }
 

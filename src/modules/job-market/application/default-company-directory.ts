@@ -26,6 +26,218 @@ function wechatDirectory(input: {
   };
 }
 
+function officialDirectory(input: {
+  identityKey: string;
+  companyName: string;
+  companyType: string;
+  industry: string;
+  entryUrl: string;
+}): DefaultCompanyDirectoryEntry {
+  return {
+    ...input,
+    channel: "official_site",
+    channelLabel: "官方招聘网站",
+  };
+}
+
+const ADDITIONAL_WECHAT_COMPANIES = [
+  // Internet, enterprise software, AI, and digital services
+  ["ant-group-cn", "蚂蚁集团", "民营企业", "金融科技 / 人工智能"],
+  ["cainiao-cn", "菜鸟集团", "民营企业", "智慧物流 / 供应链科技"],
+  ["alibaba-cloud-cn", "阿里云", "民营企业", "云计算 / 人工智能"],
+  ["jd-logistics-cn", "京东物流", "上市公司", "物流 / 供应链科技"],
+  ["jd-technology-cn", "京东科技", "民营企业", "金融科技 / 企业服务"],
+  ["qunar-cn", "去哪儿旅行", "民营企业", "在线旅游 / 互联网"],
+  ["autohome-cn", "汽车之家", "上市公司", "汽车互联网 / 内容平台"],
+  ["sohu-cn", "搜狐", "上市公司", "互联网 / 媒体"],
+  ["weibo-cn", "微博", "上市公司", "互联网 / 社交媒体"],
+  ["58-cn", "58同城", "民营企业", "互联网 / 本地生活"],
+  ["ke-cn", "贝壳找房", "上市公司", "居住服务 / 互联网"],
+  ["lalamove-cn", "货拉拉", "民营企业", "物流 / 互联网"],
+  ["hello-inc-cn", "哈啰", "民营企业", "智慧出行 / 本地生活"],
+  ["pony-ai-cn", "小马智行", "上市公司", "自动驾驶 / 人工智能"],
+  ["momenta-cn", "Momenta", "民营企业", "自动驾驶 / 人工智能"],
+  ["horizon-robotics-cn", "地平线", "上市公司", "智能驾驶 / AI芯片"],
+  ["black-sesame-cn", "黑芝麻智能", "上市公司", "智能驾驶 / AI芯片"],
+  ["sensetime-cn", "商汤科技", "上市公司", "人工智能 / 计算机视觉"],
+  ["megvii-cn", "旷视科技", "民营企业", "人工智能 / 计算机视觉"],
+  ["cloudwalk-cn", "云从科技", "上市公司", "人工智能 / 计算机视觉"],
+  ["4paradigm-cn", "第四范式", "上市公司", "人工智能 / 企业软件"],
+  ["kingsoft-cn", "金山软件", "上市公司", "软件 / 云计算 / 游戏"],
+  ["yonyou-cn", "用友网络", "上市公司", "企业软件 / 云服务"],
+  ["kingdee-cn", "金蝶国际", "上市公司", "企业软件 / 云服务"],
+  ["inspur-cn", "浪潮集团", "国有企业", "云计算 / 服务器 / 软件"],
+  ["neusoft-cn", "东软集团", "上市公司", "软件服务 / 医疗科技"],
+  ["sinosoft-cn", "中科软", "上市公司", "行业软件 / 数字化服务"],
+  ["hundsun-cn", "恒生电子", "上市公司", "金融科技 / 软件"],
+  ["10jqka-cn", "同花顺", "上市公司", "金融科技 / 互联网"],
+  ["eastmoney-cn", "东方财富", "上市公司", "金融科技 / 证券"],
+  ["hikvision-cn", "海康威视", "国有企业", "智能物联 / 计算机视觉"],
+  ["dahua-cn", "大华股份", "上市公司", "智能物联 / 计算机视觉"],
+  ["sangfor-cn", "深信服", "上市公司", "网络安全 / 云计算"],
+  ["qianxin-cn", "奇安信", "上市公司", "网络安全 / 企业服务"],
+  ["asiainfo-cn", "亚信科技", "上市公司", "通信软件 / 数字化服务"],
+  ["fiberhome-info-cn", "光迅科技", "国有企业", "光通信 / 半导体"],
+  ["navinfo-cn", "四维图新", "上市公司", "智能汽车 / 地图数据"],
+  ["unionpay-data-cn", "银联数据", "国有企业", "金融科技 / 支付"],
+  ["tonghuashun-ai-cn", "思必驰", "民营企业", "人工智能 / 智能语音"],
+
+  // Semiconductors, electronics, advanced manufacturing, and energy technology
+  ["hygon-cn", "海光信息", "国有企业", "半导体 / 处理器"],
+  ["loongson-cn", "龙芯中科", "国有企业", "半导体 / 处理器"],
+  ["montage-cn", "澜起科技", "上市公司", "半导体 / 互连芯片"],
+  ["gigadevice-cn", "兆易创新", "上市公司", "半导体 / 存储芯片"],
+  ["goodix-cn", "汇顶科技", "上市公司", "半导体 / 传感器"],
+  ["sgmicro-cn", "圣邦股份", "上市公司", "模拟芯片 / 半导体"],
+  ["naura-cn", "北方华创", "国有企业", "半导体设备 / 高端制造"],
+  ["amec-cn", "中微公司", "上市公司", "半导体设备 / 高端制造"],
+  ["acmrcsh-cn", "盛美上海", "上市公司", "半导体设备 / 高端制造"],
+  ["empyrean-cn", "华大九天", "国有企业", "EDA / 集成电路"],
+  ["verisilicon-cn", "芯原股份", "上市公司", "芯片设计 / IP服务"],
+  ["silan-cn", "士兰微", "上市公司", "半导体 / 功率器件"],
+  ["yandong-cn", "燕东微", "国有企业", "半导体 / 晶圆制造"],
+  ["tongfu-cn", "通富微电", "上市公司", "半导体 / 封装测试"],
+  ["jcet-cn", "长电科技", "上市公司", "半导体 / 封装测试"],
+  ["goertek-cn", "歌尔股份", "上市公司", "消费电子 / 声学 / XR"],
+  ["luxshare-cn", "立讯精密", "上市公司", "电子制造 / 消费电子"],
+  ["lens-cn", "蓝思科技", "上市公司", "消费电子 / 智能制造"],
+  ["lingyi-cn", "领益智造", "上市公司", "电子制造 / 精密结构件"],
+  ["sunwoda-cn", "欣旺达", "上市公司", "锂电池 / 新能源"],
+  ["eve-energy-cn", "亿纬锂能", "上市公司", "锂电池 / 新能源"],
+  ["gotion-cn", "国轩高科", "上市公司", "动力电池 / 新能源"],
+  ["sungrow-cn", "阳光电源", "上市公司", "光伏 / 储能 / 新能源"],
+  ["longi-cn", "隆基绿能", "上市公司", "光伏 / 新能源"],
+  ["jinko-cn", "晶科能源", "上市公司", "光伏 / 新能源"],
+  ["trina-cn", "天合光能", "上市公司", "光伏 / 储能"],
+  ["tongwei-cn", "通威集团", "民营企业", "光伏 / 农牧 / 新能源"],
+  ["envision-cn", "远景科技集团", "民营企业", "风电 / 储能 / 新能源"],
+  ["goldwind-cn", "金风科技", "上市公司", "风电 / 新能源"],
+  ["mingyang-cn", "明阳智能", "上市公司", "风电 / 新能源"],
+  ["xcmg-cn", "徐工集团", "国有企业", "工程机械 / 智能制造"],
+  ["sany-cn", "三一集团", "民营企业", "工程机械 / 智能制造"],
+  ["zoomlion-cn", "中联重科", "国有企业", "工程机械 / 智能制造"],
+  ["weichai-cn", "潍柴动力", "国有企业", "动力系统 / 智能制造"],
+  ["crrc-times-cn", "时代电气", "国有企业", "轨道交通 / 功率半导体"],
+
+  // Automotive and mobility supply chain
+  ["jac-cn", "江汽集团", "国有企业", "汽车 / 新能源"],
+  ["baic-cn", "北汽集团", "国有企业", "汽车 / 新能源"],
+  ["faw-jiefang-cn", "一汽解放", "国有企业", "商用车 / 智能制造"],
+  ["yutong-cn", "宇通集团", "民营企业", "商用车 / 新能源"],
+  ["fuyao-cn", "福耀集团", "上市公司", "汽车零部件 / 玻璃"],
+  ["joyson-cn", "均胜电子", "上市公司", "汽车电子 / 智能安全"],
+  ["desay-sv-cn", "德赛西威", "国有企业", "汽车电子 / 智能驾驶"],
+  ["hirain-cn", "经纬恒润", "上市公司", "汽车电子 / 智能驾驶"],
+  ["huayu-cn", "华域汽车", "国有企业", "汽车零部件 / 智能制造"],
+  ["zeekr-cn", "极氪", "上市公司", "新能源汽车 / 智能驾驶"],
+  ["avatr-cn", "阿维塔科技", "国有企业", "新能源汽车 / 智能驾驶"],
+  ["deepal-cn", "深蓝汽车", "国有企业", "新能源汽车 / 智能驾驶"],
+  ["neusoft-reach-cn", "东软睿驰", "民营企业", "汽车软件 / 智能驾驶"],
+  ["minth-cn", "敏实集团", "上市公司", "汽车零部件 / 智能制造"],
+  ["wuling-cn", "上汽通用五菱", "国有企业", "汽车 / 新能源"],
+  ["dongfeng-nissan-cn", "东风日产", "合资企业", "汽车 / 智能制造"],
+  ["gac-toyota-cn", "广汽丰田", "合资企业", "汽车 / 新能源"],
+  ["faw-volkswagen-cn", "一汽-大众", "合资企业", "汽车 / 智能制造"],
+
+  // Consumer, retail, food, and lifestyle
+  ["nongfu-cn", "农夫山泉", "上市公司", "饮料 / 消费品"],
+  ["haday-cn", "海天味业", "上市公司", "食品 / 消费品"],
+  ["eastroc-cn", "东鹏饮料", "上市公司", "饮料 / 消费品"],
+  ["tsingtao-cn", "青岛啤酒", "国有企业", "食品 / 啤酒"],
+  ["cr-beer-cn", "华润啤酒", "国有企业", "食品 / 啤酒"],
+  ["moutai-cn", "贵州茅台", "国有企业", "食品 / 白酒"],
+  ["wuliangye-cn", "五粮液", "国有企业", "食品 / 白酒"],
+  ["luzhou-laojiao-cn", "泸州老窖", "国有企业", "食品 / 白酒"],
+  ["haid-cn", "海大集团", "上市公司", "农牧 / 食品"],
+  ["wens-cn", "温氏股份", "上市公司", "农牧 / 食品"],
+  ["muyuan-cn", "牧原股份", "上市公司", "农牧 / 食品"],
+  ["shuanghui-cn", "双汇发展", "上市公司", "食品 / 消费品"],
+  ["yuanqisenlin-cn", "元气森林", "民营企业", "饮料 / 新消费"],
+  ["miniso-cn", "名创优品", "上市公司", "零售 / 消费品"],
+  ["luckin-cn", "瑞幸咖啡", "民营企业", "餐饮 / 新零售"],
+  ["mixue-cn", "蜜雪冰城", "上市公司", "餐饮 / 茶饮"],
+  ["chagee-cn", "霸王茶姬", "上市公司", "餐饮 / 茶饮"],
+  ["nayuki-cn", "奈雪的茶", "上市公司", "餐饮 / 茶饮"],
+  ["heytea-cn", "喜茶", "民营企业", "餐饮 / 茶饮"],
+  ["jiumaojiu-cn", "九毛九集团", "上市公司", "餐饮 / 消费服务"],
+  ["youngor-cn", "雅戈尔集团", "上市公司", "服装 / 零售"],
+  ["bosideng-cn", "波司登", "上市公司", "服装 / 零售"],
+  ["semir-cn", "森马服饰", "上市公司", "服装 / 零售"],
+  ["liby-cn", "立白集团", "民营企业", "日化 / 消费品"],
+  ["proya-cn", "珀莱雅", "上市公司", "美妆 / 消费品"],
+
+  // Healthcare and life sciences
+  ["hengrui-cn", "恒瑞医药", "上市公司", "医药研发 / 生命科学"],
+  ["beigene-cn", "百济神州", "上市公司", "创新药 / 生命科学"],
+  ["fosun-pharma-cn", "复星医药", "上市公司", "医药 / 医疗服务"],
+  ["cspc-cn", "石药集团", "上市公司", "医药研发 / 生命科学"],
+  ["qilu-pharma-cn", "齐鲁制药", "民营企业", "医药研发 / 生产"],
+  ["cttq-cn", "正大天晴", "民营企业", "医药研发 / 生命科学"],
+  ["united-imaging-cn", "联影医疗", "上市公司", "医疗器械 / 人工智能"],
+  ["yuyue-cn", "鱼跃医疗", "上市公司", "医疗器械 / 健康科技"],
+  ["aier-cn", "爱尔眼科", "上市公司", "医疗服务 / 眼科"],
+  ["tigermed-cn", "泰格医药", "上市公司", "临床研究 / 医药服务"],
+  ["pharmaron-cn", "康龙化成", "上市公司", "医药研发服务 / 生命科学"],
+  ["asymchem-cn", "凯莱英", "上市公司", "医药研发服务 / 生命科学"],
+  ["innovent-cn", "信达生物", "上市公司", "创新药 / 生命科学"],
+  ["zai-lab-cn", "再鼎医药", "上市公司", "创新药 / 生命科学"],
+  ["hygeia-cn", "海吉亚医疗", "上市公司", "医疗服务 / 肿瘤医疗"],
+
+  // Banks, securities, and insurance
+  ["psbc-cn", "中国邮政储蓄银行", "中央企业", "银行 / 金融科技"],
+  ["cmbc-cn", "中国民生银行", "上市公司", "银行 / 金融科技"],
+  ["ceb-cn", "中国光大银行", "中央企业", "银行 / 金融科技"],
+  ["hxb-cn", "华夏银行", "国有企业", "银行 / 金融科技"],
+  ["cgb-cn", "广发银行", "国有企业", "银行 / 金融科技"],
+  ["czbank-cn", "浙商银行", "国有企业", "银行 / 金融科技"],
+  ["bank-of-beijing-cn", "北京银行", "国有企业", "银行 / 金融科技"],
+  ["bank-of-nanjing-cn", "南京银行", "国有企业", "银行 / 金融科技"],
+  ["bank-of-ningbo-cn", "宁波银行", "上市公司", "银行 / 金融科技"],
+  ["pingan-bank-cn", "平安银行", "上市公司", "银行 / 金融科技"],
+  ["citic-securities-cn", "中信证券", "中央企业", "证券 / 金融科技"],
+  ["htsc-cn", "华泰证券", "国有企业", "证券 / 金融科技"],
+  ["gtja-cn", "国泰海通证券", "国有企业", "证券 / 金融科技"],
+  ["cmschina-cn", "招商证券", "中央企业", "证券 / 金融科技"],
+  ["gf-securities-cn", "广发证券", "上市公司", "证券 / 金融科技"],
+  ["orient-securities-cn", "东方证券", "国有企业", "证券 / 金融科技"],
+  ["china-life-cn", "中国人寿", "中央企业", "保险 / 金融科技"],
+  ["cpic-cn", "中国太保", "国有企业", "保险 / 金融科技"],
+  ["new-china-life-cn", "新华保险", "中央企业", "保险 / 金融科技"],
+  ["picc-cn", "中国人保", "中央企业", "保险 / 金融科技"],
+
+  // Central and large state-owned enterprises
+  ["china-post-cn", "中国邮政集团", "中央企业", "邮政 / 物流 / 金融"],
+  ["crrc-cn", "中国中车", "中央企业", "轨道交通 / 高端制造"],
+  ["ccteg-cn", "中国交建", "中央企业", "基建 / 工程建设"],
+  ["ceec-cn", "中国能建", "中央企业", "能源工程 / 基础设施"],
+  ["powerchina-cn", "中国电建", "中央企业", "能源工程 / 基础设施"],
+  ["cnnc-cn", "中国核工业集团", "中央企业", "核能 / 高端制造"],
+  ["chng-cn", "中国华能", "中央企业", "电力 / 新能源"],
+  ["chn-energy-cn", "国家能源集团", "中央企业", "能源 / 电力"],
+  ["chd-cn", "中国华电", "中央企业", "电力 / 新能源"],
+  ["spic-cn", "国家电投", "中央企业", "电力 / 新能源"],
+  ["ctg-cn", "中国三峡集团", "中央企业", "水电 / 新能源"],
+  ["baowu-cn", "中国宝武", "中央企业", "钢铁 / 新材料"],
+  ["ansteel-cn", "鞍钢集团", "中央企业", "钢铁 / 新材料"],
+  ["hbisco-cn", "河钢集团", "国有企业", "钢铁 / 新材料"],
+  ["chalco-cn", "中国铝业集团", "中央企业", "有色金属 / 新材料"],
+  ["minmetals-cn", "中国五矿", "中央企业", "金属矿产 / 新材料"],
+  ["sinomach-cn", "国机集团", "中央企业", "机械工业 / 工程服务"],
+  ["crsc-cn", "中国通号", "中央企业", "轨道交通 / 信息控制"],
+  ["comac-cn", "中国商飞", "中央企业", "航空 / 高端制造"],
+  ["aecc-cn", "中国航发", "中央企业", "航空发动机 / 高端制造"],
+  ["norinco-cn", "中国兵器工业集团", "中央企业", "高端装备 / 新材料"],
+  ["csgc-cn", "中国兵器装备集团", "中央企业", "汽车 / 高端装备"],
+  ["crta-cn", "中国融通集团", "中央企业", "资产经营 / 综合服务"],
+  ["chinalogistics-cn", "中国物流集团", "中央企业", "物流 / 供应链"],
+  ["sinochem-cn", "中国中化", "中央企业", "化工 / 农业科技"],
+  ["cofco-cn", "中粮集团", "中央企业", "农业 / 食品 / 消费品"],
+  ["crc-cn", "华润集团", "中央企业", "消费 / 医药 / 能源"],
+  ["cmhk-cn", "招商局集团", "中央企业", "交通物流 / 金融 / 城市开发"],
+  ["poly-cn", "保利集团", "中央企业", "城市开发 / 文化 / 工程"],
+  ["china-resources-land-cn", "华润置地", "国有企业", "城市开发 / 商业运营"],
+] as const;
+
 /**
  * Domestic-company recruitment directory. These entries are intentionally
  * separate from automatic sources: they expose a public recruitment-account
@@ -33,19 +245,19 @@ function wechatDirectory(input: {
  */
 export const DEFAULT_COMPANY_DIRECTORY = [
   // Internet, software, and digital platforms
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:bytedance-cn",
     companyName: "字节跳动",
     companyType: "民营企业",
     industry: "互联网 / 人工智能 / 内容平台",
-    searchTerm: "字节跳动招聘",
+    entryUrl: "https://jobs.bytedance.com/campus/",
   }),
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:tencent-cn",
     companyName: "腾讯",
     companyType: "民营企业",
     industry: "互联网 / 游戏 / 云计算",
-    searchTerm: "腾讯招聘",
+    entryUrl: "https://careers.tencent.com/",
   }),
   wechatDirectory({
     identityKey: "default:alibaba-cn",
@@ -54,33 +266,33 @@ export const DEFAULT_COMPANY_DIRECTORY = [
     industry: "互联网 / 电商 / 云计算",
     searchTerm: "阿里巴巴招聘",
   }),
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:meituan-cn",
     companyName: "美团",
     companyType: "民营企业",
     industry: "互联网 / 本地生活 / 科技零售",
-    searchTerm: "美团招聘",
+    entryUrl: "https://zhaopin.meituan.com/",
   }),
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:baidu-cn",
     companyName: "百度",
     companyType: "民营企业",
     industry: "互联网 / 人工智能 / 自动驾驶",
-    searchTerm: "百度招聘",
+    entryUrl: "https://talent.baidu.com/jobs/list",
   }),
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:jd-cn",
     companyName: "京东集团",
     companyType: "民营企业",
     industry: "电商 / 物流 / 科技",
-    searchTerm: "京东招聘",
+    entryUrl: "https://zhaopin.jd.com/",
   }),
-  wechatDirectory({
+  officialDirectory({
     identityKey: "default:kuaishou-cn",
     companyName: "快手",
     companyType: "上市公司",
     industry: "互联网 / 短视频 / 直播",
-    searchTerm: "快手招聘",
+    entryUrl: "https://zhaopin.kuaishou.cn/",
   }),
   wechatDirectory({
     identityKey: "default:didi-cn",
@@ -638,6 +850,15 @@ export const DEFAULT_COMPANY_DIRECTORY = [
     industry: "医疗器械 / 生命科学",
     searchTerm: "迈瑞招聘",
   }),
+  ...ADDITIONAL_WECHAT_COMPANIES.map(
+    ([identityKey, companyName, companyType, industry]) =>
+      wechatDirectory({
+        identityKey: `default:${identityKey}`,
+        companyName,
+        companyType,
+        industry,
+      }),
+  ),
 ] as const satisfies readonly DefaultCompanyDirectoryEntry[];
 
 export function publicDefaultCompanyDirectory() {
