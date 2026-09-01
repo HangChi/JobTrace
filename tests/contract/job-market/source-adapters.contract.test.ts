@@ -10,6 +10,7 @@ import { SmartRecruitersAdapter } from "@/modules/job-market/infrastructure/adap
 import { MokaAdapter } from "@/modules/job-market/infrastructure/adapters/moka-adapter";
 import { SchemaOrgAdapter } from "@/modules/job-market/infrastructure/adapters/schema-org-adapter";
 import { XiaomiAdapter } from "@/modules/job-market/infrastructure/adapters/xiaomi-adapter";
+import { FeishuAdapter } from "@/modules/job-market/infrastructure/adapters/feishu-adapter";
 
 const fixture = (name: string) =>
   readFile(
@@ -138,6 +139,66 @@ test("moka normalizes a domestic job and builds the official application URL", a
   expect(batch.jobs[0].locations.map((location) => location.name)).toEqual([
     "上海市 · 闵行区",
   ]);
+});
+
+test("feishu discovers the public website path and normalizes official jobs", async () => {
+  const requests: Array<{ url: string; method?: string; body?: string }> = [];
+  const adapter = new FeishuAdapter(async (url, options) => {
+    requests.push({ url, method: options.method, body: options.body });
+    if (!options.method)
+      return {
+        status: 200,
+        headers: new Headers({ "content-type": "text/html" }),
+        text: async () =>
+          '<script id="js-websiteInfo">{"website_info":{"path":"experienced"}}</script>',
+        json: async () => ({}),
+      };
+    const payload = {
+      code: 0,
+      data: {
+        count: 1,
+        job_post_list: [
+          {
+            id: "job-1",
+            title: "算法工程师",
+            city_list: [{ name: "北京" }],
+            recruit_type: { name: "社会招聘" },
+            description: "负责模型研发",
+            requirement: "熟悉 TypeScript",
+            publish_time: 1788192000000,
+          },
+        ],
+      },
+    };
+    return {
+      status: 200,
+      headers: new Headers({ "content-type": "application/json" }),
+      text: async () => JSON.stringify(payload),
+      json: async () => payload,
+    };
+  });
+  const batch = await adapter.fetch(
+    {
+      ...source("feishu"),
+      externalKey: "example.jobs.feishu.cn|",
+      baseUrl: "https://example.jobs.feishu.cn/",
+      allowedHosts: ["example.jobs.feishu.cn"],
+      countryCodes: ["cn"],
+    },
+    { runId: "run", now: new Date("2026-09-01"), maxItems: 100 },
+    new AbortController().signal,
+  );
+
+  expect(requests[1]).toMatchObject({
+    url: "https://example.jobs.feishu.cn/api/v1/search/job/posts",
+    method: "POST",
+  });
+  expect(batch.jobs[0]).toMatchObject({
+    externalJobId: "job-1",
+    title: "算法工程师",
+    applyUrl:
+      "https://example.jobs.feishu.cn/experienced/position/job-1/detail",
+  });
 });
 function fetcher(body: string, contentType: string): SecureSourceFetch {
   return async () => ({

@@ -48,6 +48,12 @@ describe("job-market source discovery", () => {
       "acme|campus|9012",
       "https://api.mokahr.com/",
     ],
+    [
+      "https://example.jobs.feishu.cn/experienced",
+      "feishu",
+      "example.jobs.feishu.cn|experienced",
+      "https://example.jobs.feishu.cn/",
+    ],
   ])("recognizes a reviewed ATS URL", (url, adapter, key, baseUrl) => {
     expect(detectSourceCandidate(url)).toMatchObject({
       adapter,

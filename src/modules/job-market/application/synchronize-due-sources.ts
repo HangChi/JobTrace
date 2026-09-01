@@ -8,6 +8,7 @@ import { SmartRecruitersAdapter } from "../infrastructure/adapters/smartrecruite
 import { MokaAdapter } from "../infrastructure/adapters/moka-adapter";
 import { SchemaOrgAdapter } from "../infrastructure/adapters/schema-org-adapter";
 import { XiaomiAdapter } from "../infrastructure/adapters/xiaomi-adapter";
+import { FeishuAdapter } from "../infrastructure/adapters/feishu-adapter";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { PostgresJobMarketRepository } from "../infrastructure/postgres-job-market-repository";
 import { synchronizeSource } from "./synchronize-source";
@@ -25,6 +26,7 @@ function productionDependencies() {
       new MokaAdapter(fetcher),
       new SchemaOrgAdapter(fetcher),
       new XiaomiAdapter(fetcher),
+      new FeishuAdapter(fetcher),
     ]),
   };
 }

@@ -85,6 +85,29 @@ describe("job market source request security", () => {
     }
   });
 
+  it("forwards bounded POST requests to exact Feishu recruitment hosts", async () => {
+    let received: RequestInit | undefined;
+    const client = createSecureSourceClient({
+      resolver: async () => ["198.18.0.182"],
+      allowProxyDns: false,
+      fetcher: async (_url, init) => {
+        received = init;
+        return new Response("{}", {
+          headers: { "content-type": "application/json" },
+        });
+      },
+    });
+    await client("https://example.jobs.feishu.cn/api/v1/search/job/posts", {
+      allowedHosts: ["example.jobs.feishu.cn"],
+      accept: ["application/json"],
+      signal: new AbortController().signal,
+      method: "POST",
+      body: '{"limit":10}',
+      headers: { "Content-Type": "application/json" },
+    });
+    expect(received).toMatchObject({ method: "POST", body: '{"limit":10}' });
+  });
+
   it("revalidates redirects and refuses private DNS results", async () => {
     const client = createSecureSourceClient({
       resolver: async (host) =>

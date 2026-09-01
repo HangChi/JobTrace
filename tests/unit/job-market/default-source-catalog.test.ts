@@ -4,7 +4,7 @@ import { DEFAULT_COMPANY_DIRECTORY } from "@/modules/job-market/application/defa
 
 describe("default job-market source catalog", () => {
   it("contains unique, bounded, public HTTPS sources", () => {
-    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(100);
+    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(200);
     expect(
       new Set(DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey)).size,
     ).toBe(DEFAULT_SOURCE_CATALOG.length);

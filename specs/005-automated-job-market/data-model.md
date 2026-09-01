@@ -34,7 +34,7 @@
 |---|---|---|
 | `id` | uuid | PK |
 | `company_id` | uuid | FK company, required |
-| `adapter` | text | `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `schema_org` |
+| `adapter` | text | `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `feishu`, `moka`, `schema_org`, `xiaomi` |
 | `external_key` | text | tenant/board identifier; unique with adapter |
 | `base_url` | text | HTTPS, required |
 | `allowed_hosts` | text[] | non-empty exact host allowlist |

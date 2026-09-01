@@ -15,6 +15,13 @@ const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
   "hr.xiaomi.com",
 ]);
 
+function isProxySafePublicAtsHost(hostname: string) {
+  return (
+    PROXY_SAFE_PUBLIC_ATS_HOSTS.has(hostname) ||
+    hostname.endsWith(".jobs.feishu.cn")
+  );
+}
+
 function ipv4ToNumber(value: string) {
   return (
     value
@@ -121,7 +128,7 @@ async function assertPublicHost(
     addresses.every(
       (address) =>
         isPublicIp(address) ||
-        ((allowProxyDns || PROXY_SAFE_PUBLIC_ATS_HOSTS.has(url.hostname)) &&
+        ((allowProxyDns || isProxySafePublicAtsHost(url.hostname)) &&
           isSyntheticProxyIp(address)),
     );
   if (!valid) {
@@ -183,6 +190,8 @@ export function createSecureSourceClient(options?: {
       signal: AbortSignal;
       headers?: Record<string, string>;
       accept: readonly string[];
+      method?: "GET" | "POST";
+      body?: string;
     },
   ) {
     let url = validateHttpsUrl(value, request.allowedHosts);
@@ -195,6 +204,8 @@ export function createSecureSourceClient(options?: {
         response = await fetcher(url, {
           redirect: "manual",
           signal,
+          method: request.method,
+          body: request.body,
           headers: { Accept: request.accept.join(", "), ...request.headers },
         });
       } catch (error) {
