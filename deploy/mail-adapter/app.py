@@ -88,8 +88,15 @@ def send(message: EmailMessage) -> None:
         smtp.send_message(message)
 
 
+def is_invalid_recipient_error(exc: Exception) -> bool:
+    if not isinstance(exc, smtplib.SMTPDataError) or exc.smtp_code != 550:
+        return False
+    detail = exc.smtp_error.decode("utf-8", errors="replace").lower()
+    return "non-existent account" in detail
+
+
 class Handler(BaseHTTPRequestHandler):
-    server_version = "JobTraceMailer/1.1"
+    server_version = "JobTraceMailer/1.2"
 
     def log_message(self, fmt: str, *args) -> None:
         print(f"{self.address_string()} - {fmt % args}", flush=True)
@@ -137,7 +144,18 @@ class Handler(BaseHTTPRequestHandler):
         try:
             send(message)
         except Exception as exc:
-            print(f"delivery failed: {type(exc).__name__}", flush=True)
+            smtp_code = (
+                exc.smtp_code
+                if isinstance(exc, smtplib.SMTPResponseException)
+                else "none"
+            )
+            print(
+                f"delivery failed: {type(exc).__name__} smtp_code={smtp_code}",
+                flush=True,
+            )
+            if is_invalid_recipient_error(exc):
+                self.respond(422, {"error": "invalid_recipient"})
+                return
             self.respond(502, {"error": "delivery_failed"})
             return
         self.respond(200, {"delivered": True})

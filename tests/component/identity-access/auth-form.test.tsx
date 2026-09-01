@@ -82,6 +82,29 @@ describe("AuthForm", () => {
     expect(email).toHaveAttribute("aria-describedby", "email-code-error");
   });
 
+  it("shows a friendly error when the email endpoint returns non-JSON", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => {
+          throw new SyntaxError("Unexpected token '<'");
+        },
+      }),
+    );
+    render(<AuthForm mode="register" action={vi.fn(async () => ({}))} />);
+
+    fireEvent.change(screen.getByLabelText("邮箱"), {
+      target: { value: "user@example.com" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "发送验证码" }));
+
+    expect(
+      await screen.findByText("验证码发送失败，请稍后重试。"),
+    ).toBeVisible();
+    expect(screen.queryByText(/Unexpected token/)).not.toBeInTheDocument();
+  });
+
   it("focuses the error summary and connects field-level errors", async () => {
     const action = vi.fn(async () => ({
       error: "请检查输入内容。",

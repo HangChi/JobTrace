@@ -147,19 +147,21 @@ export function AuthForm({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: registrationEmail }),
       });
-      const result = (await response.json()) as {
+      const result = (await response.json().catch(() => null)) as {
         message?: string;
         fieldErrors?: Array<{ field: string; message: string }>;
-      };
+      } | null;
       if (!response.ok) {
-        const emailError = result.fieldErrors?.find(
+        const emailError = result?.fieldErrors?.find(
           (item) => item.field === "email",
         );
         throw new Error(
-          emailError?.message || result.message || "验证码发送失败。",
+          emailError?.message ||
+            result?.message ||
+            "验证码发送失败，请稍后重试。",
         );
       }
-      setCodeMessage(result.message || "验证码已发送。");
+      setCodeMessage(result?.message || "验证码已发送。");
       setCooldown(60);
     } catch (reason) {
       setCodeError(
