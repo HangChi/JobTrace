@@ -51,6 +51,23 @@
 
 Unique: `(adapter, external_key, company_id)`. Revoked sources are never scheduled; reactivation requires explicit admin authorization update.
 
+### `job_market_source_candidates`
+
+管理员触发的招聘入口扫描结果。候选与活动来源严格分离，扫描本身不得创建或启用 `job_market_sources`。
+
+| Field | Type | Rules |
+|---|---|---|
+| `company_id`, `entry_url` | uuid/text | 企业与已登记 HTTPS 招聘入口，组合唯一 |
+| `adapter`, `external_key`, `base_url`, `allowed_hosts` | nullable source fields | 只有识别到受支持 ATS 或 JobPosting 时同时存在 |
+| `confidence`, `evidence_code` | text | `high`/`medium` 与不含页面正文的识别依据代码 |
+| `review_status` | text | `unrecognized`, `pending`, `approved`, `ignored` |
+| `health_status` | text | `healthy`, `unreachable`, `unsupported` |
+| `diagnostic_code`, `diagnostic_summary`, `http_status` | nullable | 有界且不含秘密或原始响应的安全诊断 |
+| `approved_source_id` | uuid nullable | 管理员明确批准后关联创建的活动来源 |
+| `last_checked_at`, `reviewed_at` | timestamptz | 扫描与人工审核时间 |
+
+批准操作在一个事务中创建活动来源并更新候选；未识别、不可访问或已忽略的候选不能批准。
+
 ### `job_market_campaigns`
 
 首页聚合单位，代表“企业 + 招聘活动/批次”。

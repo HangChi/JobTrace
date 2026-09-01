@@ -89,7 +89,8 @@ export function DefaultSourceBootstrap({
       {!scheduledSyncEnabled && (
         <p className="notice warning">
           首次同步可由此按钮直接执行；持续定时同步尚未启用，请配置
-          <code> JOB_MARKET_ENABLED=true </code>及同步密钥后重启服务。
+          <code> JOB_MARKET_ENABLED=true </code>
+          、同步密钥和外部调度任务后重启服务。
         </p>
       )}
       <p role="status" aria-live="polite">

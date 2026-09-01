@@ -126,6 +126,67 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /admin/job-market/discovery:
+    get:
+      summary: List safe source candidates and discovery coverage (admin only)
+      responses:
+        '200':
+          description: Candidate list and coverage summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SourceCandidatePage' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Scan a bounded batch of public recruitment directory entries (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                limit: { type: integer, minimum: 1, maximum: 25, default: 10 }
+      responses:
+        '202':
+          description: Scan summary; detected candidates remain pending
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [scanned, recognized, healthy, unreachable]
+                properties:
+                  scanned: { type: integer, minimum: 0 }
+                  recognized: { type: integer, minimum: 0 }
+                  healthy: { type: integer, minimum: 0 }
+                  unreachable: { type: integer, minimum: 0 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/job-market/discovery/{candidateId}:
+    patch:
+      summary: Explicitly approve or ignore a source candidate (admin only)
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve, ignore] }
+      responses:
+        '200':
+          description: Candidate review result
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /admin/job-market/bootstrap:
     post:
       summary: Idempotently initialize the curated public source catalog and run its first sync (admin only)
@@ -382,6 +443,41 @@ components:
         lastSuccessAt: { type: [string, 'null'], format: date-time }
         consecutiveFailures: { type: integer, minimum: 0 }
         latestRun: { anyOf: [{ $ref: '#/components/schemas/SyncRun' }, { type: 'null' }] }
+    SourceCandidate:
+      type: object
+      required: [id, companyId, companyName, entryUrl, allowedHosts, evidenceCode, reviewStatus, healthStatus, lastCheckedAt]
+      properties:
+        id: { type: string, format: uuid }
+        companyId: { type: string, format: uuid }
+        companyName: { type: string }
+        entryUrl: { type: string, format: uri }
+        adapter: { type: [string, 'null'] }
+        externalKey: { type: [string, 'null'] }
+        baseUrl: { type: [string, 'null'], format: uri }
+        allowedHosts: { type: array, items: { type: string } }
+        confidence: { type: [string, 'null'], enum: [high, medium, null] }
+        evidenceCode: { type: string }
+        reviewStatus: { type: string, enum: [unrecognized, pending, approved, ignored] }
+        healthStatus: { type: string, enum: [healthy, unreachable, unsupported] }
+        diagnosticCode: { type: [string, 'null'] }
+        diagnosticSummary: { type: [string, 'null'] }
+        httpStatus: { type: [integer, 'null'] }
+        approvedSourceId: { type: [string, 'null'], format: uuid }
+        lastCheckedAt: { type: string, format: date-time }
+    SourceCandidatePage:
+      type: object
+      required: [items, summary]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/SourceCandidate' } }
+        summary:
+          type: object
+          required: [directoryCompanies, automaticCompanies, scannableCompanies, reviewedCompanies, pendingCandidates]
+          properties:
+            directoryCompanies: { type: integer, minimum: 0 }
+            automaticCompanies: { type: integer, minimum: 0 }
+            scannableCompanies: { type: integer, minimum: 0 }
+            reviewedCompanies: { type: integer, minimum: 0 }
+            pendingCandidates: { type: integer, minimum: 0 }
     SyncRun:
       type: object
       required: [id, sourceId, trigger, status, startedAt, counts]

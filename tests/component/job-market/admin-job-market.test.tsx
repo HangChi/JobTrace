@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { SourceHealthTable } from "@/modules/job-market/ui/admin/source-health-table";
 import { DefaultSourceBootstrap } from "@/modules/job-market/ui/admin/default-source-bootstrap";
+import { SourceDiscoveryPanel } from "@/modules/job-market/ui/admin/source-discovery-panel";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 afterEach(() => vi.unstubAllGlobals());
 describe("job market admin health", () => {
@@ -81,6 +82,65 @@ describe("job market admin health", () => {
       expect(fetch).toHaveBeenCalledWith(
         "/api/admin/job-market/sources/source/sync",
         { method: "POST" },
+      ),
+    );
+  });
+
+  it("scans directory entries and requires explicit approval for a candidate", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json({ scanned: 10, recognized: 2 }, { status: 202 }),
+      )
+      .mockResolvedValueOnce(
+        Response.json({ reviewStatus: "approved", sourceId: "source" }),
+      );
+    vi.stubGlobal("fetch", fetch);
+    render(
+      <SourceDiscoveryPanel
+        summary={{
+          automaticCompanies: 43,
+          directoryCompanies: 1064,
+          scannableCompanies: 6,
+          reviewedCompanies: 1,
+          pendingCandidates: 1,
+        }}
+        candidates={[
+          {
+            id: "candidate",
+            companyId: "company",
+            companyName: "示例科技",
+            companyType: "民营企业",
+            entryUrl: "https://careers.example.com/",
+            adapter: "ashby",
+            externalKey: "example",
+            baseUrl: "https://api.ashbyhq.com/",
+            allowedHosts: ["api.ashbyhq.com"],
+            confidence: "high",
+            evidenceCode: "known_ashby_url",
+            reviewStatus: "pending",
+            healthStatus: "healthy",
+            diagnosticCode: null,
+            diagnosticSummary: null,
+            httpStatus: 200,
+            approvedSourceId: null,
+            lastCheckedAt: "2026-09-01T00:00:00Z",
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("43")).toBeVisible();
+    expect(screen.getByText("ashby")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "扫描下一批" }));
+    expect(await screen.findByText(/已检查 10 家/)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "批准并启用" }));
+    await waitFor(() =>
+      expect(fetch).toHaveBeenLastCalledWith(
+        "/api/admin/job-market/discovery/candidate",
+        expect.objectContaining({
+          method: "PATCH",
+          body: JSON.stringify({ action: "approve" }),
+        }),
       ),
     );
   });

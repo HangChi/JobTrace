@@ -5,10 +5,15 @@ import { SourceForm } from "@/modules/job-market/ui/admin/source-form";
 import { DefaultSourceBootstrap } from "@/modules/job-market/ui/admin/default-source-bootstrap";
 import { listDefaultSourceCatalog } from "@/modules/job-market/application/source-admin-service";
 import { getJobMarketEnv } from "@/shared/config/env";
+import { listSourceCandidates } from "@/modules/job-market/application/source-discovery-service";
+import { SourceDiscoveryPanel } from "@/modules/job-market/ui/admin/source-discovery-panel";
 export const dynamic = "force-dynamic";
 export default async function AdminJobMarketPage() {
   await requirePageAdmin();
-  const { items } = await listSourceHealth();
+  const [{ items }, discovery] = await Promise.all([
+    listSourceHealth(),
+    listSourceCandidates(),
+  ]);
   return (
     <section className="stack">
       <header>
@@ -19,6 +24,10 @@ export default async function AdminJobMarketPage() {
       <DefaultSourceBootstrap
         catalog={listDefaultSourceCatalog()}
         scheduledSyncEnabled={getJobMarketEnv().enabled}
+      />
+      <SourceDiscoveryPanel
+        candidates={discovery.items}
+        summary={discovery.summary}
       />
       <SourceForm />
       <SourceHealthTable sources={items} />

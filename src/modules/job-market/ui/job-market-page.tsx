@@ -5,6 +5,20 @@ import { PageHeader } from "@/shared/ui/page-header";
 import { JobMarketFilters } from "./job-market-filters";
 import { CampaignCard } from "./campaign-card";
 type Search = Record<string, string | string[] | undefined>;
+
+function paginationItems(current: number, total: number) {
+  const candidates = new Set([1, total, current - 1, current, current + 1]);
+  const visible = [...candidates]
+    .filter((item) => item >= 1 && item <= total)
+    .sort((left, right) => left - right);
+  const result: Array<number | "ellipsis"> = [];
+  visible.forEach((item, index) => {
+    if (index > 0 && item - visible[index - 1] > 1) result.push("ellipsis");
+    result.push(item);
+  });
+  return result;
+}
+
 export function JobMarketPage({
   page,
   query,
@@ -17,17 +31,23 @@ export function JobMarketPage({
   };
   query: Search;
 }) {
-  const filtered = Object.values(query).some(Boolean);
+  const filtered = Object.entries(query).some(
+    ([key, value]) => key !== "page" && key !== "limit" && Boolean(value),
+  );
   const pages = Math.max(1, Math.ceil(page.total / page.limit));
+  const rangeStart = (page.page - 1) * page.limit + 1;
+  const rangeEnd = Math.min(page.page * page.limit, page.total);
   const href = (target: number) => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query)) {
+      if (key === "page") continue;
       if (Array.isArray(value))
         value.forEach((item) => params.append(key, item));
       else if (value) params.set(key, value);
     }
-    params.set("page", String(target));
-    return `/?${params}` as Route;
+    if (target > 1) params.set("page", String(target));
+    const search = params.toString();
+    return `${search ? `/?${search}` : "/"}#job-market-results` as Route;
   };
   return (
     <section className="stack page-gap job-market-page">
@@ -40,7 +60,7 @@ export function JobMarketPage({
       <JobMarketFilters query={query} />
       {page.items.length ? (
         <>
-          <div className="campaign-table-shell">
+          <div className="campaign-table-shell" id="job-market-results">
             <table className="campaign-table">
               <caption className="sr-only">
                 企业招聘岗位、地点、来源与投递入口
@@ -63,25 +83,111 @@ export function JobMarketPage({
               </tbody>
             </table>
           </div>
-          <nav className="job-market-pagination" aria-label="招聘记录分页">
-            <Link
-              className="button secondary"
-              aria-disabled={page.page <= 1}
-              href={href(Math.max(1, page.page - 1))}
-            >
-              上一页
-            </Link>
-            <span>
-              第 {page.page} / {pages} 页
-            </span>
-            <Link
-              className="button secondary"
-              aria-disabled={page.page >= pages}
-              href={href(Math.min(pages, page.page + 1))}
-            >
-              下一页
-            </Link>
-          </nav>
+          {pages > 1 && (
+            <nav className="job-market-pagination" aria-label="招聘记录分页">
+              <p className="job-market-page-summary">
+                <strong>
+                  {rangeStart}–{rangeEnd}
+                </strong>
+                <span>/ {page.total} 家企业</span>
+              </p>
+              <div className="job-market-page-controls">
+                {page.page > 1 ? (
+                  <Link
+                    className="pagination-link"
+                    href={href(page.page - 1)}
+                    aria-label="上一页"
+                    scroll={false}
+                  >
+                    <span aria-hidden="true">‹</span>
+                  </Link>
+                ) : (
+                  <span
+                    className="pagination-link is-disabled"
+                    aria-label="已是第一页"
+                    aria-disabled="true"
+                  >
+                    ‹
+                  </span>
+                )}
+                <div className="pagination-pages">
+                  {paginationItems(page.page, pages).map((item, index) =>
+                    item === "ellipsis" ? (
+                      <span
+                        className="pagination-ellipsis"
+                        key={`ellipsis-${index}`}
+                        aria-hidden="true"
+                      >
+                        …
+                      </span>
+                    ) : item === page.page ? (
+                      <span
+                        className="pagination-page is-current"
+                        key={item}
+                        aria-current="page"
+                      >
+                        {item}
+                      </span>
+                    ) : (
+                      <Link
+                        className="pagination-page"
+                        href={href(item)}
+                        key={item}
+                        aria-label={`第 ${item} 页`}
+                        scroll={false}
+                      >
+                        {item}
+                      </Link>
+                    ),
+                  )}
+                </div>
+                {page.page < pages ? (
+                  <Link
+                    className="pagination-link"
+                    href={href(page.page + 1)}
+                    aria-label="下一页"
+                    scroll={false}
+                  >
+                    <span aria-hidden="true">›</span>
+                  </Link>
+                ) : (
+                  <span
+                    className="pagination-link is-disabled"
+                    aria-label="已是最后一页"
+                    aria-disabled="true"
+                  >
+                    ›
+                  </span>
+                )}
+              </div>
+              <form className="job-market-page-jump" action="/">
+                {Object.entries(query).flatMap(([key, value]) => {
+                  if (key === "page" || !value) return [];
+                  const values = Array.isArray(value) ? value : [value];
+                  return values.map((item, index) => (
+                    <input
+                      key={`${key}-${index}`}
+                      type="hidden"
+                      name={key}
+                      value={item}
+                    />
+                  ));
+                })}
+                <label htmlFor="job-market-page-number">跳至</label>
+                <input
+                  id="job-market-page-number"
+                  name="page"
+                  type="number"
+                  min="1"
+                  max={pages}
+                  defaultValue={page.page}
+                  inputMode="numeric"
+                />
+                <span>页</span>
+                <button type="submit">前往</button>
+              </form>
+            </nav>
+          )}
         </>
       ) : (
         <div className="panel job-market-empty">
