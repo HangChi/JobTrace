@@ -9,6 +9,14 @@ import { MokaAdapter } from "../infrastructure/adapters/moka-adapter";
 import { SchemaOrgAdapter } from "../infrastructure/adapters/schema-org-adapter";
 import { XiaomiAdapter } from "../infrastructure/adapters/xiaomi-adapter";
 import { FeishuAdapter } from "../infrastructure/adapters/feishu-adapter";
+import { BeisenAdapter } from "../infrastructure/adapters/beisen-adapter";
+import { WorkdayAdapter } from "../infrastructure/adapters/workday-adapter";
+import {
+  DayeeAdapter,
+  HtmlListAdapter,
+  Job51Adapter,
+} from "../infrastructure/adapters/html-list-adapter";
+import { ChinaBigTechAdapter } from "../infrastructure/adapters/china-bigtech-adapter";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { PostgresJobMarketRepository } from "../infrastructure/postgres-job-market-repository";
 import { synchronizeSource } from "./synchronize-source";
@@ -27,6 +35,12 @@ function productionDependencies() {
       new SchemaOrgAdapter(fetcher),
       new XiaomiAdapter(fetcher),
       new FeishuAdapter(fetcher),
+      new BeisenAdapter(fetcher),
+      new DayeeAdapter(fetcher),
+      new WorkdayAdapter(fetcher),
+      new Job51Adapter(fetcher),
+      new ChinaBigTechAdapter(fetcher),
+      new HtmlListAdapter(fetcher),
     ]),
   };
 }

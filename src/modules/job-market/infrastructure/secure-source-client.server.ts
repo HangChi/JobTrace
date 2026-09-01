@@ -18,7 +18,18 @@ const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
 function isProxySafePublicAtsHost(hostname: string) {
   return (
     PROXY_SAFE_PUBLIC_ATS_HOSTS.has(hostname) ||
-    hostname.endsWith(".jobs.feishu.cn")
+    hostname.endsWith(".jobs.feishu.cn") ||
+    hostname.endsWith(".zhiye.com") ||
+    hostname.endsWith(".hotjob.cn") ||
+    hostname.endsWith(".myworkdayjobs.com") ||
+    hostname === "campus.51job.com" ||
+    [
+      "careers.tencent.com",
+      "talent.baidu.com",
+      "talent.alibaba.com",
+      "campus.jd.com",
+      "zhaopin.meituan.com",
+    ].includes(hostname)
   );
 }
 

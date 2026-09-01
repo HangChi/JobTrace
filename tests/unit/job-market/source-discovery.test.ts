@@ -54,6 +54,36 @@ describe("job-market source discovery", () => {
       "example.jobs.feishu.cn|experienced",
       "https://example.jobs.feishu.cn/",
     ],
+    [
+      "https://unitree.zhiye.com/jobs",
+      "beisen",
+      "unitree.zhiye.com",
+      "https://unitree.zhiye.com/",
+    ],
+    [
+      "https://cgn.hotjob.cn/wt/CGN/web/index/CompCGNPagepostType",
+      "dayee",
+      "cgn.hotjob.cn|/wt/CGN/web/index/CompCGNPagepostType",
+      "https://cgn.hotjob.cn/wt/CGN/web/index/CompCGNPagepostType",
+    ],
+    [
+      "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite",
+      "workday",
+      "nvidia|NVIDIAExternalCareerSite|en-US",
+      "https://nvidia.wd5.myworkdayjobs.com/",
+    ],
+    [
+      "https://campus.51job.com/asml2027/",
+      "job51",
+      "asml2027",
+      "https://campus.51job.com/asml2027/",
+    ],
+    [
+      "https://careers.tencent.com/search.html",
+      "china_bigtech",
+      "tencent",
+      "https://careers.tencent.com/search.html",
+    ],
   ])("recognizes a reviewed ATS URL", (url, adapter, key, baseUrl) => {
     expect(detectSourceCandidate(url)).toMatchObject({
       adapter,
@@ -88,6 +118,22 @@ describe("job-market source discovery", () => {
       confidence: "medium",
     });
     expect((globalThis as Record<string, unknown>).compromised).toBeUndefined();
+  });
+
+  it("recognizes a repeated public HTML job list as a reviewable source", () => {
+    const html = `
+      <ul>
+        <li><a href="/jobs/1">后端工程师</a></li>
+        <li><a href="/jobs/2">前端工程师</a></li>
+        <li><a href="/jobs/3">产品经理</a></li>
+      </ul>`;
+    expect(
+      detectSourceCandidate("https://careers.example.com/openings", html),
+    ).toMatchObject({
+      adapter: "html_list",
+      confidence: "medium",
+      evidenceCode: "public_job_links",
+    });
   });
 
   it("does not turn WeChat or an unknown page into an automatic source", () => {
