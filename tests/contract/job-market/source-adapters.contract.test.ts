@@ -183,6 +183,73 @@ test("schema.org extracts JobPosting without retaining active markup", async () 
   expect(batch.jobs[0].descriptionText).toBe("Build AI");
 });
 
+test("global ATS adapters retain mainland-China jobs and exclude overseas jobs", async () => {
+  const greenhouse = new GreenhouseAdapter(
+    fetcher(
+      JSON.stringify({
+        jobs: [
+          {
+            id: 1,
+            title: "上海工程师",
+            location: { name: "Shanghai, China" },
+            absolute_url: "https://jobs.example.com/1",
+          },
+          {
+            id: 2,
+            title: "伦敦工程师",
+            location: { name: "London, UK" },
+            absolute_url: "https://jobs.example.com/2",
+          },
+          {
+            id: 3,
+            title: "香港工程师",
+            location: { name: "Hong Kong, China" },
+            absolute_url: "https://jobs.example.com/3",
+          },
+        ],
+      }),
+      "application/json",
+    ),
+  );
+  const lever = new LeverAdapter(
+    fetcher(
+      JSON.stringify([
+        {
+          id: "cn",
+          text: "深圳产品经理",
+          categories: { location: "深圳市" },
+          hostedUrl: "https://jobs.example.com/cn",
+        },
+        {
+          id: "us",
+          text: "美国产品经理",
+          categories: { location: "New York, US" },
+          hostedUrl: "https://jobs.example.com/us",
+        },
+      ]),
+      "application/json",
+    ),
+  );
+  const chinaSource = (adapter: "greenhouse" | "lever") => ({
+    ...source(adapter),
+    countryCodes: ["cn"],
+  });
+
+  const greenhouseBatch = await greenhouse.fetch(
+    chinaSource("greenhouse"),
+    { runId: "run", now: new Date("2026-09-01"), maxItems: 100 },
+    new AbortController().signal,
+  );
+  const leverBatch = await lever.fetch(
+    chinaSource("lever"),
+    { runId: "run", now: new Date("2026-09-01"), maxItems: 100 },
+    new AbortController().signal,
+  );
+
+  expect(greenhouseBatch.jobs.map((job) => job.title)).toEqual(["上海工程师"]);
+  expect(leverBatch.jobs.map((job) => job.externalJobId)).toEqual(["cn"]);
+});
+
 test("adapter isolates malformed items, sanitizes unsafe URLs and reports bounded partial batches", async () => {
   const adapter = new GreenhouseAdapter(
     fetcher(await fixture("edge-cases.json"), "application/json"),

@@ -266,7 +266,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka 和小米招聘的已审核�
 
 ### 默认目录一键初始化
 
-管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前目录包含 26 家中国企业和 17 家外企中国大陆招聘来源，已于 2026-08-31 验证。中国企业优先使用 Moka 官方公开招聘接口，覆盖民营企业、国企和上市公司；SmartRecruiters 来源使用 `country=cn`；小米官网接口同时返回全球岗位，因此适配器还会按中国大陆城市白名单过滤，并由迁移关闭旧版本曾写入的境外岗位。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 103 家企业，其中 59 家中国企业、44 家在中国大陆招聘的外企，已于 2026-09-01 复核公开入口。中国企业优先使用 Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
 
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
@@ -278,7 +278,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka 和小米招聘的已审核�
 
 一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
 
-外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务连续执行 5 批，每批最多认领 10 个来源，以覆盖当前 43 个自动来源。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以 10 个来源为一批持续认领，队列清空时提前结束，最多执行 20 批、覆盖 200 个到期来源。这为继续扩展到数百家公司预留了容量，同时避免空跑。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
 
 仓库提供 `.github/workflows/job-market-sync.yml`，默认每六小时触发一次，也支持在 Actions 页面手动运行。启用步骤：
 
@@ -287,7 +287,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka 和小米招聘的已审核�
 3. 在 Actions Secrets 新建同名 `JOB_MARKET_SYNC_SECRET`，值必须与生产应用一致；
 4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`，之后由计划任务持续认领到期来源。
 
-这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
+这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
 
 公众号文章不纳入自动抓取。公众号没有稳定的公开岗位 API，页面访问还受登录、频率和反自动化限制；对仅通过公众号发布的企业，首页保留经审核的招聘原文链接，并以原文内容为准。新增自动企业时，应优先接入其官方 ATS/API 或官网 `JobPosting` 结构化数据。
 

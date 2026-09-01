@@ -54,6 +54,26 @@ function locationNames(value: unknown): string[] {
   return [];
 }
 
+const MAINLAND_CHINA_LOCATION_PATTERN =
+  /中国|china|beijing|北京|shanghai|上海|shenzhen|深圳|guangzhou|广州|hangzhou|杭州|suzhou|苏州|chengdu|成都|nanjing|南京|wuhan|武汉|tianjin|天津|chongqing|重庆|xi['’]?an|西安|wuxi|无锡|ningbo|宁波|xiamen|厦门|qingdao|青岛|changsha|长沙|zhengzhou|郑州|hefei|合肥|jinan|济南|foshan|佛山|dongguan|东莞|dalian|大连|shenyang|沈阳|kunming|昆明|nanchang|南昌|fuzhou|福州|haikou|海口|sanya|三亚|changchun|长春|harbin|哈尔滨|shijiazhuang|石家庄|taiyuan|太原|nanning|南宁|guiyang|贵阳|lanzhou|兰州|urumqi|乌鲁木齐|hohhot|呼和浩特|yinchuan|银川|xining|西宁|zhuhai|珠海|huizhou|惠州|changzhou|常州|nantong|南通|jiaxing|嘉兴|shaoxing|绍兴|wenzhou|温州|kunshan|昆山/i;
+const OUTSIDE_MAINLAND_LOCATION_PATTERN =
+  /hong kong|香港|macao|macau|澳门|taiwan|台湾|taipei|台北/i;
+
+export function filterItemsBySourceCountries<T extends AdapterJobInput>(
+  source: JobMarketSource,
+  items: T[],
+) {
+  if (!source.countryCodes.map((code) => code.toLowerCase()).includes("cn"))
+    return items;
+  return items.filter((item) => {
+    const locations = locationNames(item.locations).join(" ");
+    return (
+      !OUTSIDE_MAINLAND_LOCATION_PATTERN.test(locations) &&
+      MAINLAND_CHINA_LOCATION_PATTERN.test(locations)
+    );
+  });
+}
+
 export function normalizeAdapterJob(
   source: JobMarketSource,
   value: AdapterJobInput,

@@ -885,7 +885,19 @@ function inferCompanyType(industries: string[]) {
   return "企业";
 }
 
-const curatedDirectory = CURATED_COMPANY_DIRECTORY.filter(isDirectoryEntry);
+const automaticIdentityKeys = new Set(
+  DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey),
+);
+const automaticCompanyNames = new Set(
+  DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+);
+const curatedDirectory = CURATED_COMPANY_DIRECTORY.filter(
+  isDirectoryEntry,
+).filter(
+  (entry) =>
+    !automaticIdentityKeys.has(entry.identityKey) &&
+    !automaticCompanyNames.has(entry.companyName),
+);
 const existingCompanyNames = new Set([
   ...DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
   ...curatedDirectory.map((entry) => entry.companyName),

@@ -36,6 +36,18 @@ describe("job-market source discovery", () => {
       "acme|campus|1234",
       "https://api.mokahr.com/",
     ],
+    [
+      "https://app.mokahr.com/apply/acme/5678",
+      "moka",
+      "acme|social|5678",
+      "https://api.mokahr.com/",
+    ],
+    [
+      "https://app.mokahr.com/m/campus_apply/acme/9012",
+      "moka",
+      "acme|campus|9012",
+      "https://api.mokahr.com/",
+    ],
   ])("recognizes a reviewed ATS URL", (url, adapter, key, baseUrl) => {
     expect(detectSourceCandidate(url)).toMatchObject({
       adapter,

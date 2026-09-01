@@ -1,6 +1,10 @@
 import type { SecureSourceFetch, SourceAdapter } from "../../application/ports";
 import type { JobMarketSource } from "../../domain/entities";
-import { fetchJson, normalizeItems } from "./shared";
+import {
+  fetchJson,
+  filterItemsBySourceCountries,
+  normalizeItems,
+} from "./shared";
 
 export class LeverAdapter implements SourceAdapter {
   readonly kind = "lever" as const;
@@ -20,9 +24,9 @@ export class LeverAdapter implements SourceAdapter {
     const rows = Array.isArray(body)
       ? (body as Array<Record<string, any>>)
       : [];
-    const normalized = normalizeItems(
+    const scopedItems = filterItemsBySourceCountries(
       source,
-      rows.slice(0, context.maxItems).map((job) => ({
+      rows.map((job) => ({
         id: job.id,
         title: job.text,
         locations: job.categories?.location,
@@ -32,9 +36,13 @@ export class LeverAdapter implements SourceAdapter {
         applyUrl: job.applyUrl ?? job.hostedUrl,
       })),
     );
+    const normalized = normalizeItems(
+      source,
+      scopedItems.slice(0, context.maxItems),
+    );
     return {
       completeness:
-        rows.length > context.maxItems
+        scopedItems.length > context.maxItems
           ? ("partial" as const)
           : ("complete" as const),
       sourceMetadata: { fetchedAt: context.now },
