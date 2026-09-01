@@ -138,6 +138,48 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
       host,
       "known_feishu_url",
     );
+  if (host.endsWith(".zhiye.com"))
+    return result("beisen", host, `${url.origin}/`, host, "known_beisen_url");
+  if (host.endsWith(".hotjob.cn"))
+    return result(
+      "dayee",
+      `${host}|${url.pathname}`,
+      url.href,
+      host,
+      "known_dayee_url",
+    );
+  if (host.endsWith(".myworkdayjobs.com")) {
+    const siteIndex = parts.findIndex(
+      (part) => !/^[a-z]{2}-[A-Z]{2}$/.test(part),
+    );
+    const site = parts[siteIndex];
+    const locale = siteIndex > 0 ? parts[siteIndex - 1] : "en-US";
+    const tenant = host.split(".")[0];
+    return result(
+      "workday",
+      site ? `${tenant}|${site}|${locale}` : undefined,
+      `${url.origin}/`,
+      host,
+      "known_workday_url",
+    );
+  }
+  if (host === "campus.51job.com")
+    return result("job51", parts[0] ?? host, url.href, host, "known_51job_url");
+  const bigTechProvider = new Map([
+    ["careers.tencent.com", "tencent"],
+    ["talent.baidu.com", "baidu"],
+    ["talent.alibaba.com", "alibaba"],
+    ["campus.jd.com", "jd"],
+    ["zhaopin.meituan.com", "meituan"],
+  ]).get(host);
+  if (bigTechProvider)
+    return result(
+      "china_bigtech",
+      bigTechProvider,
+      url.href,
+      host,
+      "known_china_bigtech_url",
+    );
   return null;
 }
 
@@ -167,6 +209,21 @@ function containsJobPosting(html: string) {
   return found;
 }
 
+function containsPublicJobList(html: string) {
+  const $ = load(html);
+  let matches = 0;
+  $("a[href]").each((_index, element) => {
+    const href = $(element).attr("href") ?? "";
+    const text = $(element).text().trim();
+    if (
+      /job|position|post|vacancy|career|recruit|招聘|职位/i.test(href) &&
+      text.length >= 2
+    )
+      matches += 1;
+  });
+  return matches >= 3;
+}
+
 export function detectSourceCandidate(
   entryUrl: string,
   html?: string,
@@ -185,10 +242,19 @@ export function detectSourceCandidate(
       // Ignore invalid links from external pages.
     }
   }
-  if (!containsJobPosting(html)) return null;
   try {
     const url = new URL(entryUrl);
     if (url.protocol !== "https:" || url.username || url.password) return null;
+    if (containsPublicJobList(html))
+      return {
+        adapter: "html_list",
+        externalKey: `html:${url.hostname}${url.pathname}`.slice(0, 200),
+        baseUrl: url.href,
+        allowedHosts: [url.hostname.toLowerCase()],
+        confidence: "medium",
+        evidenceCode: "public_job_links",
+      };
+    if (!containsJobPosting(html)) return null;
     return {
       adapter: "schema_org",
       externalKey: `schema:${url.hostname}${url.pathname}`.slice(0, 200),

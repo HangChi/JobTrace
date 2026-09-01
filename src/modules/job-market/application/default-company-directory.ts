@@ -249,11 +249,114 @@ const ADDITIONAL_WECHAT_COMPANIES = [
 ] as const;
 
 /**
+ * Official recruitment portals identified while reconciling the domestic
+ * company directory with the public 27-graduate recruitment tracker on
+ * 2026-09-01. Keep these as directory entries until source discovery proves
+ * that an existing adapter can collect their positions safely.
+ */
+const TRACKER_GAP_OFFICIAL_COMPANIES = [
+  [
+    "deepseek-cn",
+    "DeepSeek",
+    "民营企业",
+    "人工智能 / 大模型",
+    "https://talent.deepseek.com/",
+  ],
+  [
+    "unitree-cn",
+    "宇树科技",
+    "民营企业",
+    "机器人 / 具身智能",
+    "https://www.unitree.com/cn/position/",
+  ],
+  [
+    "waterdrop-cn",
+    "水滴",
+    "上市公司",
+    "保险科技 / 医疗健康",
+    "https://jobs.waterdrop-inc.com/",
+  ],
+  [
+    "new-oriental-cn",
+    "新东方",
+    "上市公司",
+    "教育培训 / 教育科技",
+    "https://zhaopin.xdf.cn/",
+  ],
+  [
+    "hand-enterprise-cn",
+    "汉得信息",
+    "上市公司",
+    "企业软件 / 数字化服务",
+    "https://www.hand-china.com/p-join.html",
+  ],
+  [
+    "twsc-cn",
+    "德明利",
+    "上市公司",
+    "半导体 / 存储芯片",
+    "https://www.twsc.com.cn/job/index.html",
+  ],
+  [
+    "skyverse-cn",
+    "中科飞测",
+    "上市公司",
+    "半导体设备 / 检测量测",
+    "https://job.skyverse.cn/req/campus-index",
+  ],
+  [
+    "nanfu-cn",
+    "南孚",
+    "民营企业",
+    "消费电子 / 电池",
+    "https://www.nanfu.com/join/campus.html",
+  ],
+  [
+    "csc-cn",
+    "中信建投证券",
+    "国有企业",
+    "证券 / 金融科技",
+    "https://www.csc108.citic/joinus",
+  ],
+  [
+    "cgn-cn",
+    "中国广核集团",
+    "中央企业",
+    "核能 / 新能源",
+    "https://cgn.hotjob.cn/",
+  ],
+  [
+    "unilever-cn",
+    "联合利华中国",
+    "外企",
+    "快消 / 食品 / 美妆日化",
+    "https://careers.unilever.com/en/china",
+  ],
+  [
+    "asml-cn",
+    "ASML中国",
+    "外企",
+    "半导体设备 / 光刻",
+    "https://www.asml.com/en/careers/find-your-job",
+  ],
+] as const;
+
+/**
  * Domestic-company recruitment directory. These entries are intentionally
  * separate from automatic sources: they expose a public recruitment-account
  * lookup without claiming that closed WeChat content has been collected.
  */
 const CURATED_COMPANY_DIRECTORY = [
+  ...TRACKER_GAP_OFFICIAL_COMPANIES.map(
+    ([identityKey, companyName, companyType, industry, entryUrl]) =>
+      officialDirectory({
+        identityKey: `default:${identityKey}`,
+        companyName,
+        companyType,
+        industry,
+        entryUrl,
+      }),
+  ),
   // Internet, software, and digital platforms
   officialDirectory({
     identityKey: "default:bytedance-cn",

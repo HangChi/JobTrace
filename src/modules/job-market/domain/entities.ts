@@ -7,6 +7,12 @@ export const SOURCE_ADAPTERS = [
   "schema_org",
   "xiaomi",
   "feishu",
+  "beisen",
+  "dayee",
+  "workday",
+  "job51",
+  "china_bigtech",
+  "html_list",
 ] as const;
 export type SourceAdapterKind = (typeof SOURCE_ADAPTERS)[number];
 export type SourceStatus = "active" | "paused" | "revoked";

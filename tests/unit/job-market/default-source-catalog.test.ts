@@ -65,4 +65,34 @@ describe("default job-market source catalog", () => {
         .length,
     ).toBeGreaterThanOrEqual(1_000);
   });
+
+  it("fills verified gaps from the public graduate-recruitment tracker", () => {
+    const automaticCompanies = new Set(
+      DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+    );
+    expect(automaticCompanies.has("蔚来")).toBe(true);
+    expect(automaticCompanies.has("小鹏汽车")).toBe(true);
+    expect(automaticCompanies.has("宇树科技")).toBe(true);
+    expect(automaticCompanies.has("ASML中国")).toBe(true);
+
+    const directoryByCompany = new Map(
+      DEFAULT_COMPANY_DIRECTORY.map((entry) => [entry.companyName, entry]),
+    );
+    for (const companyName of [
+      "DeepSeek",
+      "水滴",
+      "新东方",
+      "汉得信息",
+      "德明利",
+      "中科飞测",
+      "南孚",
+      "中信建投证券",
+      "中国广核集团",
+      "联合利华中国",
+    ]) {
+      expect(directoryByCompany.get(companyName)?.channel).toBe(
+        "official_site",
+      );
+    }
+  });
 });
