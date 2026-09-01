@@ -42,7 +42,7 @@ export async function requestEmailVerificationCode(
   userId?: string,
 ) {
   const email = emailSchema.parse(rawEmail);
-  await checkAuthRateLimit(rateKey, "email-code-ip", 20, 60 * 60_000);
+  await checkAuthRateLimit(rateKey, "email-code-ip", 100, 60 * 60_000);
   const sql = createServerDatabase();
   const [conflict] = await sql<{ id: string }[]>`
     select id from public.users

@@ -38,6 +38,19 @@ export async function deliverEmail(payload: DeliveryPayload) {
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
+    const result = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    if (
+      payload.template === "email_verification_code" &&
+      response.status === 422 &&
+      result?.error === "invalid_recipient"
+    ) {
+      const message = "邮箱地址不存在或暂时无法接收邮件，请检查后重试。";
+      throw new Problem("invalid_recipient", message, 422, [
+        { field: "email", code: "invalid_recipient", message },
+      ]);
+    }
     throw new Problem(
       "email_delivery_failed",
       "邮件发送失败，请稍后重试。",
