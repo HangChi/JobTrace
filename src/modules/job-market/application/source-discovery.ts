@@ -130,6 +130,14 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
       "hr.xiaomi.com",
       "known_xiaomi_url",
     );
+  if (host.endsWith(".jobs.feishu.cn"))
+    return result(
+      "feishu",
+      `${host}|${parts[0] ?? ""}`,
+      `https://${host}/`,
+      host,
+      "known_feishu_url",
+    );
   return null;
 }
 

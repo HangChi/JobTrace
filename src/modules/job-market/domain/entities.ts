@@ -6,6 +6,7 @@ export const SOURCE_ADAPTERS = [
   "moka",
   "schema_org",
   "xiaomi",
+  "feishu",
 ] as const;
 export type SourceAdapterKind = (typeof SOURCE_ADAPTERS)[number];
 export type SourceStatus = "active" | "paused" | "revoked";

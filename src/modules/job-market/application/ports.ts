@@ -21,6 +21,8 @@ export type SecureSourceFetch = (
     signal: AbortSignal;
     headers?: Record<string, string>;
     accept: readonly string[];
+    method?: "GET" | "POST";
+    body?: string;
   },
 ) => Promise<SourceFetchResponse>;
 

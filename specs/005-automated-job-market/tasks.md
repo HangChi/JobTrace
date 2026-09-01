@@ -364,3 +364,12 @@ Each increment must retain public/private isolation and pass all previously comp
 - [X] T118 Replace the fixed five-batch scheduled trigger with a bounded drain loop that safely covers at least 200 due sources per six-hour run and stops when the queue is exhausted per FR-003 and SC-001 (partial)
 - [X] T119 Add catalog, discovery, scheduler, duplicate-identity, China-filter, and minimum-coverage regression tests without contacting real recruitment websites per Constitution II and SC-001 (partial)
 - [X] T120 Update source onboarding, supported-company counts, six-hour capacity, review provenance, and scale limits in operations and architecture documentation per plan: rollout and Engineering Standards (partial)
+
+## Phase 11: Hundreds-scale source coverage
+
+- [X] T121 Add a bounded Feishu Hire public-portal adapter with exact per-company hosts, POST support, pagination, official detail links, and fixture-only contract coverage
+- [X] T122 Expand the reviewed automatic catalog to at least 200 China-focused companies across Feishu Hire, Moka, and existing ATS adapters
+- [X] T123 Extend deterministic discovery and proxy-DNS safety handling for exact `*.jobs.feishu.cn` recruitment portals
+- [X] T124 Increase the six-hour bounded drain capacity to 300 due sources and retain early queue-exhaustion termination
+- [X] T125 Add the Feishu adapter database enum migration, admin option, registry wiring, catalog uniqueness checks, and security regressions
+- [X] T126 Update architecture and operations documentation with the 232-company coverage and 300-source scheduling capacity

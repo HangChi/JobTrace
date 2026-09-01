@@ -29,7 +29,7 @@ jobs:
           fi
           endpoint="${JOB_MARKET_SYNC_URL%/}/api/internal/job-market/sync"
           batch_size=10
-          max_batches=20
+          max_batches=30
           for ((batch=1; batch<=max_batches; batch++)); do
             echo "Synchronizing batch ${batch}/${max_batches}"
             response=$(curl --fail-with-body --silent --show-error \
