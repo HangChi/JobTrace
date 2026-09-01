@@ -136,6 +136,8 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 
 默认企业来源目录位于 `src/modules/job-market/application/default-source-catalog.ts`。它属于受审查的出站来源配置，而不是数据库 seed。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。
 
+来源发现使用独立的 `job_market_source_candidates` 边界。管理员触发的扫描只检查目录中已登记的公开 HTTPS 招聘入口，识别受支持 ATS 链接或 `JobPosting` JSON-LD，并记录有界健康诊断；扫描不直接写入活动来源。只有管理员明确执行“批准并启用”后，审批事务才以候选中保存的精确主机白名单创建 `job_market_sources`。因此，自动发现不能绕过来源登记、访问依据审核或适配器注册表。
+
 `src/modules/job-market` 是公共招聘数据的独立边界：`domain` 负责规范化、保守去重、生命周期和投递目标；`application` 负责编排查询、收藏、来源管理与同步；`infrastructure` 负责 PostgreSQL、受限 HTTP 和 ATS 适配器；`ui` 只消费聚合活动契约。私人投递仍由 `applications` 模块拥有，公共岗位只能通过 `jobMarketPostId` 建立一条 owner-scoped 关联和不可变快照。
 
 每个适配器只接受管理员登记的来源，并输出统一的完整或部分批次。来源可持久化 ISO 两位国家代码范围；SmartRecruiters 在服务端请求中应用该范围，Moka 适配器分页读取公开招聘官网接口并按社招/校招构造官方投递页，小米专用适配器访问官网岗位接口后再按中国大陆城市白名单执行失败关闭式过滤。默认中国市场目录将同一公司的岗位统一到公司卡片，使首页保持一家公司一张卡并合并岗位与地点；开放中的卡片不会聚合已经关闭的历史岗位。新增适配器必须加入显式注册表，提供本地 fixture 契约测试，并遵守 HTTPS、精确主机白名单、DNS 公网地址、逐跳重定向、超时、响应大小和内容类型限制。Schema.org 适配器只解析 JSON-LD 和纯文本，不执行来源脚本。

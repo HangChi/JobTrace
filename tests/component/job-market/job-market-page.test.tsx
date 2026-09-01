@@ -95,6 +95,37 @@ describe("job market page", () => {
     );
     expect(screen.queryByText("记录投递")).not.toBeInTheDocument();
   });
+  it("renders numbered pagination, result range, and a filter-preserving page jump", () => {
+    render(
+      <JobMarketPage
+        page={{ items: [campaign], page: 6, limit: 20, total: 260 }}
+        query={{ company: "科技", status: "open", page: "6" }}
+      />,
+    );
+    expect(screen.getByText("101–120")).toBeVisible();
+    expect(screen.getByText("/ 260 家企业")).toBeVisible();
+    expect(
+      screen.getByText("6", { selector: "[aria-current='page']" }),
+    ).toBeVisible();
+    expect(screen.getByRole("link", { name: "第 5 页" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("company=%E7%A7%91%E6%8A%80"),
+    );
+    expect(screen.getByRole("link", { name: "第 13 页" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("page=13"),
+    );
+    const jump = screen.getByRole("spinbutton", { name: "跳至" });
+    expect(jump).toHaveAttribute("min", "1");
+    expect(jump).toHaveAttribute("max", "13");
+    expect(jump).toHaveValue(6);
+    expect(
+      document.querySelector('input[type="hidden"][name="company"]'),
+    ).toHaveValue("科技");
+    expect(
+      document.querySelector('input[type="hidden"][name="page"]'),
+    ).toBeNull();
+  });
   it("distinguishes an official recruitment directory from a WeChat directory", () => {
     render(
       <JobMarketPage

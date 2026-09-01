@@ -1020,6 +1020,103 @@ export const databaseSchema = {
       "nullable": false
     }
   ],
+  "job_market_source_candidates": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "company_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "entry_url",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "adapter",
+      "type": "USER-DEFINED",
+      "nullable": true
+    },
+    {
+      "name": "external_key",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "base_url",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "allowed_hosts",
+      "type": "ARRAY",
+      "nullable": false
+    },
+    {
+      "name": "confidence",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "evidence_code",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "review_status",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "health_status",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "diagnostic_code",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "diagnostic_summary",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "http_status",
+      "type": "integer",
+      "nullable": true
+    },
+    {
+      "name": "approved_source_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "last_checked_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "reviewed_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
   "job_market_source_records": [
     {
       "name": "source_id",

@@ -1,5 +1,5 @@
 begin;
-select plan(16);
+select plan(20);
 select has_table('public','job_market_companies','job market companies exist');
 select has_table('public','job_market_sources','job market sources exist');
 select has_table('public','job_market_campaigns','job market campaigns exist');
@@ -10,6 +10,9 @@ select has_table('public','job_market_sync_runs','sync audit exists');
 select has_table('public','job_market_events','explanation events exist');
 select has_table('public','job_market_campaign_favorites','favorites exist');
 select has_table('public','application_job_market_links','private application links exist');
+select has_table('public','job_market_source_candidates','source discovery candidates exist');
+select has_column('public','job_market_source_candidates','review_status','candidates require review');
+select has_index('public','job_market_source_candidates','job_market_source_candidate_review_idx','candidate review index exists');
 select col_is_pk('public','job_market_campaign_favorites',array['owner_id','campaign_id'],'favorites are owner scoped');
 select col_is_pk('public','job_market_source_records',array['source_id','external_job_id'],'source identity is stable');
 select has_index('public','job_market_sources','job_market_source_claim_idx','source claim index exists');

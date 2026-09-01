@@ -18,6 +18,7 @@ TABLES = (
     "job_market_posts", "job_market_locations", "job_market_post_locations",
     "job_market_source_records", "job_market_sync_runs", "job_market_events",
     "job_market_campaign_favorites", "application_job_market_links",
+    "job_market_source_candidates",
     "sessions", "users", "verification_tokens",
 )
 

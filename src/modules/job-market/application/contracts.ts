@@ -22,6 +22,16 @@ export const internalSyncSchema = z.object({
   limit: z.coerce.number().int().min(1).max(10).default(10),
 });
 
+export const sourceDiscoveryScanSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(25).default(10),
+});
+
+export const sourceCandidateIdSchema = z.uuid();
+
+export const sourceCandidateReviewSchema = z.object({
+  action: z.enum(["approve", "ignore"]),
+});
+
 export const sourceInputSchema = z.object({
   companyId: z.uuid(),
   adapter: z.enum(SOURCE_ADAPTERS),

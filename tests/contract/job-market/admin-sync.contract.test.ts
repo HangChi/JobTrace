@@ -12,6 +12,16 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
   expect((await request.post("/api/admin/job-market/bootstrap")).status()).toBe(
     403,
   );
+  expect((await request.get("/api/admin/job-market/discovery")).status()).toBe(
+    403,
+  );
+  expect(
+    (
+      await request.post("/api/admin/job-market/discovery", {
+        data: { limit: 10 },
+      })
+    ).status(),
+  ).toBe(403);
 
   const username = `market_admin_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}`;
   const password = "MarketAdmin123!";
@@ -45,6 +55,8 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
     insert into job_market_companies(canonical_name,normalized_name,identity_key)
     values('Admin Contract','admin contract',${testId("company")}) returning id`;
   let sourceId: string | undefined;
+  let candidateId: string | undefined;
+  let approvedSourceId: string | undefined;
   try {
     const invalid = await admin.post("/api/admin/job-market/sources", {
       data: {
@@ -112,7 +124,51 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
         await (await admin.get("/api/admin/job-market/sources")).json(),
       ),
     ).not.toMatch(/authorization|password|cookie|payload/i);
+
+    const [candidate] = await sql<Array<{ id: string }>>`
+      insert into job_market_source_candidates(
+        company_id,entry_url,adapter,external_key,base_url,allowed_hosts,confidence,
+        evidence_code,review_status,health_status,http_status
+      ) values(
+        ${company.id},'https://jobs.ashbyhq.com/admin-contract','ashby',${testId("candidate")},
+        'https://api.ashbyhq.com/',${["api.ashbyhq.com"]},'high','known_ashby_url','pending','healthy',200
+      ) returning id`;
+    candidateId = candidate.id;
+    const candidates = await admin.get("/api/admin/job-market/discovery");
+    expect(candidates.status()).toBe(200);
+    expect(await candidates.json()).toMatchObject({
+      items: [
+        expect.objectContaining({
+          id: candidate.id,
+          reviewStatus: "pending",
+          healthStatus: "healthy",
+        }),
+      ],
+      summary: expect.objectContaining({ pendingCandidates: 1 }),
+    });
+    const approved = await admin.patch(
+      `/api/admin/job-market/discovery/${candidate.id}`,
+      { data: { action: "approve" } },
+    );
+    expect(approved.status()).toBe(200);
+    const approval = await approved.json();
+    const approvedId = String(approval.sourceId);
+    approvedSourceId = approvedId;
+    expect(approval).toMatchObject({ reviewStatus: "approved" });
+    const approvedSources = await sql<
+      Array<{ status: string; allowedHosts: string[] }>
+    >`
+      select status::text,allowed_hosts as "allowedHosts" from job_market_sources
+      where id=${approvedId}`;
+    expect(approvedSources[0]).toEqual({
+      status: "active",
+      allowedHosts: ["api.ashbyhq.com"],
+    });
   } finally {
+    if (candidateId)
+      await sql`delete from job_market_source_candidates where id=${candidateId}`;
+    if (approvedSourceId)
+      await sql`delete from job_market_sources where id=${approvedSourceId}`;
     if (sourceId) {
       await sql`delete from job_market_sync_runs where source_id=${sourceId}`;
       await sql`delete from job_market_sources where id=${sourceId}`;

@@ -340,6 +340,15 @@ Each increment must retain public/private isolation and pass all previously comp
 - [X] T092 Render directory cards with a public-account link and without fabricated job, location, or sync facts
 - [X] T093 Add migration, unit, component, contract, and database coverage for directory listings
 
+## Phase 9: Convergence
+
+- [X] T110 Add an additive source-candidate and directory-health persistence model with review states and safe diagnostics per SC-001 and Assumption: source discovery (missing)
+- [X] T111 Add deterministic recruitment-platform detection that only recognizes reviewed official ATS URLs and Schema.org candidates without executing scripts per FR-004 and plan: Source strategy (missing)
+- [X] T112 Add an administrator-triggered bounded directory scan that validates public HTTPS targets, records link health, and creates candidates without enabling synchronization per FR-004 and FR-020 (missing)
+- [X] T113 Add admin-only candidate listing, approval, ignore, and rescan Route Handlers that preserve exact host allowlists and access-basis review per plan: Source strategy (missing)
+- [X] T114 Build an accessible source-discovery admin panel showing coverage, link health, recognition confidence, review state, and explicit approval controls per FR-018 and FR-022 (partial)
+- [X] T115 Add unit, persistence, API, component, security, and operations coverage for source discovery, review authorization, failure isolation, and the path toward 100 automatic companies per SC-001 and test strategy (partial)
+
 ## Notes
 
 - `[P]` never means “use a sub-agent”; it only documents file-level independence for implementers.

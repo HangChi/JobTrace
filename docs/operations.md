@@ -278,7 +278,24 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka 和小米招聘的已审核�
 
 一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
 
-外部调度器建议每五分钟调用一次 `POST /api/internal/job-market/sync`。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务连续执行 5 批，每批最多认领 10 个来源，以覆盖当前 43 个自动来源。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+
+仓库提供 `.github/workflows/job-market-sync.yml`，默认每六小时触发一次，也支持在 Actions 页面手动运行。启用步骤：
+
+1. 在生产应用设置 `JOB_MARKET_ENABLED=true` 和一个至少 32 字符的 `JOB_MARKET_SYNC_SECRET`，重新部署；
+2. 在 GitHub 仓库 Actions Variables 新建 `JOB_MARKET_SYNC_URL`，值为生产站点来源，例如 `https://jobtrace.example.com`；
+3. 在 Actions Secrets 新建同名 `JOB_MARKET_SYNC_SECRET`，值必须与生产应用一致；
+4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`，之后由计划任务持续认领到期来源。
+
+这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
+
+公众号文章不纳入自动抓取。公众号没有稳定的公开岗位 API，页面访问还受登录、频率和反自动化限制；对仅通过公众号发布的企业，首页保留经审核的招聘原文链接，并以原文内容为准。新增自动企业时，应优先接入其官方 ATS/API 或官网 `JobPosting` 结构化数据。
+
+### 来源发现与人工审核
+
+管理员可在 `/admin/job-market` 的“招聘入口扫描与审核”区域分批检查目录中的公开招聘官网。扫描器只请求已登记的 HTTPS 入口，并复用精确主机、公共 DNS、重定向、超时、内容类型和响应大小限制；它只识别经过代码审查的 ATS URL 模式、页面公开链接或 `JobPosting` JSON-LD，不执行页面脚本，也不扫描公众号正文。
+
+扫描产生的记录默认是“待审核”或“未识别”，不会参与计划同步。管理员核对企业、官方入口、识别类型和精确主机后点击“批准并启用”，系统才在同一事务中创建活动来源；访问失败、未识别或已忽略的记录不能批准。新增适配器或扩大识别域名仍需代码审查和固定 fixture，不得把任意 URL 变成通用爬虫。
 
 来源上线顺序为：确认公开或书面授权依据、登记精确 HTTPS 入口与主机、默认暂停、用 fixture/预发布验证、启用少量来源、观察运行计数后扩容。429 遵循 `Retry-After`，其他失败指数退避；暂停或撤销会释放租约且不再被计划任务认领。管理员只能看到安全错误码和摘要，原始响应、联系人、凭据和带 userinfo 的 URL 不保留在日志中。
 
