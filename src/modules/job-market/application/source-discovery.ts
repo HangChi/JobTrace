@@ -98,13 +98,25 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
       "known_smartrecruiters_url",
     );
   if (host === "app.mokahr.com") {
-    const portal = parts[0];
-    const mode = portal === "campus-recruitment" ? "campus" : "social";
-    if (!["campus-recruitment", "social-recruitment"].includes(portal ?? ""))
+    const mokaParts = parts[0] === "m" ? parts.slice(1) : parts;
+    const portal = mokaParts[0];
+    const mode = ["campus-recruitment", "campus_apply"].includes(portal ?? "")
+      ? "campus"
+      : "social";
+    if (
+      ![
+        "campus-recruitment",
+        "social-recruitment",
+        "campus_apply",
+        "apply",
+      ].includes(portal ?? "")
+    )
       return null;
     return result(
       "moka",
-      parts[1] ? `${parts[1]}|${mode}|${parts[2] ?? ""}` : undefined,
+      mokaParts[1]
+        ? `${mokaParts[1]}|${mode}|${mokaParts[2] ?? ""}`
+        : undefined,
       "https://api.mokahr.com/",
       "api.mokahr.com",
       "known_moka_url",

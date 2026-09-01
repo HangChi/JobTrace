@@ -356,3 +356,11 @@ Each increment must retain public/private isolation and pass all previously comp
 - Tests must not call real recruitment websites.
 - Commit after each task or coherent dependency group and stop at any checkpoint for review.
 - If an implementation decision changes the public contract, update `contracts/openapi.yaml`, `data-model.md`, and the affected tests in the same change.
+
+## Phase 10: Convergence
+
+- [X] T116 Expand the reviewed default automatic-source catalog to at least 100 companies with current mainland-China recruitment coverage, stable ATS identities, exact allowlists, and no fabricated source metadata per SC-001 (partial)
+- [X] T117 Extend deterministic Moka discovery to recognize reviewed `apply` and `campus_apply` entry variants and normalize them to the existing public API adapter per FR-024 and plan: Source strategy (partial)
+- [X] T118 Replace the fixed five-batch scheduled trigger with a bounded drain loop that safely covers at least 200 due sources per six-hour run and stops when the queue is exhausted per FR-003 and SC-001 (partial)
+- [X] T119 Add catalog, discovery, scheduler, duplicate-identity, China-filter, and minimum-coverage regression tests without contacting real recruitment websites per Constitution II and SC-001 (partial)
+- [X] T120 Update source onboarding, supported-company counts, six-hour capacity, review provenance, and scale limits in operations and architecture documentation per plan: rollout and Engineering Standards (partial)

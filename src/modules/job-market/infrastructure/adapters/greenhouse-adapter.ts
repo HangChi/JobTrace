@@ -1,6 +1,10 @@
 import type { SecureSourceFetch, SourceAdapter } from "../../application/ports";
 import type { JobMarketSource } from "../../domain/entities";
-import { fetchJson, normalizeItems } from "./shared";
+import {
+  fetchJson,
+  filterItemsBySourceCountries,
+  normalizeItems,
+} from "./shared";
 
 export class GreenhouseAdapter implements SourceAdapter {
   readonly kind = "greenhouse" as const;
@@ -19,7 +23,7 @@ export class GreenhouseAdapter implements SourceAdapter {
     const body = (await response.json()) as {
       jobs?: Array<Record<string, unknown>>;
     };
-    const items = (body.jobs ?? []).slice(0, context.maxItems).map((job) => ({
+    const items = (body.jobs ?? []).map((job) => ({
       id: job.id,
       title: job.title,
       locations: job.location,
@@ -28,10 +32,14 @@ export class GreenhouseAdapter implements SourceAdapter {
       applyUrl: job.absolute_url,
       publishedAt: job.updated_at,
     }));
-    const normalized = normalizeItems(source, items);
+    const scopedItems = filterItemsBySourceCountries(source, items);
+    const normalized = normalizeItems(
+      source,
+      scopedItems.slice(0, context.maxItems),
+    );
     return {
       completeness:
-        (body.jobs?.length ?? 0) > context.maxItems
+        scopedItems.length > context.maxItems
           ? ("partial" as const)
           : ("complete" as const),
       sourceMetadata: {
