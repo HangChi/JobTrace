@@ -3,6 +3,7 @@ import "./globals.css";
 import "./styles/system.css";
 import "./styles/workspace.css";
 import "./styles/auth.css";
+import "./styles/classic-theme.css";
 
 export const metadata: Metadata = {
   title: "JobTrace 职迹",
