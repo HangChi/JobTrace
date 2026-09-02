@@ -90,6 +90,11 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
         day: "2-digit",
       }).format(new Date(campaign.publishedAt))
     : null;
+  const isWeChatDirectory = isDirectory && !isOfficialDirectory;
+  const channelAction = isWeChatDirectory
+    ? "查看招聘原文"
+    : "打开招聘官网";
+  const channelDate = isWeChatDirectory ? publishedDate : date;
 
   return (
     <tr
@@ -165,23 +170,21 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
         )}
       </td>
       <td className="campaign-source-cell">
-        <span className="campaign-source-type">
-          {campaign.campaignName ||
-            campaign.batchLabel ||
-            campaign.recruitmentType ||
-            "招聘岗位"}
-        </span>
-        <a href={campaign.source.url} target="_blank" rel="noopener noreferrer">
-          {isDirectory && !isOfficialDirectory ? "公众号原文" : "官方招聘"}
-          <ExternalLinkIcon />
-        </a>
-        <span className="campaign-source-date">
-          {isDirectory
-            ? isOfficialDirectory
-              ? "官方招聘入口 · 非自动同步"
-              : `招聘原文${publishedDate ? ` · 发布 ${publishedDate}` : ""}`
-            : `${campaign.source.name}${date ? ` · 更新 ${date}` : " · 尚未确认"}`}
-        </span>
+        <div className="campaign-channel">
+          <a
+            href={campaign.source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {channelAction}
+            <ExternalLinkIcon />
+          </a>
+          <span className="campaign-channel-date">
+            {channelDate
+              ? `${isWeChatDirectory ? "发布" : "更新"} ${channelDate}`
+              : "暂无更新日期"}
+          </span>
+        </div>
       </td>
       <td className="campaign-action-cell">
         <div className="campaign-row-actions">
@@ -191,14 +194,13 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
           />
           {!isDirectory && (
             <TrackApplicationDialog
-              campaignId={campaign.id}
+              companyName={campaign.company.name}
+              officialUrl={campaign.source.url}
               status={campaign.status}
             />
           )}
           <ApplyAction
-            campaignId={campaign.id}
-            mode={campaign.applyMode}
-            url={campaign.primaryApplyUrl}
+            url={campaign.source.url}
             status={campaign.status}
             label={
               isDirectory

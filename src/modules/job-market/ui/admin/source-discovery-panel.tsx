@@ -43,7 +43,7 @@ export function SourceDiscoveryPanel({
       const response = await fetch("/api/admin/job-market/discovery", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ limit: 10 }),
+        body: JSON.stringify({ limit: 25 }),
       });
       const body = (await response.json()) as {
         scanned?: number;
@@ -96,7 +96,7 @@ export function SourceDiscoveryPanel({
           </p>
         </div>
         <button className="button" disabled={busy !== null} onClick={scan}>
-          {busy === "scan" ? "正在扫描…" : "扫描下一批"}
+          {busy === "scan" ? "正在扫描…" : "扫描下一批 25 家"}
         </button>
       </div>
 

@@ -131,8 +131,13 @@ describe("job market admin health", () => {
     );
     expect(screen.getByText("43")).toBeVisible();
     expect(screen.getByText("ashby")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "扫描下一批" }));
+    fireEvent.click(screen.getByRole("button", { name: "扫描下一批 25 家" }));
     expect(await screen.findByText(/已检查 10 家/)).toBeVisible();
+    expect(fetch).toHaveBeenNthCalledWith(
+      1,
+      "/api/admin/job-market/discovery",
+      expect.objectContaining({ body: JSON.stringify({ limit: 25 }) }),
+    );
     fireEvent.click(screen.getByRole("button", { name: "批准并启用" }));
     await waitFor(() =>
       expect(fetch).toHaveBeenLastCalledWith(

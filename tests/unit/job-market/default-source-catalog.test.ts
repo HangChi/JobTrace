@@ -73,7 +73,14 @@ describe("default job-market source catalog", () => {
     expect(automaticCompanies.has("蔚来")).toBe(true);
     expect(automaticCompanies.has("小鹏汽车")).toBe(true);
     expect(automaticCompanies.has("宇树科技")).toBe(true);
+    expect(automaticCompanies.has("科大讯飞")).toBe(true);
     expect(automaticCompanies.has("ASML中国")).toBe(true);
+
+    expect(
+      DEFAULT_COMPANY_DIRECTORY.some(
+        (entry) => entry.companyName === "科大讯飞",
+      ),
+    ).toBe(false);
 
     const directoryByCompany = new Map(
       DEFAULT_COMPANY_DIRECTORY.map((entry) => [entry.companyName, entry]),

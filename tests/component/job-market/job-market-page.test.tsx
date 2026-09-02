@@ -36,10 +36,18 @@ describe("job market page", () => {
       />,
     );
     expect(screen.getByRole("table")).toBeVisible();
+    expect(
+      screen.queryByRole("combobox", { name: "招聘类型" }),
+    ).not.toBeInTheDocument();
     expect(screen.getAllByRole("row")).toHaveLength(2);
     expect(screen.getByText("示例科技")).toBeVisible();
     expect(screen.getAllByText("前端工程师")[0]).toBeVisible();
     expect(screen.getByText("4 个岗位")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: "打开招聘官网" }),
+    ).toHaveAttribute("href", "https://jobs.example.com");
+    expect(screen.getByText(/更新 2026/)).toBeVisible();
+    expect(screen.queryByText("greenhouse")).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "查看全部 4 个岗位" }),
     ).toHaveAttribute(
@@ -51,8 +59,8 @@ describe("job market page", () => {
       "auto",
     );
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
-      "target",
-      "_blank",
+      "href",
+      "https://jobs.example.com",
     );
   });
   it("renders a directory-only company with a clearly labelled public-account link", () => {
@@ -88,7 +96,7 @@ describe("job market page", () => {
     );
     expect(screen.getByText("公众号发布")).toBeVisible();
     expect(screen.getByText("岗位以最新推文为准")).toBeVisible();
-    expect(screen.getByText(/招聘原文 · 发布/)).toBeVisible();
+    expect(screen.getByText(/发布 2026/)).toBeVisible();
     expect(screen.getByRole("link", { name: "查看原文" })).toHaveAttribute(
       "href",
       expect.stringContaining("mp.weixin.qq.com"),

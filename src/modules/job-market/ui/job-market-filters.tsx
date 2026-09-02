@@ -19,15 +19,6 @@ export function JobMarketFilters({ query }: { query: Search }) {
         <input name="location" defaultValue={value("location")} />
       </label>
       <label>
-        招聘类型
-        <select name="recruitmentType" defaultValue={value("recruitmentType")}>
-          <option value="">全部</option>
-          <option value="campus">校园招聘</option>
-          <option value="experienced">社会招聘</option>
-          <option value="internship">实习</option>
-        </select>
-      </label>
-      <label>
         状态
         <select name="status" defaultValue={value("status")}>
           <option value="">全部</option>

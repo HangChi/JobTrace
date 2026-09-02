@@ -4,7 +4,7 @@
 .job-market-filters {
   display: grid;
   grid-template-columns:
-    1.25fr repeat(2, minmax(120px, 1fr)) repeat(2, minmax(112px, 0.85fr))
+    1.25fr repeat(2, minmax(120px, 1fr)) minmax(112px, 0.85fr)
     minmax(148px, 1fr);
   gap: 10px 12px;
   padding: 14px 16px 12px;
@@ -625,6 +625,13 @@
 .campaign-source-cell {
   display: table-cell;
 }
+.campaign-channel {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  gap: 6px;
+}
 .campaign-source-cell a {
   max-width: 100%;
   display: inline-flex;
@@ -651,11 +658,11 @@
   stroke-linejoin: round;
   stroke-width: 1.7;
 }
-.campaign-source-date {
-  display: block;
-  margin-top: 5px;
+.campaign-channel-date {
   color: var(--muted);
   font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 .campaign-action-heading {
   text-align: right !important;

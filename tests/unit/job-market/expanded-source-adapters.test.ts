@@ -76,6 +76,7 @@ describe("expanded domestic recruitment adapters", () => {
     expect(batch.jobs[0]).toMatchObject({
       title: "机器人算法工程师",
       recruitmentType: "校园招聘",
+      applyUrl: "https://unitree.zhiye.com/jobs/detail?jobAdId=job-1",
     });
   });
 
