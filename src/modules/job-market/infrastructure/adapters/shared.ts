@@ -97,6 +97,9 @@ export function normalizeAdapterJob(
       .digest("hex");
   const campaignName = optionalText(value.campaign);
   const recruitmentType = optionalText(value.recruitmentType, 100);
+  const batchLabel = optionalText(value.batch, 200);
+  const target = optionalText(value.target);
+  const descriptionText = plainText(optionalText(value.description, 50_000));
   const normalized: Omit<NormalizedJob, "contentHash"> = {
     externalJobId,
     title,
@@ -108,11 +111,11 @@ export function normalizeAdapterJob(
       sourceKey: source.externalKey,
       recruitmentType,
     }),
-    batchLabel: optionalText(value.batch, 200),
+    batchLabel,
     recruitmentType,
-    target: optionalText(value.target),
+    target,
     education: optionalText(value.education, 200),
-    descriptionText: plainText(optionalText(value.description, 50_000)),
+    descriptionText,
     detailUrl,
     applyUrl,
     publishedAt: safeDate(value.publishedAt),

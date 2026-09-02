@@ -5,6 +5,7 @@ import { PageHeader } from "@/shared/ui/page-header";
 import { JobMarketFilters } from "./job-market-filters";
 import { CampaignCard } from "./campaign-card";
 type Search = Record<string, string | string[] | undefined>;
+const ignoredQueryKeys = new Set(["page", "limit", "recruitmentType"]);
 
 function paginationItems(current: number, total: number) {
   const candidates = new Set([1, total, current - 1, current, current + 1]);
@@ -32,7 +33,7 @@ export function JobMarketPage({
   query: Search;
 }) {
   const filtered = Object.entries(query).some(
-    ([key, value]) => key !== "page" && key !== "limit" && Boolean(value),
+    ([key, value]) => !ignoredQueryKeys.has(key) && Boolean(value),
   );
   const pages = Math.max(1, Math.ceil(page.total / page.limit));
   const rangeStart = (page.page - 1) * page.limit + 1;
@@ -40,7 +41,7 @@ export function JobMarketPage({
   const href = (target: number) => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(query)) {
-      if (key === "page") continue;
+      if (ignoredQueryKeys.has(key)) continue;
       if (Array.isArray(value))
         value.forEach((item) => params.append(key, item));
       else if (value) params.set(key, value);
@@ -162,7 +163,7 @@ export function JobMarketPage({
               </div>
               <form className="job-market-page-jump" action="/">
                 {Object.entries(query).flatMap(([key, value]) => {
-                  if (key === "page" || !value) return [];
+                  if (ignoredQueryKeys.has(key) || !value) return [];
                   const values = Array.isArray(value) ? value : [value];
                   return values.map((item, index) => (
                     <input

@@ -23,10 +23,10 @@ export function ApplicationForm({
 }: {
   application?: ApplicationDetail;
   defaults?: {
-    jobMarketPostId: string;
+    jobMarketPostId?: string;
     companyName: string;
-    positionName: string;
-    city: string | null;
+    positionName?: string;
+    city?: string | null;
     jobUrl: string | null;
   };
   onSuccess?: (application: ApplicationDetail) => void;
@@ -79,7 +79,7 @@ export function ApplicationForm({
       onSubmit={submit}
     >
       {error && <Feedback kind="error">{error}</Feedback>}
-      {defaults && (
+      {defaults?.jobMarketPostId && (
         <input
           type="hidden"
           name="jobMarketPostId"
@@ -95,7 +95,7 @@ export function ApplicationForm({
           maxLength={200}
           defaultValue={application?.companyName ?? defaults?.companyName}
           placeholder="例如：字节跳动"
-          autoFocus={embedded}
+          autoFocus={embedded && !defaults?.companyName}
         />
         <FormField
           fieldClassName="application-field-half"
@@ -105,6 +105,9 @@ export function ApplicationForm({
           maxLength={200}
           defaultValue={application?.positionName ?? defaults?.positionName}
           placeholder="例如：前端开发工程师"
+          autoFocus={
+            embedded && Boolean(defaults?.companyName) && !defaults?.positionName
+          }
         />
         <FormField
           fieldClassName="application-field-third"

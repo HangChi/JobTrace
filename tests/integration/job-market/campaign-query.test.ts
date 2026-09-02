@@ -23,7 +23,7 @@ test("campaign query aggregates child positions and locations while combining fi
     values(${company.id},'directory:obsolete','Obsolete Directory','招聘官网','closed','https://old.example.com','recruitment_directory')`;
   const [a, b] = await sql<
     Array<{ id: string }>
-  >`insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash,primary_apply_url) values(${company.id},${campaign.id},'Frontend Engineer','frontend engineer',${"a".repeat(64)},'https://jobs.example.com/a'),(${company.id},${campaign.id},'Backend Engineer','backend engineer',${"b".repeat(64)},'https://jobs.example.com/b') returning id`;
+  >`insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash,primary_apply_url,published_at) values(${company.id},${campaign.id},'Frontend Engineer','frontend engineer',${"a".repeat(64)},'https://jobs.example.com/a','2026-08-01'),(${company.id},${campaign.id},'Backend Engineer','backend engineer',${"b".repeat(64)},'https://jobs.example.com/b','2026-09-01') returning id`;
   const [sh] = await sql<
     Array<{ id: string }>
   >`insert into job_market_locations(normalized_key,display_name) values(${testId("sh")},'Shanghai') returning id`;
@@ -37,7 +37,6 @@ test("campaign query aggregates child positions and locations while combining fi
     const result = await repo.list(owner, {
       q: "Backend",
       location: "Hangzhou",
-      recruitmentType: "campus",
       status: "open",
       page: 1,
       limit: 20,
@@ -52,10 +51,17 @@ test("campaign query aggregates child positions and locations while combining fi
       "Shanghai",
     ]);
     expect(result.items[0].applyMode).toBe("select");
+    expect(result.items[0].publishedAt).toBe(
+      new Date("2026-09-01").toISOString(),
+    );
     expect(result.items[0].source.url).toBe(
       "https://company.example.com/careers",
     );
     const detail = await repo.get(owner, campaign.id);
+    expect(detail?.jobs.map((job) => job.title)).toEqual([
+      "Backend Engineer",
+      "Frontend Engineer",
+    ]);
     expect(detail?.jobs[0].sourceUrl).toBe(
       "https://company.example.com/careers",
     );

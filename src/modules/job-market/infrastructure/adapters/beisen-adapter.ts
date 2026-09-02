@@ -27,7 +27,9 @@ export class BeisenAdapter implements SourceAdapter {
     context: { runId: string; now: Date; maxItems: number },
     signal: AbortSignal,
   ) {
-    const pageSize = Math.min(50, context.maxItems);
+    // Public Beisen boards accept large pages. Keeping this at 500 avoids a
+    // DNS and TLS round trip for every 50 jobs on large domestic employers.
+    const pageSize = Math.min(500, context.maxItems);
     const rows: BeisenJob[] = [];
     let total = 0;
     while (rows.length < context.maxItems) {
@@ -68,30 +70,38 @@ export class BeisenAdapter implements SourceAdapter {
       rows.push(...payload.Data.slice(0, context.maxItems - rows.length));
       if (!payload.Data.length || rows.length >= total) break;
     }
-    const listingUrl = new URL("/jobs", source.baseUrl).href;
     return {
       completeness:
         rows.length < total ? ("partial" as const) : ("complete" as const),
       sourceMetadata: { fetchedAt: context.now },
       ...normalizeItems(
         source,
-        rows.map((job) => ({
-          id: job.Id ?? job.JobAdId,
-          title: job.JobAdName,
-          locations: job.LocNames,
-          campaign: job.Category,
-          recruitmentType: job.Category ?? job.Kind,
-          education: job.Degree,
-          description: [job.Duty, job.Require]
-            .filter((value): value is string => typeof value === "string")
-            .join("\n\n"),
-          detailUrl: listingUrl,
-          applyUrl: listingUrl,
-          publishedAt: job.PostDate,
-          validThrough:
-            job.EndTime === "0001-01-01T00:00:00" ? null : job.EndTime,
-          closed: job.Status === 0,
-        })),
+        rows.map((job) => {
+          const id = job.Id ?? job.JobAdId;
+          const detailUrl = id
+            ? new URL(
+                `/jobs/detail?jobAdId=${encodeURIComponent(String(id))}`,
+                source.baseUrl,
+              ).href
+            : null;
+          return {
+            id,
+            title: job.JobAdName,
+            locations: job.LocNames,
+            campaign: job.Category,
+            recruitmentType: job.Category ?? job.Kind,
+            education: job.Degree,
+            description: [job.Duty, job.Require]
+              .filter((value): value is string => typeof value === "string")
+              .join("\n\n"),
+            detailUrl,
+            applyUrl: detailUrl,
+            publishedAt: job.PostDate,
+            validThrough:
+              job.EndTime === "0001-01-01T00:00:00" ? null : job.EndTime,
+            closed: job.Status === 0,
+          };
+        }),
       ),
     };
   }

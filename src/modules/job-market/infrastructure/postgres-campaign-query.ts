@@ -37,7 +37,6 @@ export class PostgresCampaignQuery implements CampaignRepository {
       and (${query.location ?? null}::text is null or exists(select 1 from job_market_posts p join job_market_post_locations pl on pl.post_id=p.id
         join job_market_locations l on l.id=pl.location_id where p.campaign_id=campaign.id
           and (campaign.status='closed' or p.status<>'closed') and lower(l.display_name) like ${query.location ? `%${query.location.toLowerCase()}%` : null}::text))
-      and (${query.recruitmentType ?? null}::text is null or campaign.recruitment_type=${query.recruitmentType ?? null}::text)
       and (${query.status ?? null}::text is null or campaign.status::text=${query.status ?? null}::text)
       and (${query.postedFrom ?? null}::text is null or campaign.published_at::date>=${query.postedFrom ?? null}::date)
       and (${query.favorite ?? null}::boolean is not true or exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}))`;
@@ -61,13 +60,17 @@ export class PostgresCampaignQuery implements CampaignRepository {
         campaign.status::text as status,campaign.official_apply_url as "primaryApplyUrl",
         case when campaign.listing_kind='recruitment_directory' then campaign.recruitment_type else source.adapter::text end as "sourceName",
         case when campaign.listing_kind='recruitment_directory' then campaign.official_apply_url else company.website_url end as "sourceUrl",
-        campaign.published_at as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
+        coalesce(latest_post.published_at,campaign.published_at) as "publishedAt",campaign.valid_through as "validThrough",campaign.last_confirmed_at as "lastConfirmedAt",
         exists(select 1 from job_market_campaign_favorites f where f.campaign_id=campaign.id and f.owner_id=${ownerId}) as "isFavorite"
       from job_market_campaigns campaign join job_market_companies company on company.id=campaign.company_id
+      left join lateral (
+        select max(post.published_at) as published_at
+        from job_market_posts post
+        where post.campaign_id=campaign.id and (campaign.status='closed' or post.status<>'closed')
+      ) latest_post on true
       left join lateral (select s.* from job_market_sources s where s.company_id=company.id and s.status='active' order by s.is_official desc,s.last_success_at desc nulls last limit 1) source on true
       where ${filters}
-      order by case when campaign.listing_kind='synced_jobs' then 0 else 1 end,
-        case when company.company_type='外企' then 1 else 0 end,
+      order by coalesce(latest_post.published_at,campaign.published_at) desc nulls last,
         campaign.last_confirmed_at desc nulls last,campaign.id
       limit ${query.limit} offset ${(query.page - 1) * query.limit}`;
     const items = await Promise.all(
@@ -102,7 +105,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
       from job_market_posts p join job_market_companies company on company.id=p.company_id
       left join lateral(select s.adapter from job_market_source_records r join job_market_sources s on s.id=r.source_id where r.post_id=p.id and s.status='active' order by s.is_official desc,r.last_seen_at desc limit 1) source on true
       left join application_job_market_links link on link.post_id=p.id and link.owner_id=${ownerId}
-      where p.campaign_id=${campaignId} and source.adapter is not null order by p.title,p.id`;
+      where p.campaign_id=${campaignId} and source.adapter is not null
+      order by p.published_at desc nulls last,p.title,p.id`;
     return rows.map((row) => ({
       ...row,
       publishedAt: row.publishedAt

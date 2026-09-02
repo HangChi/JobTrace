@@ -40,7 +40,6 @@ export type CampaignQuery = {
   q?: string;
   company?: string;
   location?: string;
-  recruitmentType?: string;
   status?: "open" | "stale" | "closed";
   postedFrom?: string;
   favorite?: boolean;

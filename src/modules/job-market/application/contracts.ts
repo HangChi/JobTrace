@@ -7,7 +7,6 @@ export const campaignQuerySchema = z.object({
   q: z.string().trim().max(100).optional(),
   company: z.string().trim().max(100).optional(),
   location: z.string().trim().max(100).optional(),
-  recruitmentType: z.string().trim().max(50).optional(),
   status: z.enum(["open", "stale", "closed"]).optional(),
   postedFrom: z.iso.date().optional(),
   favorite: z
