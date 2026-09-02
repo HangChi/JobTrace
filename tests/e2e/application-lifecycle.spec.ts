@@ -21,6 +21,6 @@ test("新增、编辑阶段并删除投递", async ({ page }) => {
   await page.getByRole("button", { name: "删除记录" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "确认删除" }).click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/applications");
   await expect(page.getByText("尚未记录招聘阶段。")).toBeVisible();
 });

@@ -1,0 +1,540 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Job Market API
+  version: 0.1.0
+  description: Authenticated recruitment marketplace, favorites, source administration, and scheduled synchronization contracts.
+servers:
+  - url: /api
+security:
+  - sessionCookie: []
+paths:
+  /job-market/campaigns:
+    get:
+      summary: List aggregated company recruitment campaigns
+      parameters:
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Company' }
+        - { $ref: '#/components/parameters/Location' }
+        - { $ref: '#/components/parameters/RecruitmentType' }
+        - { $ref: '#/components/parameters/Status' }
+        - { $ref: '#/components/parameters/PostedFrom' }
+        - { $ref: '#/components/parameters/Favorite' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: A page of campaigns. Matching occurs against all child posts and locations.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignPage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /job-market/campaigns/{campaignId}:
+    get:
+      summary: Get one campaign and every underlying job
+      parameters:
+        - { $ref: '#/components/parameters/CampaignId' }
+      responses:
+        '200':
+          description: Campaign detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /job-market/campaigns/{campaignId}/favorite:
+    put:
+      summary: Favorite a campaign for the current user
+      parameters:
+        - { $ref: '#/components/parameters/CampaignId' }
+      responses:
+        '200':
+          description: Favorite state
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FavoriteState' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      summary: Remove the current user's favorite
+      parameters:
+        - { $ref: '#/components/parameters/CampaignId' }
+      responses:
+        '200':
+          description: Favorite state
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FavoriteState' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /applications:
+    post:
+      summary: Create a private application, optionally linked to a public job
+      description: Existing contract extended with jobMarketPostId. The server derives owner from the session and rejects a duplicate owner/post link.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - { $ref: '#/components/schemas/ApplicationCreateExistingFields' }
+                - type: object
+                  properties:
+                    jobMarketPostId: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Private application created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationCreated' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409':
+          description: Current user already tracks this public job
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+  /admin/job-market/sources:
+    get:
+      summary: List source health (admin only)
+      responses:
+        '200':
+          description: Sources and latest run data
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/SourceHealth' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Register an approved source (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SourceInput' }
+      responses:
+        '201':
+          description: Source registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SourceHealth' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/job-market/discovery:
+    get:
+      summary: List safe source candidates and discovery coverage (admin only)
+      responses:
+        '200':
+          description: Candidate list and coverage summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SourceCandidatePage' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Scan a bounded batch of public recruitment directory entries (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                limit: { type: integer, minimum: 1, maximum: 25, default: 10 }
+      responses:
+        '202':
+          description: Scan summary; detected candidates remain pending
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [scanned, recognized, healthy, unreachable]
+                properties:
+                  scanned: { type: integer, minimum: 0 }
+                  recognized: { type: integer, minimum: 0 }
+                  healthy: { type: integer, minimum: 0 }
+                  unreachable: { type: integer, minimum: 0 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/job-market/discovery/{candidateId}:
+    patch:
+      summary: Explicitly approve or ignore a source candidate (admin only)
+      parameters:
+        - in: path
+          name: candidateId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action]
+              properties:
+                action: { type: string, enum: [approve, ignore] }
+      responses:
+        '200':
+          description: Candidate review result
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/job-market/bootstrap:
+    post:
+      summary: Idempotently initialize the curated public source catalog and run its first sync (admin only)
+      responses:
+        '201':
+          description: Catalog initialization and first-sync summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [companyCount, sourceCount, directoryCount, createdCompanies, createdSources, createdDirectoryEntries, activeSourceIds, sync]
+                properties:
+                  companyCount: { type: integer, minimum: 0 }
+                  sourceCount: { type: integer, minimum: 0 }
+                  createdCompanies: { type: integer, minimum: 0 }
+                  createdSources: { type: integer, minimum: 0 }
+                  directoryCount: { type: integer, minimum: 0 }
+                  createdDirectoryEntries: { type: integer, minimum: 0 }
+                  activeSourceIds: { type: array, items: { type: string, format: uuid } }
+                  sync:
+                    type: object
+                    required: [requested, accepted, succeeded, partial, failed, skipped]
+                    properties:
+                      requested: { type: integer, minimum: 0 }
+                      accepted: { type: integer, minimum: 0 }
+                      succeeded: { type: integer, minimum: 0 }
+                      partial: { type: integer, minimum: 0 }
+                      failed: { type: integer, minimum: 0 }
+                      skipped: { type: integer, minimum: 0 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/job-market/sources/{sourceId}:
+    patch:
+      summary: Pause, enable, or revoke a source (admin only)
+      parameters:
+        - { $ref: '#/components/parameters/SourceId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                status: { type: string, enum: [active, paused, revoked] }
+                syncIntervalMinutes: { type: integer, minimum: 60, maximum: 1440 }
+                accessBasis: { type: string, enum: [public, authorized] }
+              minProperties: 1
+      responses:
+        '200':
+          description: Updated source
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SourceHealth' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /admin/job-market/sources/{sourceId}/sync:
+    post:
+      summary: Trigger an independent sync run for one source (admin only)
+      parameters:
+        - { $ref: '#/components/parameters/SourceId' }
+      responses:
+        '202':
+          description: Run accepted or source already leased
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted]
+                properties:
+                  accepted: { type: boolean }
+                  runId: { type: [string, 'null'], format: uuid }
+                  status: { type: [string, 'null'], enum: [succeeded, partial, failed, null] }
+                  reason: { type: [string, 'null'] }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/job-market/sync-runs:
+    get:
+      summary: List recent sync runs (admin only)
+      parameters:
+        - in: query
+          name: sourceId
+          schema: { type: string, format: uuid }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200':
+          description: Run page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, page, limit, total]
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/SyncRun' } }
+                  page: { type: integer }
+                  limit: { type: integer }
+                  total: { type: integer }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /internal/job-market/sync:
+    post:
+      summary: Claim and synchronize due sources
+      description: Called only by the external scheduler. Uses internalBearer, not a user session.
+      security:
+        - internalBearer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                limit: { type: integer, minimum: 1, maximum: 10, default: 10 }
+      responses:
+        '200':
+          description: Bounded invocation result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [claimed, succeeded, partial, failed]
+                properties:
+                  claimed: { type: integer, minimum: 0 }
+                  succeeded: { type: integer, minimum: 0 }
+                  partial: { type: integer, minimum: 0 }
+                  failed: { type: integer, minimum: 0 }
+                  runIds: { type: array, items: { type: string, format: uuid } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+    internalBearer:
+      type: http
+      scheme: bearer
+  parameters:
+    CampaignId: { in: path, name: campaignId, required: true, schema: { type: string, format: uuid } }
+    SourceId: { in: path, name: sourceId, required: true, schema: { type: string, format: uuid } }
+    Search: { in: query, name: q, schema: { type: string, maxLength: 100 } }
+    Company: { in: query, name: company, schema: { type: string, maxLength: 100 } }
+    Location: { in: query, name: location, schema: { type: string, maxLength: 100 } }
+    RecruitmentType: { in: query, name: recruitmentType, schema: { type: string, maxLength: 50 } }
+    Status: { in: query, name: status, schema: { type: string, enum: [open, stale, closed] } }
+    PostedFrom: { in: query, name: postedFrom, schema: { type: string, format: date } }
+    Favorite: { in: query, name: favorite, schema: { type: boolean } }
+    Page: { in: query, name: page, schema: { type: integer, minimum: 1, default: 1 } }
+    Limit: { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+  schemas:
+    Company:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        type: { type: [string, 'null'] }
+        industry: { type: [string, 'null'] }
+    Location:
+      type: object
+      required: [name, isRemote]
+      properties:
+        name: { type: string }
+        isRemote: { type: boolean }
+    JobSummary:
+      type: object
+      required: [id, title, locations, status, applyUrl, alreadyTrackedApplicationId]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        locations: { type: array, items: { $ref: '#/components/schemas/Location' } }
+        status: { type: string, enum: [open, stale, closed] }
+        applyUrl: { type: [string, 'null'], format: uri }
+        applyUnavailableReason: { type: [string, 'null'] }
+        publishedAt: { type: [string, 'null'], format: date-time }
+        validThrough: { type: [string, 'null'], format: date-time }
+        sourceName: { type: string }
+        sourceUrl: { type: string, format: uri }
+        alreadyTrackedApplicationId: { type: [string, 'null'], format: uuid }
+    CampaignSummary:
+      type: object
+      required: [id, listingKind, company, positions, positionCount, locations, status, applyMode, primaryApplyUrl, source, lastConfirmedAt, isFavorite]
+      properties:
+        id: { type: string, format: uuid }
+        listingKind: { type: string, enum: [synced_jobs, recruitment_directory] }
+        company: { $ref: '#/components/schemas/Company' }
+        campaignName: { type: [string, 'null'] }
+        recruitmentType: { type: [string, 'null'] }
+        batchLabel: { type: [string, 'null'] }
+        positions: { type: array, items: { type: string } }
+        positionCount: { type: integer, minimum: 0 }
+        locations: { type: array, items: { $ref: '#/components/schemas/Location' } }
+        status: { type: string, enum: [open, stale, closed] }
+        applyMode: { type: string, enum: [single, select, unavailable] }
+        primaryApplyUrl: { type: [string, 'null'], format: uri }
+        source:
+          type: object
+          required: [name, url]
+          properties:
+            name: { type: string }
+            url: { type: string, format: uri }
+        publishedAt: { type: [string, 'null'], format: date-time }
+        validThrough: { type: [string, 'null'], format: date-time }
+        lastConfirmedAt: { type: [string, 'null'], format: date-time }
+        isFavorite: { type: boolean }
+    CampaignDetail:
+      allOf:
+        - { $ref: '#/components/schemas/CampaignSummary' }
+        - type: object
+          required: [jobs]
+          properties:
+            jobs: { type: array, items: { $ref: '#/components/schemas/JobSummary' } }
+    CampaignPage:
+      type: object
+      required: [items, page, limit, total]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/CampaignSummary' } }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+    FavoriteState:
+      type: object
+      required: [campaignId, isFavorite]
+      properties:
+        campaignId: { type: string, format: uuid }
+        isFavorite: { type: boolean }
+    SourceInput:
+      type: object
+      additionalProperties: false
+      required: [companyId, adapter, externalKey, baseUrl, allowedHosts, accessBasis]
+      properties:
+        companyId: { type: string, format: uuid }
+        adapter: { type: string, enum: [greenhouse, lever, ashby, smartrecruiters, feishu, moka, schema_org, xiaomi] }
+        externalKey: { type: string, minLength: 1, maxLength: 200 }
+        baseUrl: { type: string, format: uri, pattern: '^https://' }
+        allowedHosts: { type: array, minItems: 1, items: { type: string } }
+        accessBasis: { type: string, enum: [public, authorized] }
+        isOfficial: { type: boolean, default: true }
+        syncIntervalMinutes: { type: integer, minimum: 60, maximum: 1440, default: 360 }
+    SourceHealth:
+      type: object
+      required: [id, company, adapter, baseUrl, status, consecutiveFailures]
+      properties:
+        id: { type: string, format: uuid }
+        company: { $ref: '#/components/schemas/Company' }
+        adapter: { type: string }
+        baseUrl: { type: string, format: uri }
+        status: { type: string, enum: [active, paused, revoked] }
+        nextSyncAt: { type: [string, 'null'], format: date-time }
+        lastAttemptAt: { type: [string, 'null'], format: date-time }
+        lastSuccessAt: { type: [string, 'null'], format: date-time }
+        consecutiveFailures: { type: integer, minimum: 0 }
+        latestRun: { anyOf: [{ $ref: '#/components/schemas/SyncRun' }, { type: 'null' }] }
+    SourceCandidate:
+      type: object
+      required: [id, companyId, companyName, entryUrl, allowedHosts, evidenceCode, reviewStatus, healthStatus, lastCheckedAt]
+      properties:
+        id: { type: string, format: uuid }
+        companyId: { type: string, format: uuid }
+        companyName: { type: string }
+        entryUrl: { type: string, format: uri }
+        adapter: { type: [string, 'null'] }
+        externalKey: { type: [string, 'null'] }
+        baseUrl: { type: [string, 'null'], format: uri }
+        allowedHosts: { type: array, items: { type: string } }
+        confidence: { type: [string, 'null'], enum: [high, medium, null] }
+        evidenceCode: { type: string }
+        reviewStatus: { type: string, enum: [unrecognized, pending, approved, ignored] }
+        healthStatus: { type: string, enum: [healthy, unreachable, unsupported] }
+        diagnosticCode: { type: [string, 'null'] }
+        diagnosticSummary: { type: [string, 'null'] }
+        httpStatus: { type: [integer, 'null'] }
+        approvedSourceId: { type: [string, 'null'], format: uuid }
+        lastCheckedAt: { type: string, format: date-time }
+    SourceCandidatePage:
+      type: object
+      required: [items, summary]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/SourceCandidate' } }
+        summary:
+          type: object
+          required: [directoryCompanies, automaticCompanies, scannableCompanies, reviewedCompanies, pendingCandidates]
+          properties:
+            directoryCompanies: { type: integer, minimum: 0 }
+            automaticCompanies: { type: integer, minimum: 0 }
+            scannableCompanies: { type: integer, minimum: 0 }
+            reviewedCompanies: { type: integer, minimum: 0 }
+            pendingCandidates: { type: integer, minimum: 0 }
+    SyncRun:
+      type: object
+      required: [id, sourceId, trigger, status, startedAt, counts]
+      properties:
+        id: { type: string, format: uuid }
+        sourceId: { type: string, format: uuid }
+        trigger: { type: string, enum: [scheduled, admin] }
+        status: { type: string, enum: [running, succeeded, partial, failed] }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: [string, 'null'], format: date-time }
+        counts:
+          type: object
+          additionalProperties: { type: integer, minimum: 0 }
+        errorCode: { type: [string, 'null'] }
+        errorSummary: { type: [string, 'null'] }
+    ApplicationCreateExistingFields:
+      type: object
+      description: Existing JobTrace application creation fields remain authoritative.
+      required: [companyName, jobTitle, appliedDate, status]
+      properties:
+        companyName: { type: string }
+        jobTitle: { type: string }
+        location: { type: [string, 'null'] }
+        jobUrl: { type: [string, 'null'], format: uri }
+        appliedDate: { type: string, format: date }
+        status: { type: string }
+    ApplicationCreated:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, format: uuid }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri-reference }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code: { type: string }
+        existingApplicationId: { type: string, format: uuid }
+  responses:
+    BadRequest:
+      description: Invalid request
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Unauthorized:
+      description: Authentication failed
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Forbidden:
+      description: Admin permission required
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    NotFound:
+      description: Resource not found
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    Conflict:
+      description: State or identity conflict
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }
+    TooManyRequests:
+      description: Invocation or source limit reached
+      content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } }

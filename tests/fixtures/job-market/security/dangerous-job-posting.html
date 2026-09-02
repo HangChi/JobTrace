@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <body>
+    <script>
+      globalThis.fixtureScriptExecuted = true;
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": "安全工程师 <img src=x onerror=alert(1)>",
+        "description": "<p>安全岗位</p><script>alert(1)</script>",
+        "url": "javascript:alert(1)",
+        "hiringOrganization": { "name": "Fixture Security" }
+      }
+    </script>
+  </body>
+</html>

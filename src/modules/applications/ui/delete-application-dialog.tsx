@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { Dialog } from "@/shared/ui/dialog";
 import { DeleteIcon } from "@/shared/ui/action-icons";
 
@@ -33,7 +34,7 @@ export function DeleteApplicationDialog({
       if (compact) {
         if (!onDeleted) router.refresh();
       } else {
-        router.replace("/");
+        router.replace("/applications" as Route);
       }
     } catch (reason) {
       setError(

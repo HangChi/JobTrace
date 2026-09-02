@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("新增投递弹窗在桌面视口完整展示并使用图标关闭按钮", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/applications");
   await page
     .locator(".workspace-page-header")
     .getByRole("button", { name: "新增投递" })

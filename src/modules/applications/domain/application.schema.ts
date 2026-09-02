@@ -14,6 +14,7 @@ export const stageInputSchema = z.object({
 });
 export const stageUpdateSchema = stageInputSchema.extend({ changeDate: date });
 export const createApplicationSchema = z.object({
+  jobMarketPostId: z.uuid().optional(),
   companyName: z.string().trim().min(1, "请输入公司名称").max(200),
   positionName: z.string().trim().min(1, "请输入岗位名称").max(200),
   city: optionalText(100),

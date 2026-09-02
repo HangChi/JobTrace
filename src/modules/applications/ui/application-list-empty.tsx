@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { NewApplicationDialog } from "./application-dialogs";
 import type { ApplicationDetail } from "../application/contracts";
 
@@ -18,7 +19,7 @@ export function ApplicationListEmpty({
           : "记录公司、岗位与投递日期，后续进展就不会散落。"}
       </p>
       {filtered ? (
-        <Link className="button" href="/">
+        <Link className="button" href={"/applications" as Route}>
           清空条件
         </Link>
       ) : (

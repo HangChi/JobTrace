@@ -136,13 +136,11 @@ test("个人中心与应用栏对齐，设置导航保持单行", async ({ page 
   expect(layout.navigationFits).toBe(true);
 });
 
-test("投递概览使用可区分的语义色", async ({ page }) => {
+test("招聘广场筛选器具有可见标签且可用键盘操作", async ({ page }) => {
   await page.goto("/");
-  const accents = await page
-    .locator(".summary-card")
-    .evaluateAll((cards) =>
-      cards.map((card) => getComputedStyle(card, "::before").backgroundColor),
-    );
-
-  expect(new Set(accents).size).toBe(accents.length);
+  await expect(page.getByRole("search")).toBeVisible();
+  await page.getByLabel("关键词").focus();
+  await expect(page.getByLabel("关键词")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator(":focus")).toBeVisible();
 });

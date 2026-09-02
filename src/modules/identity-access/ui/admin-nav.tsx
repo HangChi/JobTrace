@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 export function AdminNav() {
   return (
@@ -6,6 +7,7 @@ export function AdminNav() {
       <Link href="/admin">运营概览</Link>
       <Link href="/admin/users">用户管理</Link>
       <Link href="/admin/audit">操作审计</Link>
+      <Link href={"/admin/job-market" as Route}>招聘同步</Link>
     </nav>
   );
 }

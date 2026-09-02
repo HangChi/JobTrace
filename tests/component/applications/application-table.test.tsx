@@ -33,10 +33,11 @@ const application: ApplicationDetail = {
 
 describe("投递记录列表", () => {
   it("点击记录后在当前页面打开详情弹窗", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ ok: true, json: async () => application }),
-    );
+    const fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ application, interviews: [] }),
+    });
+    vi.stubGlobal("fetch", fetch);
 
     render(
       <ApplicationTable
@@ -81,6 +82,18 @@ describe("投递记录列表", () => {
       screen.getByRole("heading", { name: "测试科技（上海） · 前端工程师" }),
     ).toBeVisible();
     await waitFor(() => expect(screen.getByText("准备技术面试")).toBeVisible());
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/applications/application-1/detail",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "关闭弹窗" }));
+    fireEvent.click(
+      screen.getByRole("row", {
+        name: /查看 测试科技（上海） 前端工程师 详情/,
+      }),
+    );
+    expect(screen.getByText("准备技术面试")).toBeVisible();
+    expect(fetch).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: "编辑这条投递" }));
     expect(
       screen.getByRole("heading", { name: "编辑 测试科技（上海）" }),

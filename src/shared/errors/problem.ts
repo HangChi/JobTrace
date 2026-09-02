@@ -1,5 +1,6 @@
 export type FieldError = { field: string; code: string; message: string };
 export type ProblemDetails = {
+  existingApplicationId?: string;
   auditEventId?: string;
   latestAccessState?: {
     role: "user" | "admin";
