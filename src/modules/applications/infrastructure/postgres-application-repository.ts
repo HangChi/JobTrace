@@ -75,13 +75,78 @@ export class PostgresApplicationRepository implements ApplicationRepository {
   private sql = createServerDatabase();
 
   async create(ownerId: string, input: CreateApplicationInput) {
-    const [row] = await this.sql<DbRecord[]>`
-      select * from public.create_application_for_owner(${ownerId},${this.sql.json(input)}::jsonb)
-    `;
-    return this.get(ownerId, String(row.id)) as Promise<ApplicationDetail>;
+    const applicationId = await this.sql.begin(async (tx) => {
+      let linkedPost:
+        | {
+            id: string;
+            title: string;
+            companyName: string;
+            location: string | null;
+            applyUrl: string | null;
+            sourceId: string | null;
+            externalJobId: string | null;
+            status: string;
+          }
+        | undefined;
+      if (input.jobMarketPostId) {
+        const [existing] = await tx<Array<{ applicationId: string }>>`
+          select application_id as "applicationId" from application_job_market_links
+          where owner_id=${ownerId} and post_id=${input.jobMarketPostId}`;
+        if (existing)
+          throw new Problem(
+            "job_market_application_exists",
+            "你已经记录过这个岗位。",
+            409,
+            undefined,
+            { existingApplicationId: existing.applicationId },
+          );
+        [linkedPost] = await tx<Array<NonNullable<typeof linkedPost>>>`
+          select post.id,post.title,company.canonical_name as "companyName",post.primary_apply_url as "applyUrl",post.status::text,
+            source_record.source_id as "sourceId",source_record.external_job_id as "externalJobId",
+            (select string_agg(location.display_name,'、' order by location.display_name) from job_market_post_locations pl join job_market_locations location on location.id=pl.location_id where pl.post_id=post.id) as location
+          from job_market_posts post join job_market_companies company on company.id=post.company_id
+          left join lateral(select record.* from job_market_source_records record join job_market_sources source on source.id=record.source_id where record.post_id=post.id order by source.is_official desc,record.last_seen_at desc limit 1) source_record on true
+          where post.id=${input.jobMarketPostId}`;
+        if (!linkedPost || linkedPost.status !== "open")
+          throw new Problem(
+            "job_market_post_unavailable",
+            "该公共岗位已失效或不存在。",
+            409,
+          );
+      }
+      const createInput = linkedPost
+        ? {
+            ...input,
+            companyName: linkedPost.companyName,
+            positionName: linkedPost.title,
+            city: linkedPost.location,
+            jobUrl: linkedPost.applyUrl,
+          }
+        : input;
+      const [row] = await tx<DbRecord[]>`
+        select * from public.create_application_for_owner(${ownerId},${tx.json(createInput)}::jsonb)`;
+      if (linkedPost) {
+        await tx`insert into application_job_market_links(application_id,owner_id,post_id,source_id,external_job_id,job_title_snapshot,company_name_snapshot,location_snapshot,apply_url_snapshot)
+          values(${String(row.id)},${ownerId},${linkedPost.id},${linkedPost.sourceId},${linkedPost.externalJobId},${linkedPost.title},${linkedPost.companyName},${linkedPost.location},${linkedPost.applyUrl})`;
+      }
+      return String(row.id);
+    });
+    return this.get(ownerId, applicationId) as Promise<ApplicationDetail>;
   }
 
   async get(ownerId: string, id: string) {
+    return this.getWithEventHistory(ownerId, id, true);
+  }
+
+  async getOverview(ownerId: string, id: string) {
+    return this.getWithEventHistory(ownerId, id, false);
+  }
+
+  private async getWithEventHistory(
+    ownerId: string,
+    id: string,
+    includeEventHistory: boolean,
+  ) {
     const [row] = await this.sql<DbRecord[]>`
       select
         a.*,
@@ -118,8 +183,14 @@ export class PostgresApplicationRepository implements ApplicationRepository {
               )
               order by event_row.occurred_on desc, event_row.created_at desc
             )
-            from public.application_events event_row
-            where event_row.application_id = a.id
+            from (
+              select event_source.*
+              from public.application_events event_source
+              where event_source.application_id = a.id
+                ${includeEventHistory ? this.sql`` : this.sql`and event_source.type = 'status_changed' and event_source.after->>'status' = a.status::text`}
+              order by event_source.occurred_on desc, event_source.created_at desc
+              ${includeEventHistory ? this.sql`` : this.sql`limit 1`}
+            ) event_row
           ),
           '[]'::jsonb
         ) as events

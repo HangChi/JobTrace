@@ -38,7 +38,7 @@ export async function createApplicationAction(
   const values = valuesFrom(formData);
   try {
     const application = await createApplication(values);
-    revalidatePath("/");
+    revalidatePath("/applications");
     redirect(`/applications/${application.id}`);
   } catch (error) {
     if ((error as { digest?: string }).digest?.startsWith("NEXT_REDIRECT"))
@@ -63,7 +63,7 @@ export async function updateApplicationAction(
         timeZone: "Asia/Shanghai",
       }),
     });
-    revalidatePath("/");
+    revalidatePath("/applications");
     revalidatePath(`/applications/${id}`);
     return { message: "修改已保存。" };
   } catch (error) {

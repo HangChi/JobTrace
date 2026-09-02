@@ -39,6 +39,34 @@ const cosEnvSchema = z.object({
   COS_PUBLIC_BASE_URL: z.url().optional(),
 });
 
+const jobMarketEnvSchema = z.object({
+  JOB_MARKET_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
+  JOB_MARKET_SYNC_SECRET: z.string().min(32).optional(),
+  JOB_MARKET_SYNC_BATCH_SIZE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .default(10),
+  JOB_MARKET_FETCH_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(30_000)
+    .default(12_000),
+  JOB_MARKET_MAX_RESPONSE_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1_024)
+    .max(10_485_760)
+    .default(5_242_880),
+  JOB_MARKET_WORKER_ID: z.string().trim().min(1).max(100).default("jobtrace"),
+  JOB_MARKET_ALLOW_PROXY_DNS: z.enum(["true", "false"]).optional(),
+});
+
 export type CosEnv = {
   secretId: string;
   secretKey: string;
@@ -100,4 +128,37 @@ export function hasAuthConfiguration() {
     AUTH_EMAIL_VERIFICATION_TEST_CODE:
       process.env.AUTH_EMAIL_VERIFICATION_TEST_CODE || undefined,
   }).success;
+}
+
+export function getJobMarketEnv() {
+  const value = jobMarketEnvSchema.parse({
+    JOB_MARKET_ENABLED: process.env.JOB_MARKET_ENABLED || undefined,
+    JOB_MARKET_SYNC_SECRET: process.env.JOB_MARKET_SYNC_SECRET || undefined,
+    JOB_MARKET_SYNC_BATCH_SIZE:
+      process.env.JOB_MARKET_SYNC_BATCH_SIZE || undefined,
+    JOB_MARKET_FETCH_TIMEOUT_MS:
+      process.env.JOB_MARKET_FETCH_TIMEOUT_MS || undefined,
+    JOB_MARKET_MAX_RESPONSE_BYTES:
+      process.env.JOB_MARKET_MAX_RESPONSE_BYTES || undefined,
+    JOB_MARKET_WORKER_ID: process.env.JOB_MARKET_WORKER_ID || undefined,
+    JOB_MARKET_ALLOW_PROXY_DNS:
+      process.env.JOB_MARKET_ALLOW_PROXY_DNS || undefined,
+  });
+  if (value.JOB_MARKET_ENABLED && !value.JOB_MARKET_SYNC_SECRET) {
+    throw new Error(
+      "JOB_MARKET_SYNC_SECRET is required when JOB_MARKET_ENABLED=true",
+    );
+  }
+  return {
+    enabled: value.JOB_MARKET_ENABLED,
+    syncSecret: value.JOB_MARKET_SYNC_SECRET,
+    syncBatchSize: value.JOB_MARKET_SYNC_BATCH_SIZE,
+    fetchTimeoutMs: value.JOB_MARKET_FETCH_TIMEOUT_MS,
+    maxResponseBytes: value.JOB_MARKET_MAX_RESPONSE_BYTES,
+    workerId: value.JOB_MARKET_WORKER_ID,
+    allowProxyDns:
+      value.JOB_MARKET_ALLOW_PROXY_DNS === undefined
+        ? process.env.NODE_ENV === "development"
+        : value.JOB_MARKET_ALLOW_PROXY_DNS === "true",
+  };
 }

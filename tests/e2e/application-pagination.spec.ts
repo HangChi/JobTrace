@@ -15,7 +15,7 @@ test("点击分页立即换页，普通刷新回到第一页", async ({ request,
       ids.push((await response.json()).id);
     }
 
-    await page.goto("/?q=Pagination%20Live&limit=10");
+    await page.goto("/applications?q=Pagination%20Live&limit=10");
     await expect(page.locator(".application-row")).toHaveCount(10);
     const actionsCell = page
       .locator('.application-row td[data-label="操作"]')

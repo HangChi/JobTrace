@@ -1,0 +1,48 @@
+name: Job market sync
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: job-market-sync
+  cancel-in-progress: false
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      JOB_MARKET_SYNC_URL: ${{ vars.JOB_MARKET_SYNC_URL }}
+      JOB_MARKET_SYNC_SECRET: ${{ secrets.JOB_MARKET_SYNC_SECRET }}
+    steps:
+      - name: Trigger due recruitment sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${JOB_MARKET_SYNC_URL}" || -z "${JOB_MARKET_SYNC_SECRET}" ]]; then
+            echo "JOB_MARKET_SYNC_URL variable and JOB_MARKET_SYNC_SECRET secret are required."
+            exit 1
+          fi
+          endpoint="${JOB_MARKET_SYNC_URL%/}/api/internal/job-market/sync"
+          batch_size=10
+          max_batches=30
+          for ((batch=1; batch<=max_batches; batch++)); do
+            echo "Synchronizing batch ${batch}/${max_batches}"
+            response=$(curl --fail-with-body --silent --show-error \
+              --retry 2 --retry-all-errors --max-time 120 \
+              --request POST \
+              --header "Authorization: Bearer ${JOB_MARKET_SYNC_SECRET}" \
+              --header "Content-Type: application/json" \
+              --data "{\"limit\":${batch_size}}" \
+              "${endpoint}")
+            echo "${response}"
+            claimed=$(jq -er '.claimed | numbers' <<<"${response}")
+            if (( claimed < batch_size )); then
+              echo "Due-source queue drained after ${batch} batch(es)."
+              break
+            fi
+          done

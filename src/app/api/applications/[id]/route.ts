@@ -25,7 +25,7 @@ export async function PATCH(request: Request, { params }: Context) {
 export async function DELETE(_: Request, { params }: Context) {
   try {
     await deleteApplication((await params).id);
-    revalidatePath("/");
+    revalidatePath("/applications");
     return new Response(null, { status: 204 });
   } catch (error) {
     return problemResponse(error);

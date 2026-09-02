@@ -3,6 +3,7 @@ import type {
   ApplicationType,
   RecruitmentStage,
 } from "../domain/catalog";
+import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 export type ApplicationSummary = {
   id: string;
   companyName: string;
@@ -47,4 +48,8 @@ export type ApplicationPage = {
   total: number;
   page: number;
   limit: number;
+};
+export type ApplicationDialogData = {
+  application: ApplicationDetail;
+  interviews: StageInterviewSummary[];
 };

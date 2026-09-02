@@ -16,11 +16,19 @@ const today = () =>
 
 export function ApplicationForm({
   application,
+  defaults,
   onSuccess,
   onCancel,
   embedded = false,
 }: {
   application?: ApplicationDetail;
+  defaults?: {
+    jobMarketPostId?: string;
+    companyName: string;
+    positionName?: string;
+    city?: string | null;
+    jobUrl: string | null;
+  };
   onSuccess?: (application: ApplicationDetail) => void;
   onCancel?: () => void;
   embedded?: boolean;
@@ -71,6 +79,13 @@ export function ApplicationForm({
       onSubmit={submit}
     >
       {error && <Feedback kind="error">{error}</Feedback>}
+      {defaults?.jobMarketPostId && (
+        <input
+          type="hidden"
+          name="jobMarketPostId"
+          value={defaults.jobMarketPostId}
+        />
+      )}
       <div className="application-form-grid">
         <FormField
           fieldClassName="application-field-half"
@@ -78,9 +93,9 @@ export function ApplicationForm({
           name="companyName"
           required
           maxLength={200}
-          defaultValue={application?.companyName}
+          defaultValue={application?.companyName ?? defaults?.companyName}
           placeholder="例如：字节跳动"
-          autoFocus={embedded}
+          autoFocus={embedded && !defaults?.companyName}
         />
         <FormField
           fieldClassName="application-field-half"
@@ -88,8 +103,11 @@ export function ApplicationForm({
           name="positionName"
           required
           maxLength={200}
-          defaultValue={application?.positionName}
+          defaultValue={application?.positionName ?? defaults?.positionName}
           placeholder="例如：前端开发工程师"
+          autoFocus={
+            embedded && Boolean(defaults?.companyName) && !defaults?.positionName
+          }
         />
         <FormField
           fieldClassName="application-field-third"
@@ -122,7 +140,7 @@ export function ApplicationForm({
           label="城市"
           name="city"
           maxLength={100}
-          defaultValue={application?.city ?? ""}
+          defaultValue={application?.city ?? defaults?.city ?? ""}
           placeholder="例如：上海"
         />
         <FormField
@@ -131,7 +149,7 @@ export function ApplicationForm({
           name="jobUrl"
           type="url"
           placeholder="https://"
-          defaultValue={application?.jobUrl ?? ""}
+          defaultValue={application?.jobUrl ?? defaults?.jobUrl ?? ""}
         />
         <label className="application-field-status">
           当前状态

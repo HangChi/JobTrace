@@ -257,3 +257,48 @@ pnpm lighthouse
 - [架构与安全边界](architecture.md)
 - [数据导入与导出](data-transfer.md)
 - [测试策略与命令](testing.md)
+
+## 自动招聘同步运维
+
+### 本地代理与 Fake-IP DNS
+
+Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka 和小米招聘的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
+
+### 默认目录一键初始化
+
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 232 家企业，其中 175 家中国企业、57 家在中国大陆招聘的外企，已于 2026-09-01 复核公开入口。中国企业优先使用飞书招聘、Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+
+1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
+2. 将缺失来源创建为启用状态，不重复创建已有记录；
+3. 保留管理员已经设置的 `paused` 或 `revoked` 状态；
+4. 自动撤销不再属于当前 `default:*` 目录的旧来源，使其历史海外岗位不再出现在首页；
+5. 每批最多同步 3 个活动来源，并报告成功、部分成功、失败和跳过数量。
+
+默认目录由源码管理，因为每个条目都会扩大服务端出站访问白名单。增加企业前必须人工验证其公开 ATS 接口；自动化测试仍只能访问本地 fixture，不能依赖真实企业站点。
+
+一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
+
+外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以 10 个来源为一批持续认领，队列清空时提前结束，最多执行 30 批、覆盖 300 个到期来源。这为继续扩展更多公司预留了容量，同时避免空跑。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+
+仓库提供 `.github/workflows/job-market-sync.yml`，默认每六小时触发一次，也支持在 Actions 页面手动运行。启用步骤：
+
+1. 在生产应用设置 `JOB_MARKET_ENABLED=true` 和一个至少 32 字符的 `JOB_MARKET_SYNC_SECRET`，重新部署；
+2. 在 GitHub 仓库 Actions Variables 新建 `JOB_MARKET_SYNC_URL`，值为生产站点来源，例如 `https://jobtrace.example.com`；
+3. 在 Actions Secrets 新建同名 `JOB_MARKET_SYNC_SECRET`，值必须与生产应用一致；
+4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`，之后由计划任务持续认领到期来源。
+
+这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
+
+公众号文章不纳入自动抓取。公众号没有稳定的公开岗位 API，页面访问还受登录、频率和反自动化限制；对仅通过公众号发布的企业，首页保留经审核的招聘原文链接，并以原文内容为准。新增自动企业时，应优先接入其官方 ATS/API 或官网 `JobPosting` 结构化数据。
+
+### 来源发现与人工审核
+
+管理员可在 `/admin/job-market` 的“招聘入口扫描与审核”区域分批检查目录中的公开招聘官网。扫描器只请求已登记的 HTTPS 入口，并复用精确主机、公共 DNS、重定向、超时、内容类型和响应大小限制；它只识别经过代码审查的 ATS URL 模式、页面公开链接或 `JobPosting` JSON-LD，不执行页面脚本，也不扫描公众号正文。
+
+扫描产生的记录默认是“待审核”或“未识别”，不会参与计划同步。管理员核对企业、官方入口、识别类型和精确主机后点击“批准并启用”，系统才在同一事务中创建活动来源；访问失败、未识别或已忽略的记录不能批准。新增适配器或扩大识别域名仍需代码审查和固定 fixture，不得把任意 URL 变成通用爬虫。
+
+来源上线顺序为：确认公开或书面授权依据、登记精确 HTTPS 入口与主机、默认暂停、用 fixture/预发布验证、启用少量来源、观察运行计数后扩容。429 遵循 `Retry-After`，其他失败指数退避；暂停或撤销会释放租约且不再被计划任务认领。管理员只能看到安全错误码和摘要，原始响应、联系人、凭据和带 userinfo 的 URL 不保留在日志中。
+
+告警至少覆盖连续失败、12 小时未成功、租约超过预期仍未释放、单次发现/关闭数量突变和调度端 401。运行记录和事件为审计数据；按组织保留策略定期归档，不应在故障处理中直接删除。回滚时先停止调度，再设置 `JOB_MARKET_ENABLED=false` 并暂停来源；保留新增表和私人投递快照，`/applications`、分析与面经不受影响。
+
+本机验收说明：2026-08-30 已使用隔离临时数据库完成契约与集成场景。配置的远程 PostgreSQL 未安装 pgTAP，因此本机 `db:sql:test` 只能在安装扩展的 CI PostgreSQL 17 服务执行；这不影响迁移、Python 数据库校验或 TypeScript 类型生成。Quickstart 中原先的 `format:check`、`test:coverage`、`test:e2e` 名称与仓库脚本不同，实际分别使用 `pnpm format`、`pnpm test`、`pnpm e2e`。

@@ -1,0 +1,15 @@
+[
+  { "name": "loopback", "url": "https://127.0.0.1/jobs" },
+  { "name": "rfc1918-10", "url": "https://10.0.0.1/jobs" },
+  { "name": "rfc1918-172", "url": "https://172.16.0.1/jobs" },
+  { "name": "rfc1918-192", "url": "https://192.168.0.1/jobs" },
+  { "name": "ipv6-loopback", "url": "https://[::1]/jobs" },
+  { "name": "ipv6-local", "url": "https://[fc00::1]/jobs" },
+  { "name": "metadata", "url": "https://169.254.169.254/latest/meta-data" },
+  { "name": "userinfo", "url": "https://user:secret@jobs.example.com/jobs" },
+  { "name": "dns-private", "url": "https://private-dns.example/jobs" },
+  { "name": "redirect-private", "url": "https://jobs.example.com/to-private" },
+  { "name": "redirect-loop", "url": "https://jobs.example.com/loop" },
+  { "name": "oversized", "url": "https://jobs.example.com/oversized" },
+  { "name": "unsafe-apply", "url": "javascript:alert(1)" }
+]

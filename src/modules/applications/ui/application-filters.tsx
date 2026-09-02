@@ -2,6 +2,7 @@
 
 import { useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import {
   APPLICATION_STATUSES,
   APPLICATION_TYPES,
@@ -26,7 +27,10 @@ export function ApplicationFilters({
   function navigate(params: URLSearchParams) {
     const suffix = params.toString();
     startTransition(() =>
-      router.push(suffix ? `/?${suffix}` : "/", { scroll: false }),
+      router.push(
+        (suffix ? `/applications?${suffix}` : "/applications") as Route,
+        { scroll: false },
+      ),
     );
   }
 

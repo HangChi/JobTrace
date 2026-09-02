@@ -1,0 +1,30 @@
+{
+  "jobs": [
+    {
+      "id": "edge-1",
+      "title": "多地点工程师",
+      "location": ["上海", "杭州"],
+      "absolute_url": "https://jobs.example.com/edge-1",
+      "updated_at": "2026-08-30T00:00:00Z"
+    },
+    {
+      "id": "edge-malformed",
+      "location": { "name": "北京" },
+      "absolute_url": "https://jobs.example.com/malformed"
+    },
+    {
+      "id": "edge-unsafe",
+      "title": "不安全链接岗位",
+      "location": { "name": "Remote" },
+      "absolute_url": "javascript:alert(1)"
+    },
+    {
+      "id": "edge-optional",
+      "title": "缺省字段岗位",
+      "absolute_url": "https://jobs.example.com/optional"
+    }
+  ],
+  "rateLimit": { "status": 429, "retryAfter": "120" },
+  "oversizedBodyBytes": 5242881,
+  "closeReopenSequence": ["open", "closed", "open"]
+}
