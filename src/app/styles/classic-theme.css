@@ -1,11 +1,231 @@
-/* Restore JobTrace's original soft-mint visual language without changing markup. */
+/*
+ * Classic JobTrace theme
+ *
+ * Loaded after the structural stylesheets. This restores the original
+ * soft-mint visual language while keeping the current page layouts intact.
+ */
 
 :root {
+  --ink: #163d3a;
+  --ink-strong: #0b2927;
+  --muted: #5d7875;
+  --paper: #f4fbf9;
+  --surface: #ffffff;
+  --surface-soft: #eef9f6;
+  --line: #d7ebe6;
+  --line-strong: #b9ddd5;
+  --brand: #087f73;
+  --brand-dark: #05665d;
+  --brand-soft: #d9f4ed;
+  --sky: #dff4fb;
+  --sky-strong: #1684a6;
+  --lime: #e8f7cc;
+  --lime-strong: #527d16;
+  --lavender: #eee9ff;
+  --lavender-strong: #6750a4;
+  --warm: #fff3dc;
+  --warning: #a55b0a;
+  --danger: #b4233a;
+  --success: #217a4a;
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow: 0 18px 50px rgba(34, 105, 94, 0.08);
+  --shadow-hover: 0 20px 55px rgba(23, 113, 100, 0.14);
   --classic-mint-wash: #effbf8;
   --classic-mint-line: #c9e6df;
   --classic-panel-shadow: 0 16px 44px rgba(34, 105, 94, 0.07);
 }
 
+html {
+  background: var(--paper);
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(
+      circle at 92% 5%,
+      rgba(172, 235, 224, 0.42),
+      transparent 27rem
+    ),
+    radial-gradient(
+      circle at 4% 35%,
+      rgba(202, 238, 248, 0.45),
+      transparent 25rem
+    ),
+    var(--paper);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+/* Shared controls */
+.panel {
+  border-color: var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.button {
+  border-color: transparent;
+  border-radius: 12px;
+  color: #ffffff;
+  background: var(--brand);
+  box-shadow: 0 8px 20px rgba(8, 127, 115, 0.16);
+  font-weight: 750;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.button:hover {
+  border-color: transparent;
+  background: var(--brand-dark);
+  box-shadow: 0 11px 24px rgba(8, 127, 115, 0.22);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button.secondary,
+.button.ghost {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 12px rgba(31, 91, 83, 0.05);
+}
+
+.button.secondary:hover,
+.button.ghost:hover {
+  color: var(--brand-dark);
+  border-color: var(--brand);
+  background: var(--surface-soft);
+}
+
+.button.ghost {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.button.danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  box-shadow: 0 8px 20px rgba(180, 35, 58, 0.14);
+}
+
+input,
+select,
+textarea {
+  border-color: #c9ded9;
+  border-radius: 12px;
+  color: var(--ink-strong);
+  background: linear-gradient(180deg, #ffffff, #f9fcfb);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(12, 70, 61, 0.03);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--line-strong);
+  background: #ffffff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--brand);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(8, 127, 115, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #7f9995;
+}
+
+.badge,
+.status-badge,
+.record-count {
+  border-color: var(--line);
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+th {
+  color: #496661;
+  background: var(--surface-soft);
+}
+
+tbody tr:hover {
+  background: var(--classic-mint-wash);
+}
+
+/* Header and compact menus */
+.app-header {
+  border-color: var(--line);
+}
+
+.app-brand-mark {
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(8, 127, 115, 0.12);
+}
+
+.app-primary-nav a,
+.account-menu summary {
+  border-radius: 10px;
+}
+
+.app-primary-nav a:hover,
+.app-primary-nav a:focus-visible,
+.account-menu summary:hover,
+.account-menu[open] summary {
+  color: var(--brand-dark);
+  border-color: var(--line);
+  background: rgba(217, 244, 237, 0.66);
+}
+
+.app-primary-nav a.is-current {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px rgba(8, 127, 115, 0.06);
+}
+
+.user-avatar {
+  border-color: var(--line-strong);
+  color: var(--brand-dark);
+  background: linear-gradient(145deg, #ffffff, var(--brand-soft));
+  box-shadow: 0 5px 14px rgba(29, 93, 84, 0.08);
+}
+
+.account-popover,
+.export-options,
+.page-size-options,
+.status-menu-popover {
+  border-color: var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 18px 50px rgba(22, 61, 58, 0.16);
+  backdrop-filter: blur(14px);
+}
+
+/* Page surfaces. Geometry remains owned by workspace.css. */
 .workspace-page-header {
   border-color: var(--classic-mint-line);
   border-radius: var(--radius-lg);
@@ -31,110 +251,65 @@
 
 .summary-grid,
 .analytics-report-metrics {
-  gap: 12px;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-color: var(--classic-mint-line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--classic-panel-shadow);
 }
 
 .summary-card,
 .report-metric-card {
-  min-height: 124px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 15px;
-  padding: 20px;
-  border: 1px solid var(--classic-mint-line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: none;
+  border-color: var(--classic-mint-line);
+  background: rgba(255, 255, 255, 0.94);
 }
 
-.summary-card:last-child,
-.report-metric-card:last-child {
-  border-right: 1px solid var(--classic-mint-line);
+.summary-active,
+.report-metric-active {
+  --summary-accent: #08a88e;
+  --card-accent: #08a88e;
+  background: #effbf8;
 }
 
-.summary-card::before,
-.report-metric-card::before {
-  display: none;
+.summary-offer,
+.report-metric-offer {
+  --summary-accent: #8875cf;
+  --card-accent: #8875cf;
+  background: #f5f2ff;
+}
+
+.summary-week,
+.report-metric-week {
+  --summary-accent: #4aa8c4;
+  --card-accent: #4aa8c4;
+  background: #eff9fd;
+}
+
+.summary-rejected {
+  --summary-accent: #d99b9d;
+  --card-accent: #d99b9d;
+}
+
+.report-metric-review {
+  --card-accent: #d99b9d;
 }
 
 .summary-card:hover,
 .report-metric-card:hover {
   border-color: var(--line-strong);
-  background: var(--surface);
-  box-shadow: var(--shadow-hover);
+  background: color-mix(in srgb, var(--card-accent) 8%, #ffffff);
+  box-shadow: inset 0 0 0 1px rgba(8, 127, 115, 0.03);
 }
 
-.metric-icon,
-.report-metric-accent {
-  width: 11px;
-  height: 42px;
-  display: block;
-  flex: 0 0 11px;
-  border-radius: 999px;
-  background: var(--brand);
-}
-
-.summary-total .metric-icon,
-.report-metric-total .report-metric-accent {
-  background: #54bda7;
-}
-
-.summary-active,
-.report-metric-active {
-  background: #effbf8;
-}
-
-.summary-active .metric-icon,
-.report-metric-active .report-metric-accent {
-  background: #08a88e;
-}
-
-.summary-offer,
-.report-metric-offer {
-  background: #f5f2ff;
-}
-
-.summary-offer .metric-icon,
-.report-metric-offer .report-metric-accent {
-  background: #8875cf;
-}
-
-.summary-week,
-.report-metric-week {
-  background: #eff9fd;
-}
-
-.summary-week .metric-icon,
-.report-metric-week .report-metric-accent {
-  background: #4aa8c4;
-}
-
-.summary-rejected .metric-icon,
-.report-metric-review .report-metric-accent {
-  background: #d99b9d;
-}
-
-.summary-card .metric,
 .metric,
 .report-metric-card > strong {
-  margin: 0;
   color: var(--ink-strong);
-  font-size: 2rem;
   font-weight: 750;
-  line-height: 1;
 }
 
 .metric-label,
 .report-metric-label,
 .report-metric-card > small {
-  margin-top: 8px;
   color: #496661;
-  font-size: 0.82rem;
   font-weight: 650;
 }
 
@@ -143,7 +318,13 @@
 .progress-reminder-panel,
 .analytics-report-panel,
 .application-list-panel,
-.interview-list-panel {
+.interview-list-panel,
+.filter-bar,
+.interview-filters,
+.analytics-report-filters,
+.dashboard .filter-bar,
+.job-market-filters,
+.campaign-table-shell {
   border-color: var(--classic-mint-line);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: var(--classic-panel-shadow);
@@ -154,44 +335,11 @@
   background: linear-gradient(135deg, #fffdf8, #fff9ed);
 }
 
-.filter-bar,
-.interview-filters,
-.analytics-report-filters,
-.dashboard .filter-bar {
-  border-color: var(--classic-mint-line);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--classic-panel-shadow);
-}
-
 .application-list-panel > .section-heading,
-.interview-list-panel > .section-heading {
-  background: color-mix(in srgb, var(--surface-soft) 62%, white);
-}
-
-.job-market-filters {
-  border-color: var(--classic-mint-line);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--classic-panel-shadow);
-}
-
-.job-market-filters input,
-.job-market-filters select {
-  border-color: #c9ded9;
-  color: var(--ink-strong);
-  background: linear-gradient(180deg, #ffffff, #f9fcfb);
-}
-
-.campaign-table-shell {
-  border-color: var(--classic-mint-line);
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: var(--classic-panel-shadow);
-}
-
+.interview-list-panel > .section-heading,
 .campaign-table thead th {
-  border-color: var(--line-strong);
   color: #496661;
-  background: var(--surface-soft);
+  background: color-mix(in srgb, var(--surface-soft) 68%, #ffffff);
 }
 
 .campaign-table-row:hover > td,
@@ -211,33 +359,137 @@
   background: var(--brand-soft);
 }
 
-.job-market-pagination {
+/* All create/edit/detail dialogs share the classic elevated white sheet. */
+dialog {
+  border-radius: 22px;
+  background: transparent;
+  box-shadow: 0 28px 90px rgba(7, 42, 38, 0.28);
+}
+
+dialog::backdrop {
+  background: rgba(12, 42, 39, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.dialog-card,
+.application-dialog .dialog-card,
+.application-detail-dialog .dialog-card {
+  background:
+    linear-gradient(180deg, rgba(229, 248, 242, 0.54), transparent 150px),
+    #ffffff;
+}
+
+.dialog-heading,
+.application-dialog .dialog-heading {
+  border-color: var(--line);
+}
+
+.application-create-dialog .section-kicker {
+  margin-bottom: 10px;
+  color: var(--brand);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+}
+
+.application-create-dialog .dialog-heading h2 {
+  font-size: clamp(1.55rem, 2.5vw, 2rem);
+}
+
+.application-create-dialog .dialog-description {
+  margin-top: 8px;
+  font-size: 0.96rem;
+}
+
+.interview-create-dialog .section-kicker {
+  margin-bottom: 8px;
+  color: var(--brand);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+}
+
+.interview-create-dialog .dialog-heading h2 {
+  font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+}
+
+.interview-create-dialog .dialog-description {
+  margin-top: 7px;
+}
+
+.interview-create-form {
+  border-color: var(--classic-mint-line);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--classic-panel-shadow);
+}
+
+.interview-create-group:nth-of-type(2) {
+  background: color-mix(in srgb, var(--classic-mint-wash) 26%, #ffffff);
+}
+
+.interview-create-group + .interview-create-group,
+.interview-create-actions {
+  border-color: var(--classic-mint-line);
+}
+
+.interview-create-group-heading h2 {
+  color: var(--ink-strong);
+}
+
+.interview-create-actions {
+  background: linear-gradient(
+    112deg,
+    rgba(244, 252, 249, 0.96),
+    rgba(229, 248, 242, 0.72)
+  );
+}
+
+.dialog-close {
+  border-color: rgba(44, 111, 102, 0.1);
+  border-radius: 10px;
   color: var(--muted);
+  background: rgba(237, 247, 244, 0.76);
 }
 
-@media (max-width: 960px) {
-  .summary-grid,
-  .analytics-report-metrics {
-    gap: 12px;
-  }
-
-  .summary-card,
-  .report-metric-card,
-  .summary-card:last-child,
-  .report-metric-card:last-child {
-    border: 1px solid var(--classic-mint-line);
-    border-radius: var(--radius);
-  }
+.dialog-close:hover {
+  color: var(--ink-strong);
+  border-color: var(--line-strong);
+  background: var(--brand-soft);
+  transform: translateY(-1px);
 }
 
-@media (max-width: 620px) {
-  .summary-grid,
-  .analytics-report-metrics {
-    grid-template-columns: 1fr;
-  }
+.delete-warning {
+  border-color: #f0c8cf;
+  border-radius: 12px;
+  color: #702333;
+  background: #fff7f8;
+}
 
-  .summary-card:last-child,
-  .report-metric-card:last-child {
-    grid-column: auto;
+/* Authentication keeps its current single-card layout, with classic materials. */
+.auth-main-inner,
+.auth-main-inner:has(.auth-card-register) {
+  border-color: var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow);
+}
+
+.auth-brand-mark {
+  border-radius: 12px;
+  background: var(--brand);
+  box-shadow: 0 8px 20px rgba(8, 127, 115, 0.16);
+}
+
+.auth-input-wrap input,
+.auth-password-toggle,
+.auth-submit,
+.auth-error-summary,
+.auth-success,
+.auth-config-error {
+  border-radius: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .dialog-close {
+    transform: none !important;
   }
 }

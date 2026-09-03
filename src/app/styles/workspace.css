@@ -743,9 +743,8 @@
 }
 
 .save-state {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
+  border: 0;
+  background: transparent;
 }
 
 .interview-section,
@@ -845,12 +844,196 @@
   background: var(--surface);
 }
 
-.application-dialog .application-record-form {
-  padding: 18px 0 0;
+.application-dialog .dialog-card {
+  padding: 0;
+  background: var(--surface);
 }
 
-.application-dialog .dialog-card {
-  background: var(--surface);
+.application-dialog {
+  width: min(900px, calc(100% - 40px));
+}
+
+.application-dialog .dialog-heading {
+  padding: 24px 28px 20px;
+}
+
+.application-dialog .application-record-form {
+  gap: 16px;
+  padding: 22px 28px 26px;
+}
+
+.application-dialog .application-form-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.application-dialog .application-field-half {
+  grid-column: span 3;
+}
+
+.application-dialog .application-field-third {
+  grid-column: span 2;
+}
+
+.application-dialog .application-field-link {
+  grid-column: span 4;
+}
+
+.application-dialog .application-field-status {
+  grid-column: span 2;
+}
+
+.application-dialog .application-field-full {
+  grid-column: 1 / -1;
+}
+
+.application-dialog .application-record-form input,
+.application-dialog .application-record-form select {
+  min-height: 48px;
+}
+
+.application-dialog .application-record-form textarea {
+  min-height: 76px;
+}
+
+.application-dialog .application-form-actions {
+  padding-top: 0;
+}
+
+.interview-create-page {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  gap: 20px;
+}
+
+.interview-create-page > .hero-row {
+  align-items: flex-start;
+  padding: 4px 24px 0;
+}
+
+.interview-create-page > .hero-row h1 {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  line-height: 1.12;
+}
+
+.interview-create-page > .hero-row .lead {
+  margin-top: 7px;
+  font-size: 0.9rem;
+}
+
+.interview-create-form {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+}
+
+.interview-create-form > .field-error {
+  margin: 18px 24px 0;
+}
+
+.interview-create-group {
+  padding: 24px;
+}
+
+.interview-create-group + .interview-create-group {
+  border-top: 1px solid var(--line);
+}
+
+.interview-create-group-heading {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.interview-create-group-heading h2,
+.interview-create-group-heading p,
+.interview-create-actions p {
+  margin: 0;
+}
+
+.interview-create-group-heading h2 {
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.interview-create-group-heading p,
+.interview-create-actions p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.interview-create-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 14px 16px;
+}
+
+.interview-create-grid > label {
+  min-width: 0;
+}
+
+.interview-create-details-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.interview-create-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.interview-create-actions p {
+  max-width: 540px;
+}
+
+.interview-create-actions .button {
+  min-width: 144px;
+}
+
+.interview-create-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.interview-create-dialog {
+  width: min(820px, calc(100% - 28px));
+}
+
+.interview-create-dialog .dialog-card {
+  padding: 0;
+}
+
+.interview-create-dialog .dialog-heading {
+  padding: 22px 24px 18px;
+}
+
+.interview-create-dialog .interview-create-form {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.interview-create-dialog .interview-create-group {
+  padding: 18px 24px;
+}
+
+.interview-create-dialog .interview-create-group-heading {
+  margin-bottom: 12px;
+}
+
+.interview-create-dialog .interview-create-actions {
+  padding: 16px 24px 18px;
 }
 
 .application-detail-dialog .detail-dialog-body {
@@ -1099,7 +1282,99 @@ input[type="file"] {
   }
 
   .application-dialog .application-record-form {
-    padding-top: 16px;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .application-dialog .dialog-heading {
+    padding: 18px 18px 14px;
+  }
+
+  .application-dialog .application-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .application-dialog .application-field-half,
+  .application-dialog .application-field-third,
+  .application-dialog .application-field-status {
+    grid-column: span 1;
+  }
+
+  .application-dialog .application-field-link,
+  .application-dialog .application-field-full {
+    grid-column: 1 / -1;
+  }
+
+  .interview-create-group {
+    padding: 18px;
+  }
+
+  .interview-create-page {
+    gap: 16px;
+  }
+
+  .interview-create-page > .hero-row {
+    padding: 0 2px;
+  }
+
+  .interview-create-group-heading {
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .interview-create-grid,
+  .interview-create-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .interview-create-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 18px 18px;
+  }
+
+  .interview-create-actions .button {
+    width: 100%;
+  }
+
+  .interview-create-action-buttons {
+    width: 100%;
+  }
+
+  .interview-create-action-buttons > * {
+    flex: 1;
+  }
+
+  .interview-create-dialog .dialog-heading,
+  .interview-create-dialog .interview-create-group,
+  .interview-create-dialog .interview-create-actions {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .interview-create-dialog .interview-create-group {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .interview-create-dialog .interview-create-group-heading {
+    margin-bottom: 8px;
+  }
+
+  .interview-create-dialog .interview-create-group-heading p,
+  .interview-create-dialog .interview-create-actions > p {
+    display: none;
+  }
+
+  .interview-create-dialog .interview-create-grid {
+    gap: 10px;
+  }
+
+  .interview-create-dialog .interview-create-actions {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 
   .transfer-steps {
@@ -1113,5 +1388,19 @@ input[type="file"] {
 
   .transfer-steps li:last-child {
     border-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .application-dialog .application-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .application-dialog .application-field-half,
+  .application-dialog .application-field-third,
+  .application-dialog .application-field-link,
+  .application-dialog .application-field-status,
+  .application-dialog .application-field-full {
+    grid-column: 1 / -1;
   }
 }

@@ -31,7 +31,6 @@ export const createInterviewSchema = z
     applicationId: z.uuid(),
     stageOccurrenceId: z.uuid().nullable().optional(),
     stage: z.enum(INTERVIEW_STAGES).optional(),
-    stageOccurredOn: z.iso.date().optional(),
     interviewedOn: z.iso.date().optional(),
     format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
     durationMinutes: z.number().int().min(1).max(600).nullable().optional(),

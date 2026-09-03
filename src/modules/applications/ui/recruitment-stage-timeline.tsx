@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
+import { NewInterviewDialog } from "@/modules/interviews/ui/interview-dialogs";
 import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 import type { ApplicationDetail } from "../application/contracts";
 import {
@@ -13,6 +14,7 @@ import {
   type ApplicationStatus,
   type RecruitmentStage,
 } from "../domain/catalog";
+import { formatCompanyWithCity } from "../application/display";
 
 const today = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
@@ -387,17 +389,30 @@ export function RecruitmentStageTimeline({
                     const review = interviews.find(
                       (candidate) => candidate.stageOccurrenceId === item.id,
                     );
-                    return (
+                    return review ? (
                       <Link
                         className="stage-review-link"
-                        href={
-                          (review
-                            ? `/interviews/${review.id}`
-                            : `/interviews/new?applicationId=${application.id}&stageOccurrenceId=${item.id}`) as Route
-                        }
+                        href={`/interviews/${review.id}` as Route}
                       >
-                        {review ? "继续复盘" : "记录面经"}
+                        继续复盘
                       </Link>
+                    ) : (
+                      <NewInterviewDialog
+                        applications={[
+                          {
+                            id: application.id,
+                            label: `${formatCompanyWithCity(application.companyName, application.city)} · ${application.positionName}`,
+                            appliedDate: application.appliedDate,
+                          },
+                        ]}
+                        applicationId={application.id}
+                        stageOccurrenceId={item.id}
+                        stage={item.value}
+                        interviewedOn={item.occurredOn}
+                        buttonClassName="stage-review-link"
+                        label="记录面经"
+                        showAddIcon={false}
+                      />
                     );
                   })()}
               </li>

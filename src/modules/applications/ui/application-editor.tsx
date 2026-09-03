@@ -15,6 +15,8 @@ import { DeleteIcon } from "@/shared/ui/action-icons";
 import type { Route } from "next";
 import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
 import { isInterviewStage } from "@/modules/interviews/domain/catalog";
+import { NewInterviewDialog } from "@/modules/interviews/ui/interview-dialogs";
+import { formatCompanyWithCity } from "../application/display";
 import { ApplicationHistory } from "./application-history";
 
 const today = () =>
@@ -165,17 +167,30 @@ export function ApplicationEditor({
                       const review = interviews.find(
                         (candidate) => candidate.stageOccurrenceId === item.id,
                       );
-                      return (
+                      return review ? (
                         <Link
                           className="button secondary"
-                          href={
-                            (review
-                              ? `/interviews/${review.id}`
-                              : `/interviews/new?applicationId=${current.id}&stageOccurrenceId=${item.id}`) as Route
-                          }
+                          href={`/interviews/${review.id}` as Route}
                         >
-                          {review ? "继续复盘" : "记录面经"}
+                          继续复盘
                         </Link>
+                      ) : (
+                        <NewInterviewDialog
+                          applications={[
+                            {
+                              id: current.id,
+                              label: `${formatCompanyWithCity(current.companyName, current.city)} · ${current.positionName}`,
+                              appliedDate: current.appliedDate,
+                            },
+                          ]}
+                          applicationId={current.id}
+                          stageOccurrenceId={item.id}
+                          stage={item.stage}
+                          interviewedOn={item.occurredOn}
+                          buttonClassName="button secondary"
+                          label="记录面经"
+                          showAddIcon={false}
+                        />
                       );
                     })()}
                   <button
