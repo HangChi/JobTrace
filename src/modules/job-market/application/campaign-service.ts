@@ -17,6 +17,7 @@ const cachedCampaignList = unstable_cache(
 export async function listCampaigns(search: URLSearchParams) {
   const actor = await requireUser();
   const input = campaignQuerySchema.parse(Object.fromEntries(search));
+  if (input.favorite) return repository().list(actor.id, input);
   return cachedCampaignList(actor.id, input);
 }
 export async function getCampaign(id: string) {

@@ -1,7 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { FavoriteButton } from "@/modules/job-market/ui/favorite-button";
-afterEach(() => vi.unstubAllGlobals());
+const refresh = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh }),
+}));
+afterEach(() => {
+  vi.unstubAllGlobals();
+  refresh.mockReset();
+});
 describe("campaign favorite", () => {
   it("optimistically favorites and persists", async () => {
     const fetch = vi
@@ -20,6 +27,7 @@ describe("campaign favorite", () => {
         { method: "PUT" },
       ),
     );
+    await waitFor(() => expect(refresh).toHaveBeenCalledOnce());
   });
   it("rolls back after failure", async () => {
     vi.stubGlobal(
@@ -34,5 +42,6 @@ describe("campaign favorite", () => {
       ).toHaveAttribute("aria-pressed", "false"),
     );
     expect(screen.getByRole("status")).toHaveTextContent("收藏失败");
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

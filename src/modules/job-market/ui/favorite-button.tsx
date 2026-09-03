@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 export function FavoriteButton({
   campaignId,
@@ -7,6 +8,7 @@ export function FavoriteButton({
   campaignId: string;
   initial: boolean;
 }) {
+  const router = useRouter();
   const [favorite, setFavorite] = useState(initial);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -21,6 +23,7 @@ export function FavoriteButton({
         { method: next ? "PUT" : "DELETE" },
       );
       if (!response.ok) throw new Error();
+      router.refresh();
     } catch {
       setFavorite(!next);
       setError("收藏失败，请重试");
