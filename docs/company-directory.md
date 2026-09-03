@@ -1,8 +1,8 @@
 # 公司招聘入口总览
 
-> 自动生成于 2026-09-03，由 `DEFAULT_SOURCE_CATALOG`（自动同步来源）与 `DEFAULT_COMPANY_DIRECTORY`（招聘目录）按公司名去重合并而成。链接优先级：自动同步官网 > 目录官网入口 > 公众号招聘原文；「XX集团/XX中国」与「XX」、DJI大疆与大疆创新等 16 组同主体别名已合并（官网优先）。共计 **1259** 家公司（自动同步 245 · 官网入口 14 · 公众号 1000）。
+> 自动生成于 2026-09-03，由 `DEFAULT_SOURCE_CATALOG`（自动同步来源）与 `DEFAULT_COMPANY_DIRECTORY`（招聘目录）按公司名去重合并而成。链接优先级：自动同步官网 > 目录官网入口 > 公众号招聘原文；「XX集团/XX中国」与「XX」、DJI大疆与大疆创新等 16 组同主体别名已合并（官网优先）。共计 **1264** 家公司（自动同步 250 · 官网入口 14 · 公众号 1000）。
 
-## 自动同步公司（245 家）
+## 自动同步公司（250 家）
 
 岗位数据每 6 小时自动抓取更新，链接为官方招聘网站。
 
@@ -110,6 +110,7 @@
 | 罗兰贝格中国 | 外企 | 管理咨询 | 自动同步 | <https://jobs.smartrecruiters.com/rolandberger> |
 | 脉脉 | 民营企业 | 互联网 | 自动同步 | <https://maimai.jobs.feishu.cn/> |
 | 满帮集团 | 上市公司 | 物流 / 互联网 | 自动同步 | <https://app.mokahr.com/social-recruitment/manbang/46269> |
+| 蒙牛集团 | 民营企业 | 乳业 / 快速消费品 | 自动同步 | <https://mengniu.zhiye.com/jobs> |
 | 米哈游 | 民营企业 | 游戏 / 动漫 / 虚拟世界 | 自动同步 | <https://jobs.mihoyo.com/> |
 | 面壁智能 | 民营企业 | 大模型 | 自动同步 | <https://modelbest.jobs.feishu.cn/> |
 | 摩尔线程 | 民营企业 | GPU / 半导体 | 自动同步 | <https://mthreads.jobs.feishu.cn/> |
@@ -117,6 +118,7 @@
 | 尼尔森IQ中国 | 外企 | 数据分析 / 市场研究 | 自动同步 | <https://jobs.smartrecruiters.com/NielsenIQ> |
 | 柠檬微趣 | 民营企业 | 游戏 / 移动互联网 | 自动同步 | <https://app.mokahr.com/apply/microfunhr/36715> |
 | 欧陆科技集团中国 | 外企 | 检测认证 / 生命科学 | 自动同步 | <https://jobs.smartrecruiters.com/Eurofins> |
+| 奇瑞汽车 | 民营企业 | 汽车 / 整车制造 | 自动同步 | <https://chery.zhiye.com/jobs> |
 | 旗捷科技 | 民营企业 | 集成电路 / 打印芯片 | 自动同步 | <https://app.mokahr.com/social-recruitment/chipjet> |
 | 启迈QIMA中国 | 外企 | 质量检测 / 供应链服务 | 自动同步 | <https://jobs.smartrecruiters.com/QIMA> |
 | 千里科技 | 上市公司 | 智能驾驶 | 自动同步 | <https://app.mokahr.com/social-recruitment/qianli1/147197> |
@@ -130,6 +132,7 @@
 | 散爆网络 | 民营企业 | 游戏 / 数字娱乐 | 自动同步 | <https://app.mokahr.com/social-recruitment/micateam/142158> |
 | 上海创智学院 | 民营企业 | AI科研 | 自动同步 | <https://sii-czxy.jobs.feishu.cn/> |
 | 上海医药 | 国有企业 | 医药研发 / 医药流通 | 自动同步 | <https://app.mokahr.com/campus-recruitment/sphchina/39826> |
+| 上汽通用 | 外企 | 汽车 / 整车制造 | 自动同步 | <https://sgm.zhiye.com/jobs> |
 | 尚游游戏 | 民营企业 | 游戏 / 软件 | 自动同步 | <https://app.mokahr.com/social-recruitment/shangyou/42165> |
 | 韶音科技 | 民营企业 | 消费电子 / 声学 / 可穿戴设备 | 自动同步 | <https://app.mokahr.com/campus-recruitment/aftershokzhr/36940> |
 | 深信服 | 上市公司 | 网络安全 / 云计算 | 自动同步 | <https://app.mokahr.com/campus_apply/sangfor/27944> |
@@ -185,6 +188,7 @@
 | 徐工集团 | 国有企业 | 工程机械 / 智能制造 | 自动同步 | <https://app.mokahr.com/campus-recruitment/xcmg/148091> |
 | 迅雷 | 上市公司 | 互联网 / 云计算 | 自动同步 | <https://app.mokahr.com/social-recruitment/xunlei/26599> |
 | 延锋 | 国有企业 | 汽车零部件 | 自动同步 | <https://app.mokahr.com/social-recruitment/yanfeng/45086> |
+| 扬子江船业 | 上市公司 | 船舶制造 / 重工 | 自动同步 | <https://yangzijiang.zhiye.com/jobs> |
 | 椰岛游戏 | 民营企业 | 游戏 | 自动同步 | <https://coconutisland.jobs.feishu.cn/> |
 | 宜家中国 | 外企 | 家居零售 / 供应链 | 自动同步 | <https://jobs.smartrecruiters.com/InterIKEAGroup> |
 | 亿咖通 | 民营企业 | 汽车电子 | 自动同步 | <https://ecarxgroup.jobs.feishu.cn/> |
@@ -204,6 +208,7 @@
 | 元戎启行 | 民营企业 | 自动驾驶 / 人工智能 | 自动同步 | <https://app.mokahr.com/social-recruitment/deeproute/143885> |
 | 远景科技集团 | 民营企业 | 新能源 / 智能物联 | 自动同步 | <https://app.mokahr.com/campus-recruitment/envisiongroup/43123> |
 | 月之暗面 | 民营企业 | 大模型 | 自动同步 | <https://moonshot.jobs.feishu.cn/> |
+| 长安汽车 | 国有企业 | 汽车 / 整车制造 | 自动同步 | <https://changan.zhiye.com/jobs> |
 | 掌阅科技 | 民营企业 | 互联网 | 自动同步 | <https://q7w8vltyes.jobs.feishu.cn/> |
 | 知乎 | 上市公司 | 互联网 / 内容社区 | 自动同步 | <https://app.mokahr.com/apply/zhihu/78336> |
 | 志凌海纳 SmartX | 民营企业 | 云计算 / 超融合 / 企业软件 | 自动同步 | <https://app.mokahr.com/social-recruitment/smartx> |
