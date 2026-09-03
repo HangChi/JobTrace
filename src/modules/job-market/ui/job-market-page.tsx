@@ -85,6 +85,7 @@ export function JobMarketPage({
             href={favoriteHref}
             aria-current={favoriteOnly ? "true" : undefined}
             scroll={false}
+            prefetch={true}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <path d="m12 3.8 2.5 5.05 5.58.81-4.04 3.94.95 5.56L12 16.54l-4.99 2.62.95-5.56-4.04-3.94 5.58-.81L12 3.8Z" />
@@ -115,11 +116,7 @@ export function JobMarketPage({
               </thead>
               <tbody>
                 {page.items.map((item) => (
-                  <CampaignCard
-                    key={item.id}
-                    campaign={item}
-                    favoriteOnly={favoriteOnly}
-                  />
+                  <CampaignCard key={item.id} campaign={item} />
                 ))}
               </tbody>
             </table>

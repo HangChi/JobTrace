@@ -32,7 +32,7 @@ describe("campaign favorite", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "取消收藏" })).toBeEnabled(),
     );
-    expect(refreshMock).not.toHaveBeenCalled();
+    expect(refreshMock).toHaveBeenCalledOnce();
   });
   it("rolls back after failure", async () => {
     vi.stubGlobal(
@@ -48,14 +48,12 @@ describe("campaign favorite", () => {
     );
     expect(screen.getByRole("status")).toHaveTextContent("收藏失败");
   });
-  it("refreshes the list after unfavoriting in favorites-only view", async () => {
+  it("refreshes prefetched list variants after unfavoriting", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
     );
-    render(
-      <FavoriteButton campaignId="id" initial={true} refreshOnUnfavorite />,
-    );
+    render(<FavoriteButton campaignId="id" initial={true} />);
     fireEvent.click(screen.getByRole("button", { name: "取消收藏" }));
     await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1));
     await waitFor(() =>
@@ -63,19 +61,5 @@ describe("campaign favorite", () => {
         screen.getByRole("button", { name: "收藏招聘记录" }),
       ).toBeEnabled(),
     );
-  });
-  it("keeps optimistic unfavorite in the default view", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
-    );
-    render(<FavoriteButton campaignId="id" initial={true} />);
-    fireEvent.click(screen.getByRole("button", { name: "取消收藏" }));
-    await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "收藏招聘记录" }),
-      ).toBeEnabled(),
-    );
-    expect(refreshMock).not.toHaveBeenCalled();
   });
 });
