@@ -9,6 +9,7 @@ import {
   listApplicationInterviews,
   REVIEW_STATUS_LABELS,
 } from "@/modules/interviews";
+import { NewInterviewDialog } from "@/modules/interviews/ui/interview-dialogs";
 import { STAGE_LABELS, formatCompanyWithCity } from "@/modules/applications";
 
 export default async function ApplicationPage({
@@ -58,12 +59,19 @@ export default async function ApplicationPage({
           <div>
             <h2>面经复盘</h2>
           </div>
-          <Link
-            className="button secondary"
-            href={`/interviews/new?applicationId=${application.id}` as Route}
-          >
-            记录面经
-          </Link>
+          <NewInterviewDialog
+            applications={[
+              {
+                id: application.id,
+                label: `${companyDisplayName} · ${application.positionName}`,
+                appliedDate: application.appliedDate,
+              },
+            ]}
+            applicationId={application.id}
+            buttonClassName="button secondary"
+            label="记录面经"
+            showAddIcon={false}
+          />
         </div>
         {interviews.length ? (
           <ul className="application-interview-list">

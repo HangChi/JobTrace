@@ -33,11 +33,11 @@ export default async function NewInterviewPage({
     (item) => item.id === query.stageOccurrenceId,
   );
   return (
-    <section className="stack page-gap">
+    <section className="stack page-gap interview-create-page">
       <div className="hero-row">
         <div>
           <h1>新增面试复盘</h1>
-          <p className="lead">选择关联投递，填写面试日期和复盘内容。</p>
+          <p className="lead">选择关联投递，记录面试日期和基本信息。</p>
         </div>
       </div>
       <InterviewCreateForm
@@ -49,7 +49,6 @@ export default async function NewInterviewPage({
         applicationId={selected?.id}
         stageOccurrenceId={occurrence?.id}
         stage={occurrence?.stage ?? query.stage}
-        stageOccurredOn={occurrence?.occurredOn}
         interviewedOn={query.interviewedOn ?? occurrence?.occurredOn}
       />
     </section>

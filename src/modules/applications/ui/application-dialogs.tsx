@@ -26,9 +26,10 @@ export function NewApplicationDialog({
       </button>
       <Dialog
         open={open}
-        title="新增投递"
-        description="填写公司、岗位和投递日期。"
-        className="application-dialog"
+        kicker="NEW APPLICATION"
+        title="记录一次新投递"
+        description="先填最重要的信息，后续进展可以随时补充。"
+        className="application-dialog application-create-dialog"
         onClose={close}
       >
         {open && (

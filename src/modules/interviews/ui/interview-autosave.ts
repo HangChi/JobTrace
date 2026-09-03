@@ -51,7 +51,7 @@ export function useInterviewAutosave({
       if (!force && stateRef.current === "error") return;
 
       saving.current = true;
-      transition("saving");
+      transition("saving", "正在保存…");
       try {
         const response = await fetch(`/api/interviews/${id}`, {
           method: "PATCH",
@@ -69,13 +69,7 @@ export function useInterviewAutosave({
         }
         lastSavedRevision.current = targetRevision;
         onSaved(result as InterviewDetail);
-        transition(
-          "saved",
-          `已保存 ${new Date().toLocaleTimeString("zh-CN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}`,
-        );
+        transition("saved", "已保存");
       } catch (reason) {
         transition(
           "error",
@@ -106,6 +100,12 @@ export function useInterviewAutosave({
       window.removeEventListener("pagehide", pagehide);
     };
   }, [save]);
+
+  useEffect(() => {
+    if (state !== "saved") return;
+    const timer = window.setTimeout(() => transition("idle"), 1600);
+    return () => window.clearTimeout(timer);
+  }, [state, transition]);
 
   return {
     state,

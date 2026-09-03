@@ -67,21 +67,24 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
             {draft.interviewedOn} · {STAGE_LABELS[draft.stage]}
           </p>
         </div>
-        <div
-          className="save-state"
-          aria-live="polite"
-          data-state={autosave.state}
-        >
-          {autosave.message || "开始编辑后自动保存"}
-          {autosave.state === "error" && (
-            <button type="button" onClick={() => void autosave.retry()}>
-              重试
-            </button>
-          )}
-          {autosave.state === "conflict" && (
-            <button type="button" onClick={() => window.location.reload()}>
-              刷新页面
-            </button>
+        <div className="save-state-region" aria-live="polite">
+          {autosave.state !== "idle" && (
+            <div className="save-state" data-state={autosave.state}>
+              <span className="save-state-mark" aria-hidden="true">
+                {autosave.state === "saved" ? "✓" : ""}
+              </span>
+              <span>{autosave.message}</span>
+              {autosave.state === "error" && (
+                <button type="button" onClick={() => void autosave.retry()}>
+                  重试
+                </button>
+              )}
+              {autosave.state === "conflict" && (
+                <button type="button" onClick={() => window.location.reload()}>
+                  刷新页面
+                </button>
+              )}
+            </div>
           )}
         </div>
       </header>

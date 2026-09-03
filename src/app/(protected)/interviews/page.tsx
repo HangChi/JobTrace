@@ -1,6 +1,9 @@
-import Link from "next/link";
-import type { Route } from "next";
+import {
+  formatCompanyWithCity,
+  listApplications,
+} from "@/modules/applications";
 import { listInterviews } from "@/modules/interviews";
+import { NewInterviewDialog } from "@/modules/interviews/ui/interview-dialogs";
 import { InterviewFilters } from "@/modules/interviews/ui/interview-filters";
 import { InterviewList } from "@/modules/interviews/ui/interview-list";
 import { requirePageUser } from "@/modules/identity-access";
@@ -24,12 +27,12 @@ export default async function InterviewsPage({
   await requirePageUser();
   const search = await searchParams;
   const params = paramsFrom(search);
-  const page = await listInterviews(params);
+  const [page, applicationsPage] = await Promise.all([
+    listInterviews(params),
+    listApplications(new URLSearchParams({ limit: "100" })),
+  ]);
   const next = new URLSearchParams(params);
   if (page.nextCursor) next.set("cursor", page.nextCursor);
-  const pendingOnPage = page.items.filter(
-    (interview) => interview.status !== "completed",
-  ).length;
   return (
     <section className="stack page-gap interviews-page">
       <PageHeader
@@ -37,14 +40,14 @@ export default async function InterviewsPage({
         kicker="面试记录"
         title="面试复盘"
         description="整理面试内容、结论和下一步行动。"
-        meta={[
-          { label: `共 ${page.total} 次复盘`, tone: "brand" },
-          { label: `本页待完善 ${pendingOnPage} 条`, tone: "warning" },
-        ]}
         actions={
-          <Link className="button" href={"/interviews/new" as Route}>
-            新增复盘
-          </Link>
+          <NewInterviewDialog
+            applications={applicationsPage.items.map((item) => ({
+              id: item.id,
+              label: `${formatCompanyWithCity(item.companyName, item.city)} · ${item.positionName}`,
+              appliedDate: item.appliedDate,
+            }))}
+          />
         }
       />
       <InterviewFilters query={search} />

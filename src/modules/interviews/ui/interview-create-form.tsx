@@ -8,7 +8,11 @@ import type { InterviewPage } from "../application/contracts";
 import { INTERVIEW_STAGES, isInterviewStage } from "../domain/catalog";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 
-type ApplicationOption = { id: string; label: string; appliedDate: string };
+export type InterviewApplicationOption = {
+  id: string;
+  label: string;
+  appliedDate: string;
+};
 type StageOption = ApplicationDetail["stageOccurrences"][number];
 const today = () =>
   new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" });
@@ -18,15 +22,17 @@ export function InterviewCreateForm({
   applicationId,
   stageOccurrenceId,
   stage,
-  stageOccurredOn,
   interviewedOn,
+  embedded = false,
+  onCancel,
 }: {
-  applications: ApplicationOption[];
+  applications: InterviewApplicationOption[];
   applicationId?: string;
   stageOccurrenceId?: string;
   stage?: string;
-  stageOccurredOn?: string;
   interviewedOn?: string;
+  embedded?: boolean;
+  onCancel?: () => void;
 }) {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -39,10 +45,7 @@ export function InterviewCreateForm({
   );
   const [availableStages, setAvailableStages] = useState<StageOption[]>([]);
   const [stageChoice, setStageChoice] = useState(stageOccurrenceId ?? "new");
-  const [interviewDate, setInterviewDate] = useState(
-    interviewedOn ?? stageOccurredOn ?? today(),
-  );
-  const [recordedOn, setRecordedOn] = useState(stageOccurredOn ?? today());
+  const [interviewDate, setInterviewDate] = useState(interviewedOn ?? today());
 
   const selectedApplicationOption = useMemo(
     () => applications.find((item) => item.id === selectedApplication),
@@ -78,7 +81,6 @@ export function InterviewCreateForm({
         );
         setAvailableStages(stages);
         setStageChoice(stages[0]?.id ?? "new");
-        setRecordedOn(stages[0]?.occurredOn ?? today());
         setInterviewDate(stages[0]?.occurredOn ?? today());
       })
       .catch((reason: unknown) => {
@@ -106,7 +108,7 @@ export function InterviewCreateForm({
       interviewedOn: values.interviewedOn,
       ...(selectedOccurrence
         ? { stageOccurrenceId: selectedOccurrence }
-        : { stage: values.stage, stageOccurredOn: values.stageOccurredOn }),
+        : { stage: values.stage }),
       format: values.format || null,
       durationMinutes: values.durationMinutes
         ? Number(values.durationMinutes)
@@ -136,138 +138,154 @@ export function InterviewCreateForm({
     : stageChoice === "new";
 
   return (
-    <form className="panel stack interview-create-form" onSubmit={submit}>
+    <form
+      className={`${embedded ? "is-embedded " : "panel "}interview-create-form`}
+      onSubmit={submit}
+    >
       {error && (
         <p className="field-error" role="alert">
           {error}
         </p>
       )}
-      <div className="grid">
-        <label>
-          关联投递
-          <span className="select-wrap">
-            <select
-              name="applicationId"
-              value={selectedApplication}
-              required
-              disabled={Boolean(applicationId)}
-              onChange={(event) => {
-                const value = event.target.value;
-                setSelectedApplication(value);
-                setAvailableStages([]);
-                setStageChoice("new");
-                setRecordedOn(today());
-                setInterviewDate(today());
-                setLoadingStages(Boolean(value));
-                setError("");
-              }}
-            >
-              <option value="">请选择投递</option>
-              {applications.map((item) => (
-                <option value={item.id} key={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </span>
-          {applicationId && (
-            <input type="hidden" name="applicationId" value={applicationId} />
-          )}
-        </label>
-        {selectedApplication && !stageOccurrenceId && (
+      <section
+        className="interview-create-group"
+        aria-labelledby="interview-create-progress-title"
+      >
+        <div className="interview-create-group-heading">
+          <h2 id="interview-create-progress-title">关联进度</h2>
+        </div>
+        <div className="interview-create-grid">
           <label>
-            关联阶段
+            关联投递
             <span className="select-wrap">
               <select
-                value={stageChoice}
-                disabled={loadingStages}
+                name="applicationId"
+                value={selectedApplication}
+                required
+                autoFocus={embedded}
+                disabled={Boolean(applicationId)}
                 onChange={(event) => {
                   const value = event.target.value;
-                  const occurrence = availableStages.find(
-                    (item) => item.id === value,
-                  );
-                  setStageChoice(value);
-                  setRecordedOn(occurrence?.occurredOn ?? today());
-                  setInterviewDate(occurrence?.occurredOn ?? today());
+                  setSelectedApplication(value);
+                  setAvailableStages([]);
+                  setStageChoice("new");
+                  setInterviewDate(today());
+                  setLoadingStages(Boolean(value));
+                  setError("");
                 }}
               >
-                {availableStages.map((item) => (
+                <option value="">请选择投递</option>
+                {applications.map((item) => (
                   <option value={item.id} key={item.id}>
-                    {STAGE_LABELS[item.stage]} · {item.occurredOn}
+                    {item.label}
                   </option>
                 ))}
-                <option value="new">补录新的面试 / 测评阶段</option>
+              </select>
+            </span>
+            {applicationId && (
+              <input type="hidden" name="applicationId" value={applicationId} />
+            )}
+          </label>
+          {selectedApplication && !stageOccurrenceId && (
+            <label>
+              关联阶段
+              <span className="select-wrap">
+                <select
+                  value={stageChoice}
+                  disabled={loadingStages}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    const occurrence = availableStages.find(
+                      (item) => item.id === value,
+                    );
+                    setStageChoice(value);
+                    setInterviewDate(occurrence?.occurredOn ?? today());
+                  }}
+                >
+                  {availableStages.map((item) => (
+                    <option value={item.id} key={item.id}>
+                      {STAGE_LABELS[item.stage]} · {item.occurredOn}
+                    </option>
+                  ))}
+                  <option value="new">补录新的面试 / 测评阶段</option>
+                </select>
+              </span>
+            </label>
+          )}
+          <label>
+            面试 / 测评阶段
+            <span className="select-wrap">
+              <select
+                name="stage"
+                defaultValue={stage}
+                disabled={!creatingStage}
+                required={creatingStage}
+              >
+                {INTERVIEW_STAGES.map((item) => (
+                  <option value={item} key={item}>
+                    {STAGE_LABELS[item]}
+                  </option>
+                ))}
               </select>
             </span>
           </label>
-        )}
-        <label>
-          面试 / 测评阶段
-          <span className="select-wrap">
-            <select
-              name="stage"
-              defaultValue={stage}
-              disabled={!creatingStage}
-              required={creatingStage}
-            >
-              {INTERVIEW_STAGES.map((item) => (
-                <option value={item} key={item}>
-                  {STAGE_LABELS[item]}
-                </option>
-              ))}
-            </select>
-          </span>
-        </label>
-        {creatingStage && (
+        </div>
+      </section>
+      <section
+        className="interview-create-group"
+        aria-labelledby="interview-create-details-title"
+      >
+        <div className="interview-create-group-heading">
+          <h2 id="interview-create-details-title">面试信息</h2>
+        </div>
+        <div className="interview-create-grid interview-create-details-grid">
           <label>
-            阶段记录日期
+            面试 / 测评日期
             <input
-              aria-label="阶段记录日期"
-              name="stageOccurredOn"
+              aria-label="面试 / 测评日期"
+              name="interviewedOn"
               type="date"
-              value={recordedOn}
+              value={interviewDate}
               min={selectedApplicationOption?.appliedDate}
               max={today()}
-              onChange={(event) => setRecordedOn(event.target.value)}
+              onChange={(event) => setInterviewDate(event.target.value)}
               required
             />
-            <span className="field-hint">
-              通常填写收到通知或状态变化的日期。
+          </label>
+          <label>
+            面试形式
+            <span className="select-wrap">
+              <select name="format" defaultValue="">
+                <option value="">未记录</option>
+                <option value="online">线上</option>
+                <option value="offline">线下</option>
+                <option value="phone">电话</option>
+              </select>
             </span>
           </label>
-        )}
-        <label>
-          面试 / 测评日期
-          <input
-            aria-label="面试 / 测评日期"
-            name="interviewedOn"
-            type="date"
-            value={interviewDate}
-            min={selectedApplicationOption?.appliedDate}
-            max={today()}
-            onChange={(event) => setInterviewDate(event.target.value)}
-            required
-          />
-        </label>
-        <label>
-          面试形式
-          <span className="select-wrap">
-            <select name="format" defaultValue="">
-              <option value="">未记录</option>
-              <option value="online">线上</option>
-              <option value="offline">线下</option>
-              <option value="phone">电话</option>
-            </select>
-          </span>
-        </label>
-        <label>
-          时长（分钟）
-          <input name="durationMinutes" type="number" min="1" max="600" />
-        </label>
+          <label>
+            时长（分钟）
+            <input name="durationMinutes" type="number" min="1" max="600" />
+          </label>
+        </div>
+      </section>
+      <div className="interview-create-actions">
+        <div className="interview-create-action-buttons">
+          {onCancel && (
+            <button
+              className="button secondary"
+              type="button"
+              disabled={busy}
+              onClick={onCancel}
+            >
+              取消
+            </button>
+          )}
+          <button className="button" disabled={busy || loadingStages}>
+            {busy ? "正在创建…" : loadingStages ? "正在读取阶段…" : "开始记录"}
+          </button>
+        </div>
       </div>
-      <button className="button" disabled={busy || loadingStages}>
-        {busy ? "正在创建…" : loadingStages ? "正在读取阶段…" : "开始记录"}
-      </button>
     </form>
   );
 }

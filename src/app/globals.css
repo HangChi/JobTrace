@@ -3947,15 +3947,37 @@ dialog::backdrop {
 .application-detail-back:hover {
   color: var(--brand-dark);
 }
-.save-state {
-  min-width: 180px;
-  min-height: 40px;
+.save-state-region {
+  min-width: 0;
+  min-height: 24px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+}
+.save-state {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1;
+}
+.save-state-mark {
+  width: 14px;
+  height: 14px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--brand);
+  font-size: 0.7rem;
+}
+.save-state[data-state="saving"] .save-state-mark {
+  border: 2px solid color-mix(in srgb, var(--brand) 20%, transparent);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: save-state-spin 0.75s linear infinite;
 }
 .save-state[data-state="error"],
 .save-state[data-state="conflict"] {
@@ -3967,6 +3989,16 @@ dialog::backdrop {
   background: transparent;
   text-decoration: underline;
   cursor: pointer;
+}
+@keyframes save-state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .save-state[data-state="saving"] .save-state-mark {
+    animation: none;
+  }
 }
 .interview-editor-nav {
   display: flex;
@@ -4543,6 +4575,9 @@ dialog::backdrop {
     white-space: normal;
   }
   .save-state {
+    justify-content: flex-start;
+  }
+  .save-state-region {
     justify-content: flex-start;
   }
   .interview-editor-nav {

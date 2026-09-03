@@ -38,13 +38,6 @@ function DashboardState({
 }: ApplicationDashboardProps) {
   const [page, setPage] = useState(initialPage);
   const [summary, setSummary] = useState(initialSummary);
-  const pendingApplications = new Set([
-    ...summary.followUps.map((item) => item.id),
-    ...summary.progressReminders
-      .filter((item) => !item.completed)
-      .map((item) => item.applicationId),
-  ]).size;
-
   const refreshDashboard = useCallback(async () => {
     try {
       const [pageResponse, summaryResponse] = await Promise.all([
@@ -92,11 +85,6 @@ function DashboardState({
         kicker="岗位进展"
         title="投递记录"
         description="查看岗位进展并处理待跟进事项。"
-        meta={[
-          { label: `共 ${summary.total} 条`, tone: "brand" },
-          { label: `本周新增 ${summary.addedThisWeek} 条` },
-          { label: `待处理 ${pendingApplications} 条`, tone: "warning" },
-        ]}
         actions={
           <>
             <NewApplicationDialog onSuccess={handleCreated} />

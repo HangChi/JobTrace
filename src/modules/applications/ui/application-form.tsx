@@ -106,7 +106,9 @@ export function ApplicationForm({
           defaultValue={application?.positionName ?? defaults?.positionName}
           placeholder="例如：前端开发工程师"
           autoFocus={
-            embedded && Boolean(defaults?.companyName) && !defaults?.positionName
+            embedded &&
+            Boolean(defaults?.companyName) &&
+            !defaults?.positionName
           }
         />
         <FormField
