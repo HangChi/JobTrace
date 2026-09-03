@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { JobMarketPage } from "@/modules/job-market/ui/job-market-page";
 import type { CampaignSummary } from "@/modules/job-market/domain/entities";
@@ -55,10 +55,10 @@ describe("job market page", () => {
       "popovertarget",
       "campaign-11111111-1111-4111-8111-111111111111-positions",
     );
-    expect(screen.getByRole("dialog", { name: "全部岗位" })).toHaveAttribute(
-      "popover",
-      "auto",
-    );
+    const positionDialog = screen.getByRole("dialog", { name: "全部岗位" });
+    expect(positionDialog).toHaveAttribute("popover", "auto");
+    expect(within(positionDialog).getByText("算法工程师")).toBeInTheDocument();
+    expect(within(positionDialog).getByText("产品经理")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "href",
       "https://jobs.example.com",

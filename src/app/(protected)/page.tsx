@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { listCampaigns } from "@/modules/job-market/application/campaign-service";
+import { JobMarketLoading } from "@/modules/job-market/ui/job-market-loading";
 import { JobMarketPage } from "@/modules/job-market/ui/job-market-page";
 import { requirePageUser } from "@/modules/identity-access";
 
@@ -12,7 +14,7 @@ function params(search: Search) {
   }
   return result;
 }
-export default async function HomePage({
+async function JobMarketContent({
   searchParams,
 }: {
   searchParams: Promise<Search>;
@@ -21,4 +23,16 @@ export default async function HomePage({
   const query = await searchParams;
   const page = await listCampaigns(params(query));
   return <JobMarketPage page={page} query={query} />;
+}
+
+export default function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<Search>;
+}) {
+  return (
+    <Suspense fallback={<JobMarketLoading />}>
+      <JobMarketContent searchParams={searchParams} />
+    </Suspense>
+  );
 }

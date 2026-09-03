@@ -13,6 +13,11 @@ type CampaignRow = Omit<
   sourceUrl: string;
 };
 
+type CampaignPageSelection = {
+  total: number;
+  companyIds: string[];
+};
+
 export class PostgresCampaignQuery implements CampaignRepository {
   constructor(private readonly sql = createServerDatabase()) {}
 
@@ -97,10 +102,55 @@ export class PostgresCampaignQuery implements CampaignRepository {
 
   async list(ownerId: string, query: CampaignQuery) {
     const filters = this.filters(ownerId, query);
-    const [count] = await this.sql<Array<{ total: number }>>`
-      select count(*)::int as total
-      from job_market_companies company
-      where ${filters}`;
+    const [selection] = await this.sql<CampaignPageSelection[]>`
+      with eligible as materialized (
+        select company.id,
+          post_dates.published_at,
+          directory.published_at as directory_published_at,
+          campaign_dates.last_confirmed_at
+        from job_market_companies company
+        left join lateral (
+          select max(post.published_at) as published_at
+          from job_market_posts post
+          join job_market_source_records record on record.post_id=post.id
+          join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
+          where post.company_id=company.id and post.status<>'closed'
+        ) post_dates on true
+        left join lateral (
+          select campaign.published_at
+          from job_market_campaigns campaign
+          where campaign.company_id=company.id and campaign.listing_kind='recruitment_directory' and campaign.status<>'closed'
+          order by case when campaign.recruitment_type='招聘官网' then 0 else 1 end,
+            campaign.published_at desc nulls last,campaign.id
+          limit 1
+        ) directory on true
+        left join lateral (
+          select max(campaign.last_confirmed_at) as last_confirmed_at
+          from job_market_campaigns campaign where campaign.company_id=company.id
+        ) campaign_dates on true
+        where ${filters}
+      ), selected_page as (
+        select id,published_at,directory_published_at,last_confirmed_at
+        from eligible
+        order by coalesce(published_at,directory_published_at) desc nulls last,
+          last_confirmed_at desc nulls last,id
+        limit ${query.limit} offset ${(query.page - 1) * query.limit}
+      )
+      select
+        (select count(*)::int from eligible) as total,
+        coalesce((
+          select array_agg(id order by coalesce(published_at,directory_published_at) desc nulls last,
+            last_confirmed_at desc nulls last,id)
+          from selected_page
+        ),'{}'::uuid[]) as "companyIds"`;
+    if (!selection.companyIds.length)
+      return {
+        items: [],
+        page: query.page,
+        limit: query.limit,
+        total: selection.total,
+      };
+
     const rows = await this.sql<CampaignRow[]>`
       select representative.id,
         case when sync_state.has_synced then 'synced_jobs' else 'recruitment_directory' end as "listingKind",
@@ -227,10 +277,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
         select max(campaign.last_confirmed_at) as last_confirmed_at
         from job_market_campaigns campaign where campaign.company_id=company.id
       ) campaign_dates on true
-      where ${filters}
-      order by coalesce(post_dates.published_at,directory.published_at) desc nulls last,
-        campaign_dates.last_confirmed_at desc nulls last,company.id
-      limit ${query.limit} offset ${(query.page - 1) * query.limit}`;
+      where company.id=any(${selection.companyIds}::uuid[])
+      order by array_position(${selection.companyIds}::uuid[],company.id)`;
     const items = rows.map(
       (row) =>
         ({
@@ -248,7 +296,12 @@ export class PostgresCampaignQuery implements CampaignRepository {
             : null,
         }) as CampaignSummary,
     );
-    return { items, page: query.page, limit: query.limit, total: count.total };
+    return {
+      items,
+      page: query.page,
+      limit: query.limit,
+      total: selection.total,
+    };
   }
 
   private async jobs(ownerId: string, companyId: string) {

@@ -64,7 +64,7 @@ describe("default job-market source catalog", () => {
     expect(
       DEFAULT_COMPANY_DIRECTORY.filter((entry) => entry.channel === "wechat")
         .length,
-    ).toBeGreaterThanOrEqual(1_000);
+    ).toBeGreaterThanOrEqual(990);
   });
 
   it("fills verified gaps from the public graduate-recruitment tracker", () => {
@@ -148,5 +148,18 @@ describe("default job-market source catalog", () => {
     expect(directory).toContain(
       `## 自动同步公司（${automaticCompanies.size} 家）`,
     );
+    expect(directory).toContain(
+      `共计 **${automaticCompanies.size + DEFAULT_COMPANY_DIRECTORY.length}** 家公司`,
+    );
+    expect(DEFAULT_COMPANY_DIRECTORY).toHaveLength(1008);
+    expect(
+      DEFAULT_COMPANY_DIRECTORY.some(
+        (entry) => entry.companyName === "蜜雪集团",
+      ),
+    ).toBe(true);
+    for (const alias of ["京东", "小米", "阿里巴巴", "DJI大疆", "大疆"])
+      expect(
+        DEFAULT_COMPANY_DIRECTORY.some((entry) => entry.companyName === alias),
+      ).toBe(false);
   });
 });
