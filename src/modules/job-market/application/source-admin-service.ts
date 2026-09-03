@@ -72,7 +72,9 @@ export function listDefaultSourceCatalog() {
     ...publicDefaultSourceCatalog().map((entry) => ({
       ...entry,
       channel: "automatic" as const,
-      channelLabel: `自动同步：${entry.adapter}`,
+      channelLabel: entry.channelHint
+        ? `自动同步：${entry.adapter}（${entry.channelHint}）`
+        : `自动同步：${entry.adapter}`,
     })),
     ...publicDefaultCompanyDirectory(),
   ];

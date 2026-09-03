@@ -1477,13 +1477,27 @@ export const DEFAULT_SOURCE_CATALOG = [
   ),
 ] as const satisfies readonly DefaultSourceCatalogEntry[];
 
+const CHANNEL_HINTS: Record<string, string> = {
+  social: "社招",
+  sr: "社招",
+  campus: "校招",
+  cr: "校招",
+};
+
+function channelHint(externalKey: string) {
+  const channel = externalKey.split("|")[1];
+  return channel ? (CHANNEL_HINTS[channel] ?? null) : null;
+}
+
 export function publicDefaultSourceCatalog() {
   return DEFAULT_SOURCE_CATALOG.map(
-    ({ companyName, adapter, industry, websiteUrl }) => ({
+    ({ identityKey, companyName, adapter, industry, websiteUrl, externalKey }) => ({
+      identityKey,
       companyName,
       adapter,
       industry,
       websiteUrl,
+      channelHint: channelHint(externalKey),
     }),
   );
 }
