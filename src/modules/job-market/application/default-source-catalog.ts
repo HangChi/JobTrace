@@ -819,7 +819,12 @@ const FEISHU_SOURCES = [
   ["molbreeding", "博瑞迪", "生物育种", "molbreeding.jobs.feishu.cn"],
   ["bluepha", "蓝晶微生物", "合成生物", "bluepha.jobs.feishu.cn"],
   ["lizhi", "荔枝", "音频 / 互联网", "lizhi2021.jobs.feishu.cn"],
-  ["sensetime", "商汤科技", "人工智能 / 计算机视觉", "sensetime.jobs.feishu.cn"],
+  [
+    "sensetime",
+    "商汤科技",
+    "人工智能 / 计算机视觉",
+    "sensetime.jobs.feishu.cn",
+  ],
   ["jtexpress", "极兔速递", "快递物流 / 供应链", "jtexpress.jobs.feishu.cn"],
   ["hozonauto", "哪吒汽车", "新能源汽车", "hozonauto.jobs.feishu.cn"],
 ] as const;
@@ -1794,7 +1799,14 @@ function channelHint(externalKey: string) {
 
 export function publicDefaultSourceCatalog() {
   return DEFAULT_SOURCE_CATALOG.map(
-    ({ identityKey, companyName, adapter, industry, websiteUrl, externalKey }) => ({
+    ({
+      identityKey,
+      companyName,
+      adapter,
+      industry,
+      websiteUrl,
+      externalKey,
+    }) => ({
       identityKey,
       companyName,
       adapter,

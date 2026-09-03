@@ -31,6 +31,56 @@ export const sourceCandidateReviewSchema = z.object({
   action: z.enum(["approve", "ignore"]),
 });
 
+export const defaultCatalogQuerySchema = z.object({
+  q: z.string().trim().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+export type DefaultCatalogItem = {
+  identityKey?: string;
+  companyName: string;
+  adapter?: string;
+  industry: string;
+  websiteUrl: string;
+  channel?: "automatic" | "official_site" | "wechat";
+  channelLabel?: string;
+};
+
+export type DefaultCatalogSummary = {
+  total: number;
+  automatic: number;
+  directory: number;
+};
+
+export type DefaultCatalogPage = {
+  items: DefaultCatalogItem[];
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type SourceCandidate = {
+  id: string;
+  companyId: string;
+  companyName: string;
+  companyType: string | null;
+  entryUrl: string;
+  adapter: (typeof SOURCE_ADAPTERS)[number] | null;
+  externalKey: string | null;
+  baseUrl: string | null;
+  allowedHosts: string[];
+  confidence: "high" | "medium" | null;
+  evidenceCode: string;
+  reviewStatus: "unrecognized" | "pending" | "approved" | "ignored";
+  healthStatus: "healthy" | "unreachable" | "unsupported";
+  diagnosticCode: string | null;
+  diagnosticSummary: string | null;
+  httpStatus: number | null;
+  approvedSourceId: string | null;
+  lastCheckedAt: string;
+};
+
 export const sourceInputSchema = z.object({
   companyId: z.uuid(),
   adapter: z.enum(SOURCE_ADAPTERS),

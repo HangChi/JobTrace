@@ -64,10 +64,12 @@ describe("面经创建闭环", () => {
       "href",
       "/interviews/44444444-4444-4444-8444-444444444444",
     );
-    expect(screen.getByRole("link", { name: "记录面经" })).toHaveAttribute(
-      "href",
-      expect.stringContaining("33333333-3333-4333-8333-333333333333"),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "记录面经" }));
+    expect(
+      screen.getByRole("dialog", { name: "记录一次面试" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("关联投递")).toHaveValue(application.id);
+    expect(screen.getByLabelText("面试 / 测评阶段")).toHaveValue("interview_2");
   });
 
   it("从阶段入口锁定投递和阶段，但允许独立修改实际日期", () => {
@@ -110,10 +112,11 @@ describe("面经创建闭环", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "记录面经" })).toHaveAttribute(
-      "href",
-      expect.stringContaining("55555555-5555-4555-8555-555555555555"),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "记录面经" }));
+    expect(
+      screen.getByRole("dialog", { name: "记录一次面试" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("面试 / 测评阶段")).toHaveValue("assessment");
   });
 
   it("选择投递后可选择未关联的已有面试阶段", async () => {

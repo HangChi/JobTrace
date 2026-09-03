@@ -134,7 +134,7 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 
 ## 自动招聘市场边界
 
-默认企业来源目录位于 `src/modules/job-market/application/default-source-catalog.ts`。它属于受审查的出站来源配置，而不是数据库 seed；截至 2026-09-01 包含 232 家可自动同步企业，并保持中国企业占多数。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。
+默认企业来源目录位于 `src/modules/job-market/application/default-source-catalog.ts`。它属于受审查的出站来源配置，而不是数据库 seed；截至 2026-09-03 包含 279 家可自动同步企业、283 个来源，并保持中国企业占多数。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。
 
 来源发现使用独立的 `job_market_source_candidates` 边界。管理员触发的扫描只检查目录中已登记的公开 HTTPS 招聘入口，识别受支持 ATS 链接或 `JobPosting` JSON-LD，并记录有界健康诊断；扫描不直接写入活动来源。只有管理员明确执行“批准并启用”后，审批事务才以候选中保存的精确主机白名单创建 `job_market_sources`。因此，自动发现不能绕过来源登记、访问依据审核或适配器注册表。
 

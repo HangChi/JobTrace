@@ -2,16 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-type CatalogItem = {
-  identityKey?: string;
-  companyName: string;
-  adapter?: string;
-  industry: string;
-  websiteUrl: string;
-  channel?: "automatic" | "official_site" | "wechat";
-  channelLabel?: string;
-};
+import type {
+  DefaultCatalogItem,
+  DefaultCatalogPage,
+  DefaultCatalogSummary,
+} from "../../application/contracts";
 
 type BootstrapResult = {
   companyCount: number;
@@ -30,20 +25,46 @@ type BootstrapResult = {
 };
 
 export function DefaultSourceBootstrap({
-  catalog,
+  summary,
   scheduledSyncEnabled,
 }: {
-  catalog: CatalogItem[];
+  summary: DefaultCatalogSummary;
   scheduledSyncEnabled: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [directoryOpen, setDirectoryOpen] = useState(false);
-  const automaticCount = catalog.filter(
-    (item) => item.channel === "automatic",
-  ).length;
-  const directoryCount = catalog.length - automaticCount;
+  const [catalogPage, setCatalogPage] = useState<DefaultCatalogPage | null>(
+    null,
+  );
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogError, setCatalogError] = useState("");
+
+  async function loadCatalog(page: number) {
+    setCatalogLoading(true);
+    setCatalogError("");
+    try {
+      const response = await fetch(
+        `/api/admin/job-market/catalog?page=${page}&limit=50`,
+      );
+      const body = (await response.json()) as DefaultCatalogPage & {
+        message?: string;
+      };
+      if (!response.ok) throw new Error(body.message || "目录加载失败");
+      setCatalogPage(body);
+    } catch (error) {
+      setCatalogError(error instanceof Error ? error.message : "目录加载失败");
+    } finally {
+      setCatalogLoading(false);
+    }
+  }
+
+  function toggleDirectory() {
+    const nextOpen = !directoryOpen;
+    setDirectoryOpen(nextOpen);
+    if (nextOpen && !catalogPage && !catalogLoading) void loadCatalog(1);
+  }
 
   async function initialize() {
     setBusy(true);
@@ -86,15 +107,15 @@ export function DefaultSourceBootstrap({
       <dl className="default-source-summary">
         <div>
           <dt>企业总数</dt>
-          <dd>{catalog.length}</dd>
+          <dd>{summary.total}</dd>
         </div>
         <div>
           <dt>自动同步</dt>
-          <dd>{automaticCount}</dd>
+          <dd>{summary.automatic}</dd>
         </div>
         <div>
           <dt>官网 / 公众号</dt>
-          <dd>{directoryCount}</dd>
+          <dd>{summary.directory}</dd>
         </div>
       </dl>
       <div className="default-source-action-row">
@@ -108,7 +129,7 @@ export function DefaultSourceBootstrap({
           className="admin-disclosure-button"
           type="button"
           aria-expanded={directoryOpen}
-          onClick={() => setDirectoryOpen((open) => !open)}
+          onClick={toggleDirectory}
         >
           {directoryOpen ? "收起预置目录" : "查看预置目录"}
           <span aria-hidden="true">⌄</span>
@@ -118,21 +139,15 @@ export function DefaultSourceBootstrap({
             <p className="muted">
               自动来源会同步岗位；目录来源只提供官网或公众号招聘原文，不抓取封闭内容。
             </p>
-            <ul className="default-source-catalog" aria-label="默认企业来源">
-              {catalog.map((item) => (
-                <li key={item.identityKey ?? item.companyName}>
-                  <a
-                    href={item.websiteUrl}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {item.companyName}
-                  </a>
-                  <span>{item.industry}</span>
-                  <small>{item.channelLabel ?? item.adapter}</small>
-                </li>
-              ))}
-            </ul>
+            {catalogLoading && <p role="status">正在加载目录…</p>}
+            {catalogError && <p role="alert">{catalogError}</p>}
+            {catalogPage && (
+              <CatalogPage
+                value={catalogPage}
+                disabled={catalogLoading}
+                onPageChange={(page) => void loadCatalog(page)}
+              />
+            )}
           </div>
         )}
       </div>
@@ -154,5 +169,51 @@ export function DefaultSourceBootstrap({
         </p>
       )}
     </section>
+  );
+}
+
+function CatalogPage({
+  value,
+  disabled,
+  onPageChange,
+}: {
+  value: DefaultCatalogPage;
+  disabled: boolean;
+  onPageChange: (page: number) => void;
+}) {
+  const pages = Math.max(1, Math.ceil(value.total / value.limit));
+  return (
+    <>
+      <ul className="default-source-catalog" aria-label="默认企业来源">
+        {value.items.map((item: DefaultCatalogItem) => (
+          <li key={item.identityKey ?? item.companyName}>
+            <a href={item.websiteUrl} target="_blank" rel="noreferrer noopener">
+              {item.companyName}
+            </a>
+            <span>{item.industry}</span>
+            <small>{item.channelLabel ?? item.adapter}</small>
+          </li>
+        ))}
+      </ul>
+      <nav className="pagination-actions" aria-label="默认企业目录分页">
+        <button
+          type="button"
+          disabled={disabled || value.page <= 1}
+          onClick={() => onPageChange(value.page - 1)}
+        >
+          上一页
+        </button>
+        <span>
+          第 {value.page} / {pages} 页，共 {value.total} 家
+        </span>
+        <button
+          type="button"
+          disabled={disabled || value.page >= pages}
+          onClick={() => onPageChange(value.page + 1)}
+        >
+          下一页
+        </button>
+      </nav>
+    </>
   );
 }

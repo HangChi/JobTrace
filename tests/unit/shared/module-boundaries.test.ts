@@ -16,4 +16,10 @@ describe("client module boundaries", () => {
     expect(config).toContain('"src/modules/*/application/**/*.{ts,tsx}"');
     expect(config).toContain('"src/modules/*/ui/**/*.{ts,tsx}"');
   });
+
+  it("forbids every module from reaching into another module's infrastructure", async () => {
+    const config = await readFile("eslint.config.mjs", "utf8");
+    expect(config).toContain('files: ["src/modules/**/*.{ts,tsx}"]');
+    expect(config).toContain('group: ["@/modules/*/infrastructure/**"]');
+  });
 });

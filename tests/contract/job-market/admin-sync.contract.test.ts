@@ -15,6 +15,9 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
   expect((await request.get("/api/admin/job-market/discovery")).status()).toBe(
     403,
   );
+  expect((await request.get("/api/admin/job-market/catalog")).status()).toBe(
+    403,
+  );
   expect(
     (
       await request.post("/api/admin/job-market/discovery", {
@@ -119,6 +122,16 @@ test("job-market admin routes enforce RBAC, validation, conflicts and safe run o
     );
     expect(runs.status()).toBe(200);
     expect(await runs.json()).toMatchObject({ items: [], page: 1, limit: 20 });
+    const catalog = await admin.get(
+      "/api/admin/job-market/catalog?page=1&limit=2",
+    );
+    expect(catalog.status()).toBe(200);
+    expect(await catalog.json()).toMatchObject({
+      page: 1,
+      limit: 2,
+      total: expect.any(Number),
+      items: [expect.any(Object), expect.any(Object)],
+    });
     expect(
       JSON.stringify(
         await (await admin.get("/api/admin/job-market/sources")).json(),

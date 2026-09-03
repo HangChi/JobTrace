@@ -1,30 +1,9 @@
 import { createServerDatabase } from "@/shared/database";
 import type {
-  DetectedSourceCandidate,
   DiscoveryObservation,
   DiscoveryTarget,
 } from "../application/source-discovery";
-
-export type SourceCandidate = {
-  id: string;
-  companyId: string;
-  companyName: string;
-  companyType: string | null;
-  entryUrl: string;
-  adapter: DetectedSourceCandidate["adapter"] | null;
-  externalKey: string | null;
-  baseUrl: string | null;
-  allowedHosts: string[];
-  confidence: "high" | "medium" | null;
-  evidenceCode: string;
-  reviewStatus: "unrecognized" | "pending" | "approved" | "ignored";
-  healthStatus: "healthy" | "unreachable" | "unsupported";
-  diagnosticCode: string | null;
-  diagnosticSummary: string | null;
-  httpStatus: number | null;
-  approvedSourceId: string | null;
-  lastCheckedAt: string;
-};
+import type { SourceCandidate } from "../application/contracts";
 
 export class PostgresSourceDiscoveryRepository {
   constructor(private readonly sql = createServerDatabase()) {}

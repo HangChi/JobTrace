@@ -9,9 +9,7 @@ vi.mock("next/navigation", () => ({
 
 describe("campaign apply actions", () => {
   it("opens the company recruitment website directly", () => {
-    render(
-      <ApplyAction url="https://jobs.example.com" status="open" />,
-    );
+    render(<ApplyAction url="https://jobs.example.com" status="open" />);
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "href",
       "https://jobs.example.com",
@@ -19,9 +17,7 @@ describe("campaign apply actions", () => {
   });
 
   it("keeps the official website available while a campaign is stale", () => {
-    render(
-      <ApplyAction url="https://jobs.example.com" status="stale" />,
-    );
+    render(<ApplyAction url="https://jobs.example.com" status="stale" />);
     expect(screen.getByRole("link", { name: "立即投递" })).toHaveAttribute(
       "target",
       "_blank",
@@ -45,9 +41,7 @@ describe("campaign apply actions", () => {
   });
 
   it("disables closed records", () => {
-    render(
-      <ApplyAction url="https://jobs.example.com" status="closed" />,
-    );
+    render(<ApplyAction url="https://jobs.example.com" status="closed" />);
     expect(screen.getByRole("button", { name: "立即投递" })).toBeDisabled();
   });
 });

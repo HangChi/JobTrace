@@ -194,7 +194,10 @@ export class ChinaBigTechAdapter implements SourceAdapter {
             campaign: job.job_category?.name,
             recruitmentType: job.recruit_type?.name ?? "社会招聘",
             description: [job.description, job.requirement]
-              .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+              .filter(
+                (value): value is string =>
+                  typeof value === "string" && value.trim().length > 0,
+              )
               .join("\n\n"),
             detailUrl,
             applyUrl: detailUrl,
@@ -248,10 +251,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
           result?: Array<Record<string, any>>;
         };
       };
-      if (
-        payload.status !== "SUCCESS" ||
-        !Array.isArray(payload.data?.result)
-      )
+      if (payload.status !== "SUCCESS" || !Array.isArray(payload.data?.result))
         throw new SourceError(
           "invalid_source_payload",
           "Huawei careers API returned an invalid response",
@@ -259,7 +259,9 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       total = Number(
         payload.data.pageVO?.totalRows ?? payload.data.result.length,
       );
-      rows.push(...payload.data.result.slice(0, context.maxItems - rows.length));
+      rows.push(
+        ...payload.data.result.slice(0, context.maxItems - rows.length),
+      );
       if (!payload.data.result.length || rows.length >= total) break;
     }
     const listingUrl = campus
@@ -283,7 +285,10 @@ export class ChinaBigTechAdapter implements SourceAdapter {
             campaign: job.categoryName,
             recruitmentType: campus ? "校园招聘" : "社会招聘",
             description: [job.mainBusiness, job.jobRequire]
-              .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+              .filter(
+                (value): value is string =>
+                  typeof value === "string" && value.trim().length > 0,
+              )
               .join("\n\n"),
             detailUrl: id
               ? `${listingUrl}?jobId=${encodeURIComponent(id)}`
@@ -363,7 +368,10 @@ export class ChinaBigTechAdapter implements SourceAdapter {
             recruitmentType: job.recruitTypeName ?? "社会招聘",
             education: job.reqEducationName,
             description: [job.description, job.requirement]
-              .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+              .filter(
+                (value): value is string =>
+                  typeof value === "string" && value.trim().length > 0,
+              )
               .join("\n\n"),
             detailUrl,
             applyUrl: detailUrl,

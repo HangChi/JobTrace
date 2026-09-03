@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { SourceCandidate } from "../../infrastructure/postgres-source-discovery-repository";
+import type { SourceCandidate } from "../../application/contracts";
 
 type Summary = {
   directoryCompanies: number;

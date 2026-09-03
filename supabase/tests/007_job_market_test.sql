@@ -1,5 +1,5 @@
 begin;
-select plan(20);
+select plan(26);
 select has_table('public','job_market_companies','job market companies exist');
 select has_table('public','job_market_sources','job market sources exist');
 select has_table('public','job_market_campaigns','job market campaigns exist');
@@ -17,6 +17,12 @@ select col_is_pk('public','job_market_campaign_favorites',array['owner_id','camp
 select col_is_pk('public','job_market_source_records',array['source_id','external_job_id'],'source identity is stable');
 select has_index('public','job_market_sources','job_market_source_claim_idx','source claim index exists');
 select has_index('public','job_market_campaigns','job_market_campaign_browse_idx','campaign browse index exists');
+select has_index('public','job_market_companies','job_market_company_canonical_search_idx','company display-name search index exists');
+select has_index('public','job_market_posts','job_market_post_title_search_idx','post display-title search index exists');
+select has_index('public','job_market_locations','job_market_location_display_search_idx','location display-name search index exists');
+select has_index('public','job_market_posts','job_market_post_company_status_date_idx','company post aggregation index exists');
+select has_index('public','job_market_campaigns','job_market_campaign_company_listing_status_idx','company listing aggregation index exists');
+select has_index('public','job_market_sources','job_market_source_company_status_success_idx','company source selection index exists');
 select has_index('public','application_job_market_links','application_job_market_owner_idx','private link owner index exists');
 select ok((select relrowsecurity from pg_class where oid='public.job_market_campaign_favorites'::regclass),'favorites enable RLS');
 select ok((select relrowsecurity from pg_class where oid='public.application_job_market_links'::regclass),'application links enable RLS');

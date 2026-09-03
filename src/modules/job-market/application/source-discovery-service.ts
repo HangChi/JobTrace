@@ -4,13 +4,11 @@ import {
   sourceCandidateIdSchema,
   sourceCandidateReviewSchema,
   sourceDiscoveryScanSchema,
+  type SourceCandidate,
 } from "./contracts";
 import { scanDiscoveryTargets } from "./source-discovery";
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
-import {
-  PostgresSourceDiscoveryRepository,
-  type SourceCandidate,
-} from "../infrastructure/postgres-source-discovery-repository";
+import { PostgresSourceDiscoveryRepository } from "../infrastructure/postgres-source-discovery-repository";
 
 export async function scanSourceCandidates(value: unknown) {
   await requireAdmin();

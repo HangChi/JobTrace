@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_SOURCE_CATALOG } from "@/modules/job-market/application/default-source-catalog";
 import { DEFAULT_COMPANY_DIRECTORY } from "@/modules/job-market/application/default-company-directory";
@@ -130,5 +131,22 @@ describe("default job-market source catalog", () => {
       channel: "official_site",
       entryUrl: "https://we.dji.com/zh-CN",
     });
+  });
+
+  it("keeps documented directory counts synchronized with the source data", async () => {
+    const automaticCompanies = new Set(
+      DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+    );
+    const [architecture, directory] = await Promise.all([
+      readFile("docs/architecture.md", "utf8"),
+      readFile("docs/company-directory.md", "utf8"),
+    ]);
+
+    expect(architecture).toContain(
+      `${automaticCompanies.size} 家可自动同步企业、${DEFAULT_SOURCE_CATALOG.length} 个来源`,
+    );
+    expect(directory).toContain(
+      `## 自动同步公司（${automaticCompanies.size} 家）`,
+    );
   });
 });

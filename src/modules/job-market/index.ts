@@ -6,7 +6,8 @@ export {
 } from "./application/campaign-service";
 export {
   listSourceHealth,
-  listDefaultSourceCatalog,
+  getDefaultSourceCatalogSummary,
+  listDefaultSourceCatalogPage,
   listSyncRuns,
   initializeDefaultSources,
   registerSource,
