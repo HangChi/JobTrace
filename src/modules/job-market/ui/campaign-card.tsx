@@ -3,7 +3,7 @@ import { FavoriteButton } from "./favorite-button";
 import { ApplyAction } from "./apply-action";
 import { TrackApplicationDialog } from "./track-application-dialog";
 
-const labels = { open: "有效", stale: "待确认", closed: "已失效" } as const;
+const labels = { open: "在招", stale: "待确认", closed: "已失效" } as const;
 
 function ExternalLinkIcon() {
   return (
@@ -109,12 +109,13 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
             <span className="campaign-title-line">
               <strong>{campaign.company.name}</strong>
               <span className={`status-pill ${campaign.status}`}>
-                {isDirectory
-                  ? isOfficialDirectory
-                    ? "官网"
-                    : "公众号"
-                  : labels[campaign.status]}
+                {labels[campaign.status]}
               </span>
+              {isDirectory && (
+                <span className="campaign-channel-pill">
+                  {isOfficialDirectory ? "官网" : "公众号"}
+                </span>
+              )}
             </span>
             <span className="campaign-company-meta">
               {[campaign.company.type, campaign.company.industry]
