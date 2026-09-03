@@ -35,6 +35,9 @@ export function JobMarketPage({
   const filtered = Object.entries(query).some(
     ([key, value]) => !ignoredQueryKeys.has(key) && Boolean(value),
   );
+  const favoriteOnly = Array.isArray(query.favorite)
+    ? query.favorite.includes("true")
+    : query.favorite === "true";
   const pages = Math.max(1, Math.ceil(page.total / page.limit));
   const rangeStart = (page.page - 1) * page.limit + 1;
   const rangeEnd = Math.min(page.page * page.limit, page.total);
@@ -50,13 +53,46 @@ export function JobMarketPage({
     const search = params.toString();
     return `${search ? `/?${search}` : "/"}#job-market-results` as Route;
   };
+  const favoriteHref = (() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+      if (ignoredQueryKeys.has(key) || key === "favorite") continue;
+      if (Array.isArray(value))
+        value.forEach((item) => params.append(key, item));
+      else if (value) params.set(key, value);
+    }
+    if (!favoriteOnly) params.set("favorite", "true");
+    const search = params.toString();
+    return (search ? `/?${search}` : "/") as Route;
+  })();
   return (
     <section className="stack page-gap job-market-page">
       <PageHeader
         kicker="自动更新"
         title="招聘广场"
         description="自动来源集中展示岗位与城市；暂无公开接口的企业提供官网或公众号招聘原文。"
-        meta={[{ label: `共 ${page.total} 家招聘企业`, tone: "brand" }]}
+        meta={[
+          {
+            label: favoriteOnly
+              ? `收藏 ${page.total} 家招聘企业`
+              : `共 ${page.total} 家招聘企业`,
+            tone: "brand",
+          },
+        ]}
+        actions={
+          <Link
+            className="job-market-favorite-filter"
+            href={favoriteHref}
+            aria-pressed={favoriteOnly}
+            scroll={false}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m12 3.8 2.5 5.05 5.58.81-4.04 3.94.95 5.56L12 16.54l-4.99 2.62.95-5.56-4.04-3.94 5.58-.81L12 3.8Z" />
+            </svg>
+            仅看收藏
+          </Link>
+        }
+        toolsLayout="stacked"
       />
       <JobMarketFilters query={query} />
       {page.items.length ? (

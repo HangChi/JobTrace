@@ -4,8 +4,12 @@ type Search = Record<string, string | string[] | undefined>;
 export function JobMarketFilters({ query }: { query: Search }) {
   const value = (key: string) =>
     typeof query[key] === "string" ? (query[key] as string) : "";
+  const favoriteOnly = value("favorite") === "true";
   return (
     <form className="job-market-filters" action="/" role="search">
+      {favoriteOnly ? (
+        <input type="hidden" name="favorite" value="true" />
+      ) : null}
       <label>
         关键词
         <input name="q" defaultValue={value("q")} placeholder="公司或岗位" />
@@ -36,15 +40,6 @@ export function JobMarketFilters({ query }: { query: Search }) {
         />
       </label>
       <div className="job-market-filter-footer">
-        <label className="job-market-check">
-          <input
-            type="checkbox"
-            name="favorite"
-            value="true"
-            defaultChecked={value("favorite") === "true"}
-          />
-          仅看收藏
-        </label>
         <div className="job-market-filter-actions">
           <Link className="button secondary" href="/">
             清除筛选
