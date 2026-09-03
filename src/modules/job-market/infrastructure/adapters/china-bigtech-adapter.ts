@@ -34,6 +34,8 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       return this.fetchHuawei(source, context, signal, channel);
     if (provider === "netease")
       return this.fetchNetease(source, context, signal);
+    if (provider === "mihoyo")
+      return this.fetchMihoyo(source, context, signal, channel);
     throw new SourceError(
       "invalid_source_payload",
       "Unknown China big-tech provider key",
@@ -366,6 +368,81 @@ export class ChinaBigTechAdapter implements SourceAdapter {
             publishedAt: epochMillisToDate(job.updateTime),
           };
         }),
+      ),
+    };
+  }
+
+  private async fetchMihoyo(
+    source: JobMarketSource,
+    context: { now: Date; maxItems: number },
+    signal: AbortSignal,
+    channel: string,
+  ) {
+    const campus = channel === "campus";
+    const pageSize = Math.min(10, context.maxItems);
+    const rows: Array<Record<string, any>> = [];
+    let total = 0;
+    while (rows.length < context.maxItems) {
+      const endpoint = new URL("/ats-portal/v1/job/list", source.baseUrl);
+      const response = await this.fetcher(endpoint.href, {
+        allowedHosts: source.allowedHosts,
+        signal,
+        accept: ["application/json"],
+        method: "POST",
+        body: JSON.stringify({
+          pageNo: Math.floor(rows.length / pageSize) + 1,
+          pageSize,
+          channelDetailIds: [1],
+          hireType: campus ? 1 : 0,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://jobs.mihoyo.com",
+          Referer: "https://jobs.mihoyo.com/",
+        },
+      });
+      const payload = (await response.json()) as {
+        code?: number;
+        data?: {
+          total?: number;
+          list?: Array<Record<string, any>>;
+        };
+      };
+      if (payload.code !== 0 || !Array.isArray(payload.data?.list))
+        throw new SourceError(
+          "invalid_source_payload",
+          "miHoYo careers API returned an invalid response",
+        );
+      total = Number(payload.data.total ?? payload.data.list.length);
+      rows.push(...payload.data.list.slice(0, context.maxItems - rows.length));
+      if (!payload.data.list.length || rows.length >= total) break;
+    }
+    const listingUrl = campus
+      ? "https://jobs.mihoyo.com/#/campus/position"
+      : "https://jobs.mihoyo.com/#/position";
+    return {
+      completeness:
+        rows.length < total ? ("partial" as const) : ("complete" as const),
+      sourceMetadata: { fetchedAt: context.now },
+      ...normalizeItems(
+        source,
+        rows.map((job) => ({
+          id: job.id,
+          title: job.title,
+          locations: (Array.isArray(job.addressDetailList)
+            ? job.addressDetailList
+            : []
+          )
+            .map((item: Record<string, unknown>) => item.addressDetail)
+            .filter(Boolean),
+          campaign: job.projectName,
+          recruitmentType: campus ? "校园招聘" : "社会招聘",
+          batch: job.objectName,
+          description: job.jobSummary,
+          detailUrl: listingUrl,
+          applyUrl: listingUrl,
+          preserveUrlHash: true,
+        })),
       ),
     };
   }
