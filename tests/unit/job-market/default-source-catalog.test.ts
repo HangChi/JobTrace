@@ -83,6 +83,8 @@ describe("default job-market source catalog", () => {
     expect(automaticCompanies.has("上汽通用")).toBe(true);
     expect(automaticCompanies.has("蒙牛集团")).toBe(true);
     expect(automaticCompanies.has("扬子江船业")).toBe(true);
+    expect(automaticCompanies.has("中兴通讯")).toBe(true);
+    expect(automaticCompanies.has("大华股份")).toBe(true);
 
     expect(
       DEFAULT_COMPANY_DIRECTORY.some(

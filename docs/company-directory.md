@@ -1,8 +1,8 @@
 # 公司招聘入口总览
 
-> 自动生成于 2026-09-03，由 `DEFAULT_SOURCE_CATALOG`（自动同步来源）与 `DEFAULT_COMPANY_DIRECTORY`（招聘目录）按公司名去重合并而成。链接优先级：自动同步官网 > 目录官网入口 > 公众号招聘原文；「XX集团/XX中国」与「XX」、DJI大疆与大疆创新等 16 组同主体别名已合并（官网优先）。共计 **1264** 家公司（自动同步 250 · 官网入口 14 · 公众号 1000）。
+> 自动生成于 2026-09-03，由 `DEFAULT_SOURCE_CATALOG`（自动同步来源）与 `DEFAULT_COMPANY_DIRECTORY`（招聘目录）按公司名去重合并而成。链接优先级：自动同步官网 > 目录官网入口 > 公众号招聘原文；「XX集团/XX中国」与「XX」、DJI大疆与大疆创新等 16 组同主体别名已合并（官网优先）。共计 **1264** 家公司（自动同步 251 · 官网入口 14 · 公众号 999）。
 
-## 自动同步公司（250 家）
+## 自动同步公司（251 家）
 
 岗位数据每 6 小时自动抓取更新，链接为官方招聘网站。
 
@@ -35,6 +35,7 @@
 | 博西家电中国 | 外企 | 家用电器 / 智能制造 | 自动同步 | <https://app.mokahr.com/apply/bshg/28741> |
 | 蔡司中国 | 外企 | 光学 / 医疗科技 | 自动同步 | <https://app.mokahr.com/social-recruitment/zeiss/70004> |
 | 畅游 | 上市公司 | 游戏 / 数字娱乐 | 自动同步 | <https://app.mokahr.com/social-recruitment/cyou-inc/42232> |
+| 大华股份 | 上市公司 | 智能物联 / 计算机视觉 | 自动同步 | <https://job.dahuatech.com/#/SocietyPosition?id=3> |
 | 大陆集团中国 | 外企 | 汽车科技 / 智能出行 | 自动同步 | <https://jobs.smartrecruiters.com/Continental> |
 | 道通智能 | 民营企业 | 无人机 | 自动同步 | <https://iwpirwbutbu.jobs.feishu.cn/> |
 | 得到 | 民营企业 | 知识付费 | 自动同步 | <https://dedao.jobs.feishu.cn/> |
@@ -216,7 +217,7 @@
 | 智谱AI | 民营企业 | 大模型 | 自动同步 | <https://zhipu-ai.jobs.feishu.cn/> |
 | 智元机器人 | 民营企业 | 人形机器人 | 自动同步 | <https://agirobot.jobs.feishu.cn/> |
 | 中科创达 | 民营企业 | 智能软件 | 自动同步 | <https://thundersoft.jobs.feishu.cn/> |
-| 中兴通讯 | 上市公司 | 通信设备 / 云计算 / 芯片 | 自动同步 | <https://app.mokahr.com/campus-recruitment/zte/46903> |
+| 中兴通讯 | 上市公司 | 通信设备 / 5G / 智能终端 | 自动同步 | <https://app.mokahr.com/social-recruitment/zte/47588> |
 | 紫金矿业 | 上市公司 | 矿业 / 新能源材料 | 自动同步 | <https://app.mokahr.com/social-recruitment/zijinmining/140688> |
 | 字节跳动 | 民营企业 | 互联网 / 人工智能 / 内容平台 | 自动同步 | <https://jobs.bytedance.com/experienced> |
 | 自变量机器人 | 民营企业 | 具身智能 | 自动同步 | <https://x2-robot.jobs.feishu.cn/> |
@@ -280,7 +281,7 @@
 | 中信建投证券 | — | 证券 / 金融科技 | 官网 | <https://www.csc108.citic/joinus> |
 | DeepSeek | — | 人工智能 / 大模型 | 官网 | <https://talent.deepseek.com/> |
 
-## 公众号发布公司（1000 家）
+## 公众号发布公司（999 家）
 
 以微信公众号招聘推文为准。
 
@@ -366,7 +367,6 @@
 | 达发科技 | — | 科技 | 公众号 | <https://mp.weixin.qq.com/s/Uz4iFAmjF5Yvymr_kRbdYg> |
 | 达坦能源科技 | — | 能源 | 公众号 | <https://mp.weixin.qq.com/s/sEifBGzSBH7N9lgSpdK9GQ?scene=1&amp;click_id=226573339> |
 | 大北农食品集团 | — | 快消零焦 | 公众号 | <https://mp.weixin.qq.com/s/q1Vo8YaUQQulqv9F9cTvGQ> |
-| 大华股份 | — | 智能物联 / 计算机视觉 | 公众号 | <https://mp.weixin.qq.com/s/4R5PuP9hEKn0LOPW_bWXrg> |
 | 大连科苑同芳学校 | — | 教育 | 公众号 | <https://mp.weixin.qq.com/s/OeYctR0fzHQMNP8IIrxENg> |
 | 大连新东方 | — | 教育 | 公众号 | <https://mp.weixin.qq.com/s/4_mdqeEAi4P00Y3MaX2rcg> |
 | 大泽农生物科技 | — | 生物医药 | 公众号 | <https://mp.weixin.qq.com/s/MYPmTTSwBpyYh-uJMe93nQ> |
