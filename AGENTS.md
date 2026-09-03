@@ -7,3 +7,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Agent skills
+
+### Issue tracker
+
+需求与任务由 speckit 工作流管理，规格在 `specs/<NNN>-<slug>/`（spec.md + plan.md + tasks.md）。见 `docs/agents/issue-tracker.md`。
+
+### Domain docs
+
+单上下文布局：根目录一个 `CONTEXT.md` + `docs/adr/`。见 `docs/agents/domain.md`。
