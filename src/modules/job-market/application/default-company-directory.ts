@@ -24,15 +24,29 @@ function wechatDirectory(input: {
   companyType: string;
   industry: string;
   searchTerm?: string;
+  officialUrl?: string;
 }): DefaultCompanyDirectoryEntry | null {
   const article = recentWechatArticleByCompany.get(input.companyName);
-  if (!article) return null;
+  if (article)
+    return {
+      ...input,
+      channel: "wechat",
+      channelLabel: "公众号招聘原文",
+      entryUrl: article.articleUrl,
+      publishedAt: article.publishedAt,
+    };
+  // Without an exact-name article the entry used to be dropped entirely;
+  // fall back to the official careers site when one is curated so major
+  // companies (阿里巴巴集团 / 网易 / 大疆创新 ...) never vanish from the directory.
+  if (!input.officialUrl) return null;
   return {
-    ...input,
-    channel: "wechat",
-    channelLabel: "公众号招聘原文",
-    entryUrl: article.articleUrl,
-    publishedAt: article.publishedAt,
+    identityKey: input.identityKey,
+    companyName: input.companyName,
+    companyType: input.companyType,
+    industry: input.industry,
+    channel: "official_site",
+    channelLabel: "官方招聘网站",
+    entryUrl: input.officialUrl,
   };
 }
 
@@ -378,6 +392,7 @@ const CURATED_COMPANY_DIRECTORY = [
     companyType: "民营企业",
     industry: "互联网 / 电商 / 云计算",
     searchTerm: "阿里巴巴招聘",
+    officialUrl: "https://talent-holding.alibaba.com/off-campus/position-list",
   }),
   officialDirectory({
     identityKey: "default:meituan-cn",
@@ -420,6 +435,7 @@ const CURATED_COMPANY_DIRECTORY = [
     companyType: "上市公司",
     industry: "互联网 / 游戏 / 教育科技",
     searchTerm: "网易招聘",
+    officialUrl: "https://hr.163.com/",
   }),
   wechatDirectory({
     identityKey: "default:bilibili-cn",
@@ -534,6 +550,7 @@ const CURATED_COMPANY_DIRECTORY = [
     companyType: "民营企业",
     industry: "无人机 / 机器人 / 智能硬件",
     searchTerm: "DJI大疆招聘",
+    officialUrl: "https://we.dji.com/zh-CN",
   }),
   wechatDirectory({
     identityKey: "default:lenovo-cn",

@@ -75,11 +75,17 @@ describe("default job-market source catalog", () => {
     expect(automaticCompanies.has("宇树科技")).toBe(true);
     expect(automaticCompanies.has("科大讯飞")).toBe(true);
     expect(automaticCompanies.has("ASML中国")).toBe(true);
+    expect(automaticCompanies.has("字节跳动")).toBe(true);
+    expect(automaticCompanies.has("华为")).toBe(true);
+    expect(automaticCompanies.has("网易")).toBe(true);
 
     expect(
       DEFAULT_COMPANY_DIRECTORY.some(
         (entry) => entry.companyName === "科大讯飞",
       ),
+    ).toBe(false);
+    expect(
+      DEFAULT_COMPANY_DIRECTORY.some((entry) => entry.companyName === "网易"),
     ).toBe(false);
 
     const directoryByCompany = new Map(
@@ -101,5 +107,21 @@ describe("default job-market source catalog", () => {
         "official_site",
       );
     }
+  });
+
+  it("keeps major companies in the directory when no exact-name WeChat article exists", () => {
+    const directoryByCompany = new Map(
+      DEFAULT_COMPANY_DIRECTORY.map((entry) => [entry.companyName, entry]),
+    );
+    // 阿里巴巴集团/大疆创新 have no exact-name article and used to be dropped
+    // silently; they must fall back to their official careers sites.
+    expect(directoryByCompany.get("阿里巴巴集团")).toMatchObject({
+      channel: "official_site",
+      entryUrl: "https://talent-holding.alibaba.com/off-campus/position-list",
+    });
+    expect(directoryByCompany.get("大疆创新")).toMatchObject({
+      channel: "official_site",
+      entryUrl: "https://we.dji.com/zh-CN",
+    });
   });
 });
