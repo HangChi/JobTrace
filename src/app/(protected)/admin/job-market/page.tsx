@@ -14,23 +14,56 @@ export default async function AdminJobMarketPage() {
     listSourceHealth(),
     listSourceCandidates(),
   ]);
+  const activeSourceCount = items.filter(
+    (source) => source.status === "active",
+  ).length;
+  const attentionSourceCount = items.filter(
+    (source) =>
+      source.status !== "active" || source.latestRun?.status === "failed",
+  ).length;
   return (
-    <section className="stack">
-      <header>
-        <p className="eyebrow">自动招聘市场</p>
-        <h1>来源与同步</h1>
-        <p className="lead">管理合规来源、检查新鲜度并重试单个失败来源。</p>
+    <section className="stack admin-sync-page">
+      <header className="admin-sync-hero">
+        <div>
+          <p className="eyebrow">招聘市场 · 数据运营</p>
+          <h1>来源与同步</h1>
+          <p className="lead">管理合规来源、检查同步健康度并处理待审核入口。</p>
+        </div>
+        <dl className="admin-sync-hero-stats" aria-label="招聘同步概况">
+          <div>
+            <dt>自动来源</dt>
+            <dd>{items.length}</dd>
+          </div>
+          <div>
+            <dt>运行中</dt>
+            <dd>{activeSourceCount}</dd>
+          </div>
+          <div className={attentionSourceCount ? "is-attention" : undefined}>
+            <dt>需关注</dt>
+            <dd>{attentionSourceCount}</dd>
+          </div>
+          <div
+            className={
+              discovery.summary.pendingCandidates ? "is-pending" : undefined
+            }
+          >
+            <dt>待审核</dt>
+            <dd>{discovery.summary.pendingCandidates}</dd>
+          </div>
+        </dl>
       </header>
-      <DefaultSourceBootstrap
-        catalog={listDefaultSourceCatalog()}
-        scheduledSyncEnabled={getJobMarketEnv().enabled}
-      />
       <SourceDiscoveryPanel
         candidates={discovery.items}
         summary={discovery.summary}
       />
-      <SourceForm />
       <SourceHealthTable sources={items} />
+      <div className="admin-sync-setup-grid">
+        <DefaultSourceBootstrap
+          catalog={listDefaultSourceCatalog()}
+          scheduledSyncEnabled={getJobMarketEnv().enabled}
+        />
+        <SourceForm />
+      </div>
     </section>
   );
 }

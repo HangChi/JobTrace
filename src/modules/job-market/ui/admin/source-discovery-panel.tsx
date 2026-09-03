@@ -85,14 +85,13 @@ export function SourceDiscoveryPanel({
   }
 
   return (
-    <section className="panel stack source-discovery-panel">
+    <section className="panel stack source-discovery-panel admin-sync-panel">
       <div className="source-discovery-heading">
         <div>
-          <p className="eyebrow">来源发现</p>
-          <h2>招聘入口扫描与审核</h2>
+          <p className="eyebrow">01 · 发现与审核</p>
+          <h2>招聘入口扫描</h2>
           <p className="muted">
-            只识别公开 ATS 或 JobPosting
-            数据。扫描结果不会自动启用，必须由管理员批准。
+            识别公开 ATS 或 JobPosting 数据；候选来源经批准后才会启用。
           </p>
         </div>
         <button className="button" disabled={busy !== null} onClick={scan}>
