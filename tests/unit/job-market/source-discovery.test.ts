@@ -84,6 +84,24 @@ describe("job-market source discovery", () => {
       "tencent",
       "https://careers.tencent.com/search.html",
     ],
+    [
+      "https://jobs.bytedance.com/experienced",
+      "china_bigtech",
+      "bytedance",
+      "https://jobs.bytedance.com/",
+    ],
+    [
+      "https://career.huawei.com/cn/social-recruitment-job-list",
+      "china_bigtech",
+      "huawei|sr",
+      "https://apigw-dgg-b0.huawei.com/",
+    ],
+    [
+      "https://hr.163.com/job-list.html",
+      "china_bigtech",
+      "netease",
+      "https://hr.163.com/",
+    ],
   ])("recognizes a reviewed ATS URL", (url, adapter, key, baseUrl) => {
     expect(detectSourceCandidate(url)).toMatchObject({
       adapter,
