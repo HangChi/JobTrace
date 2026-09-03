@@ -262,11 +262,11 @@ pnpm lighthouse
 
 ### 本地代理与 Fake-IP DNS
 
-Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka 和小米招聘的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
+Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
 
 ### 默认目录一键初始化
 
-管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 232 家企业，其中 175 家中国企业、57 家在中国大陆招聘的外企，已于 2026-09-01 复核公开入口。中国企业优先使用飞书招聘、Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 244 家企业、245 个来源（186 个中国来源、59 个在中国大陆招聘的外企来源；华为按校招/社招拆分为两个来源），已于 2026-09-03 复核公开入口。中国企业优先使用飞书招聘、Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；腾讯、百度、京东、字节跳动、华为（`apigw-dgg-b0.huawei.com` 网关，校招 `jobType=CR`、社招 `jobType=SR`）和网易（`hr.163.com`，社招全量）走 `china_bigtech` 适配器的官方公开接口；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
 
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
@@ -290,6 +290,18 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka 和小米招�
 这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
 
 公众号文章不纳入自动抓取。公众号没有稳定的公开岗位 API，页面访问还受登录、频率和反自动化限制；对仅通过公众号发布的企业，首页保留经审核的招聘原文链接，并以原文内容为准。新增自动企业时，应优先接入其官方 ATS/API 或官网 `JobPosting` 结构化数据。
+
+### 已评估但暂不接入的渠道（2026-09-03 实测）
+
+以下头部公司渠道已实测评估，因反爬或登录态限制暂不接入，避免重复调研：
+
+| 公司 | 评估结论 |
+| --- | --- |
+| 哔哩哔哩（jobs.bilibili.com） | 全部 API 端点要求前端风控 SDK 生成的 `ajSessionId` 会话参数，伪造值被拒绝 |
+| 美团（zhaopin.meituan.com） | 职位 API 返回 401 未登录；页面纯 SPA 无 SSR 职位链接，`html_list` 兜底也不可行 |
+| 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接 |
+| 中国广核（cgn.hotjob.cn） | 大易站点为 SPA 且接口带 crypto-js 加密签名，无法静态抓取 |
+| 字节跳动校招（portal_type 区分） | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连 |
 
 ### 来源发现与人工审核
 
