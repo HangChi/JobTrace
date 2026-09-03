@@ -1,7 +1,8 @@
 -- Merge duplicate default:* companies that were created one per catalog
--- entry (e.g. Huawei/MiHoYo social + campus sources sharing a company name).
--- The campaign listing groups by company, so duplicated rows rendered one
--- card per recruitment source instead of one per employer.
+-- entry (e.g. social + campus sources of the same employer, or legacy
+-- catalog + wechat-article rows sharing a company name). The campaign
+-- listing groups by company, so duplicated rows rendered one card per
+-- recruitment source instead of one per employer.
 
 -- 1. Map every duplicate to the group's surviving company. row_number keeps
 --    the mapping one-directional even when created_at ties inside the same
@@ -30,23 +31,23 @@ from company_merge merge
 where source.company_id = merge.from_id;
 
 -- 3. Campaigns with a clashing (company_id, campaign_key) collapse into the
---    keeper campaign so the unique constraint survives; posts follow below.
+--    keeper campaign so the unique constraint survives; their posts move to
+--    the keeper campaign first.
 update public.job_market_posts post
 set campaign_id = keeper_campaign.id, updated_at = now()
-from company_merge merge
-join public.job_market_campaigns duplicate_campaign
-  on duplicate_campaign.company_id = merge.from_id
-join public.job_market_campaigns keeper_campaign
-  on keeper_campaign.company_id = merge.to_id
- and keeper_campaign.campaign_key = duplicate_campaign.campaign_key
-where post.campaign_id = duplicate_campaign.id;
+from company_merge merge,
+     public.job_market_campaigns duplicate_campaign,
+     public.job_market_campaigns keeper_campaign
+where duplicate_campaign.company_id = merge.from_id
+  and keeper_campaign.company_id = merge.to_id
+  and keeper_campaign.campaign_key = duplicate_campaign.campaign_key
+  and post.campaign_id = duplicate_campaign.id;
 
 delete from public.job_market_campaigns duplicate_campaign
-using company_merge merge
-join public.job_market_campaigns keeper_campaign
-  on keeper_campaign.company_id = merge.to_id
- and keeper_campaign.campaign_key = duplicate_campaign.campaign_key
-where duplicate_campaign.company_id = merge.from_id;
+using company_merge merge, public.job_market_campaigns keeper_campaign
+where duplicate_campaign.company_id = merge.from_id
+  and keeper_campaign.company_id = merge.to_id
+  and keeper_campaign.campaign_key = duplicate_campaign.campaign_key;
 
 update public.job_market_campaigns campaign
 set company_id = merge.to_id, updated_at = now()
