@@ -17,12 +17,18 @@ describe("job market source request security", () => {
     "::1",
     "fc00::1",
     "fe80::1",
+    "::ffff:127.0.0.1",
+    "::ffff:10.0.0.1",
+    "::ffff:172.16.0.1",
+    "::ffff:192.168.1.1",
+    "::ffff:169.254.169.254",
   ])("rejects non-public address %s", (address) => {
     expect(isPublicIp(address)).toBe(false);
   });
 
   it("accepts public addresses", () => {
     expect(isPublicIp("8.8.8.8")).toBe(true);
+    expect(isPublicIp("::ffff:8.8.8.8")).toBe(true);
     expect(isPublicIp("2606:4700:4700::1111")).toBe(true);
     expect(isPublicIp("198.18.0.182")).toBe(false);
     expect(isSyntheticProxyIp("198.18.0.182")).toBe(true);

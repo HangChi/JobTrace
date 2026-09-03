@@ -91,12 +91,12 @@
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-soft) 72%, transparent);
 }
-.job-market-favorite-filter[aria-pressed="true"] {
+.job-market-favorite-filter[aria-current="true"] {
   border-color: color-mix(in srgb, var(--brand) 42%, var(--line));
   color: var(--brand-dark);
   background: var(--brand-soft);
 }
-.job-market-favorite-filter[aria-pressed="true"] svg {
+.job-market-favorite-filter[aria-current="true"] svg {
   fill: currentColor;
 }
 .job-market-filter-actions {
