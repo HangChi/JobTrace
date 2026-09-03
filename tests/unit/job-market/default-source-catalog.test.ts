@@ -78,6 +78,11 @@ describe("default job-market source catalog", () => {
     expect(automaticCompanies.has("字节跳动")).toBe(true);
     expect(automaticCompanies.has("华为")).toBe(true);
     expect(automaticCompanies.has("网易")).toBe(true);
+    expect(automaticCompanies.has("长安汽车")).toBe(true);
+    expect(automaticCompanies.has("奇瑞汽车")).toBe(true);
+    expect(automaticCompanies.has("上汽通用")).toBe(true);
+    expect(automaticCompanies.has("蒙牛集团")).toBe(true);
+    expect(automaticCompanies.has("扬子江船业")).toBe(true);
 
     expect(
       DEFAULT_COMPANY_DIRECTORY.some(
