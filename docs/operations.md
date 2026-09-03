@@ -262,11 +262,11 @@ pnpm lighthouse
 
 ### 本地代理与 Fake-IP DNS
 
-Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
+Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
 
 ### 默认目录一键初始化
 
-管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 244 家企业、245 个来源（186 个中国来源、59 个在中国大陆招聘的外企来源；华为按校招/社招拆分为两个来源），已于 2026-09-03 复核公开入口。中国企业优先使用飞书招聘、Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；腾讯、百度、京东、字节跳动、华为（`apigw-dgg-b0.huawei.com` 网关，校招 `jobType=CR`、社招 `jobType=SR`）和网易（`hr.163.com`，社招全量）走 `china_bigtech` 适配器的官方公开接口；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 245 家企业、247 个来源（188 个中国来源、59 个在中国大陆招聘的外企来源；华为与米哈游按校招/社招拆分为两个来源），已于 2026-09-03 复核公开入口。中国企业优先使用飞书招聘、Moka 或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；腾讯、百度、京东、字节跳动、华为（`apigw-dgg-b0.huawei.com` 网关，校招 `jobType=CR`、社招 `jobType=SR`）、网易（`hr.163.com`，社招全量）和米哈游（`ats.openout.mihoyo.com`，社招 `hireType=0`、校招 `hireType=1`）走 `china_bigtech` 适配器的官方公开接口；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
 
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
@@ -302,6 +302,11 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 | 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接 |
 | 中国广核（cgn.hotjob.cn） | 大易站点为 SPA 且接口带 crypto-js 加密签名，无法静态抓取 |
 | 字节跳动校招（portal_type 区分） | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连 |
+| 快手（zhaopin.kuaishou.cn） | 职位 API 要求页面 JS 生成的 `sign` + `signTimestamp` 签名头（2026-09-03 实测，开源项目记载的旧端点已 404） |
+| 拼多多（careers.pinduoduo.com） | 职位 API 返回 403 风控拦截 |
+| 携程（careers.ctrip.com） | SPA 交互链路复杂，列表 API 未在公开请求中暴露，直连探测失败 |
+| DeepSeek（talent.deepseek.com） | 官网壳跳转 Moka 新版门户（`app.mokahr.com` 的 high-flyer 租户），其 `ats-apply` API 响应为加密密文，需页面 JS 解密 |
+| vivo / OPPO / 滴滴 / 小红书 / 蚂蚁 | vivo 要登录 token、OPPO 接口 500、滴滴旧端点 404、小红书与蚂蚁为纯 SPA，开源项目记载的端点均已失效 |
 
 ### 来源发现与人工审核
 
