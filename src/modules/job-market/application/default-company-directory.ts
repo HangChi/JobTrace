@@ -1,4 +1,5 @@
 import { DEFAULT_SOURCE_CATALOG } from "./default-source-catalog";
+import companyDirectoryAliases from "./company-directory-aliases.json";
 import recentWechatArticles from "./recent-wechat-articles.json";
 
 export type RecruitmentDirectoryChannel = "official_site" | "wechat";
@@ -1008,35 +1009,64 @@ function inferCompanyType(industries: string[]) {
 const automaticIdentityKeys = new Set(
   DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey),
 );
+const canonicalCompanyName = (companyName: string) =>
+  (companyDirectoryAliases as Record<string, string>)[companyName] ??
+  companyName;
 const automaticCompanyNames = new Set(
-  DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+  DEFAULT_SOURCE_CATALOG.map((entry) =>
+    canonicalCompanyName(entry.companyName),
+  ),
 );
-const curatedDirectory = CURATED_COMPANY_DIRECTORY.filter(
-  isDirectoryEntry,
-).filter(
-  (entry) =>
-    !automaticIdentityKeys.has(entry.identityKey) &&
-    !automaticCompanyNames.has(entry.companyName),
-);
+const curatedDirectory = [
+  ...new Map(
+    CURATED_COMPANY_DIRECTORY.filter(isDirectoryEntry)
+      .map((entry) => ({
+        ...entry,
+        companyName: canonicalCompanyName(entry.companyName),
+      }))
+      .filter(
+        (entry) =>
+          !automaticIdentityKeys.has(entry.identityKey) &&
+          !automaticCompanyNames.has(entry.companyName),
+      )
+      .sort((left, right) =>
+        left.channel === right.channel
+          ? 0
+          : left.channel === "official_site"
+            ? 1
+            : -1,
+      )
+      .map((entry) => [entry.companyName, entry]),
+  ).values(),
+];
 const existingCompanyNames = new Set([
-  ...DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+  ...automaticCompanyNames,
   ...curatedDirectory.map((entry) => entry.companyName),
 ]);
 
 export const DEFAULT_COMPANY_DIRECTORY = [
   ...curatedDirectory,
-  ...recentWechatArticles
-    .filter((article) => !existingCompanyNames.has(article.companyName))
-    .map((article): DefaultCompanyDirectoryEntry => ({
-      identityKey: `default:wechat-article:${article.companyName}`,
-      companyName: article.companyName,
-      companyType: inferCompanyType(article.industries),
-      industry: article.industries.join(" / ") || "综合行业",
-      channel: "wechat",
-      channelLabel: "公众号招聘原文",
-      entryUrl: article.articleUrl,
-      publishedAt: article.publishedAt,
-    })),
+  ...new Map(
+    recentWechatArticles
+      .map((article) => ({
+        ...article,
+        companyName: canonicalCompanyName(article.companyName),
+      }))
+      .filter((article) => !existingCompanyNames.has(article.companyName))
+      .map((article): [string, DefaultCompanyDirectoryEntry] => [
+        article.companyName,
+        {
+          identityKey: `default:wechat-article:${article.companyName}`,
+          companyName: article.companyName,
+          companyType: inferCompanyType(article.industries),
+          industry: article.industries.join(" / ") || "综合行业",
+          channel: "wechat",
+          channelLabel: "公众号招聘原文",
+          entryUrl: article.articleUrl,
+          publishedAt: article.publishedAt,
+        },
+      ]),
+  ).values(),
 ] satisfies readonly DefaultCompanyDirectoryEntry[];
 
 export function publicDefaultCompanyDirectory() {

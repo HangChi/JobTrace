@@ -432,6 +432,82 @@
   background: var(--surface);
   box-shadow: 0 10px 30px rgba(23, 113, 100, 0.05);
 }
+
+.job-market-loading {
+  pointer-events: none;
+}
+
+.job-market-loading-header,
+.job-market-loading-filters,
+.job-market-loading-row {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.job-market-loading-header {
+  padding-block: 0.5rem;
+}
+
+.job-market-loading-filters {
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+.job-market-loading-table {
+  display: grid;
+}
+
+.job-market-loading-row {
+  grid-template-columns: 1.4fr 2fr 1.4fr 0.8fr;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.job-market-loading-row:last-child {
+  border-bottom: 0;
+}
+
+.job-market-loading-line {
+  display: block;
+  min-height: 1rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    100deg,
+    var(--surface-soft) 20%,
+    var(--surface) 45%,
+    var(--surface-soft) 70%
+  );
+  background-size: 250% 100%;
+  animation: job-market-loading-shimmer 1.4s ease-in-out infinite;
+}
+
+.job-market-loading-line.is-short {
+  width: 5rem;
+}
+
+.job-market-loading-line.is-title {
+  width: min(18rem, 55%);
+  min-height: 2rem;
+}
+
+.job-market-loading-line.is-description {
+  width: min(32rem, 85%);
+}
+
+.job-market-loading-line.is-action {
+  width: 70%;
+}
+
+@keyframes job-market-loading-shimmer {
+  to {
+    background-position-x: -250%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-market-loading-line {
+    animation: none;
+  }
+}
 .campaign-table {
   width: 100%;
   min-width: 1120px;
