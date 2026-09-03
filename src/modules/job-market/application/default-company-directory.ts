@@ -1041,7 +1041,8 @@ export const DEFAULT_COMPANY_DIRECTORY = [
 
 export function publicDefaultCompanyDirectory() {
   return DEFAULT_COMPANY_DIRECTORY.map(
-    ({ companyName, industry, channel, channelLabel, entryUrl }) => ({
+    ({ identityKey, companyName, industry, channel, channelLabel, entryUrl }) => ({
+      identityKey,
       companyName,
       industry,
       channel,

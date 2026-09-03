@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type CatalogItem = {
+  identityKey?: string;
   companyName: string;
   adapter?: string;
   industry: string;
@@ -77,7 +78,7 @@ export function DefaultSourceBootstrap({
       </div>
       <ul className="default-source-catalog" aria-label="默认企业来源">
         {catalog.map((item) => (
-          <li key={item.companyName}>
+          <li key={item.identityKey ?? item.companyName}>
             <a href={item.websiteUrl} target="_blank" rel="noreferrer noopener">
               {item.companyName}
             </a>
