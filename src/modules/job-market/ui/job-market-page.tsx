@@ -115,7 +115,11 @@ export function JobMarketPage({
               </thead>
               <tbody>
                 {page.items.map((item) => (
-                  <CampaignCard key={item.id} campaign={item} />
+                  <CampaignCard
+                    key={item.id}
+                    campaign={item}
+                    favoriteOnly={favoriteOnly}
+                  />
                 ))}
               </tbody>
             </table>

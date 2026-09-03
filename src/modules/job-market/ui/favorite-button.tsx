@@ -4,9 +4,11 @@ import { useState } from "react";
 export function FavoriteButton({
   campaignId,
   initial,
+  refreshOnUnfavorite = false,
 }: {
   campaignId: string;
   initial: boolean;
+  refreshOnUnfavorite?: boolean;
 }) {
   const router = useRouter();
   const [favorite, setFavorite] = useState(initial);
@@ -23,7 +25,8 @@ export function FavoriteButton({
         { method: next ? "PUT" : "DELETE" },
       );
       if (!response.ok) throw new Error();
-      router.refresh();
+      // “仅看收藏”视图里取消收藏后，该行只能靠服务端重取离开列表
+      if (refreshOnUnfavorite && !next) router.refresh();
     } catch {
       setFavorite(!next);
       setError("收藏失败，请重试");
@@ -37,6 +40,7 @@ export function FavoriteButton({
         type="button"
         className="favorite-button"
         aria-pressed={favorite}
+        aria-busy={pending}
         aria-label={favorite ? "取消收藏" : "收藏招聘记录"}
         onClick={toggle}
         disabled={pending}

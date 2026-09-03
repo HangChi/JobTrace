@@ -359,16 +359,25 @@ export class PostgresCampaignQuery implements CampaignRepository {
   }
 
   async setFavorite(ownerId: string, campaignId: string, favorite: boolean) {
-    if (favorite)
-      await this.sql`
-        insert into job_market_campaign_favorites(owner_id,campaign_id)
-        values(${ownerId},${campaignId}) on conflict do nothing`;
-    else
-      await this.sql`
-        delete from job_market_campaign_favorites favorite
-        using job_market_campaigns selected,job_market_campaigns campaign
-        where selected.id=${campaignId} and campaign.company_id=selected.company_id
-          and favorite.campaign_id=campaign.id and favorite.owner_id=${ownerId}`;
-    return favorite;
+    const [result] = favorite
+      ? await this.sql<Array<{ campaignExists: boolean }>>`
+          with target as (
+            select id from job_market_campaigns where id=${campaignId}
+          ), inserted as (
+            insert into job_market_campaign_favorites(owner_id,campaign_id)
+            select ${ownerId},id from target on conflict do nothing
+          )
+          select exists(select 1 from target) as "campaignExists"`
+      : await this.sql<Array<{ campaignExists: boolean }>>`
+          with target as (
+            select company_id from job_market_campaigns where id=${campaignId}
+          ), deleted as (
+            delete from job_market_campaign_favorites favorite
+            using target,job_market_campaigns campaign
+            where campaign.company_id=target.company_id
+              and favorite.campaign_id=campaign.id and favorite.owner_id=${ownerId}
+          )
+          select exists(select 1 from target) as "campaignExists"`;
+    return result.campaignExists ? favorite : null;
   }
 }

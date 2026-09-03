@@ -271,7 +271,6 @@
 }
 .favorite-button:disabled {
   cursor: wait;
-  opacity: 0.55;
 }
 .favorite-button svg {
   width: 22px;
