@@ -7,17 +7,26 @@ import { PostgresCampaignQuery } from "../infrastructure/postgres-campaign-query
 
 const repository = () => new PostgresCampaignQuery();
 const CAMPAIGN_LIST_CACHE_TAG = "job-market-campaign-list";
-const CAMPAIGN_LIST_CACHE_VERSION = "v2-full-details";
-const cachedCampaignList = unstable_cache(
-  (ownerId: string, input: CampaignQuery) => repository().list(ownerId, input),
-  [CAMPAIGN_LIST_CACHE_TAG, CAMPAIGN_LIST_CACHE_VERSION],
-  { revalidate: 30, tags: [CAMPAIGN_LIST_CACHE_TAG] },
-);
+const CAMPAIGN_LIST_CACHE_VERSION = "v3-owner-scoped";
+const campaignListCacheTag = (ownerId: string) =>
+  `${CAMPAIGN_LIST_CACHE_TAG}:${ownerId}`;
+
+function cachedCampaignList(ownerId: string, input: CampaignQuery) {
+  return unstable_cache(
+    () => repository().list(ownerId, input),
+    [
+      CAMPAIGN_LIST_CACHE_TAG,
+      CAMPAIGN_LIST_CACHE_VERSION,
+      ownerId,
+      JSON.stringify(input),
+    ],
+    { revalidate: 30, tags: [campaignListCacheTag(ownerId)] },
+  )();
+}
 
 export async function listCampaigns(search: URLSearchParams) {
   const actor = await requireUser();
   const input = campaignQuerySchema.parse(Object.fromEntries(search));
-  if (input.favorite) return repository().list(actor.id, input);
   return cachedCampaignList(actor.id, input);
 }
 export async function getCampaign(id: string) {
@@ -40,6 +49,6 @@ export async function setCampaignFavorite(id: string, favorite: boolean) {
     campaignId,
     isFavorite,
   };
-  revalidateTag(CAMPAIGN_LIST_CACHE_TAG, { expire: 0 });
+  revalidateTag(campaignListCacheTag(actor.id), { expire: 0 });
   return result;
 }

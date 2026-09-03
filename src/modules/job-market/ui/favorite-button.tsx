@@ -4,11 +4,9 @@ import { useState } from "react";
 export function FavoriteButton({
   campaignId,
   initial,
-  refreshOnUnfavorite = false,
 }: {
   campaignId: string;
   initial: boolean;
-  refreshOnUnfavorite?: boolean;
 }) {
   const router = useRouter();
   const [favorite, setFavorite] = useState(initial);
@@ -25,8 +23,7 @@ export function FavoriteButton({
         { method: next ? "PUT" : "DELETE" },
       );
       if (!response.ok) throw new Error();
-      // “仅看收藏”视图里取消收藏后，该行只能靠服务端重取离开列表
-      if (refreshOnUnfavorite && !next) router.refresh();
+      router.refresh();
     } catch {
       setFavorite(!next);
       setError("收藏失败，请重试");

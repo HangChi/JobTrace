@@ -373,3 +373,8 @@ Each increment must retain public/private isolation and pass all previously comp
 - [X] T124 Increase the six-hour bounded drain capacity to 300 due sources and retain early queue-exhaustion termination
 - [X] T125 Add the Feishu adapter database enum migration, admin option, registry wiring, catalog uniqueness checks, and security regressions
 - [X] T126 Update architecture and operations documentation with the 232-company coverage and 300-source scheduling capacity
+
+## Phase 12: Favorite interaction performance
+
+- [X] T127 Replace full campaign hydration before favorite writes with one idempotent, existence-checking SQL statement while retaining optimistic rollback behavior
+- [X] T128 Add owner-scoped list caching, immediate invalidation after favorite writes, and full alternate-view prefetching so entering and leaving “仅看收藏” avoids repeated blocking loads
