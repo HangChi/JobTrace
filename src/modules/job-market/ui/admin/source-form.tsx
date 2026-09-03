@@ -40,15 +40,26 @@ export function SourceForm() {
     }
   }
   return (
-    <form className="panel stack" onSubmit={submit}>
-      <div>
-        <h2>登记合规来源</h2>
-        <p className="muted">先确认公开或授权依据；新来源默认暂停。</p>
+    <form
+      className="panel stack admin-source-form admin-sync-setup-card"
+      onSubmit={submit}
+    >
+      <div className="admin-source-form-heading">
+        <div>
+          <p className="eyebrow">手动配置</p>
+          <h2>登记单个来源</h2>
+        </div>
+        <span className="admin-setup-status is-paused">登记后暂停</span>
       </div>
-      <div className="admin-filter-grid">
+      <p className="muted admin-setup-description">
+        添加未收录的公开或已授权招聘入口，完成检查后再从上方启用。
+      </p>
+      <div className="admin-source-form-grid">
         <label>
-          企业 ID
-          <input name="companyId" required placeholder="UUID" />
+          <span className="admin-form-label-row">
+            企业 UUID <small>必填</small>
+          </span>
+          <input name="companyId" required placeholder="输入企业 UUID" />
         </label>
         <label>
           适配器
@@ -64,12 +75,14 @@ export function SourceForm() {
           </select>
         </label>
         <label>
-          来源标识
-          <input name="externalKey" required />
-        </label>
-        <label>
-          HTTPS 入口
-          <input name="baseUrl" type="url" pattern="https://.*" required />
+          <span className="admin-form-label-row">
+            来源标识 <small>唯一</small>
+          </span>
+          <input
+            name="externalKey"
+            required
+            placeholder="例如：company-careers"
+          />
         </label>
         <label>
           访问依据
@@ -78,13 +91,28 @@ export function SourceForm() {
             <option value="authorized">已授权</option>
           </select>
         </label>
+        <label className="admin-source-url-field">
+          HTTPS 入口
+          <input
+            name="baseUrl"
+            type="url"
+            pattern="https://.*"
+            required
+            placeholder="https://careers.example.com"
+          />
+        </label>
       </div>
-      <div>
-        <button className="button" disabled={busy}>
+      <div className="admin-source-form-footer">
+        <span>登记后可在“自动同步来源”中审核与启用</span>
+        <button className="button secondary" disabled={busy}>
           {busy ? "正在登记…" : "登记来源"}
         </button>
       </div>
-      {message && <p role="status">{message}</p>}
+      {message && (
+        <p className="admin-sync-message" role="status">
+          {message}
+        </p>
+      )}
     </form>
   );
 }
