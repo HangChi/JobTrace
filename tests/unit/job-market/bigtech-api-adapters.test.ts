@@ -310,6 +310,70 @@ describe("China big-tech API providers", () => {
     });
   });
 
+  it("normalizes Dahua self-hosted position search", async () => {
+    const fetcher: SecureSourceFetch = async (url, options) => {
+      expect(String(url)).toBe(
+        "https://job.dahuatech.com/talent-pool/api/bs-info/list-position-by-search",
+      );
+      expect(JSON.parse(String(options.body))).toEqual({
+        companyCategory: "",
+        positionCategory: "",
+        workPlaceCode: "",
+        recruitType: "1",
+      });
+      return response({
+        code: 200,
+        msg: "The query is successful",
+        data: [
+          {
+            jobAdIntId: 230908258,
+            jobAdName: "多模态大模型算法工程师(J24176)",
+            duty: "负责多模态大模型的架构设计",
+            require: "精通Python/PyTorch",
+            jobCategroyDescription: "算法类",
+            companyName: "集团公司",
+            workingPlace: "",
+            publishDate: "2026-05-29",
+          },
+        ],
+      });
+    };
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("dahua|social", "https://job.dahuatech.com/"),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.jobs).toHaveLength(1);
+    expect(batch.jobs[0]).toMatchObject({
+      title: "多模态大模型算法工程师(J24176)",
+      campaignName: "算法类",
+      recruitmentType: "社会招聘",
+      detailUrl: "https://job.dahuatech.com/#/SocietyPosition?id=3",
+    });
+    expect(batch.completeness).toBe("complete");
+  });
+
+  it("requests recruitType=2 for dahua|campus", async () => {
+    const fetcher: SecureSourceFetch = async (_url, options) => {
+      expect(JSON.parse(String(options.body)).recruitType).toBe("2");
+      return response({
+        code: 200,
+        data: [
+          { jobAdIntId: 1, jobAdName: "校招嵌入式工程师", jobCategroyDescription: "研发类" },
+        ],
+      });
+    };
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("dahua|campus", "https://job.dahuatech.com/"),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.jobs[0]).toMatchObject({
+      recruitmentType: "校园招聘",
+      detailUrl: "https://job.dahuatech.com/#/CampusPosition?id=1",
+    });
+  });
+
   it("paginates ByteDance until maxItems is reached", async () => {
     const pages = [
       Array.from({ length: 10 }, (_value, index) => ({

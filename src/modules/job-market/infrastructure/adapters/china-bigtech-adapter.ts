@@ -36,6 +36,8 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       return this.fetchNetease(source, context, signal);
     if (provider === "mihoyo")
       return this.fetchMihoyo(source, context, signal, channel);
+    if (provider === "dahua")
+      return this.fetchDahua(source, context, signal, channel);
     throw new SourceError(
       "invalid_source_payload",
       "Unknown China big-tech provider key",
@@ -441,6 +443,77 @@ export class ChinaBigTechAdapter implements SourceAdapter {
           description: job.jobSummary,
           detailUrl: listingUrl,
           applyUrl: listingUrl,
+          preserveUrlHash: true,
+        })),
+      ),
+    };
+  }
+
+  private async fetchDahua(
+    source: JobMarketSource,
+    context: { now: Date; maxItems: number },
+    signal: AbortSignal,
+    channel: string,
+  ) {
+    const campus = channel === "campus";
+    const endpoint = new URL(
+      "/talent-pool/api/bs-info/list-position-by-search",
+      source.baseUrl,
+    );
+    const response = await this.fetcher(endpoint.href, {
+      allowedHosts: source.allowedHosts,
+      signal,
+      accept: ["application/json"],
+      method: "POST",
+      body: JSON.stringify({
+        companyCategory: "",
+        positionCategory: "",
+        workPlaceCode: "",
+        recruitType: campus ? "2" : "1",
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Origin: "https://job.dahuatech.com",
+        Referer: "https://job.dahuatech.com/",
+      },
+    });
+    const payload = (await response.json()) as {
+      code?: number;
+      data?: Array<Record<string, any>>;
+    };
+    if (payload.code !== 200 || !Array.isArray(payload.data))
+      throw new SourceError(
+        "invalid_source_payload",
+        "Dahua careers API returned an invalid response",
+      );
+    const rows = payload.data.slice(0, context.maxItems);
+    const listingUrl = campus
+      ? "https://job.dahuatech.com/#/CampusPosition?id=1"
+      : "https://job.dahuatech.com/#/SocietyPosition?id=3";
+    return {
+      completeness:
+        payload.data.length > rows.length
+          ? ("partial" as const)
+          : ("complete" as const),
+      sourceMetadata: { fetchedAt: context.now },
+      ...normalizeItems(
+        source,
+        rows.map((job) => ({
+          id: job.jobAdIntId ?? job.jobAdId,
+          title: job.jobAdName,
+          locations: job.workingPlace,
+          campaign: job.jobCategroyDescription ?? job.companyName,
+          recruitmentType: campus ? "校园招聘" : "社会招聘",
+          batch: job.companyName,
+          description: [job.duty, job.require]
+            .filter(
+              (value): value is string =>
+                typeof value === "string" && value.trim().length > 0,
+            )
+            .join("\n\n"),
+          detailUrl: listingUrl,
+          applyUrl: listingUrl,
+          publishedAt: job.publishDate ?? job.postDate,
           preserveUrlHash: true,
         })),
       ),
