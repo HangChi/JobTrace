@@ -28,11 +28,17 @@ export async function getCampaign(id: string) {
 }
 export async function setCampaignFavorite(id: string, favorite: boolean) {
   const actor = await requireUser();
-  const campaign = await repository().get(actor.id, campaignIdSchema.parse(id));
-  if (!campaign) throw new Problem("not_found", "没有找到这条招聘记录。", 404);
+  const campaignId = campaignIdSchema.parse(id);
+  const isFavorite = await repository().setFavorite(
+    actor.id,
+    campaignId,
+    favorite,
+  );
+  if (isFavorite === null)
+    throw new Problem("not_found", "没有找到这条招聘记录。", 404);
   const result = {
-    campaignId: id,
-    isFavorite: await repository().setFavorite(actor.id, id, favorite),
+    campaignId,
+    isFavorite,
   };
   revalidateTag(CAMPAIGN_LIST_CACHE_TAG, { expire: 0 });
   return result;

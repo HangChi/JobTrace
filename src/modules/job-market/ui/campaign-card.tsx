@@ -72,7 +72,13 @@ function CompactValues({
   );
 }
 
-export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
+export function CampaignCard({
+  campaign,
+  favoriteOnly = false,
+}: {
+  campaign: CampaignSummary;
+  favoriteOnly?: boolean;
+}) {
   const isDirectory = campaign.listingKind === "recruitment_directory";
   const isOfficialDirectory =
     isDirectory && campaign.recruitmentType === "招聘官网";
@@ -190,6 +196,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
           <FavoriteButton
             campaignId={campaign.id}
             initial={campaign.isFavorite}
+            refreshOnUnfavorite={favoriteOnly}
           />
           {!isDirectory && (
             <TrackApplicationDialog

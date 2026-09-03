@@ -62,7 +62,7 @@ export interface CampaignRepository {
     ownerId: string,
     campaignId: string,
     favorite: boolean,
-  ): Promise<boolean>;
+  ): Promise<boolean | null>;
 }
 
 export interface SyncRepository {

@@ -1,14 +1,16 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { FavoriteButton } from "@/modules/job-market/ui/favorite-button";
-const refresh = vi.fn();
+
+const { refreshMock } = vi.hoisted(() => ({ refreshMock: vi.fn() }));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh: refreshMock }),
 }));
-afterEach(() => {
-  vi.unstubAllGlobals();
-  refresh.mockReset();
-});
+
+afterEach(() => vi.unstubAllGlobals());
+beforeEach(() => refreshMock.mockClear());
+
 describe("campaign favorite", () => {
   it("optimistically favorites and persists", async () => {
     const fetch = vi
@@ -27,7 +29,10 @@ describe("campaign favorite", () => {
         { method: "PUT" },
       ),
     );
-    await waitFor(() => expect(refresh).toHaveBeenCalledOnce());
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "取消收藏" })).toBeEnabled(),
+    );
+    expect(refreshMock).not.toHaveBeenCalled();
   });
   it("rolls back after failure", async () => {
     vi.stubGlobal(
@@ -42,6 +47,35 @@ describe("campaign favorite", () => {
       ).toHaveAttribute("aria-pressed", "false"),
     );
     expect(screen.getByRole("status")).toHaveTextContent("收藏失败");
-    expect(refresh).not.toHaveBeenCalled();
+  });
+  it("refreshes the list after unfavoriting in favorites-only view", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
+    );
+    render(
+      <FavoriteButton campaignId="id" initial={true} refreshOnUnfavorite />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "取消收藏" }));
+    await waitFor(() => expect(refreshMock).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "收藏招聘记录" }),
+      ).toBeEnabled(),
+    );
+  });
+  it("keeps optimistic unfavorite in the default view", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
+    );
+    render(<FavoriteButton campaignId="id" initial={true} />);
+    fireEvent.click(screen.getByRole("button", { name: "取消收藏" }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "收藏招聘记录" }),
+      ).toBeEnabled(),
+    );
+    expect(refreshMock).not.toHaveBeenCalled();
   });
 });
