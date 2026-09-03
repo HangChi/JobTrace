@@ -167,6 +167,16 @@ HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js
 
 当前仓库没有 `public/` 目录；未来若新增该目录，也需要复制到 `.next/standalone/public`。构建产物不应内置生产密钥，运行时注入服务端环境变量。
 
+### 自托管一键部署
+
+`deploy/server` 提供面向 systemd Linux 服务器的完整部署包，包括环境变量模板、standalone 应用服务、原子版本切换、就绪失败回滚，以及每六小时运行的招聘同步定时器。首次配置 `.env.server` 后，可从本地执行：
+
+```bash
+./deploy/server/push.sh deploy@your-server
+```
+
+详细的服务器依赖、HTTPS 反向代理和日常运维命令见 [`deploy/server/README.md`](../deploy/server/README.md)。该方案直接调用应用的内部同步接口，不依赖 GitHub Actions。
+
 ### 发布顺序
 
 1. 创建并验证数据库备份。
@@ -295,18 +305,18 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 
 以下头部公司渠道已实测评估，因反爬或登录态限制暂不接入，避免重复调研：
 
-| 公司 | 评估结论 |
-| --- | --- |
-| 哔哩哔哩（jobs.bilibili.com） | 全部 API 端点要求前端风控 SDK 生成的 `ajSessionId` 会话参数，伪造值被拒绝 |
-| 美团（zhaopin.meituan.com） | 职位 API 返回 401 未登录；页面纯 SPA 无 SSR 职位链接，`html_list` 兜底也不可行 |
-| 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接 |
-| 中国广核（cgn.hotjob.cn） | 大易站点为 SPA 且接口带 crypto-js 加密签名，无法静态抓取 |
-| 字节跳动校招（portal_type 区分） | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连 |
-| 快手（zhaopin.kuaishou.cn） | 职位 API 要求页面 JS 生成的 `sign` + `signTimestamp` 签名头（2026-09-03 实测，开源项目记载的旧端点已 404） |
-| 拼多多（careers.pinduoduo.com） | 职位 API 返回 403 风控拦截 |
-| 携程（careers.ctrip.com） | SPA 交互链路复杂，列表 API 未在公开请求中暴露，直连探测失败 |
-| DeepSeek（talent.deepseek.com） | 官网壳跳转 Moka 新版门户（`app.mokahr.com` 的 high-flyer 租户），其 `ats-apply` API 响应为加密密文，需页面 JS 解密 |
-| vivo / OPPO / 滴滴 / 小红书 / 蚂蚁 | vivo 要登录 token、OPPO 接口 500、滴滴旧端点 404、小红书与蚂蚁为纯 SPA，开源项目记载的端点均已失效 |
+| 公司                                   | 评估结论                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 哔哩哔哩（jobs.bilibili.com）          | 全部 API 端点要求前端风控 SDK 生成的 `ajSessionId` 会话参数，伪造值被拒绝                                          |
+| 美团（zhaopin.meituan.com）            | 职位 API 返回 401 未登录；页面纯 SPA 无 SSR 职位链接，`html_list` 兜底也不可行                                     |
+| 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接                                                         |
+| 中国广核（cgn.hotjob.cn）              | 大易站点为 SPA 且接口带 crypto-js 加密签名，无法静态抓取                                                           |
+| 字节跳动校招（portal_type 区分）       | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连                                               |
+| 快手（zhaopin.kuaishou.cn）            | 职位 API 要求页面 JS 生成的 `sign` + `signTimestamp` 签名头（2026-09-03 实测，开源项目记载的旧端点已 404）         |
+| 拼多多（careers.pinduoduo.com）        | 职位 API 返回 403 风控拦截                                                                                         |
+| 携程（careers.ctrip.com）              | SPA 交互链路复杂，列表 API 未在公开请求中暴露，直连探测失败                                                        |
+| DeepSeek（talent.deepseek.com）        | 官网壳跳转 Moka 新版门户（`app.mokahr.com` 的 high-flyer 租户），其 `ats-apply` API 响应为加密密文，需页面 JS 解密 |
+| vivo / OPPO / 滴滴 / 小红书 / 蚂蚁     | vivo 要登录 token、OPPO 接口 500、滴滴旧端点 404、小红书与蚂蚁为纯 SPA，开源项目记载的端点均已失效                 |
 
 ### 来源发现与人工审核
 

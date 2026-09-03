@@ -1,0 +1,21 @@
+[Unit]
+Description=Synchronize due JobTrace recruitment sources
+After=network-online.target jobtrace.service
+Wants=network-online.target
+Requires=jobtrace.service
+
+[Service]
+Type=oneshot
+User=@@APP_USER@@
+Group=@@APP_GROUP@@
+EnvironmentFile=@@ENV_FILE@@
+Environment=JOBTRACE_SYNC_URL=http://127.0.0.1:@@APP_PORT@@
+RuntimeDirectory=jobtrace-sync
+ExecStart=@@SYNC_BIN@@
+TimeoutStartSec=20min
+UMask=0077
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
