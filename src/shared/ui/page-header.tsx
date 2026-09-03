@@ -11,6 +11,7 @@ export function PageHeader({
   description,
   meta = [],
   actions,
+  toolsLayout = "inline",
   tone = "applications",
 }: {
   kicker: string;
@@ -18,6 +19,7 @@ export function PageHeader({
   description: string;
   meta?: PageHeaderMeta[];
   actions?: React.ReactNode;
+  toolsLayout?: "inline" | "stacked";
   tone?: PageHeaderTone;
 }) {
   return (
@@ -31,7 +33,7 @@ export function PageHeader({
       </div>
       {meta.length || actions ? (
         <div
-          className={`workspace-page-tools${meta.length ? " has-meta" : ""}${actions ? " has-actions" : ""}`}
+          className={`workspace-page-tools${meta.length ? " has-meta" : ""}${actions ? " has-actions" : ""}${toolsLayout === "stacked" ? " is-stacked" : ""}`}
         >
           {meta.length ? (
             <ul className="workspace-page-meta" aria-label={`${title}摘要`}>

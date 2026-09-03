@@ -86,6 +86,15 @@
   grid-template-columns: minmax(136px, auto) minmax(118px, auto);
 }
 
+.workspace-page-tools.has-meta.has-actions.is-stacked {
+  grid-template-columns: minmax(136px, auto);
+  justify-items: stretch;
+}
+
+.workspace-page-tools.is-stacked .workspace-page-actions {
+  min-width: 0;
+}
+
 .workspace-page-meta {
   width: 100%;
   display: grid;
