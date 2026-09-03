@@ -21,6 +21,23 @@ export default defineConfig([
     },
   },
   {
+    files: ["src/modules/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/modules/*/infrastructure/**"],
+              message:
+                "跨模块不得直接依赖基础设施实现；请通过模块公开 API 或应用层端口协作。",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["src/modules/*/domain/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
@@ -49,7 +66,11 @@ export default defineConfig([
         {
           patterns: [
             {
-              group: ["@/app/**", "@/modules/*/ui/**"],
+              group: [
+                "@/app/**",
+                "@/modules/*/infrastructure/**",
+                "@/modules/*/ui/**",
+              ],
               message: "应用层不得依赖传输或 UI 层。",
             },
           ],

@@ -3,10 +3,7 @@ import { ChinaBigTechAdapter } from "@/modules/job-market/infrastructure/adapter
 import type { SecureSourceFetch } from "@/modules/job-market/application/ports";
 import type { JobMarketSource } from "@/modules/job-market/domain/entities";
 
-function source(
-  externalKey: string,
-  baseUrl: string,
-): JobMarketSource {
+function source(externalKey: string, baseUrl: string): JobMarketSource {
   return {
     id: "source",
     companyId: "company",
@@ -359,7 +356,11 @@ describe("China big-tech API providers", () => {
       return response({
         code: 200,
         data: [
-          { jobAdIntId: 1, jobAdName: "校招嵌入式工程师", jobCategroyDescription: "研发类" },
+          {
+            jobAdIntId: 1,
+            jobAdName: "校招嵌入式工程师",
+            jobCategroyDescription: "研发类",
+          },
         ],
       });
     };

@@ -3,7 +3,7 @@ import { listSourceHealth } from "@/modules/job-market/application/source-admin-
 import { SourceHealthTable } from "@/modules/job-market/ui/admin/source-health-table";
 import { SourceForm } from "@/modules/job-market/ui/admin/source-form";
 import { DefaultSourceBootstrap } from "@/modules/job-market/ui/admin/default-source-bootstrap";
-import { listDefaultSourceCatalog } from "@/modules/job-market/application/source-admin-service";
+import { getDefaultSourceCatalogSummary } from "@/modules/job-market/application/source-admin-service";
 import { getJobMarketEnv } from "@/shared/config/env";
 import { listSourceCandidates } from "@/modules/job-market/application/source-discovery-service";
 import { SourceDiscoveryPanel } from "@/modules/job-market/ui/admin/source-discovery-panel";
@@ -59,7 +59,7 @@ export default async function AdminJobMarketPage() {
       <SourceHealthTable sources={items} />
       <div className="admin-sync-setup-grid">
         <DefaultSourceBootstrap
-          catalog={listDefaultSourceCatalog()}
+          summary={getDefaultSourceCatalogSummary()}
           scheduledSyncEnabled={getJobMarketEnv().enabled}
         />
         <SourceForm />

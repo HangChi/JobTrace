@@ -64,7 +64,7 @@ Playwright 套件使用不同端口和独立 Next.js 构建目录：
 
 ## 覆盖率与质量门槛
 
-`pnpm test` 对领域规则、应用 schema、列表查询、分析规则、表格读写和 shared 纯工具收集覆盖率：
+`pnpm test` 对领域规则、应用 schema、查询与规则、面经 Markdown、来源发现、表格读写和 shared 纯工具收集核心逻辑覆盖率：
 
 - 行覆盖率至少 80%；
 - 分支覆盖率至少 80%。

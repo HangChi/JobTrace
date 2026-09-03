@@ -29,14 +29,7 @@ describe("job market admin health", () => {
     render(
       <DefaultSourceBootstrap
         scheduledSyncEnabled={false}
-        catalog={[
-          {
-            companyName: "示例公司",
-            adapter: "greenhouse",
-            industry: "开发者工具",
-            websiteUrl: "https://example.com/",
-          },
-        ]}
+        summary={{ total: 1, automatic: 1, directory: 0 }}
       />,
     );
 
@@ -50,6 +43,42 @@ describe("job market admin health", () => {
       }),
     );
     expect(await screen.findByText(/首次同步成功 7 个/)).toBeVisible();
+  });
+
+  it("loads the large default directory only after it is expanded", async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      Response.json({
+        items: [
+          {
+            identityKey: "default:example",
+            companyName: "示例公司",
+            adapter: "greenhouse",
+            industry: "开发者工具",
+            websiteUrl: "https://example.com/",
+            channel: "automatic",
+            channelLabel: "自动同步：greenhouse",
+          },
+        ],
+        page: 1,
+        limit: 50,
+        total: 1287,
+      }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    render(
+      <DefaultSourceBootstrap
+        scheduledSyncEnabled
+        summary={{ total: 1287, automatic: 279, directory: 1008 }}
+      />,
+    );
+
+    expect(fetch).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "查看预置目录" }));
+    expect(await screen.findByText("示例公司")).toBeVisible();
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/admin/job-market/catalog?page=1&limit=50",
+    );
+    expect(screen.getByText("第 1 / 26 页，共 1287 家")).toBeVisible();
   });
 
   it("shows safe counts and retries one active source", async () => {

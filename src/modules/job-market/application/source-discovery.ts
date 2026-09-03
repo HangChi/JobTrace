@@ -169,11 +169,20 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
     string,
     { key: string; apiBaseUrl: string; apiHost: string }
   >([
-    ["careers.tencent.com", { key: "tencent", apiBaseUrl: url.href, apiHost: host }],
+    [
+      "careers.tencent.com",
+      { key: "tencent", apiBaseUrl: url.href, apiHost: host },
+    ],
     ["talent.baidu.com", { key: "baidu", apiBaseUrl: url.href, apiHost: host }],
-    ["talent.alibaba.com", { key: "alibaba", apiBaseUrl: url.href, apiHost: host }],
+    [
+      "talent.alibaba.com",
+      { key: "alibaba", apiBaseUrl: url.href, apiHost: host },
+    ],
     ["campus.jd.com", { key: "jd", apiBaseUrl: url.href, apiHost: host }],
-    ["zhaopin.meituan.com", { key: "meituan", apiBaseUrl: url.href, apiHost: host }],
+    [
+      "zhaopin.meituan.com",
+      { key: "meituan", apiBaseUrl: url.href, apiHost: host },
+    ],
     [
       "jobs.bytedance.com",
       {
@@ -192,7 +201,11 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
     ],
     [
       "hr.163.com",
-      { key: "netease", apiBaseUrl: "https://hr.163.com/", apiHost: "hr.163.com" },
+      {
+        key: "netease",
+        apiBaseUrl: "https://hr.163.com/",
+        apiHost: "hr.163.com",
+      },
     ],
   ]).get(host);
   if (bigTechProvider)

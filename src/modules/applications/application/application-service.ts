@@ -10,8 +10,8 @@ import { PostgresApplicationRepository } from "../infrastructure/postgres-applic
 import { parseListQuery } from "./list-query";
 import { z } from "zod";
 import { requireUser } from "@/modules/identity-access";
+import { listApplicationInterviews } from "@/modules/interviews";
 import { businessToday } from "@/shared/date/business-date";
-import { PostgresInterviewRepository } from "@/modules/interviews/infrastructure/postgres-interview-repository";
 import type { ApplicationDialogData } from "./contracts";
 const repository = () => new PostgresApplicationRepository();
 type DetailTiming = "auth" | "application" | "interviews";
@@ -52,14 +52,11 @@ export async function getApplicationDialogData(
 ): Promise<ApplicationDialogData> {
   const actor = await timed("auth", onTiming, requireUser);
   const applicationRepository = repository();
-  const interviewRepository = new PostgresInterviewRepository();
   const [application, interviews] = await Promise.all([
     timed("application", onTiming, () =>
       applicationRepository.getOverview(actor.id, id),
     ),
-    timed("interviews", onTiming, () =>
-      interviewRepository.listForApplication(actor.id, id),
-    ),
+    timed("interviews", onTiming, () => listApplicationInterviews(id)),
   ]);
   if (!application)
     throw new Problem("not_found", "没有找到这条投递记录。", 404);

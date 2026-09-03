@@ -91,9 +91,7 @@ export function CampaignCard({ campaign }: { campaign: CampaignSummary }) {
       }).format(new Date(campaign.publishedAt))
     : null;
   const isWeChatDirectory = isDirectory && !isOfficialDirectory;
-  const channelAction = isWeChatDirectory
-    ? "查看招聘原文"
-    : "打开招聘官网";
+  const channelAction = isWeChatDirectory ? "查看招聘原文" : "打开招聘官网";
   const channelDate = isWeChatDirectory ? publishedDate : date;
 
   return (

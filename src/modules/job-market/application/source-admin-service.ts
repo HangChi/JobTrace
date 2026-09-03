@@ -1,9 +1,15 @@
 import { requireAdmin } from "@/modules/identity-access";
 import { Problem } from "@/shared/errors/problem";
 import {
+  defaultCatalogQuerySchema,
   sourceIdSchema,
   sourceInputSchema,
   sourceUpdateSchema,
+} from "./contracts";
+import type {
+  DefaultCatalogItem,
+  DefaultCatalogPage,
+  DefaultCatalogSummary,
 } from "./contracts";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { synchronizeOneSource } from "./synchronize-due-sources";
@@ -67,8 +73,8 @@ export async function listSyncRuns(params: URLSearchParams) {
   return repository().listRuns(sourceId, page, limit);
 }
 
-export function listDefaultSourceCatalog() {
-  return [
+function defaultSourceCatalog(): DefaultCatalogItem[] {
+  const entries: DefaultCatalogItem[] = [
     ...publicDefaultSourceCatalog().map((entry) => ({
       ...entry,
       channel: "automatic" as const,
@@ -78,6 +84,39 @@ export function listDefaultSourceCatalog() {
     })),
     ...publicDefaultCompanyDirectory(),
   ];
+  return [
+    ...new Map(entries.map((entry) => [entry.companyName, entry])).values(),
+  ];
+}
+
+export function getDefaultSourceCatalogSummary(): DefaultCatalogSummary {
+  const automatic = new Set(
+    DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
+  ).size;
+  const directory = DEFAULT_COMPANY_DIRECTORY.length;
+  return { total: automatic + directory, automatic, directory };
+}
+
+export async function listDefaultSourceCatalogPage(
+  params: URLSearchParams,
+): Promise<DefaultCatalogPage> {
+  await requireAdmin();
+  const query = defaultCatalogQuerySchema.parse(Object.fromEntries(params));
+  const needle = query.q?.toLocaleLowerCase("zh-CN");
+  const catalog = needle
+    ? defaultSourceCatalog().filter((item) =>
+        `${item.companyName} ${item.industry} ${item.channelLabel ?? item.adapter ?? ""}`
+          .toLocaleLowerCase("zh-CN")
+          .includes(needle),
+      )
+    : defaultSourceCatalog();
+  const offset = (query.page - 1) * query.limit;
+  return {
+    items: catalog.slice(offset, offset + query.limit),
+    page: query.page,
+    limit: query.limit,
+    total: catalog.length,
+  };
 }
 
 export async function initializeDefaultSources(requestId: string) {

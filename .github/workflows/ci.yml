@@ -1,8 +1,39 @@
 name: CI
 on: [push, pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JOB_MARKET_ENABLED: "false"
+  JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret
+
 jobs:
-  quality:
+  static:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: python -m compileall scripts tests/performance
+      - run: pnpm test
+      - run: pnpm build
+
+  database:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17
@@ -16,8 +47,6 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       DATABASE_URL: postgresql://jobtrace:jobtrace@127.0.0.1:5432/jobtrace
-      JOB_MARKET_ENABLED: "false"
-      JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -25,11 +54,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: python -m compileall scripts tests/performance
-      - run: pnpm test
       - run: pnpm db
       - run: pnpm db:test
       - name: Install pgTAP in PostgreSQL service
@@ -37,11 +61,62 @@ jobs:
       - run: pnpm db:sql:test
       - run: pnpm db:reset:verify
       - run: pnpm db:types:check
+
+  acceptance:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: jobtrace
+          POSTGRES_PASSWORD: jobtrace
+          POSTGRES_DB: jobtrace
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U jobtrace"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://jobtrace:jobtrace@127.0.0.1:5432/jobtrace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
       - run: pnpm contract
       - run: pnpm integration
-      - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
+
+  performance:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: jobtrace
+          POSTGRES_PASSWORD: jobtrace
+          POSTGRES_DB: jobtrace
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U jobtrace"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://jobtrace:jobtrace@127.0.0.1:5432/jobtrace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm performance
       - run: pnpm performance:auth
+      - run: pnpm build
       - run: pnpm lighthouse

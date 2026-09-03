@@ -43,9 +43,10 @@ describe("job market page", () => {
     expect(screen.getByText("示例科技")).toBeVisible();
     expect(screen.getAllByText("前端工程师")[0]).toBeVisible();
     expect(screen.getByText("4 个岗位")).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: "打开招聘官网" }),
-    ).toHaveAttribute("href", "https://jobs.example.com");
+    expect(screen.getByRole("link", { name: "打开招聘官网" })).toHaveAttribute(
+      "href",
+      "https://jobs.example.com",
+    );
     expect(screen.getByText(/更新 2026/)).toBeVisible();
     expect(screen.queryByText("greenhouse")).not.toBeInTheDocument();
     expect(

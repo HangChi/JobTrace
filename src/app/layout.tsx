@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import "./globals.css";
-import "./styles/system.css";
-import "./styles/workspace.css";
-import "./styles/auth.css";
-import "./styles/classic-theme.css";
 
 export const metadata: Metadata = {
   title: "JobTrace 职迹",
@@ -15,15 +12,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  await connection();
   return (
-    <html
-      lang="zh-CN"
-      data-scroll-behavior="smooth"
-      suppressHydrationWarning
-    >
+    <html lang="zh-CN" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
         <a className="skip-link" href="#main-content">
           跳到主要内容
