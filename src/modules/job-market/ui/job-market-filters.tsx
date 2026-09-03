@@ -15,10 +15,6 @@ export function JobMarketFilters({ query }: { query: Search }) {
         <input name="q" defaultValue={value("q")} placeholder="公司或岗位" />
       </label>
       <label>
-        企业
-        <input name="company" defaultValue={value("company")} />
-      </label>
-      <label>
         地点
         <input name="location" defaultValue={value("location")} />
       </label>
