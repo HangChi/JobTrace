@@ -32,6 +32,7 @@ function isProxySafePublicAtsHost(hostname: string) {
       "jobs.bytedance.com",
       "apigw-dgg-b0.huawei.com",
       "hr.163.com",
+      "ats.openout.mihoyo.com",
     ].includes(hostname)
   );
 }

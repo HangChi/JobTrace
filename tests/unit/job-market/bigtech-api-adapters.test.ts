@@ -229,6 +229,87 @@ describe("China big-tech API providers", () => {
     );
   });
 
+  it("normalizes miHoYo social jobs with campus/social channels", async () => {
+    const fetcher: SecureSourceFetch = async (url, options) => {
+      expect(String(url)).toBe(
+        "https://ats.openout.mihoyo.com/ats-portal/v1/job/list",
+      );
+      expect(options.headers).toMatchObject({
+        Origin: "https://jobs.mihoyo.com",
+      });
+      expect(JSON.parse(String(options.body))).toEqual({
+        pageNo: 1,
+        pageSize: 10,
+        channelDetailIds: [1],
+        hireType: 0,
+      });
+      return response({
+        code: 0,
+        data: {
+          total: 1,
+          list: [
+            {
+              id: "5737",
+              title: "怪物模型-源初之结",
+              addressDetailList: [{ addressDetail: "上海", addressId: "8" }],
+              competencyType: "美术&表现类",
+              projectName: "社会招聘",
+              objectName: "",
+              jobSummary: "",
+              jobNature: "全职",
+            },
+          ],
+        },
+      });
+    };
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("mihoyo|social", "https://ats.openout.mihoyo.com/"),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.jobs).toHaveLength(1);
+    expect(batch.jobs[0]).toMatchObject({
+      title: "怪物模型-源初之结",
+      campaignName: "社会招聘",
+      recruitmentType: "社会招聘",
+      detailUrl: "https://jobs.mihoyo.com/#/position",
+    });
+    expect(batch.jobs[0]!.locations.map((item) => item.name)).toEqual(["上海"]);
+  });
+
+  it("requests hireType=1 for mihoyo|campus", async () => {
+    const fetcher: SecureSourceFetch = async (_url, options) => {
+      const body = JSON.parse(String(options.body));
+      expect(body.hireType).toBe(1);
+      return response({
+        code: 0,
+        data: {
+          total: 1,
+          list: [
+            {
+              id: "9078",
+              title: "AI产品经理",
+              addressDetailList: [{ addressDetail: "上海" }],
+              projectName: "2027届秋招",
+              objectName: "2027届（2026.9-2027.8之间毕业）",
+            },
+          ],
+        },
+      });
+    };
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("mihoyo|campus", "https://ats.openout.mihoyo.com/"),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.jobs[0]).toMatchObject({
+      campaignName: "2027届秋招",
+      recruitmentType: "校园招聘",
+      batchLabel: "2027届(2026.9-2027.8之间毕业)",
+      detailUrl: "https://jobs.mihoyo.com/#/campus/position",
+    });
+  });
+
   it("paginates ByteDance until maxItems is reached", async () => {
     const pages = [
       Array.from({ length: 10 }, (_value, index) => ({
