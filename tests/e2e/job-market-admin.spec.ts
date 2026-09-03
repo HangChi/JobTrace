@@ -68,7 +68,7 @@ test("admins can inspect safe health, register and control sources while users b
       "正在同步",
     );
 
-    await adminPage.getByLabel("企业 ID").fill(seeded.company.id);
+    await adminPage.getByLabel("企业 UUID").fill(seeded.company.id);
     await adminPage.getByLabel("来源标识").fill(registeredExternalKey);
     await adminPage
       .getByLabel("HTTPS 入口")
@@ -84,22 +84,20 @@ test("admins can inspect safe health, register and control sources while users b
 
     await sql`update job_market_sources set lease_until=null,leased_by=null where id=${seeded.source.id}`;
     await adminPage.reload();
-    const refreshedRow = adminPage
+    // 登记来源与 seed 来源同属一家公司，用仅存在于 seed 行的错误摘要区分两行
+    const seededRow = adminPage
       .getByRole("row")
-      .filter({ hasText: "E2E 来源健康公司" })
-      .first();
-    await refreshedRow.getByRole("button", { name: "暂停" }).click();
+      .filter({ hasText: "来源请求超时。" });
+    await seededRow.getByRole("button", { name: "暂停" }).click();
     await expect(adminPage.getByText("来源状态已更新")).toBeVisible();
     await adminPage.reload();
-    await adminPage
-      .getByRole("row")
-      .filter({ hasText: "E2E 来源健康公司" })
-      .first()
-      .getByRole("button", { name: "撤销" })
-      .click();
+    await seededRow.getByRole("button", { name: "撤销" }).click();
 
-    await page.goto("/");
-    await expect(page.getByText("E2E 来源健康公司")).toBeVisible();
+    // 来源已撤销后，用户端 fresh 读取不再出现该公司（带 q 参数绕开 30 秒缓存）
+    await page.goto("/?q=来源健康");
+    await expect(
+      page.getByRole("heading", { name: "没有符合条件的招聘记录" }),
+    ).toBeVisible();
     expect(
       JSON.stringify(
         await (

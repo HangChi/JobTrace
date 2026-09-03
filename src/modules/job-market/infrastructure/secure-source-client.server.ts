@@ -55,29 +55,39 @@ export function isSyntheticProxyIp(address: string) {
   return isIP(address) === 4 && inV4Range(address, "198.18.0.0", 15);
 }
 
+const RESERVED_V4_RANGES: Array<[string, number]> = [
+  ["0.0.0.0", 8],
+  ["10.0.0.0", 8],
+  ["100.64.0.0", 10],
+  ["127.0.0.0", 8],
+  ["169.254.0.0", 16],
+  ["172.16.0.0", 12],
+  ["192.0.0.0", 24],
+  ["192.0.2.0", 24],
+  ["192.168.0.0", 16],
+  ["198.18.0.0", 15],
+  ["198.51.100.0", 24],
+  ["203.0.113.0", 24],
+  ["224.0.0.0", 4],
+  ["240.0.0.0", 4],
+];
+
+function isPublicIpv4(address: string) {
+  return !RESERVED_V4_RANGES.some(([network, prefix]) =>
+    inV4Range(address, network, prefix),
+  );
+}
+
 export function isPublicIp(address: string) {
   if (isIP(address) === 4) {
-    return ![
-      ["0.0.0.0", 8],
-      ["10.0.0.0", 8],
-      ["100.64.0.0", 10],
-      ["127.0.0.0", 8],
-      ["169.254.0.0", 16],
-      ["172.16.0.0", 12],
-      ["192.0.0.0", 24],
-      ["192.0.2.0", 24],
-      ["192.168.0.0", 16],
-      ["198.18.0.0", 15],
-      ["198.51.100.0", 24],
-      ["203.0.113.0", 24],
-      ["224.0.0.0", 4],
-      ["240.0.0.0", 4],
-    ].some(([network, prefix]) =>
-      inV4Range(address, String(network), Number(prefix)),
-    );
+    return isPublicIpv4(address);
   }
   if (isIP(address) === 6) {
     const normalized = address.toLowerCase();
+    // IPv4-mapped IPv6 地址的内网判定必须落在内嵌的 IPv4 上，
+    // 否则 ::ffff:172.16.x.x 这类地址能绕过保留段封禁
+    const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(normalized);
+    if (mapped) return isPublicIpv4(mapped[1]);
     return !(
       normalized === "::" ||
       normalized === "::1" ||
@@ -85,10 +95,7 @@ export function isPublicIp(address: string) {
       normalized.startsWith("fd") ||
       /^fe[89ab]/.test(normalized) ||
       normalized.startsWith("ff") ||
-      normalized.startsWith("2001:db8:") ||
-      normalized.startsWith("::ffff:127.") ||
-      normalized.startsWith("::ffff:10.") ||
-      normalized.startsWith("::ffff:192.168.")
+      normalized.startsWith("2001:db8:")
     );
   }
   return false;

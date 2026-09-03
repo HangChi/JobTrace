@@ -83,7 +83,7 @@ export function JobMarketPage({
           <Link
             className="job-market-favorite-filter"
             href={favoriteHref}
-            aria-pressed={favoriteOnly}
+            aria-current={favoriteOnly ? "true" : undefined}
             scroll={false}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24">

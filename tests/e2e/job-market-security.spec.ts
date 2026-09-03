@@ -21,7 +21,8 @@ test("marketplace never exposes unsafe apply URLs or active source markup", asyn
     ],
   });
   try {
-    await page.goto("/");
+    // 入口带专属 q 参数绕开 30 秒列表缓存
+    await page.goto("/?q=onerror");
     await expect(page.getByText("<img src=x onerror=alert(1)>")).toBeVisible();
     expect(
       await page.evaluate(
@@ -30,9 +31,13 @@ test("marketplace never exposes unsafe apply URLs or active source markup", asyn
     ).toBeUndefined();
     await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0);
     const card = page
-      .locator("article")
+      .getByRole("row")
       .filter({ hasText: "<img src=x onerror=alert(1)>" });
-    await expect(card.getByRole("button", { name: "立即投递" })).toBeDisabled();
+    // 现状：列表投递入口统一使用来源 base_url，岗位级 javascript: 地址不会进入 DOM
+    await expect(card.getByRole("link", { name: "立即投递" })).toHaveAttribute(
+      "href",
+      "https://jobs.example.com",
+    );
 
     const internal = await request.post("/api/internal/job-market/sync", {
       headers: { authorization: "Bearer invalid-secret" },

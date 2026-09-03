@@ -59,7 +59,7 @@ test("job-market administration is axe-clean and keyboard reachable", async ({
     await expect(
       page.getByRole("heading", { name: "来源与同步" }),
     ).toBeVisible();
-    await page.getByLabel("企业 ID").focus();
+    await page.getByLabel("企业 UUID").focus();
     await page.keyboard.press("Tab");
     await expect(page.locator(":focus")).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
