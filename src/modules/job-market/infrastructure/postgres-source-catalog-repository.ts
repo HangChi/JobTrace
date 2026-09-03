@@ -53,20 +53,30 @@ export class PostgresSourceCatalogRepository {
           and campaign.status<>'closed'`;
 
       for (const entry of entries) {
+        // Companies with multiple catalog entries (e.g. social + campus
+        // sources of the same employer) must share one row, otherwise the
+        // campaign listing renders one card per source instead of per company.
         let [company] = await tx<Array<{ id: string }>>`
-          insert into job_market_companies(
-            canonical_name,normalized_name,company_type,industry,website_url,identity_key
-          ) values(
-            ${entry.companyName},${normalizeText(entry.companyName)},${entry.companyType},
-            ${entry.industry},${entry.websiteUrl},${entry.identityKey}
-          ) on conflict(identity_key) do nothing returning id`;
-        if (company) createdCompanies += 1;
-        else {
-          [company] = await tx<Array<{ id: string }>>`
+          select id from job_market_companies
+          where normalized_name=${normalizeText(entry.companyName)}
+          order by case when identity_key=${entry.identityKey} then 0 else 1 end,created_at
+          limit 1`;
+        if (company) {
+          await tx`
             update job_market_companies set
-              canonical_name=${entry.companyName},normalized_name=${normalizeText(entry.companyName)},
-              company_type=${entry.companyType},industry=${entry.industry},website_url=${entry.websiteUrl},updated_at=now()
-            where identity_key=${entry.identityKey} returning id`;
+              canonical_name=${entry.companyName},
+              company_type=${entry.companyType},industry=${entry.industry},
+              website_url=${entry.websiteUrl},updated_at=now()
+            where id=${company.id}`;
+        } else {
+          createdCompanies += 1;
+          [company] = await tx<Array<{ id: string }>>`
+            insert into job_market_companies(
+              canonical_name,normalized_name,company_type,industry,website_url,identity_key
+            ) values(
+              ${entry.companyName},${normalizeText(entry.companyName)},${entry.companyType},
+              ${entry.industry},${entry.websiteUrl},${entry.identityKey}
+            ) returning id`;
         }
 
         let [source] = await tx<Array<{ id: string; status: string }>>`
