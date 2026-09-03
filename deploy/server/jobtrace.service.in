@@ -1,0 +1,26 @@
+[Unit]
+Description=JobTrace web application
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@@APP_USER@@
+Group=@@APP_GROUP@@
+WorkingDirectory=@@APP_CURRENT@@
+EnvironmentFile=@@ENV_FILE@@
+Environment=NODE_ENV=production
+ExecStart=@@NODE_BIN@@ .next/standalone/server.js
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=@@APP_ROOT@@
+
+[Install]
+WantedBy=multi-user.target
