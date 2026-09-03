@@ -29,6 +29,9 @@ function isProxySafePublicAtsHost(hostname: string) {
       "talent.alibaba.com",
       "campus.jd.com",
       "zhaopin.meituan.com",
+      "jobs.bytedance.com",
+      "apigw-dgg-b0.huawei.com",
+      "hr.163.com",
     ].includes(hostname)
   );
 }

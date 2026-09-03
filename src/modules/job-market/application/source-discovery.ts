@@ -165,19 +165,42 @@ function directCandidate(value: string): DetectedSourceCandidate | null {
   }
   if (host === "campus.51job.com")
     return result("job51", parts[0] ?? host, url.href, host, "known_51job_url");
-  const bigTechProvider = new Map([
-    ["careers.tencent.com", "tencent"],
-    ["talent.baidu.com", "baidu"],
-    ["talent.alibaba.com", "alibaba"],
-    ["campus.jd.com", "jd"],
-    ["zhaopin.meituan.com", "meituan"],
+  const bigTechProvider = new Map<
+    string,
+    { key: string; apiBaseUrl: string; apiHost: string }
+  >([
+    ["careers.tencent.com", { key: "tencent", apiBaseUrl: url.href, apiHost: host }],
+    ["talent.baidu.com", { key: "baidu", apiBaseUrl: url.href, apiHost: host }],
+    ["talent.alibaba.com", { key: "alibaba", apiBaseUrl: url.href, apiHost: host }],
+    ["campus.jd.com", { key: "jd", apiBaseUrl: url.href, apiHost: host }],
+    ["zhaopin.meituan.com", { key: "meituan", apiBaseUrl: url.href, apiHost: host }],
+    [
+      "jobs.bytedance.com",
+      {
+        key: "bytedance",
+        apiBaseUrl: "https://jobs.bytedance.com/",
+        apiHost: "jobs.bytedance.com",
+      },
+    ],
+    [
+      "career.huawei.com",
+      {
+        key: "huawei|sr",
+        apiBaseUrl: "https://apigw-dgg-b0.huawei.com/",
+        apiHost: "apigw-dgg-b0.huawei.com",
+      },
+    ],
+    [
+      "hr.163.com",
+      { key: "netease", apiBaseUrl: "https://hr.163.com/", apiHost: "hr.163.com" },
+    ],
   ]).get(host);
   if (bigTechProvider)
     return result(
       "china_bigtech",
-      bigTechProvider,
-      url.href,
-      host,
+      bigTechProvider.key,
+      bigTechProvider.apiBaseUrl,
+      bigTechProvider.apiHost,
       "known_china_bigtech_url",
     );
   return null;
