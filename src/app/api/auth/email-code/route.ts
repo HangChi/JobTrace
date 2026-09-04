@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return Response.json(
       await requestRegistrationEmailCode(
         body.email,
-        clientRateLimitKey(request, "registration-email-code"),
+        clientRateLimitKey(request.headers, "registration-email-code"),
       ),
       { status: 202 },
     );

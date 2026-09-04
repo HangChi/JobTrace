@@ -12,9 +12,15 @@ const databaseEnvSchema = z.object({
   DATABASE_AUTH_POOL_MAX: z.coerce.number().int().min(1).max(20).default(2),
 });
 
+const authTrustProxyHeadersSchema = z
+  .enum(["true", "false"])
+  .default("false")
+  .transform((value) => value === "true");
+
 const authEnvSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
+  AUTH_TRUST_PROXY_HEADERS: authTrustProxyHeadersSchema,
   AUTH_CHALLENGE_VERIFY_URL: z.url().optional(),
   AUTH_CHALLENGE_SECRET: z.string().min(1).optional(),
   AUTH_EMAIL_DELIVERY_URL: z.url().optional(),
@@ -87,6 +93,7 @@ export function getAuthEnv() {
   return authEnvSchema.parse({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || undefined,
+    AUTH_TRUST_PROXY_HEADERS: process.env.AUTH_TRUST_PROXY_HEADERS || undefined,
     AUTH_CHALLENGE_VERIFY_URL:
       process.env.AUTH_CHALLENGE_VERIFY_URL || undefined,
     AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET || undefined,
@@ -96,6 +103,12 @@ export function getAuthEnv() {
     AUTH_EMAIL_VERIFICATION_TEST_CODE:
       process.env.AUTH_EMAIL_VERIFICATION_TEST_CODE || undefined,
   });
+}
+
+export function getAuthTrustProxyHeaders() {
+  return authTrustProxyHeadersSchema.parse(
+    process.env.AUTH_TRUST_PROXY_HEADERS || undefined,
+  );
 }
 
 export function getCosEnv(): CosEnv {
@@ -119,6 +132,7 @@ export function hasAuthConfiguration() {
   return authEnvSchema.safeParse({
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || undefined,
+    AUTH_TRUST_PROXY_HEADERS: process.env.AUTH_TRUST_PROXY_HEADERS || undefined,
     AUTH_CHALLENGE_VERIFY_URL:
       process.env.AUTH_CHALLENGE_VERIFY_URL || undefined,
     AUTH_CHALLENGE_SECRET: process.env.AUTH_CHALLENGE_SECRET || undefined,

@@ -38,6 +38,7 @@ def main() -> None:
         environment = os.environ.copy()
         environment["DATABASE_URL"] = target
         environment["AUTH_EMAIL_VERIFICATION_TEST_CODE"] = "000000"
+        environment["AUTH_TRUST_PROXY_HEADERS"] = "true"
         executable = shutil.which(command[0])
         if not executable:
             raise SystemExit(f"command not found: {command[0]}")

@@ -11,7 +11,10 @@ import {
 export async function POST(r: Request) {
   try {
     assertSameOrigin(r);
-    await checkAuthRateLimit(clientRateLimitKey(r, "local-login"), "login");
+    await checkAuthRateLimit(
+      clientRateLimitKey(r.headers, "local-login"),
+      "login",
+    );
     await verifyAuthChallenge(r);
     return Response.json(await login(await r.json()));
   } catch (e) {
