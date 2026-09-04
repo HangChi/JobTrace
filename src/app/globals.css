@@ -1544,7 +1544,7 @@ table {
 }
 .application-table {
   table-layout: fixed;
-  min-width: 1080px;
+  min-width: 1180px;
 }
 .application-table .selection-column {
   width: 5%;
@@ -1565,10 +1565,10 @@ table {
   width: 14%;
 }
 .application-table .date-column {
-  width: 12%;
+  width: 10%;
 }
 .application-table .actions-column {
-  width: 14%;
+  width: 12%;
 }
 th,
 td {

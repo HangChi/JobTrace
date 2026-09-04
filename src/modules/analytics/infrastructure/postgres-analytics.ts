@@ -72,14 +72,12 @@ export async function fetchAnalyticsSummary(
     select a.id, a.company_name, a.position_name, a.city, a.job_url,
       a.applied_date, a.type, a.status, a.latest_date, a.version,
       case
-        when timeline.latest_date is not null
-          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+        when timeline.latest_date is not null and timeline.latest_date >= a.latest_date
           then 'timeline'
         else 'application'
       end as follow_up_reason,
       case
-        when timeline.latest_date is not null
-          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
+        when timeline.latest_date is not null and timeline.latest_date >= a.latest_date
           then ${businessToday()}::date - timeline.latest_date
         else ${businessToday()}::date - a.latest_date
       end as follow_up_days
@@ -90,13 +88,10 @@ export async function fetchAnalyticsSummary(
       where s.application_id = a.id
     ) timeline on true
     where a.owner_id=${ownerId} and a.status='submitted'
-      and (
-        ${businessToday()}::date - a.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
-        or (
-          timeline.latest_date is not null
-          and ${businessToday()}::date - timeline.latest_date >= ${FOLLOW_UP_THRESHOLD_DAYS}
-        )
-      )
+      and ${businessToday()}::date - greatest(
+        a.latest_date,
+        coalesce(timeline.latest_date,a.latest_date)
+      ) >= ${FOLLOW_UP_THRESHOLD_DAYS}
     order by follow_up_days desc, a.id
     limit 20
   `;

@@ -56,7 +56,7 @@ test("已有阶段创建、新阶段原子创建、重复关联和事务回滚",
     const [counts] = await sql<{ stages: number; reviews: number }[]>`select
         (select count(*)::int from application_stage_occurrences where application_id=${application.id}) stages,
         (select count(*)::int from interview_reviews where application_id=${application.id}) reviews`;
-    expect(counts).toMatchObject({ stages: 3, reviews: 2 });
+    expect(counts).toMatchObject({ stages: 2, reviews: 2 });
     const [assessment] = await sql<
       { stage_date: string; interview_date: string }[]
     >`select s.occurred_on::text stage_date,r.interviewed_on::text interview_date

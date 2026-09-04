@@ -123,11 +123,12 @@ components:
         stageOccurrenceId: { type: [string, 'null'], format: uuid }
         stage: { $ref: '#/components/schemas/InterviewStage' }
         interviewedOn: { type: string, format: date }
+        stageOccurredOn: { type: string, format: date }
         format: { oneOf: [{ $ref: '#/components/schemas/InterviewFormat' }, { type: 'null' }] }
         durationMinutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
         interviewerNotes: { type: [string, 'null'], maxLength: 2000 }
         roundResult: { $ref: '#/components/schemas/RoundResult' }
-      description: 必须提供 stageOccurrenceId，或同时提供 stage 与 interviewedOn；两种关联方式互斥。
+      description: 必须提供 stageOccurrenceId，或同时提供 stage 与 interviewedOn；两种关联方式互斥。新建阶段时 stageOccurredOn 可选，省略时等于 interviewedOn；已有阶段模式禁止传入。
     UpdateInterviewReview:
       type: object
       additionalProperties: false

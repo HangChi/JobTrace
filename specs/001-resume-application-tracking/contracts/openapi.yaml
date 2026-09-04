@@ -110,7 +110,7 @@ paths:
         - { name: city, in: query, schema: { type: array, items: { type: string } }, explode: true }
         - { name: appliedFrom, in: query, schema: { type: string, format: date } }
         - { name: appliedTo, in: query, schema: { type: string, format: date } }
-        - { name: sort, in: query, schema: { type: string, enum: [company, position, appliedDate, latestDate], default: latestDate } }
+        - { name: sort, in: query, schema: { type: string, enum: [company, position, appliedDate, latestDate] }, description: 省略时按已投递优先、桶内最新日期倒序；显式 latestDate 为全局日期排序。 }
         - { name: direction, in: query, schema: { type: string, enum: [asc, desc], default: desc } }
         - { name: cursor, in: query, schema: { type: string } }
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }

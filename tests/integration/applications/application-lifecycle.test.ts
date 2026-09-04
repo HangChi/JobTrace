@@ -11,6 +11,7 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
   });
   const application = await created.json();
   try {
+    expect(application.stageOccurrences).toEqual([]);
     await request.post(`/api/applications/${application.id}/stages`, {
       data: { stage: "screening", occurredOn: "2026-08-05" },
     });
@@ -30,10 +31,10 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
       await request.get(`/api/applications/${application.id}`)
     ).json();
     expect(detail.version).toBe(3);
-    expect(detail.stageOccurrences).toHaveLength(2);
+    expect(detail.stageOccurrences).toHaveLength(1);
     expect(detail.stageOccurrences[0]).toMatchObject({
       stage: "screening",
-      occurredOn: "2026-08-01",
+      occurredOn: "2026-08-05",
     });
     expect(detail.events.map((event: { type: string }) => event.type)).toEqual(
       expect.arrayContaining(["created", "stage_added", "status_changed"]),
@@ -44,6 +45,33 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
   expect(
     (await request.get(`/api/applications/${application.id}`)).status(),
   ).toBe(404);
+});
+
+test("创建投递时显式阶段与事件原子写入并更新最新日期", async ({ request }) => {
+  const response = await request.post("/api/applications", {
+    data: {
+      companyName: "Initial Stages",
+      positionName: "Engineer",
+      appliedDate: "2026-08-01",
+      stages: [
+        { stage: "screening", occurredOn: "2026-08-02" },
+        { stage: "interview_1", occurredOn: "2026-08-06" },
+      ],
+    },
+  });
+  expect(response.status()).toBe(201);
+  const application = await response.json();
+  try {
+    expect(application.latestDate).toBe("2026-08-06");
+    expect(application.stageOccurrences).toHaveLength(2);
+    expect(
+      application.events.filter(
+        (event: { type: string }) => event.type === "stage_added",
+      ),
+    ).toHaveLength(2);
+  } finally {
+    await request.delete(`/api/applications/${application.id}`);
+  }
 });
 
 test("删除阶段时必须匹配 URL 中的投递记录", async ({ request }) => {
@@ -61,7 +89,12 @@ test("删除阶段时必须匹配 URL 中的投递记录", async ({ request }) =
   };
   const applicationA = await create("Stage Parent A");
   const applicationB = await create("Stage Parent B");
-  const occurrenceId = applicationA.stageOccurrences[0].id;
+  const stagedA = await (
+    await request.post(`/api/applications/${applicationA.id}/stages`, {
+      data: { stage: "screening", occurredOn: "2026-08-02" },
+    })
+  ).json();
+  const occurrenceId = stagedA.stageOccurrences[0].id;
 
   try {
     const response = await request.delete(
@@ -77,13 +110,13 @@ test("删除阶段时必须匹配 URL 中的投递记录", async ({ request }) =
       ),
     );
     expect(afterA).toMatchObject({
-      version: applicationA.version,
-      latestDate: applicationA.latestDate,
+      version: stagedA.version,
+      latestDate: stagedA.latestDate,
     });
     expect(
       afterA.stageOccurrences.map((stage: { id: string }) => stage.id),
     ).toContain(occurrenceId);
-    expect(afterA.events).toHaveLength(applicationA.events.length);
+    expect(afterA.events).toHaveLength(stagedA.events.length);
     expect(afterB).toMatchObject({
       version: applicationB.version,
       latestDate: applicationB.latestDate,

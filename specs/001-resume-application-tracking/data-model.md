@@ -81,7 +81,7 @@
 | `job_url` | text | no | 绝对 `http`/`https` URL，最长 2048 字符 |
 | `applied_date` | date | yes | 不晚于当前业务日期 |
 | `status` | application_status | yes | 默认 `submitted` |
-| `latest_date` | date | yes | `>= applied_date`，创建时等于投递日期 |
+| `latest_date` | date | yes | `>= applied_date`，创建时等于投递日期与显式阶段日期中的最大值 |
 | `notes` | text | no | 最长 10,000 字符 |
 | `created_at` | timestamptz | yes | 数据库生成 |
 | `updated_at` | timestamptz | yes | 每次当前快照改变时更新 |
@@ -91,14 +91,14 @@
 
 - `is_closed`: `status` ∈ offer, refused。
 - `needs_follow_up`: `status = submitted` 且投递内容或招聘时间线连续 15 个完整日未更新。
-- `follow_up_days`: 当前业务日期与 `latest_date` 的自然日差。
+- `follow_up_days`: 当前业务日期与投递内容、招聘时间线中最近活动日期的自然日差。
 - `candidate_duplicate_key`: 标准化公司名 + 标准化岗位名 + `applied_date`；只提示，不建立唯一约束。
 
 ### Indexes
 
 - GIN trigram: `company_name_search`, `position_name_search`。
 - B-tree: `(status, latest_date desc, id)`、`(applied_date desc, id)`、`(city)`。
-- 默认列表游标使用稳定元组 `(is_closed, latest_date desc, id)` 的等价排序表达式。
+- 默认列表游标使用稳定元组 `(is_submitted desc, latest_date desc, id desc)` 的等价排序表达式；显式最新日期排序不按状态分桶。
 
 ## Entity: application_stage_occurrences
 

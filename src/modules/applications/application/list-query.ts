@@ -14,7 +14,8 @@ const sortValues = [
 ] as const;
 export function parseListQuery(params: URLSearchParams) {
   const q = (params.get("q") ?? "").trim().slice(0, 200);
-  const sort = z.enum(sortValues).catch("latestDate").parse(params.get("sort"));
+  const parsedSort = z.enum(sortValues).safeParse(params.get("sort"));
+  const sort = parsedSort.success ? parsedSort.data : "latestDate";
   const defaultDirection =
     sort === "company" || sort === "position" ? "asc" : "desc";
   return {
@@ -38,6 +39,7 @@ export function parseListQuery(params: URLSearchParams) {
     appliedFrom: z.iso.date().safeParse(params.get("appliedFrom")).data,
     appliedTo: z.iso.date().safeParse(params.get("appliedTo")).data,
     sort,
+    defaultOrder: !parsedSort.success,
     direction: z
       .enum(["asc", "desc"])
       .catch(defaultDirection)

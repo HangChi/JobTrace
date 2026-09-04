@@ -56,6 +56,12 @@ describe("投递记录列表", () => {
     ).toHaveTextContent("example.com");
     expect(screen.getByText("暑期实习")).toBeVisible();
     expect(
+      screen.getByRole("columnheader", { name: "最新日期" }),
+    ).toBeVisible();
+    expect(
+      document.querySelector('td[data-label="最新日期"]'),
+    ).toHaveTextContent("2026-08-13");
+    expect(
       screen.getByRole("button", { name: "编辑" }).querySelector("svg"),
     ).not.toBeNull();
     expect(

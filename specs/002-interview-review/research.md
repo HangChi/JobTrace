@@ -20,7 +20,7 @@
 
 ## Decision 4: 创建未记录阶段时一次事务完成阶段与面经
 
-- **Decision**: `POST /api/interviews` 支持传入已有 `stageOccurrenceId`，或传入 `stage` + `interviewedOn` 创建新阶段并创建面经；后者必须在同一个事务中完成。
+- **Decision**: `POST /api/interviews` 支持传入已有 `stageOccurrenceId`，或传入 `stage` + `interviewedOn` 创建新阶段并创建面经；后者必须在同一个事务中完成，并可用 `stageOccurredOn` 单独记录阶段发生日期（省略时等于面试日期）。已有阶段模式禁止传入该字段。
 - **Rationale**: 从面经入口开始时不应要求用户先离开流程补录阶段；原子操作避免出现孤立阶段或孤立面经。
 - **Alternatives considered**: 让浏览器先调用阶段接口、再调用面经接口；被拒绝，因为中途失败会留下不完整数据，且无法可靠处理重复提交。
 

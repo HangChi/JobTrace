@@ -32,6 +32,7 @@ export const createInterviewSchema = z
     stageOccurrenceId: z.uuid().nullable().optional(),
     stage: z.enum(INTERVIEW_STAGES).optional(),
     interviewedOn: z.iso.date().optional(),
+    stageOccurredOn: z.iso.date().optional(),
     format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
     durationMinutes: z.number().int().min(1).max(600).nullable().optional(),
     interviewerNotes: optionalText(2000),
@@ -45,6 +46,13 @@ export const createInterviewSchema = z
         code: "custom",
         path: ["stageOccurrenceId"],
         message: "请选择已有面试阶段，或填写新的轮次和日期",
+      });
+    }
+    if (existing && value.stageOccurredOn) {
+      context.addIssue({
+        code: "custom",
+        path: ["stageOccurredOn"],
+        message: "选择已有阶段时不能另行指定阶段日期",
       });
     }
   });
