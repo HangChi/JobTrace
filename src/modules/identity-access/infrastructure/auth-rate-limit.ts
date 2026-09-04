@@ -1,13 +1,25 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { isIP } from "node:net";
 import { createServerDatabase } from "@/shared/database";
+import { getAuthTrustProxyHeaders } from "@/shared/config/env";
 import { Problem } from "@/shared/errors/problem";
 
-export function clientRateLimitKey(request: Request, fallback: string) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0];
-  const candidate = forwarded ?? request.headers.get("x-real-ip") ?? fallback;
-  return candidate.trim().slice(0, 200) || fallback;
+function normalizeIpAddress(value: string) {
+  const address = value.trim();
+  const version = isIP(address);
+  if (version === 4) return address;
+  if (version !== 6) return null;
+  const hostname = new URL(`http://[${address}]/`).hostname;
+  return hostname.slice(1, -1);
+}
+
+export function clientRateLimitKey(headers: Headers, fallback: string) {
+  if (!getAuthTrustProxyHeaders()) return fallback;
+  const forwarded = headers.get("x-forwarded-for");
+  if (!forwarded || forwarded.includes(",")) return fallback;
+  return normalizeIpAddress(forwarded) ?? fallback;
 }
 
 export async function checkAuthRateLimit(

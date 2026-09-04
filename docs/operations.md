@@ -30,6 +30,7 @@ pnpm dev
 | `DATABASE_URL`                      | 指向 PostgreSQL 17；启用 TLS 时按数据库供应商要求加入连接参数。应用进程每实例最多建立 10 个业务连接，Better Auth 另有连接池。 |
 | `BETTER_AUTH_SECRET`                | 至少 32 个字符，使用密码学安全随机值，通过密钥管理服务注入。轮换会影响现有认证状态，应在维护窗口执行。                        |
 | `BETTER_AUTH_URL`                   | 与用户实际访问的规范来源完全一致，生产环境使用 HTTPS；同源写请求会据此校验 `Origin`。                                         |
+| `AUTH_TRUST_PROXY_HEADERS`          | 默认 `false`。仅当应用源站不可直连，且反向代理把 `X-Forwarded-For` 覆盖为单个合法客户端 IP 时设为 `true`。                    |
 | `AUTH_CHALLENGE_VERIFY_URL`         | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
 | `AUTH_CHALLENGE_SECRET`             | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
 | `AUTH_EMAIL_DELIVERY_URL`           | 生产必填。接收 `password_reset` 或 `email_verification_code` 投递任务；注册验证码和密码恢复共用。                             |
@@ -39,7 +40,7 @@ pnpm dev
 > [!WARNING]
 > `DATABASE_URL`、`BETTER_AUTH_SECRET`、`AUTH_CHALLENGE_SECRET` 和所有 COS 凭据都只能作为服务端变量存在，不得添加 `NEXT_PUBLIC_` 前缀。
 
-登录、注册和密码恢复共享 PostgreSQL 限流状态，可在多实例部署中保持一致。反向代理必须覆盖而不是透传客户端伪造的 `X-Forwarded-For` / `X-Real-IP`，也可以在可信网关叠加更严格的限流。每个应用实例默认使用 8 条业务连接和 2 条认证连接；多实例部署应通过 `DATABASE_APP_POOL_MAX`、`DATABASE_AUTH_POOL_MAX` 控制总连接数不超过 PostgreSQL 预算。
+登录、注册和密码恢复共享 PostgreSQL 限流状态，可在多实例部署中保持一致。未启用 `AUTH_TRUST_PROXY_HEADERS` 时，应用忽略全部代理 IP 头并使用共享限流桶；启用后只接受单值、合法且由可信代理覆盖生成的 `X-Forwarded-For`，不读取 `X-Real-IP`。多级代理必须在最靠近应用的可信代理处把来源归一为单个客户端 IP；无法保证这一边界时保持关闭，并在网关执行细粒度限流。每个应用实例默认使用 8 条业务连接和 2 条认证连接；多实例部署应通过 `DATABASE_APP_POOL_MAX`、`DATABASE_AUTH_POOL_MAX` 控制总连接数不超过 PostgreSQL 预算。
 
 ### 头像存储
 

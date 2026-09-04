@@ -35,6 +35,7 @@ chmod 600 .env.server
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
+- `AUTH_TRUST_PROXY_HEADERS=true`（仅适用于下述回环地址加 Nginx 覆盖头配置）
 - `JOB_MARKET_SYNC_SECRET`
 - 邮件投递配置（开放注册和密码恢复时）
 
@@ -76,7 +77,7 @@ sudo JOBTRACE_ENV_SOURCE=/secure/path/jobtrace.env \
 
 应用默认只监听 `127.0.0.1:3000`，不会直接暴露到公网。`nginx.conf.example` 提供了 Nginx 模板；替换域名和证书路径后放入 Nginx 配置目录。
 
-反向代理必须覆盖客户端传入的 `X-Forwarded-For` 和 `X-Real-IP`，并允许至少 6 MB 请求体。不要把 3000 端口直接开放到公网。
+反向代理必须把 `X-Forwarded-For` 覆盖为单个 `$remote_addr`，不得追加或透传客户端值，并允许至少 6 MB 请求体。应用只读取该单值头，不信任 `X-Real-IP`。不要把 3000 端口直接开放到公网；多级代理必须先将可信链归一为单个客户端 IP，否则保持 `AUTH_TRUST_PROXY_HEADERS=false` 并在网关限流。
 
 ## 首次招聘目录初始化
 

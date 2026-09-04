@@ -12,7 +12,7 @@ export async function POST(r: Request) {
   try {
     assertSameOrigin(r);
     await checkAuthRateLimit(
-      clientRateLimitKey(r, "local-register"),
+      clientRateLimitKey(r.headers, "local-register"),
       "register",
       5,
       60_000,

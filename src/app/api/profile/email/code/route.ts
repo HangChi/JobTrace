@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return Response.json(
       await requestEmailBindingCode(
         body.email,
-        clientRateLimitKey(request, "binding-email-code"),
+        clientRateLimitKey(request.headers, "binding-email-code"),
       ),
       { status: 202 },
     );

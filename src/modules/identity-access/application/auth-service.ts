@@ -13,7 +13,10 @@ import {
   safeReturnTo,
 } from "./auth-schema";
 import { auth } from "../infrastructure/better-auth.server";
-import { checkAuthRateLimit } from "../infrastructure/auth-rate-limit";
+import {
+  checkAuthRateLimit,
+  clientRateLimitKey,
+} from "../infrastructure/auth-rate-limit";
 import { requireUser } from "./authorization";
 import { verifyEmailCode } from "./email-verification-service";
 
@@ -165,10 +168,7 @@ export async function requestPasswordReset(email: unknown) {
   requireAuthConfiguration();
   const recoveryEmail = emailSchema.parse(email);
   const requestHeaders = await headers();
-  const rateKey =
-    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    requestHeaders.get("x-real-ip") ||
-    "local-password-reset";
+  const rateKey = clientRateLimitKey(requestHeaders, "local-password-reset");
   await checkAuthRateLimit(rateKey, "password-reset", 5, 15 * 60_000);
   const sql = createServerDatabase();
   const [user] = await sql<{ email: string }[]>`

@@ -153,6 +153,7 @@ pnpm lighthouse       # Web 性能与可访问性审计
 | `DATABASE_AUTH_POOL_MAX`            | 可选           | 单实例认证连接池上限，默认 2。                      |
 | `BETTER_AUTH_SECRET`                | 必填           | Better Auth 密钥，至少 32 个字符。                  |
 | `BETTER_AUTH_URL`                   | 必填           | 应用的规范访问地址，生产环境必须为 HTTPS。          |
+| `AUTH_TRUST_PROXY_HEADERS`          | 可选           | 仅在可信反向代理覆盖客户端 IP 头时设为 `true`。     |
 | `AUTH_CHALLENGE_VERIFY_URL`         | 可选           | CAPTCHA 兼容的服务端验证端点。                      |
 | `AUTH_CHALLENGE_SECRET`             | 按验证服务要求 | 随验证请求传递的服务端密钥。                        |
 | `AUTH_EMAIL_DELIVERY_URL`           | 生产注册必填   | 接收邮箱验证码和密码重置任务的服务端 Webhook。      |

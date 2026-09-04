@@ -43,6 +43,12 @@ export const auth = betterAuth({
   baseURL: authEnv.BETTER_AUTH_URL,
   secret: authEnv.BETTER_AUTH_SECRET,
   advanced: {
+    trustedProxyHeaders: false,
+    ipAddress: {
+      ipAddressHeaders: authEnv.AUTH_TRUST_PROXY_HEADERS
+        ? ["x-forwarded-for"]
+        : [],
+    },
     useSecureCookies:
       process.env.NODE_ENV === "production" ||
       authEnv.BETTER_AUTH_URL.startsWith("https://"),
