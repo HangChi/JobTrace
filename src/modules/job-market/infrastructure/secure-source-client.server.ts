@@ -1,10 +1,24 @@
 import "server-only";
 import { lookup, resolve4, resolve6 } from "node:dns/promises";
-import { isIP } from "node:net";
+import { isIP, type LookupFunction } from "node:net";
+import { Agent, type Dispatcher } from "undici";
 import { getJobMarketEnv } from "@/shared/config/env";
 import { SourceError } from "../application/source-errors";
 
 type Resolver = (hostname: string) => Promise<string[]>;
+type DispatcherRequestInit = RequestInit & { dispatcher?: Dispatcher };
+type SourceFetcher = (
+  input: string | URL,
+  init?: DispatcherRequestInit,
+) => Promise<Response>;
+type ManagedDispatcher = {
+  dispatcher: Dispatcher;
+  close: () => Promise<void>;
+};
+type DispatcherFactory = (
+  hostname: string,
+  addresses: readonly string[],
+) => ManagedDispatcher;
 
 const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
   "boards-api.greenhouse.io",
@@ -140,12 +154,12 @@ async function defaultResolver(hostname: string) {
   return system.map((item) => item.address);
 }
 
-async function assertPublicHost(
+async function resolvePublicHost(
   url: URL,
   resolver: Resolver,
   allowProxyDns: boolean,
 ) {
-  const addresses = await resolver(url.hostname);
+  const addresses = [...new Set(await resolver(url.hostname))];
   const valid =
     addresses.length > 0 &&
     addresses.every(
@@ -160,6 +174,53 @@ async function assertPublicHost(
       "Source host does not resolve exclusively to public addresses",
     );
   }
+  return addresses;
+}
+
+export function createPinnedLookup(
+  expectedHostname: string,
+  addresses: readonly string[],
+): LookupFunction {
+  const records = addresses.map((address) => ({
+    address,
+    family: isIP(address) as 4 | 6,
+  }));
+  const expected = expectedHostname.toLowerCase();
+
+  return (hostname, options, callback) => {
+    const requestedFamily =
+      options.family === "IPv4"
+        ? 4
+        : options.family === "IPv6"
+          ? 6
+          : options.family;
+    const candidates = requestedFamily
+      ? records.filter((record) => record.family === requestedFamily)
+      : records;
+    if (hostname.toLowerCase() !== expected || candidates.length === 0) {
+      const error = Object.assign(new Error("Pinned DNS lookup rejected"), {
+        code: "ENOTFOUND",
+      });
+      callback(error, options.all ? [] : "", 0);
+      return;
+    }
+    if (options.all) {
+      callback(null, candidates);
+      return;
+    }
+    callback(null, candidates[0].address, candidates[0].family);
+  };
+}
+
+function createPinnedDispatcher(
+  hostname: string,
+  addresses: readonly string[],
+): ManagedDispatcher {
+  // The transport must consume this validated set instead of resolving again.
+  const agent = new Agent({
+    connect: { lookup: createPinnedLookup(hostname, addresses) },
+  });
+  return { dispatcher: agent, close: () => agent.close() };
 }
 
 async function limitedBody(response: Response, maxBytes: number) {
@@ -194,7 +255,8 @@ async function limitedBody(response: Response, maxBytes: number) {
 
 export function createSecureSourceClient(options?: {
   resolver?: Resolver;
-  fetcher?: typeof fetch;
+  fetcher?: SourceFetcher;
+  dispatcherFactory?: DispatcherFactory;
   timeoutMs?: number;
   maxResponseBytes?: number;
   allowProxyDns?: boolean;
@@ -202,6 +264,8 @@ export function createSecureSourceClient(options?: {
   const env = getJobMarketEnv();
   const resolver = options?.resolver ?? defaultResolver;
   const fetcher = options?.fetcher ?? fetch;
+  const dispatcherFactory =
+    options?.dispatcherFactory ?? createPinnedDispatcher;
   const timeoutMs = options?.timeoutMs ?? env.fetchTimeoutMs;
   const maxResponseBytes = options?.maxResponseBytes ?? env.maxResponseBytes;
   const allowProxyDns = options?.allowProxyDns ?? env.allowProxyDns;
@@ -221,68 +285,75 @@ export function createSecureSourceClient(options?: {
     const timeout = AbortSignal.timeout(timeoutMs);
     const signal = AbortSignal.any([request.signal, timeout]);
     for (let redirects = 0; redirects <= 3; redirects += 1) {
-      await assertPublicHost(url, resolver, allowProxyDns);
-      let response: Response;
+      const addresses = await resolvePublicHost(url, resolver, allowProxyDns);
+      const transport = dispatcherFactory(url.hostname, addresses);
+      let response: Response | undefined;
       try {
         response = await fetcher(url, {
+          dispatcher: transport.dispatcher,
           redirect: "manual",
           signal,
           method: request.method,
           body: request.body,
           headers: { Accept: request.accept.join(", "), ...request.headers },
         });
+        if ([301, 302, 303, 307, 308].includes(response.status)) {
+          const location = response.headers.get("location");
+          if (!location || redirects === 3)
+            throw new SourceError(
+              "unsafe_source_url",
+              "Source redirect limit exceeded",
+            );
+          url = validateHttpsUrl(
+            new URL(location, url).href,
+            request.allowedHosts,
+          );
+          continue;
+        }
+        if (response.status === 429) {
+          const retry = Number(response.headers.get("retry-after") || "0");
+          throw new SourceError(
+            "source_rate_limited",
+            "Source rate limit reached",
+            Number.isFinite(retry) ? retry : undefined,
+          );
+        }
+        const contentType =
+          response.headers.get("content-type")?.split(";")[0] ?? "";
+        if (!request.accept.some((accepted) => contentType === accepted))
+          throw new SourceError(
+            "unsupported_content_type",
+            "Source returned an unsupported content type",
+          );
+        const body = await limitedBody(response, maxResponseBytes);
+        const text = new TextDecoder().decode(body);
+        return {
+          status: response.status,
+          headers: response.headers,
+          async text() {
+            return text;
+          },
+          async json() {
+            try {
+              return JSON.parse(text) as unknown;
+            } catch {
+              throw new SourceError(
+                "invalid_source_payload",
+                "Source JSON is invalid",
+              );
+            }
+          },
+        };
       } catch (error) {
         if (signal.aborted)
           throw new SourceError("source_timeout", "Source request timed out");
         throw error;
+      } finally {
+        if (response?.body && !response.bodyUsed) {
+          await response.body.cancel().catch(() => undefined);
+        }
+        await transport.close().catch(() => undefined);
       }
-      if ([301, 302, 303, 307, 308].includes(response.status)) {
-        const location = response.headers.get("location");
-        if (!location || redirects === 3)
-          throw new SourceError(
-            "unsafe_source_url",
-            "Source redirect limit exceeded",
-          );
-        url = validateHttpsUrl(
-          new URL(location, url).href,
-          request.allowedHosts,
-        );
-        continue;
-      }
-      if (response.status === 429) {
-        const retry = Number(response.headers.get("retry-after") || "0");
-        throw new SourceError(
-          "source_rate_limited",
-          "Source rate limit reached",
-          Number.isFinite(retry) ? retry : undefined,
-        );
-      }
-      const contentType =
-        response.headers.get("content-type")?.split(";")[0] ?? "";
-      if (!request.accept.some((accepted) => contentType === accepted))
-        throw new SourceError(
-          "unsupported_content_type",
-          "Source returned an unsupported content type",
-        );
-      const body = await limitedBody(response, maxResponseBytes);
-      const text = new TextDecoder().decode(body);
-      return {
-        status: response.status,
-        headers: response.headers,
-        async text() {
-          return text;
-        },
-        async json() {
-          try {
-            return JSON.parse(text) as unknown;
-          } catch {
-            throw new SourceError(
-              "invalid_source_payload",
-              "Source JSON is invalid",
-            );
-          }
-        },
-      };
     }
     throw new SourceError(
       "unsafe_source_url",

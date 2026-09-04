@@ -378,3 +378,7 @@ Each increment must retain public/private isolation and pass all previously comp
 
 - [X] T127 Replace full campaign hydration before favorite writes with one idempotent, existence-checking SQL statement while retaining optimistic rollback behavior
 - [X] T128 Add owner-scoped list caching, immediate invalidation after favorite writes, and full alternate-view prefetching so entering and leaving “仅看收藏” avoids repeated blocking loads
+
+## Phase 13: SSRF DNS-rebinding hardening
+
+- [X] T129 Pin each source request and redirect hop to its validated DNS results, preserve bounded proxy-DNS compatibility, release per-hop transports on every outcome, and add deterministic regression coverage in `src/modules/job-market/infrastructure/secure-source-client.server.ts`, `tests/unit/job-market/source-request-security.test.ts`, `package.json`, `pnpm-lock.yaml`, and `docs/operations.md`
