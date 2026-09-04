@@ -45,3 +45,55 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
     (await request.get(`/api/applications/${application.id}`)).status(),
   ).toBe(404);
 });
+
+test("删除阶段时必须匹配 URL 中的投递记录", async ({ request }) => {
+  const create = async (companyName: string) => {
+    const response = await request.post("/api/applications", {
+      data: {
+        companyName,
+        positionName: "Engineer",
+        appliedDate: "2026-08-01",
+        status: "submitted",
+      },
+    });
+    expect(response.status()).toBe(201);
+    return response.json();
+  };
+  const applicationA = await create("Stage Parent A");
+  const applicationB = await create("Stage Parent B");
+  const occurrenceId = applicationA.stageOccurrences[0].id;
+
+  try {
+    const response = await request.delete(
+      `/api/applications/${applicationB.id}/stages/${occurrenceId}`,
+      { data: { changeDate: "2026-08-13" } },
+    );
+    expect(response.status()).toBe(404);
+    expect(await response.json()).toMatchObject({ code: "not_found" });
+
+    const [afterA, afterB] = await Promise.all(
+      [applicationA.id, applicationB.id].map(async (id) =>
+        (await request.get(`/api/applications/${id}`)).json(),
+      ),
+    );
+    expect(afterA).toMatchObject({
+      version: applicationA.version,
+      latestDate: applicationA.latestDate,
+    });
+    expect(
+      afterA.stageOccurrences.map((stage: { id: string }) => stage.id),
+    ).toContain(occurrenceId);
+    expect(afterA.events).toHaveLength(applicationA.events.length);
+    expect(afterB).toMatchObject({
+      version: applicationB.version,
+      latestDate: applicationB.latestDate,
+    });
+    expect(afterB.events).toHaveLength(applicationB.events.length);
+  } finally {
+    await Promise.all(
+      [applicationA.id, applicationB.id].map((id) =>
+        request.delete(`/api/applications/${id}`),
+      ),
+    );
+  }
+});

@@ -346,7 +346,12 @@ export class PostgresApplicationRepository implements ApplicationRepository {
   ) {
     try {
       await this.sql`
-        select public.remove_stage_occurrence_for_owner(${ownerId}, ${occurrenceId}, ${changeDate}::date)
+        select public.remove_stage_occurrence_for_owner(
+          ${ownerId},
+          ${id},
+          ${occurrenceId},
+          ${changeDate}::date
+        )
       `;
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
