@@ -272,7 +272,9 @@ pnpm lighthouse
 
 ### 本地代理与 Fake-IP DNS
 
-Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。生产环境若需为自定义来源启用 Fake-IP，应先确认出站代理边界。
+Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。
+
+每个来源请求及其重定向跳只解析一次 DNS，并将连接固定到该次全部通过校验的地址，避免校验后重新解析造成 DNS rebinding。启用 Fake-IP 等同于信任出站代理会把该地址安全地路由到白名单主机；生产环境若需为自定义来源启用该能力，必须先确认代理边界、配置权限和网络隔离。
 
 ### 默认目录一键初始化
 

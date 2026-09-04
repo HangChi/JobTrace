@@ -49,6 +49,7 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.62.0",
     "server-only": "0.0.1",
+    "undici": "^7.29.0",
     "zod": "^4.1.0"
   },
   "devDependencies": {

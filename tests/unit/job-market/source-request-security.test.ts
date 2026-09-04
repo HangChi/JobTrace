@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { SourceError } from "@/modules/job-market/application/source-errors";
 import {
+  createPinnedLookup,
   createSecureSourceClient,
   isPublicIp,
   isSyntheticProxyIp,
@@ -8,6 +9,21 @@ import {
 } from "@/modules/job-market/infrastructure/secure-source-client.server";
 
 describe("job market source request security", () => {
+  const runLookup = (
+    lookup: ReturnType<typeof createPinnedLookup>,
+    hostname: string,
+    options: { all?: boolean; family?: 0 | 4 | 6 | "IPv4" | "IPv6" },
+  ) =>
+    new Promise<{
+      address: string | { address: string; family: number }[];
+      family?: number;
+    }>((resolve, reject) =>
+      lookup(hostname, options, (error, address, family) => {
+        if (error) reject(error);
+        else resolve({ address, family });
+      }),
+    );
+
   it.each([
     "127.0.0.1",
     "10.0.0.1",
@@ -32,6 +48,31 @@ describe("job market source request security", () => {
     expect(isPublicIp("2606:4700:4700::1111")).toBe(true);
     expect(isPublicIp("198.18.0.182")).toBe(false);
     expect(isSyntheticProxyIp("198.18.0.182")).toBe(true);
+  });
+
+  it("serves only pinned addresses to the expected hostname and family", async () => {
+    const lookup = createPinnedLookup("jobs.example.com", [
+      "8.8.8.8",
+      "2606:4700:4700::1111",
+    ]);
+    await expect(
+      runLookup(lookup, "jobs.example.com", { all: true }),
+    ).resolves.toEqual({
+      address: [
+        { address: "8.8.8.8", family: 4 },
+        { address: "2606:4700:4700::1111", family: 6 },
+      ],
+      family: undefined,
+    });
+    await expect(
+      runLookup(lookup, "jobs.example.com", { family: 6 }),
+    ).resolves.toEqual({
+      address: "2606:4700:4700::1111",
+      family: 6,
+    });
+    await expect(
+      runLookup(lookup, "other.example.com", {}),
+    ).rejects.toMatchObject({ code: "ENOTFOUND" });
   });
 
   it("allows an exact HTTPS host through development proxy Fake-IP only when enabled", async () => {
@@ -133,10 +174,170 @@ describe("job market source request security", () => {
     ).rejects.toMatchObject({ code: "unsafe_source_url" });
   });
 
+  it("pins the validated DNS result into the transport", async () => {
+    const close = vi.fn(async () => undefined);
+    const dispatcher = {};
+    const resolver = vi
+      .fn<(hostname: string) => Promise<string[]>>()
+      .mockResolvedValueOnce(["8.8.8.8", "2606:4700:4700::1111"])
+      .mockResolvedValue(["127.0.0.1"]);
+    const dispatcherFactory = vi.fn(() => ({
+      dispatcher: dispatcher as never,
+      close,
+    }));
+    const client = createSecureSourceClient({
+      resolver,
+      dispatcherFactory,
+      fetcher: async (_url, init) => {
+        expect(init?.dispatcher).toBe(dispatcher);
+        return new Response("{}", {
+          headers: { "content-type": "application/json" },
+        });
+      },
+    });
+
+    await expect(
+      client("https://jobs.example.com/jobs", {
+        allowedHosts: ["jobs.example.com"],
+        accept: ["application/json"],
+        signal: new AbortController().signal,
+      }),
+    ).resolves.toMatchObject({ status: 200 });
+    expect(resolver).toHaveBeenCalledTimes(1);
+    expect(dispatcherFactory).toHaveBeenCalledWith("jobs.example.com", [
+      "8.8.8.8",
+      "2606:4700:4700::1111",
+    ]);
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["an empty DNS result", []],
+    ["mixed public and private DNS results", ["8.8.8.8", "127.0.0.1"]],
+  ])(
+    "rejects %s before constructing a transport",
+    async (_label, addresses) => {
+      const dispatcherFactory = vi.fn();
+      const client = createSecureSourceClient({
+        resolver: async () => addresses,
+        dispatcherFactory,
+        fetcher: vi.fn(),
+      });
+      await expect(
+        client("https://jobs.example.com/jobs", {
+          allowedHosts: ["jobs.example.com"],
+          accept: ["application/json"],
+          signal: new AbortController().signal,
+        }),
+      ).rejects.toMatchObject({ code: "unsafe_source_url" });
+      expect(dispatcherFactory).not.toHaveBeenCalled();
+    },
+  );
+
+  it("pins and closes an independent transport for every redirect hop", async () => {
+    const closes = [vi.fn(async () => undefined), vi.fn(async () => undefined)];
+    const dispatchers = [{}, {}];
+    const dispatcherFactory = vi.fn((hostname: string) => {
+      const index = hostname === "jobs.example.com" ? 0 : 1;
+      return {
+        dispatcher: dispatchers[index] as never,
+        close: closes[index],
+      };
+    });
+    let requestCount = 0;
+    const client = createSecureSourceClient({
+      resolver: async (hostname) =>
+        hostname === "jobs.example.com" ? ["8.8.8.8"] : ["1.1.1.1"],
+      dispatcherFactory,
+      fetcher: async (_url, init) => {
+        const index = requestCount++;
+        expect(init?.dispatcher).toBe(dispatchers[index]);
+        return index === 0
+          ? new Response(null, {
+              status: 302,
+              headers: { location: "https://cdn.example.com/jobs" },
+            })
+          : new Response("{}", {
+              headers: { "content-type": "application/json" },
+            });
+      },
+    });
+
+    await client("https://jobs.example.com/jobs", {
+      allowedHosts: ["jobs.example.com", "cdn.example.com"],
+      accept: ["application/json"],
+      signal: new AbortController().signal,
+    });
+    expect(dispatcherFactory.mock.calls).toEqual([
+      ["jobs.example.com", ["8.8.8.8"]],
+      ["cdn.example.com", ["1.1.1.1"]],
+    ]);
+    expect(closes[0]).toHaveBeenCalledOnce();
+    expect(closes[1]).toHaveBeenCalledOnce();
+  });
+
+  it("closes the pinned transport after fetch and timeout failures", async () => {
+    for (const failure of ["fetch", "timeout"] as const) {
+      const close = vi.fn(async () => undefined);
+      const client = createSecureSourceClient({
+        resolver: async () => ["8.8.8.8"],
+        timeoutMs: 1,
+        dispatcherFactory: () => ({ dispatcher: {} as never, close }),
+        fetcher: async (_url, init) => {
+          if (failure === "fetch") throw new Error("network failed");
+          return new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () =>
+              reject(init.signal?.reason),
+            );
+          });
+        },
+      });
+      const result = client("https://jobs.example.com/jobs", {
+        allowedHosts: ["jobs.example.com"],
+        accept: ["application/json"],
+        signal: new AbortController().signal,
+      });
+      if (failure === "fetch") await expect(result).rejects.toThrow();
+      else
+        await expect(result).rejects.toMatchObject({ code: "source_timeout" });
+      expect(close).toHaveBeenCalledOnce();
+    }
+  });
+
+  it.each([
+    [
+      "rate limiting",
+      new Response(null, { status: 429, headers: { "retry-after": "5" } }),
+      "source_rate_limited",
+    ],
+    [
+      "unsupported content",
+      new Response("plain", { headers: { "content-type": "text/plain" } }),
+      "unsupported_content_type",
+    ],
+  ])("closes the pinned transport after %s", async (_label, response, code) => {
+    const close = vi.fn(async () => undefined);
+    const client = createSecureSourceClient({
+      resolver: async () => ["8.8.8.8"],
+      dispatcherFactory: () => ({ dispatcher: {} as never, close }),
+      fetcher: async () => response,
+    });
+    await expect(
+      client("https://jobs.example.com/jobs", {
+        allowedHosts: ["jobs.example.com"],
+        accept: ["application/json"],
+        signal: new AbortController().signal,
+      }),
+    ).rejects.toMatchObject({ code });
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it("enforces response size and content type", async () => {
+    const close = vi.fn(async () => undefined);
     const client = createSecureSourceClient({
       resolver: async () => ["8.8.8.8"],
       maxResponseBytes: 4,
+      dispatcherFactory: () => ({ dispatcher: {} as never, close }),
       fetcher: async () =>
         new Response("12345", {
           headers: { "content-type": "application/json" },
@@ -149,5 +350,6 @@ describe("job market source request security", () => {
         signal: new AbortController().signal,
       }),
     ).rejects.toMatchObject({ code: "response_too_large" });
+    expect(close).toHaveBeenCalledOnce();
   });
 });
