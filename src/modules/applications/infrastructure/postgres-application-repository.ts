@@ -24,33 +24,24 @@ function dateOnly(value: unknown) {
 
 function mapSummary(row: DbRecord): ApplicationSummary {
   const latest = dateOnly(row.latestDate);
-  const applicationDays = Math.max(
-    0,
-    Math.floor(
-      (Date.now() - new Date(`${latest}T00:00:00+08:00`).getTime()) / 86400000,
-    ),
-  );
   const timelineLatest = row.timelineLatestDate
     ? dateOnly(row.timelineLatestDate)
     : null;
-  const timelineDays = timelineLatest
-    ? Math.max(
-        0,
-        Math.floor(
-          (Date.now() -
-            new Date(`${timelineLatest}T00:00:00+08:00`).getTime()) /
-            86400000,
-        ),
-      )
-    : 0;
+  const timelineIsLatest = Boolean(timelineLatest && timelineLatest >= latest);
+  const activityLatest = timelineIsLatest ? timelineLatest! : latest;
+  const followUpDays = Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(`${activityLatest}T00:00:00+08:00`).getTime()) /
+        86400000,
+    ),
+  );
   const active = String(row.status) === "submitted";
-  const applicationStale =
-    active && applicationDays >= FOLLOW_UP_THRESHOLD_DAYS;
-  const timelineStale = active && timelineDays >= FOLLOW_UP_THRESHOLD_DAYS;
-  const followUpReason = timelineStale
-    ? "timeline"
-    : applicationStale
-      ? "application"
+  const followUpReason =
+    active && followUpDays >= FOLLOW_UP_THRESHOLD_DAYS
+      ? timelineIsLatest
+        ? "timeline"
+        : "application"
       : null;
   return {
     id: String(row.id),
@@ -64,8 +55,7 @@ function mapSummary(row: DbRecord): ApplicationSummary {
     latestDate: latest,
     stages: (row.stages ?? []) as never[],
     needsFollowUp: Boolean(followUpReason),
-    followUpDays:
-      followUpReason === "timeline" ? timelineDays : applicationDays,
+    followUpDays,
     followUpReason,
     version: Number(row.version),
   };
@@ -398,30 +388,23 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       appliedDate: "applied_date",
       latestDate: "latest_date",
     }[query.sort];
-    const groupByStatus = query.sort === "latestDate";
+    const groupByStatus = query.defaultOrder;
     const statusRank = this.sql`
       case a.status
-        when 'offer' then 0
-        when 'submitted' then 1
-        when 'refused' then 2
+        when 'submitted' then 0
         else 1
       end
     `;
-    const direction =
-      query.direction === "asc" ? this.sql`asc` : this.sql`desc`;
+    const direction = query.defaultOrder
+      ? this.sql`desc`
+      : query.direction === "asc"
+        ? this.sql`asc`
+        : this.sql`desc`;
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
     const offset = cursor ? 0 : (query.page - 1) * query.limit;
     const cursorCondition = cursor
       ? groupByStatus
-        ? query.direction === "asc"
-          ? this.sql`and (
-              ${statusRank} > ${cursor.statusRank ?? 0}
-              or (
-                ${statusRank} = ${cursor.statusRank ?? 0}
-                and (a.latest_date, a.id) > (${cursor.value}::date, ${cursor.id}::uuid)
-              )
-            )`
-          : this.sql`and (
+        ? this.sql`and (
               ${statusRank} > ${cursor.statusRank ?? 0}
               or (
                 ${statusRank} = ${cursor.statusRank ?? 0}
@@ -473,12 +456,7 @@ export class PostgresApplicationRepository implements ApplicationRepository {
               id: String(last.id),
               ...(groupByStatus
                 ? {
-                    statusRank:
-                      String(last.status) === "offer"
-                        ? 0
-                        : String(last.status) === "refused"
-                          ? 2
-                          : 1,
+                    statusRank: String(last.status) === "submitted" ? 0 : 1,
                   }
                 : {}),
             })

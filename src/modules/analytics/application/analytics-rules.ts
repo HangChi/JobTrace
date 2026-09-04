@@ -19,16 +19,13 @@ export function followUpReason(
   today: string,
 ) {
   if (status !== "submitted") return null;
-  if (
-    timelineLatestDate &&
-    calendarDaysBetween(timelineLatestDate, today) >= FOLLOW_UP_THRESHOLD_DAYS
-  ) {
-    return "timeline" as const;
-  }
-  if (calendarDaysBetween(latestDate, today) >= FOLLOW_UP_THRESHOLD_DAYS) {
-    return "application" as const;
-  }
-  return null;
+  const timelineIsLatest = Boolean(
+    timelineLatestDate && timelineLatestDate >= latestDate,
+  );
+  const mostRecentDate = timelineIsLatest ? timelineLatestDate! : latestDate;
+  if (calendarDaysBetween(mostRecentDate, today) < FOLLOW_UP_THRESHOLD_DAYS)
+    return null;
+  return timelineIsLatest ? ("timeline" as const) : ("application" as const);
 }
 export function summarizeApplications(items: { status: string }[]) {
   return {

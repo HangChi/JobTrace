@@ -70,10 +70,7 @@ function DashboardState({
         current.submitted + (application.status === "submitted" ? 1 : 0),
       refused: current.refused + (application.status === "refused" ? 1 : 0),
       offers: current.offers + (application.status === "offer" ? 1 : 0),
-      stageDistribution: {
-        ...current.stageDistribution,
-        screening: (current.stageDistribution.screening ?? 0) + 1,
-      },
+      stageDistribution: current.stageDistribution,
     }));
     void refreshDashboard();
   }

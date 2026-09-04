@@ -253,6 +253,8 @@ T046 lifecycle integration | T047 owner isolation | T048 component test | T049 E
 
 ## Notes
 
+- [X] T062 [US1] 为新阶段面经增加可选 `stageOccurredOn` 契约，省略时沿用面试日期，已有阶段模式拒绝该字段，并补齐领域、契约与集成回归
+
 - `[P]` 仅表示文件和前置依赖允许并行，不要求使用子智能体。
 - 不新增第三方运行时依赖；优先复用现有模块模式和共享 UI。
 - 数据库迁移必须从空库和包含现有投递数据的数据库重放。

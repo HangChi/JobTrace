@@ -33,6 +33,13 @@ describe("interview review domain", () => {
         interviewedOn: "2026-08-18",
       }).success,
     ).toBe(true);
+    expect(
+      createInterviewSchema.safeParse({
+        applicationId: crypto.randomUUID(),
+        stageOccurrenceId: crypto.randomUUID(),
+        stageOccurredOn: "2026-08-16",
+      }).success,
+    ).toBe(false);
   });
 
   it("requires non-empty Markdown content before completion", () => {

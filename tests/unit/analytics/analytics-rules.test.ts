@@ -11,10 +11,19 @@ describe("统计规则", () => {
     expect(needsFollowUp("offer", "2026-08-07", "2026-08-13")).toBe(false);
     expect(needsFollowUp("refused", "2026-01-01", "2026-08-13")).toBe(false);
   });
-  it("区分时间线和投递记录未更新", () => {
+  it("以投递内容和时间线中最近的活动决定是否提醒", () => {
     expect(
       followUpReason("submitted", "2026-08-10", "2026-07-30", "2026-08-14"),
+    ).toBeNull();
+    expect(
+      followUpReason("submitted", "2026-07-20", "2026-08-10", "2026-08-14"),
+    ).toBeNull();
+    expect(
+      followUpReason("submitted", "2026-07-29", "2026-07-30", "2026-08-14"),
     ).toBe("timeline");
+    expect(
+      followUpReason("submitted", "2026-07-30", "2026-07-29", "2026-08-14"),
+    ).toBe("application");
     expect(followUpReason("submitted", "2026-07-30", null, "2026-08-14")).toBe(
       "application",
     );

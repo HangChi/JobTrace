@@ -213,6 +213,7 @@ export function ApplicationTable({
             <col className="stage-column" />
             <col className="status-column" />
             <col className="date-column" />
+            <col className="date-column" />
             <col className="actions-column" />
           </colgroup>
           <thead>
@@ -231,6 +232,7 @@ export function ApplicationTable({
               <th>阶段</th>
               <th>状态</th>
               <th>投递日期</th>
+              <th>最新日期</th>
               <th>操作</th>
             </tr>
           </thead>
@@ -334,6 +336,7 @@ export function ApplicationTable({
                     )}
                   </td>
                   <td data-label="投递日期">{item.appliedDate}</td>
+                  <td data-label="最新日期">{item.latestDate}</td>
                   <td data-label="操作">
                     <div className="table-actions">
                       <button

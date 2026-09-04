@@ -109,14 +109,31 @@ export function ApplicationFilters({
           <select
             name="sort"
             disabled={pending}
+            defaultValue={typeof query.sort === "string" ? query.sort : ""}
+          >
+            <option value="">默认排序（已投递优先）</option>
+            <option value="latestDate">最新日期</option>
+            <option value="appliedDate">投递日期</option>
+            <option value="company">公司名称</option>
+            <option value="position">岗位名称</option>
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+          </svg>
+        </span>
+      </label>
+      <label>
+        方向
+        <span className="select-wrap">
+          <select
+            name="direction"
+            disabled={pending}
             defaultValue={
-              typeof query.sort === "string" ? query.sort : "latestDate"
+              typeof query.direction === "string" ? query.direction : "desc"
             }
           >
-            <option value="latestDate">最近进展（新 → 旧）</option>
-            <option value="appliedDate">投递日期（新 → 旧）</option>
-            <option value="company">公司名称（A → Z）</option>
-            <option value="position">岗位名称（A → Z）</option>
+            <option value="desc">降序</option>
+            <option value="asc">升序</option>
           </select>
           <svg aria-hidden="true" viewBox="0 0 16 16">
             <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />

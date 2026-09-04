@@ -16,12 +16,20 @@ describe("列表查询", () => {
       page: 7,
       sort: "company",
       direction: "asc",
+      defaultOrder: false,
     });
   });
-  it("未知排序回退默认值", () =>
+  it("未指定排序时使用已投递优先的默认顺序", () =>
+    expect(parseListQuery(new URLSearchParams())).toMatchObject({
+      sort: "latestDate",
+      direction: "desc",
+      defaultOrder: true,
+    }));
+  it("未知排序回退默认顺序", () =>
     expect(parseListQuery(new URLSearchParams("sort=hacker"))).toMatchObject({
       sort: "latestDate",
       direction: "desc",
+      defaultOrder: true,
     }));
   it("忽略未知筛选和无效日期并约束页码", () => {
     const query = parseListQuery(
