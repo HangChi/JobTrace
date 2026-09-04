@@ -54,16 +54,15 @@ export async function synchronizeDueSources(
   const sources = await dependencies.syncRepository.claimDue(
     Math.min(limit ?? env.syncBatchSize, env.syncBatchSize),
     env.workerId,
+    requestId,
     new Date(),
   );
   const results = await Promise.all(
-    sources.map((source) =>
+    sources.map((claim) =>
       synchronizeSource({
-        source,
-        trigger: "scheduled",
+        claim,
         requestId,
-        workerId: env.workerId,
-        adapter: dependencies.adapters.get(source.adapter),
+        adapter: dependencies.adapters.get(claim.source.adapter),
         syncRepository: dependencies.syncRepository,
         jobRepository: dependencies.jobRepository,
       }),
@@ -87,6 +86,7 @@ export async function synchronizeOneSource(
   const source = await dependencies.syncRepository.claimOne(
     sourceId,
     env.workerId,
+    requestId,
     new Date(),
   );
   if (!source)
@@ -97,11 +97,9 @@ export async function synchronizeOneSource(
       reason: "source_unavailable_or_leased",
     };
   const result = await synchronizeSource({
-    source,
-    trigger: "admin",
+    claim: source,
     requestId,
-    workerId: env.workerId,
-    adapter: dependencies.adapters.get(source.adapter),
+    adapter: dependencies.adapters.get(source.source.adapter),
     syncRepository: dependencies.syncRepository,
     jobRepository: dependencies.jobRepository,
   });

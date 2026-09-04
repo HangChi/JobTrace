@@ -1,7 +1,8 @@
 begin;
-select plan(26);
+select plan(27);
 select has_table('public','job_market_companies','job market companies exist');
 select has_table('public','job_market_sources','job market sources exist');
+select has_column('public','job_market_sources','lease_run_id','source leases are fenced by sync run');
 select has_table('public','job_market_campaigns','job market campaigns exist');
 select has_column('public','job_market_campaigns','listing_kind','campaigns distinguish synchronized jobs from recruitment directory entries');
 select has_table('public','job_market_posts','public jobs exist');

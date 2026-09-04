@@ -1279,6 +1279,11 @@ export const databaseSchema = {
       "name": "country_codes",
       "type": "ARRAY",
       "nullable": false
+    },
+    {
+      "name": "lease_run_id",
+      "type": "uuid",
+      "nullable": true
     }
   ],
   "job_market_sync_runs": [

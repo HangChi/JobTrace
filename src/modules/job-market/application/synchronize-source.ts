@@ -2,9 +2,9 @@ import { logServerError, logServerEvent } from "@/shared/observability/logger";
 import type {
   JobMarketRepository,
   SourceAdapter,
+  SyncClaim,
   SyncRepository,
 } from "./ports";
-import type { JobMarketSource, SyncTrigger } from "../domain/entities";
 import { safeSourceError } from "./source-errors";
 
 const emptyResult = () => ({
@@ -17,10 +17,8 @@ const emptyResult = () => ({
 });
 
 export async function synchronizeSource(dependencies: {
-  source: JobMarketSource;
-  trigger: SyncTrigger;
+  claim: SyncClaim;
   requestId: string;
-  workerId: string;
   adapter: SourceAdapter;
   syncRepository: SyncRepository;
   jobRepository: JobMarketRepository;
@@ -28,40 +26,28 @@ export async function synchronizeSource(dependencies: {
   maxItems?: number;
 }) {
   const now = dependencies.now ?? new Date();
-  const runId = await dependencies.syncRepository.beginRun(
-    dependencies.source.id,
-    dependencies.trigger,
-    dependencies.workerId,
-    dependencies.requestId,
-  );
+  const { source, runId } = dependencies.claim;
   const controller = new AbortController();
   try {
     const batch = await dependencies.adapter.fetch(
-      dependencies.source,
+      source,
       { runId, now, maxItems: dependencies.maxItems ?? 10_000 },
       controller.signal,
     );
-    const result = await dependencies.jobRepository.applyBatch(
-      dependencies.source,
-      runId,
-      batch,
-      now,
-    );
     const status =
-      batch.completeness === "partial" || result.rejected > 0
+      batch.completeness === "partial" || batch.rejected.length > 0
         ? "partial"
         : "succeeded";
-    await dependencies.syncRepository.completeRun(runId, status, result);
-    await dependencies.syncRepository.markSourceSuccess(
-      dependencies.source.id,
+    const result = await dependencies.jobRepository.completeBatch(
+      dependencies.claim,
+      batch,
       now,
-      dependencies.source.syncIntervalMinutes,
-      batch.sourceMetadata,
+      status,
     );
     logServerEvent("job_market_sync_completed", {
       requestId: dependencies.requestId,
       runId,
-      sourceId: dependencies.source.id,
+      sourceId: source.id,
       status,
       ...result,
     });
@@ -73,20 +59,20 @@ export async function synchronizeSource(dependencies: {
       errorCode: safe.code,
       errorSummary: safe.summary,
     };
-    await dependencies.syncRepository.completeRun(runId, "failed", result);
     const minutes = Math.min(
       360,
-      5 * 2 ** Math.min(6, dependencies.source.consecutiveFailures),
+      5 * 2 ** Math.min(6, source.consecutiveFailures),
     );
-    await dependencies.syncRepository.markSourceFailure(
-      dependencies.source.id,
+    await dependencies.syncRepository.completeFailure(
+      dependencies.claim,
       now,
       new Date(now.getTime() + minutes * 60_000),
+      result,
     );
     logServerError("job_market_sync_failed", error, {
       requestId: dependencies.requestId,
       runId,
-      sourceId: dependencies.source.id,
+      sourceId: source.id,
       code: safe.code,
     });
     return { runId, status: "failed" as const, result };

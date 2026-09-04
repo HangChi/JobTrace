@@ -43,13 +43,13 @@
 | `status` | text | `active`, `paused`, `revoked` |
 | `sync_interval_minutes` | integer | 60–1440, default 360 |
 | `next_sync_at` | timestamptz | indexed claim schedule |
-| `lease_until`, `leased_by` | timestamptz/text nullable | multi-instance claim |
+| `lease_until`, `leased_by`, `lease_run_id` | timestamptz/text/uuid nullable | multi-instance claim fenced to one running sync |
 | `consecutive_failures` | integer | non-negative |
 | `last_attempt_at`, `last_success_at` | timestamptz nullable | health display |
 | `etag`, `last_modified` | text nullable | conditional fetch metadata, bounded length |
 | `created_at`, `updated_at` | timestamptz | required |
 
-Unique: `(adapter, external_key, company_id)`. Revoked sources are never scheduled; reactivation requires explicit admin authorization update.
+Unique: `(adapter, external_key, company_id)`. A claimed source stores the running sync ID as a fencing token; reclaiming an expired lease fails the superseded run, and only the current token may commit results. Revoked sources are never scheduled; reactivation requires explicit admin authorization update.
 
 ### `job_market_source_candidates`
 

@@ -293,6 +293,8 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 
 外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以 10 个来源为一批持续认领，队列清空时提前结束，最多执行 30 批、覆盖 300 个到期来源。这为继续扩展更多公司预留了容量，同时避免空跑。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
 
+认领来源时会在同一事务中创建运行记录，并把运行 ID 写入来源租约作为 fencing token。成功结果、岗位批次、运行计数、来源健康与租约释放在一个数据库事务内提交；失败诊断与退避调度也原子提交。租约过期重领或管理员暂停/撤销来源会终止旧运行，旧 worker 之后的成功或失败回写都会被拒绝。因此排障时应以来源当前的 `lease_run_id` 和对应运行记录为准，不要手工只修改 `lease_until` 或 `leased_by`。
+
 仓库提供 `.github/workflows/job-market-sync.yml`，默认每六小时触发一次，也支持在 Actions 页面手动运行。启用步骤：
 
 1. 在生产应用设置 `JOB_MARKET_ENABLED=true` 和一个至少 32 字符的 `JOB_MARKET_SYNC_SECRET`，重新部署；

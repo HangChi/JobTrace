@@ -4,7 +4,6 @@ import type {
   JobMarketSource,
   NormalizedSourceBatch,
   SyncStatus,
-  SyncTrigger,
 } from "../domain/entities";
 
 export type SourceFetchResponse = {
@@ -69,32 +68,28 @@ export interface SyncRepository {
   claimDue(
     limit: number,
     workerId: string,
+    requestId: string,
     now: Date,
-  ): Promise<JobMarketSource[]>;
+  ): Promise<SyncClaim[]>;
   claimOne(
     sourceId: string,
     workerId: string,
-    now: Date,
-  ): Promise<JobMarketSource | null>;
-  beginRun(
-    sourceId: string,
-    trigger: SyncTrigger,
-    workerId: string,
     requestId: string,
-  ): Promise<string>;
-  completeRun(
-    runId: string,
-    status: Exclude<SyncStatus, "running">,
-    result: SyncResult,
-  ): Promise<void>;
-  markSourceSuccess(
-    sourceId: string,
     now: Date,
-    intervalMinutes: number,
-    metadata: { etag?: string; lastModified?: string },
-  ): Promise<void>;
-  markSourceFailure(sourceId: string, now: Date, retryAt: Date): Promise<void>;
+  ): Promise<SyncClaim | null>;
+  completeFailure(
+    claim: SyncClaim,
+    now: Date,
+    retryAt: Date,
+    result: SyncResult,
+  ): Promise<boolean>;
 }
+
+export type SyncClaim = {
+  source: JobMarketSource;
+  runId: string;
+  workerId: string;
+};
 
 export type SyncResult = {
   discovered: number;
@@ -113,5 +108,11 @@ export interface JobMarketRepository {
     runId: string,
     batch: NormalizedSourceBatch,
     now: Date,
+  ): Promise<SyncResult>;
+  completeBatch(
+    claim: SyncClaim,
+    batch: NormalizedSourceBatch,
+    now: Date,
+    status: Exclude<SyncStatus, "running" | "failed">,
   ): Promise<SyncResult>;
 }

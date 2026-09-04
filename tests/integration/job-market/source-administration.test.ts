@@ -38,41 +38,44 @@ test("source administration preserves uniqueness, scheduling, retry independence
 
     await repository.updateSource(sourceId, { status: "active" });
     const claimedAt = new Date();
-    expect(
-      (await repository.claimOne(sourceId, "worker-a", claimedAt))?.id,
-    ).toBe(sourceId);
+    const claim = await repository.claimOne(
+      sourceId,
+      "worker-a",
+      "request-safe",
+      claimedAt,
+    );
+    expect(claim?.source.id).toBe(sourceId);
     const [lease] = await sql<Array<{ leaseUntil: Date }>>`
       select lease_until as "leaseUntil" from job_market_sources where id=${sourceId}`;
     expect(
       lease.leaseUntil.getTime() - claimedAt.getTime(),
     ).toBeGreaterThanOrEqual(29 * 60_000);
     expect(
-      await repository.claimOne(sourceId, "worker-b", new Date()),
+      await repository.claimOne(
+        sourceId,
+        "worker-b",
+        "request-blocked",
+        new Date(),
+      ),
     ).toBeNull();
-    await repository.markSourceFailure(
-      sourceId,
-      new Date("2026-08-30T00:00:00Z"),
-      new Date("2026-08-30T00:10:00Z"),
+    await repository.completeFailure(
+      claim!,
+      new Date(claimedAt.getTime() + 60_000),
+      new Date(claimedAt.getTime() + 10 * 60_000),
+      {
+        discovered: 0,
+        created: 0,
+        updated: 0,
+        stale: 0,
+        closed: 0,
+        rejected: 0,
+        errorCode: "timeout",
+        errorSummary: "来源请求超时。",
+      },
     );
-    const runId = await repository.beginRun(
-      sourceId,
-      "admin",
-      "worker-a",
-      "request-safe",
-    );
-    await repository.completeRun(runId, "failed", {
-      discovered: 0,
-      created: 0,
-      updated: 0,
-      stale: 0,
-      closed: 0,
-      rejected: 0,
-      errorCode: "timeout",
-      errorSummary: "来源请求超时。",
-    });
     const runs = await repository.listRuns(sourceId, 1, 20);
     expect(runs.items[0]).toMatchObject({
-      id: runId,
+      id: claim?.runId,
       sourceId,
       errorCode: "timeout",
       errorSummary: "来源请求超时。",
@@ -83,11 +86,21 @@ test("source administration preserves uniqueness, scheduling, retry independence
 
     await repository.updateSource(sourceId, { status: "paused" });
     expect(
-      await repository.claimOne(sourceId, "worker-c", new Date()),
+      await repository.claimOne(
+        sourceId,
+        "worker-c",
+        "request-paused",
+        new Date(),
+      ),
     ).toBeNull();
     await repository.updateSource(sourceId, { status: "revoked" });
     expect(
-      await repository.claimOne(sourceId, "worker-c", new Date()),
+      await repository.claimOne(
+        sourceId,
+        "worker-c",
+        "request-revoked",
+        new Date(),
+      ),
     ).toBeNull();
   } finally {
     if (sourceId) {
