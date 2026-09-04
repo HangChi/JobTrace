@@ -143,7 +143,7 @@
 | `file_name` | varchar(255) | yes | 仅清理后的基本文件名 |
 | `format` | text | yes | `csv` 或 `xlsx` |
 | `status` | text | yes | `previewed`, `processing`, `completed`, `expired` |
-| `column_mapping` | jsonb | yes | 原列名到支持字段的映射 |
+| `columns` | jsonb | yes | 原列名到支持字段或空字符串（明确忽略）的映射；目标字段不可重复 |
 | `total_rows` | integer | yes | 1–10,000 |
 | `valid_rows` | integer | yes | 非负，不能大于总数 |
 | `invalid_rows` | integer | yes | 非负，不能大于总数 |
@@ -179,6 +179,8 @@
 7. 统计从 applications 和去重阶段关联实时计算，不存储可漂移的计数器。
 8. 创建投递/导入批次时 `owner_id` 只能取已验证 actor，不接受客户端字段；更新/删除必须同时匹配资源 ID 与 owner。
 9. 管理员跨 owner 查询必须走独立管理用例并写操作审计；普通业务接口即使 actor 是管理员也默认按本人 owner 运行，避免意外全局修改。
+10. 修正列映射时，原始文件只保留在浏览器；新预览批次及规范化行成功写入后，同一事务内将 owner 匹配的旧预览置为过期。服务端不保存原始文件或原始行。
+11. 导出阶段历史按日期、创建时间和 occurrence ID 稳定排序，使用“阶段代码/中文标签 + 日期”的可读可解析格式；重新导入只恢复业务字段，不接受客户端指定 ID、创建时间或更新时间。
 
 ## Authorization Matrix
 

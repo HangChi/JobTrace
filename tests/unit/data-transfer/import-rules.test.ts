@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyImportMapping,
   escapeSpreadsheetFormula,
+  inferImportMapping,
   normalizeImportRow,
+  parseStageHistory,
+  validateImportMapping,
   validateImportRow,
 } from "@/modules/data-transfer/application/import-schema";
 describe("导入导出安全", () => {
@@ -53,5 +57,49 @@ describe("导入导出安全", () => {
     expect(validateImportRow({ companyName: 42 }).success).toBe(false);
     expect(escapeSpreadsheetFormula(42)).toBe(42);
     expect(escapeSpreadsheetFormula("plain text")).toBe("plain text");
+  });
+  it("识别源列并允许修正自定义表头", () => {
+    expect(inferImportMapping(["公司", "岗位名称", "when", "无关列"])).toEqual({
+      公司: "companyName",
+      岗位名称: "positionName",
+      when: "",
+      无关列: "",
+    });
+    expect(
+      applyImportMapping(
+        { 公司简称: "甲", 职位: "开发", 日期: "2026-08-13", 忽略: "x" },
+        {
+          公司简称: "companyName",
+          职位: "positionName",
+          日期: "appliedDate",
+          忽略: "",
+        },
+      ),
+    ).toEqual({
+      companyName: "甲",
+      positionName: "开发",
+      appliedDate: "2026-08-13",
+    });
+  });
+  it("拒绝重复目标、未知列和未知业务字段", () => {
+    expect(() =>
+      validateImportMapping(["A", "B"], { A: "companyName", B: "companyName" }),
+    ).toThrow("同一业务字段");
+    expect(() => validateImportMapping(["A"], { B: "companyName" })).toThrow(
+      "源列",
+    );
+    expect(() => validateImportMapping(["A"], { A: "systemTime" })).toThrow(
+      "业务字段",
+    );
+  });
+  it("解析可读阶段历史并保留重复阶段的不同日期", () => {
+    expect(
+      parseStageHistory(
+        "interview_1/一面 + 2026-08-10；一面/AI面 + 2026-08-12",
+      ),
+    ).toEqual([
+      { stage: "interview_1", occurredOn: "2026-08-10" },
+      { stage: "interview_1", occurredOn: "2026-08-12" },
+    ]);
   });
 });

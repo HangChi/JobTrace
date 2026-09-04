@@ -69,7 +69,9 @@ export class PostgresImportRepository {
     ownerId: string,
     fileName: string,
     format: "csv" | "xlsx",
+    columns: Record<string, string>,
     rows: ImportRow[],
+    replaceBatchId?: string,
   ) {
     const validRows = rows.filter((row) => !row.errors.length).length;
     const invalidRows = rows.length - validRows;
@@ -79,8 +81,8 @@ export class PostgresImportRepository {
     return this.sql.begin(async (sql) => {
       const [batch] = await sql<DbRow[]>`
         insert into public.import_batches(
-          owner_id,file_name, format, total_rows, valid_rows, invalid_rows, duplicate_rows
-        ) values (${ownerId},${fileName}, ${format}, ${rows.length}, ${validRows}, ${invalidRows}, ${duplicateRows})
+          owner_id,file_name,format,columns,total_rows,valid_rows,invalid_rows,duplicate_rows
+        ) values (${ownerId},${fileName},${format},${sql.json(columns)}::jsonb,${rows.length},${validRows},${invalidRows},${duplicateRows})
         returning id, expires_at
       `;
       const values = rows.map((row) => ({
@@ -111,6 +113,10 @@ export class PostgresImportRepository {
           "duplicateApplicationIds" jsonb
         )
       `;
+      if (replaceBatchId) {
+        await sql`update public.import_batches set status='expired'
+          where id=${replaceBatchId}::uuid and owner_id=${ownerId} and status='previewed'`;
+      }
       return {
         id: String(batch.id),
         expiresAt: new Date(String(batch.expiresAt)).toISOString(),
@@ -118,7 +124,7 @@ export class PostgresImportRepository {
         validRows,
         invalidRows,
         duplicateRows,
-        columns: {},
+        columns,
         rows,
       } satisfies ImportPreview;
     });

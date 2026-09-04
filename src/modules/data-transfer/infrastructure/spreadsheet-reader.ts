@@ -49,7 +49,7 @@ function worksheetRows(worksheet: ExcelJS.Worksheet) {
       ),
     );
   }
-  return rows;
+  return { columns: headers.filter(Boolean), rows };
 }
 
 export async function readSpreadsheet(buffer: ArrayBuffer, fileName: string) {
