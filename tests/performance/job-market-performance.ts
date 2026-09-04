@@ -59,8 +59,18 @@ try {
         Array.from(
           { length: 8 },
           (_, index) => tx`
-          update job_market_sources set leased_by=${`perf-worker-${index}`},lease_until=now()+interval '5 minutes'
-          where id in(select id from job_market_sources where status='active' and (lease_until is null or lease_until<now()) order by id for update skip locked limit 1)`,
+          with candidate as (
+            select id from job_market_sources where status='active'
+              and (lease_until is null or lease_until<now())
+            order by id for update skip locked limit 1
+          ), run as (
+            insert into job_market_sync_runs(source_id,trigger,worker_id,request_id)
+            select id,'scheduled',${`perf-worker-${index}`},${`perf-request-${index}`} from candidate
+            returning id,source_id
+          )
+          update job_market_sources source
+          set leased_by=${`perf-worker-${index}`},lease_until=now()+interval '5 minutes',lease_run_id=run.id
+          from run where source.id=run.source_id`,
         ),
       ),
     );

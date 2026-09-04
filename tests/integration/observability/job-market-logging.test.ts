@@ -3,6 +3,7 @@ import { synchronizeSource } from "@/modules/job-market/application/synchronize-
 import type {
   JobMarketRepository,
   SourceAdapter,
+  SyncClaim,
   SyncRepository,
 } from "@/modules/job-market/application/ports";
 import type { JobMarketSource } from "@/modules/job-market/domain/entities";
@@ -25,10 +26,13 @@ test("job-market logs retain correlation ids and redact source secrets and paylo
     etag: null,
     lastModified: null,
   };
+  const claim: SyncClaim = {
+    source,
+    runId: "run-safe-id",
+    workerId: "worker-safe-id",
+  };
   const syncRepository = {
-    beginRun: async () => "run-safe-id",
-    completeRun: async () => undefined,
-    markSourceFailure: async () => undefined,
+    completeFailure: async () => true,
   } as unknown as SyncRepository;
   const adapter = {
     kind: "greenhouse",
@@ -43,10 +47,8 @@ test("job-market logs retain correlation ids and redact source secrets and paylo
   console.error = (value) => output.push(String(value));
   try {
     await synchronizeSource({
-      source,
-      trigger: "scheduled",
+      claim,
       requestId: "request-safe-id",
-      workerId: "worker-safe-id",
       adapter,
       syncRepository,
       jobRepository: {} as JobMarketRepository,

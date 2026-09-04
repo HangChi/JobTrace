@@ -1,6 +1,10 @@
 import { createServerDatabase } from "@/shared/database";
-import type { SyncRepository, SyncResult } from "../application/ports";
-import type { JobMarketSource, SyncTrigger } from "../domain/entities";
+import type {
+  SyncClaim,
+  SyncRepository,
+  SyncResult,
+} from "../application/ports";
+import type { JobMarketSource } from "../domain/entities";
 
 type SourceRow = {
   id: string;
@@ -26,72 +30,98 @@ source.access_basis as "accessBasis",source.status,source.sync_interval_minutes 
 from job_market_sources source join job_market_companies company on company.id=source.company_id`;
 const SOURCE_LEASE_MS = 30 * 60_000;
 
+type ClaimRow = { id: string; leaseRunId: string | null };
+
 export class PostgresSyncRepository implements SyncRepository {
   constructor(private readonly sql = createServerDatabase()) {}
-  async claimDue(limit: number, workerId: string, now: Date) {
-    return this.sql.begin(async (tx) => {
-      const ids = await tx<
-        Array<{ id: string }>
-      >`select id from job_market_sources where status='active' and next_sync_at<=${now}
-        and (lease_until is null or lease_until<${now}) order by next_sync_at,id for update skip locked limit ${limit}`;
-      if (!ids.length) return [];
-      const values = ids.map((row) => row.id);
-      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},last_attempt_at=${now} where id=any(${values})`;
-      return tx.unsafe<SourceRow[]>(
-        `${selectSource} where source.id = any($1)`,
-        [values],
-      );
-    }) as Promise<JobMarketSource[]>;
-  }
-  async claimOne(sourceId: string, workerId: string, now: Date) {
-    const claimed = await this.sql.begin(async (tx) => {
-      const rows = await tx<
-        Array<{ id: string }>
-      >`select id from job_market_sources where id=${sourceId} and status='active'
-        and (lease_until is null or lease_until<${now}) for update skip locked`;
-      if (!rows.length) return [];
-      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},last_attempt_at=${now} where id=${sourceId}`;
-      return tx.unsafe<SourceRow[]>(`${selectSource} where source.id=$1`, [
-        sourceId,
-      ]);
-    });
-    return (claimed as JobMarketSource[])[0] ?? null;
-  }
-  async beginRun(
-    sourceId: string,
-    trigger: SyncTrigger,
+  async claimDue(
+    limit: number,
     workerId: string,
     requestId: string,
+    now: Date,
   ) {
-    const [row] = await this.sql<
-      Array<{ id: string }>
-    >`insert into job_market_sync_runs(source_id,trigger,worker_id,request_id)
-      values(${sourceId},${trigger},${workerId},${requestId}) returning id`;
-    return row.id;
+    return this.sql.begin(async (tx) => {
+      const rows = await tx<ClaimRow[]>`
+        select id,lease_run_id as "leaseRunId"
+        from job_market_sources where status='active' and next_sync_at<=${now}
+        and (lease_until is null or lease_until<${now}) order by next_sync_at,id for update skip locked limit ${limit}`;
+      const claims: SyncClaim[] = [];
+      for (const row of rows) {
+        if (row.leaseRunId) {
+          await tx`update job_market_sync_runs set status='failed',finished_at=greatest(started_at,${now}),error_code='lease_expired',error_summary='The source lease expired before completion.' where id=${row.leaseRunId} and status='running'`;
+        }
+        const [run] = await tx<
+          Array<{ id: string }>
+        >`insert into job_market_sync_runs(source_id,trigger,worker_id,request_id,started_at)
+          values(${row.id},'scheduled',${workerId},${requestId},${now}) returning id`;
+        await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},lease_run_id=${run.id},last_attempt_at=${now} where id=${row.id}`;
+        const [source] = await tx.unsafe<SourceRow[]>(
+          `${selectSource} where source.id=$1`,
+          [row.id],
+        );
+        claims.push({ source, runId: run.id, workerId });
+      }
+      return claims;
+    });
   }
-  async completeRun(
-    runId: string,
-    status: "succeeded" | "partial" | "failed",
+  async claimOne(
+    sourceId: string,
+    workerId: string,
+    requestId: string,
+    now: Date,
+  ) {
+    const claimed = await this.sql.begin(async (tx) => {
+      const rows = await tx<ClaimRow[]>`
+        select id,lease_run_id as "leaseRunId"
+        from job_market_sources where id=${sourceId} and status='active'
+        and (lease_until is null or lease_until<${now}) for update skip locked`;
+      if (!rows.length) return [];
+      const [row] = rows;
+      if (row.leaseRunId) {
+        await tx`update job_market_sync_runs set status='failed',finished_at=greatest(started_at,${now}),error_code='lease_expired',error_summary='The source lease expired before completion.' where id=${row.leaseRunId} and status='running'`;
+      }
+      const [run] = await tx<
+        Array<{ id: string }>
+      >`insert into job_market_sync_runs(source_id,trigger,worker_id,request_id,started_at)
+        values(${sourceId},'admin',${workerId},${requestId},${now}) returning id`;
+      await tx`update job_market_sources set lease_until=${new Date(now.getTime() + SOURCE_LEASE_MS)},leased_by=${workerId},lease_run_id=${run.id},last_attempt_at=${now} where id=${sourceId}`;
+      const [source] = await tx.unsafe<SourceRow[]>(
+        `${selectSource} where source.id=$1`,
+        [sourceId],
+      );
+      return [{ source, runId: run.id, workerId } satisfies SyncClaim];
+    });
+    return claimed[0] ?? null;
+  }
+  async completeFailure(
+    claim: SyncClaim,
+    now: Date,
+    retryAt: Date,
     result: SyncResult,
   ) {
-    await this
-      .sql`update job_market_sync_runs set status=${status},finished_at=now(),discovered_count=${result.discovered},created_count=${result.created},
-      updated_count=${result.updated},stale_count=${result.stale},closed_count=${result.closed},rejected_count=${result.rejected},
-      error_code=${result.errorCode ?? null},error_summary=${result.errorSummary ?? null} where id=${runId}`;
-  }
-  async markSourceSuccess(
-    sourceId: string,
-    now: Date,
-    intervalMinutes: number,
-    metadata: { etag?: string; lastModified?: string },
-  ) {
-    await this
-      .sql`update job_market_sources set last_success_at=${now},consecutive_failures=0,next_sync_at=${new Date(now.getTime() + intervalMinutes * 60_000)},
-      lease_until=null,leased_by=null,etag=coalesce(${metadata.etag ?? null},etag),last_modified=coalesce(${metadata.lastModified ?? null},last_modified),updated_at=now() where id=${sourceId}`;
-  }
-  async markSourceFailure(sourceId: string, now: Date, retryAt: Date) {
-    await this
-      .sql`update job_market_sources set consecutive_failures=consecutive_failures+1,next_sync_at=${retryAt},lease_until=null,leased_by=null,updated_at=${now} where id=${sourceId}`;
+    return this.sql.begin(async (tx) => {
+      const owned = await tx<Array<{ id: string }>>`
+        select id from job_market_sources
+        where id=${claim.source.id} and status='active'
+          and leased_by=${claim.workerId} and lease_run_id=${claim.runId}
+        for update`;
+      if (!owned.length) return false;
+      const run = await tx<Array<{ id: string }>>`
+        update job_market_sync_runs set status='failed',finished_at=greatest(started_at,${now}),
+          discovered_count=${result.discovered},created_count=${result.created},
+          updated_count=${result.updated},stale_count=${result.stale},
+          closed_count=${result.closed},rejected_count=${result.rejected},
+          error_code=${result.errorCode ?? null},error_summary=${result.errorSummary ?? null}
+        where id=${claim.runId} and source_id=${claim.source.id}
+          and worker_id=${claim.workerId} and status='running'
+        returning id`;
+      if (!run.length) return false;
+      await tx`update job_market_sources set
+        consecutive_failures=consecutive_failures+1,next_sync_at=${retryAt},
+        lease_until=null,leased_by=null,lease_run_id=null,updated_at=${now}
+        where id=${claim.source.id} and lease_run_id=${claim.runId}`;
+      return true;
+    });
   }
 
   async listSources() {
@@ -133,14 +163,27 @@ export class PostgresSyncRepository implements SyncRepository {
       accessBasis?: string;
     },
   ) {
-    const rows = await this.sql<
-      Array<{ id: string }>
-    >`update job_market_sources set
-      status=coalesce(${input.status ?? null}::job_market_source_status,status),sync_interval_minutes=coalesce(${input.syncIntervalMinutes ?? null}::integer,sync_interval_minutes),
-      access_basis=coalesce(${input.accessBasis ?? null}::text,access_basis),next_sync_at=case when ${input.status ?? null}::text='active' then now() else next_sync_at end,
-      lease_until=case when ${input.status ?? null}::text in ('paused','revoked') then null else lease_until end,
-      leased_by=case when ${input.status ?? null}::text in ('paused','revoked') then null else leased_by end,updated_at=now() where id=${id} returning id`;
-    return Boolean(rows[0]);
+    return this.sql.begin(async (tx) => {
+      const [current] = await tx<Array<{ leaseRunId: string | null }>>`
+        select lease_run_id as "leaseRunId" from job_market_sources
+        where id=${id} for update`;
+      if (!current) return false;
+      const disablesSource =
+        input.status === "paused" || input.status === "revoked";
+      if (disablesSource && current.leaseRunId) {
+        await tx`update job_market_sync_runs set status='failed',finished_at=greatest(started_at,now()),
+          error_code='source_disabled',error_summary='The source was disabled during synchronization.'
+          where id=${current.leaseRunId} and status='running'`;
+      }
+      await tx`update job_market_sources set
+        status=coalesce(${input.status ?? null}::job_market_source_status,status),sync_interval_minutes=coalesce(${input.syncIntervalMinutes ?? null}::integer,sync_interval_minutes),
+        access_basis=coalesce(${input.accessBasis ?? null}::text,access_basis),next_sync_at=case when ${input.status ?? null}::text='active' then now() else next_sync_at end,
+        lease_until=case when ${disablesSource} then null else lease_until end,
+        leased_by=case when ${disablesSource} then null else leased_by end,
+        lease_run_id=case when ${disablesSource} then null else lease_run_id end,
+        updated_at=now() where id=${id}`;
+      return true;
+    });
   }
 
   async listRuns(sourceId: string | undefined, page: number, limit: number) {

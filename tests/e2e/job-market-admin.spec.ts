@@ -20,7 +20,7 @@ test("admins can inspect safe health, register and control sources while users b
   const [run] = await sql<Array<{ id: string }>>`
     insert into job_market_sync_runs(source_id,trigger,worker_id,request_id,status,finished_at,error_code,error_summary,rejected_count)
     values(${seeded.source.id},'scheduled','worker-safe','request-safe','failed',now(),'timeout','来源请求超时。',2) returning id`;
-  await sql`update job_market_sources set lease_until=now()+interval '10 minutes',leased_by='worker-safe',last_attempt_at=now() where id=${seeded.source.id}`;
+  await sql`update job_market_sources set lease_until=now()+interval '10 minutes',leased_by='worker-safe',lease_run_id=${run.id},last_attempt_at=now() where id=${seeded.source.id}`;
 
   const suffix = crypto.randomUUID().replaceAll("-", "").slice(0, 10);
   const credentials = {
@@ -82,7 +82,7 @@ test("admins can inspect safe health, register and control sources while users b
         select id from job_market_sources where external_key=${registeredExternalKey}`
     ).map((item) => item.id);
 
-    await sql`update job_market_sources set lease_until=null,leased_by=null where id=${seeded.source.id}`;
+    await sql`update job_market_sources set lease_until=null,leased_by=null,lease_run_id=null where id=${seeded.source.id}`;
     await adminPage.reload();
     // 登记来源与 seed 来源同属一家公司，用仅存在于 seed 行的错误摘要区分两行
     const seededRow = adminPage

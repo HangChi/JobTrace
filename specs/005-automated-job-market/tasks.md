@@ -382,3 +382,7 @@ Each increment must retain public/private isolation and pass all previously comp
 ## Phase 13: SSRF DNS-rebinding hardening
 
 - [X] T129 Pin each source request and redirect hop to its validated DNS results, preserve bounded proxy-DNS compatibility, release per-hop transports on every outcome, and add deterministic regression coverage in `src/modules/job-market/infrastructure/secure-source-client.server.ts`, `tests/unit/job-market/source-request-security.test.ts`, `package.json`, `pnpm-lock.yaml`, and `docs/operations.md`
+
+## Phase 14: Synchronization consistency
+
+- [X] T130 Create each run in the source-claim transaction, fence leases with the run ID, atomically commit successful batches with run/source state, atomically record failures, and reject expired or disabled workers with deterministic database regressions
