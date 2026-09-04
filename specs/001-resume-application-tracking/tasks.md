@@ -327,6 +327,14 @@
 
 ---
 
+## Phase 16: Stage Ownership Hardening
+
+**Purpose**: 阶段删除必须同时匹配当前 actor、URL 中的投递 ID 和阶段 ID，禁止跨投递组合 UUID 删除同一用户的其他阶段。
+
+- [X] T132 [US1] 为阶段删除补充父投递归属 SQL/API 回归测试，新增四参数 owner 函数并切换 PostgreSQL 仓储调用到 supabase/tests/008_stage_parent_ownership_test.sql、supabase/migrations/20260904000100_enforce_stage_parent_ownership.sql、tests/integration/applications/application-lifecycle.test.ts、src/modules/applications/infrastructure/postgres-application-repository.ts
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
