@@ -14,14 +14,25 @@ export function ImportUploader() {
   const [result, setResult] = useState<ImportResult>();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sourceFile, setSourceFile] = useState<File>();
   async function upload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setError("");
     try {
+      const body = new FormData(event.currentTarget);
+      const fileInput = event.currentTarget.elements.namedItem("file");
+      const file =
+        fileInput instanceof HTMLInputElement
+          ? fileInput.files?.[0]
+          : undefined;
+      if (file) {
+        setSourceFile(file);
+        body.set("file", file);
+      }
       const response = await fetch("/api/imports/preview", {
         method: "POST",
-        body: new FormData(event.currentTarget),
+        body,
       });
       const value = await response.json();
       if (!response.ok) throw new Error(value.message);
@@ -29,6 +40,28 @@ export function ImportUploader() {
       setResult(undefined);
     } catch (value) {
       setError(value instanceof Error ? value.message : "预检失败");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function remap(mapping: Record<string, string>) {
+    if (!preview || !sourceFile) return;
+    setBusy(true);
+    setError("");
+    try {
+      const body = new FormData();
+      body.set("file", sourceFile);
+      body.set("mapping", JSON.stringify(mapping));
+      body.set("replaceBatchId", preview.id);
+      const response = await fetch("/api/imports/preview", {
+        method: "POST",
+        body,
+      });
+      const value = await response.json();
+      if (!response.ok) throw new Error(value.message);
+      setPreview(value);
+    } catch (value) {
+      setError(value instanceof Error ? value.message : "重新预检失败");
     } finally {
       setBusy(false);
     }
@@ -78,7 +111,13 @@ export function ImportUploader() {
         </form>
       )}
       {preview && (
-        <ImportPreview preview={preview} busy={busy} onConfirm={confirm} />
+        <ImportPreview
+          key={preview.id}
+          preview={preview}
+          busy={busy}
+          onConfirm={confirm}
+          onRemap={remap}
+        />
       )}{" "}
       {result && <ImportResultView result={result} />}
     </div>

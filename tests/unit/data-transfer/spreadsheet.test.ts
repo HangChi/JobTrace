@@ -11,9 +11,10 @@ describe("表格读取与写出", () => {
     const bytes = new TextEncoder().encode(
       "公司,岗位,投递日期\n甲公司,开发,2026-08-13",
     );
-    await expect(readSpreadsheet(bytes.buffer, "valid.csv")).resolves.toEqual([
-      { 公司: "甲公司", 岗位: "开发", 投递日期: "2026-08-13" },
-    ]);
+    await expect(readSpreadsheet(bytes.buffer, "valid.csv")).resolves.toEqual({
+      columns: ["公司", "岗位", "投递日期"],
+      rows: [{ 公司: "甲公司", 岗位: "开发", 投递日期: "2026-08-13" }],
+    });
   });
   it("拒绝伪造 XLSX 和 CSV 二进制内容", async () => {
     await expect(

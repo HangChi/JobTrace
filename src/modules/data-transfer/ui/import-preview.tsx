@@ -1,10 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import type {
   ImportPreview as Preview,
   ImportResult,
 } from "../application/contracts";
 import Link from "next/link";
+import {
+  IMPORT_FIELDS,
+  IMPORT_FIELD_LABELS,
+  type ImportField,
+} from "../application/import-schema";
 import {
   TYPE_LABELS,
   type ApplicationType,
@@ -14,13 +20,19 @@ export function ImportPreview({
   preview,
   busy,
   onConfirm,
+  onRemap,
 }: {
   preview: Preview;
   busy: boolean;
   onConfirm: (
     actions: { rowNumber: number; action: "import" | "skip" }[],
   ) => void;
+  onRemap: (mapping: Record<string, string>) => void;
 }) {
+  const [mapping, setMapping] = useState(preview.columns);
+  const dirty = Object.entries(mapping).some(
+    ([column, field]) => preview.columns[column] !== field,
+  );
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -35,6 +47,52 @@ export function ImportPreview({
   return (
     <form className="panel stack" onSubmit={submit}>
       <h2>预检结果</h2>
+      <fieldset className="stack">
+        <legend>列映射</legend>
+        <p className="muted">
+          未映射的源列会被明确忽略。每个业务字段只能选择一次。
+        </p>
+        <div className="grid import-column-mapping">
+          {Object.entries(mapping).map(([column, field]) => (
+            <label key={column}>
+              {column}
+              <select
+                aria-label={`${column} 映射到`}
+                value={field}
+                disabled={busy}
+                onChange={(event) =>
+                  setMapping((current) => ({
+                    ...current,
+                    [column]: event.target.value,
+                  }))
+                }
+              >
+                <option value="">忽略</option>
+                {IMPORT_FIELDS.map((candidate) => (
+                  <option
+                    key={candidate}
+                    value={candidate}
+                    disabled={Object.entries(mapping).some(
+                      ([otherColumn, target]) =>
+                        otherColumn !== column && target === candidate,
+                    )}
+                  >
+                    {IMPORT_FIELD_LABELS[candidate as ImportField]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+        <button
+          className="button secondary"
+          type="button"
+          disabled={busy || !dirty}
+          onClick={() => onRemap(mapping)}
+        >
+          {busy ? "正在重新预检…" : "使用新映射重新预检"}
+        </button>
+      </fieldset>
       <div className="grid">
         <p>
           <strong>{preview.totalRows}</strong>
@@ -95,7 +153,7 @@ export function ImportPreview({
           </tbody>
         </table>
       </div>
-      <button className="button" disabled={busy}>
+      <button className="button" disabled={busy || dirty}>
         {busy ? "正在导入…" : "确认所选行"}
       </button>
     </form>

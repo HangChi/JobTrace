@@ -33,6 +33,7 @@ export async function GET(request: Request) {
       q: params.get("q")?.slice(0, 200) || undefined,
       status: params.getAll("status"),
       type: params.getAll("type"),
+      stage: params.getAll("stage"),
       city: params.getAll("city"),
       appliedFrom: params.get("appliedFrom") || undefined,
       appliedTo: params.get("appliedTo") || undefined,
