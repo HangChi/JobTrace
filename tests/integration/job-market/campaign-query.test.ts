@@ -109,6 +109,54 @@ test("campaign query aggregates child positions and locations while combining fi
       limit: 20,
     });
     expect(stalePostedFrom.total).toBe(1);
+    await sql`update job_market_posts set status='closed' where company_id=${company.id}`;
+    const closedCompany = await repo.list(owner, { page: 1, limit: 20 });
+    expect(closedCompany).toMatchObject({ total: 0, items: [] });
+    const closedFilter = await repo.list(owner, {
+      status: "closed",
+      page: 1,
+      limit: 20,
+    });
+    expect(closedFilter).toMatchObject({
+      total: 1,
+      items: [
+        {
+          id: campaign.id,
+          status: "closed",
+          positions: [
+            "Backend Engineer",
+            "Frontend Engineer",
+            "Machine Learning Engineer",
+          ],
+          locations: [
+            { name: "Beijing", isRemote: false },
+            { name: "Hangzhou", isRemote: false },
+            { name: "Shanghai", isRemote: false },
+          ],
+        },
+      ],
+    });
+    await sql`insert into job_market_campaign_favorites(owner_id,campaign_id) values(${owner},${campaign.id})`;
+    const closedFavorite = await repo.list(owner, {
+      favorite: true,
+      page: 1,
+      limit: 20,
+    });
+    expect(closedFavorite).toMatchObject({
+      total: 1,
+      items: [
+        {
+          id: campaign.id,
+          status: "closed",
+          isFavorite: true,
+          positions: [
+            "Backend Engineer",
+            "Frontend Engineer",
+            "Machine Learning Engineer",
+          ],
+        },
+      ],
+    });
     await sql`update job_market_sources set status='revoked' where id=${source.id}`;
     const hidden = await repo.list(owner, { page: 1, limit: 20 });
     expect(hidden).toMatchObject({ total: 0, items: [] });

@@ -439,6 +439,10 @@ T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T
 服务契约稳定后：T104 Actions | T105 Auth API | T106 回调 | T107 表单 | T109 管理 UI
 ```
 
+## Phase 16: Release audit UI remediation
+
+- [X] T137 Align the new-application dialog's accessible name with its trigger and restore WCAG 2.2 AA contrast for muted profile labels across supported viewports
+
 ## Implementation Strategy
 
 ### MVP First

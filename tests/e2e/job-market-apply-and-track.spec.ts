@@ -84,10 +84,16 @@ test("apply targets and private tracking stay inside aggregated campaigns", asyn
         and owner_id=(select id from users where username='playwright_user')`;
     applicationId = app.id;
 
-    await page.goto("/?q=公司");
+    await page.goto("/?q=E2E%20已失效公司");
+    await expect(
+      page.getByRole("row").filter({ hasText: "E2E 已失效公司" }),
+    ).toHaveCount(0);
+
+    await page.goto("/?q=E2E%20已失效公司&status=closed");
     const closedRow = page
       .getByRole("row")
       .filter({ hasText: "E2E 已失效公司" });
+    await expect(closedRow.getByText("失效岗位")).toBeVisible();
     await expect(
       closedRow.getByRole("button", { name: "立即投递" }),
     ).toBeDisabled();

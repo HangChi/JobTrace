@@ -387,3 +387,10 @@ Each increment must retain public/private isolation and pass all previously comp
 
 - [X] T130 Create each run in the source-claim transaction, fence leases with the run ID, atomically commit successful batches with run/source state, atomically record failures, and reject expired or disabled workers with deterministic database regressions
 - [X] T131 Add nullable unique source `catalog_key`, backfill legacy matches during initialization, independently revoke removed same-company sources, deduplicate company counts, exclude closed content from `postedFrom`, and converge the company-level official-entry specification with migration, generated types, operations, and regressions
+
+## Phase 15: Release audit remediation
+
+- [X] T132 Reject dotted, compressed, and expanded IPv4-mapped IPv6 private destinations and cover loopback, RFC1918, and metadata forms in the secure-source unit suite
+- [X] T133 Replace display-name company merging with explicit stable company identities, migrate curated multi-source identities, and cover same-name legal entities in integration tests
+- [X] T134 Hide closed-only companies from the default marketplace while retaining explicit closed-status filtering and owner-favorite history
+- [X] T135 Invalidate the shared campaign-list cache after successful synchronization and retain owner-scoped invalidation after favorite writes

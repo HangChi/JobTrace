@@ -92,16 +92,48 @@ function isPublicIpv4(address: string) {
   );
 }
 
+function mappedIpv4Address(address: string) {
+  let normalized = address.toLowerCase();
+  const dottedTail = normalized.slice(normalized.lastIndexOf(":") + 1);
+  if (dottedTail.includes(".")) {
+    if (isIP(dottedTail) !== 4) return null;
+    const bytes = dottedTail.split(".").map(Number);
+    const high = ((bytes[0] << 8) | bytes[1]).toString(16);
+    const low = ((bytes[2] << 8) | bytes[3]).toString(16);
+    normalized = `${normalized.slice(0, normalized.lastIndexOf(":") + 1)}${high}:${low}`;
+  }
+
+  const halves = normalized.split("::");
+  if (halves.length > 2) return null;
+  const left = halves[0] ? halves[0].split(":") : [];
+  const right = halves[1] ? halves[1].split(":") : [];
+  const omitted = halves.length === 2 ? 8 - left.length - right.length : 0;
+  const parts = [
+    ...left,
+    ...Array.from({ length: omitted }, () => "0"),
+    ...right,
+  ].map((part) => Number.parseInt(part, 16));
+  if (
+    parts.length !== 8 ||
+    !parts.slice(0, 5).every((part) => part === 0) ||
+    parts[5] !== 0xffff
+  )
+    return null;
+  return [parts[6] >> 8, parts[6] & 0xff, parts[7] >> 8, parts[7] & 0xff].join(
+    ".",
+  );
+}
+
 export function isPublicIp(address: string) {
   if (isIP(address) === 4) {
     return isPublicIpv4(address);
   }
   if (isIP(address) === 6) {
     const normalized = address.toLowerCase();
-    // IPv4-mapped IPv6 地址的内网判定必须落在内嵌的 IPv4 上，
-    // 否则 ::ffff:172.16.x.x 这类地址能绕过保留段封禁
-    const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(normalized);
-    if (mapped) return isPublicIpv4(mapped[1]);
+    // DNS may return mapped addresses in dotted or compressed hexadecimal
+    // form. Always apply the IPv4 policy to the embedded address.
+    const mapped = mappedIpv4Address(normalized);
+    if (mapped) return isPublicIpv4(mapped);
     return !(
       normalized === "::" ||
       normalized === "::1" ||

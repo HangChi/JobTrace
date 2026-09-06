@@ -19,6 +19,7 @@ import {
 import { ChinaBigTechAdapter } from "../infrastructure/adapters/china-bigtech-adapter";
 import { PostgresSyncRepository } from "../infrastructure/postgres-sync-repository";
 import { PostgresJobMarketRepository } from "../infrastructure/postgres-job-market-repository";
+import { invalidateCampaignLists } from "./campaign-service";
 import { synchronizeSource } from "./synchronize-source";
 
 function productionDependencies() {
@@ -68,6 +69,9 @@ export async function synchronizeDueSources(
       }),
     ),
   );
+  if (results.some((result) => result.status !== "failed")) {
+    invalidateCampaignLists();
+  }
   return {
     claimed: results.length,
     succeeded: results.filter((item) => item.status === "succeeded").length,
@@ -103,6 +107,7 @@ export async function synchronizeOneSource(
     syncRepository: dependencies.syncRepository,
     jobRepository: dependencies.jobRepository,
   });
+  if (result.status !== "failed") invalidateCampaignLists();
   return {
     accepted: true,
     runId: result.runId,

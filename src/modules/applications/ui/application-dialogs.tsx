@@ -27,7 +27,7 @@ export function NewApplicationDialog({
       <Dialog
         open={open}
         kicker="NEW APPLICATION"
-        title="记录一次新投递"
+        title="新增投递"
         description="先填最重要的信息，后续进展可以随时补充。"
         className="application-dialog application-create-dialog"
         onClose={close}

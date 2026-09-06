@@ -2,6 +2,7 @@ import type { SourceAdapterKind } from "../domain/entities";
 
 export type DefaultSourceCatalogEntry = {
   identityKey: string;
+  companyIdentityKey?: string;
   companyName: string;
   companyType: string;
   industry: string;
@@ -889,6 +890,7 @@ export const DEFAULT_SOURCE_CATALOG = [
   },
   {
     identityKey: "default:huawei-social-cn",
+    companyIdentityKey: "default:huawei-cn",
     companyName: "华为",
     companyType: "民营企业",
     industry: "通信设备 / 智能终端 / 云计算",
@@ -902,6 +904,7 @@ export const DEFAULT_SOURCE_CATALOG = [
   },
   {
     identityKey: "default:huawei-campus-cn",
+    companyIdentityKey: "default:huawei-cn",
     companyName: "华为",
     companyType: "民营企业",
     industry: "通信设备 / 智能终端 / 云计算",
@@ -928,6 +931,7 @@ export const DEFAULT_SOURCE_CATALOG = [
   },
   {
     identityKey: "default:mihoyo-social-cn",
+    companyIdentityKey: "default:mihoyo-cn",
     companyName: "米哈游",
     companyType: "民营企业",
     industry: "游戏 / 动漫 / 虚拟世界",
@@ -941,6 +945,7 @@ export const DEFAULT_SOURCE_CATALOG = [
   },
   {
     identityKey: "default:mihoyo-campus-cn",
+    companyIdentityKey: "default:mihoyo-cn",
     companyName: "米哈游",
     companyType: "民营企业",
     industry: "游戏 / 动漫 / 虚拟世界",
