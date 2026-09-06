@@ -1,8 +1,6 @@
 name: Job market sync
 
 on:
-  schedule:
-    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions: {}
@@ -24,8 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${JOB_MARKET_SYNC_URL}" || -z "${JOB_MARKET_SYNC_SECRET}" ]]; then
-            echo "JOB_MARKET_SYNC_URL variable and JOB_MARKET_SYNC_SECRET secret are required."
-            exit 1
+            echo "::notice::Remote sync fallback is not configured; production synchronization is handled by the server timer."
+            exit 0
           fi
           endpoint="${JOB_MARKET_SYNC_URL%/}/api/internal/job-market/sync"
           batch_size=10

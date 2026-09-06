@@ -295,12 +295,12 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 
 认领来源时会在同一事务中创建运行记录，并把运行 ID 写入来源租约作为 fencing token。成功结果、岗位批次、运行计数、来源健康与租约释放在一个数据库事务内提交；失败诊断与退避调度也原子提交。租约过期重领或管理员暂停/撤销来源会终止旧运行，旧 worker 之后的成功或失败回写都会被拒绝。因此排障时应以来源当前的 `lease_run_id` 和对应运行记录为准，不要手工只修改 `lease_until` 或 `leased_by`。
 
-仓库提供 `.github/workflows/job-market-sync.yml`，默认每六小时触发一次，也支持在 Actions 页面手动运行。启用步骤：
+自托管部署默认由 `jobtrace-sync.timer` 每六小时触发，避免服务器与 GitHub Actions 重复调度。仓库保留 `.github/workflows/job-market-sync.yml` 作为手动远程兜底；未配置远程地址或密钥时会安全跳过，不再制造计划任务失败。启用远程兜底的步骤：
 
 1. 在生产应用设置 `JOB_MARKET_ENABLED=true` 和一个至少 32 字符的 `JOB_MARKET_SYNC_SECRET`，重新部署；
 2. 在 GitHub 仓库 Actions Variables 新建 `JOB_MARKET_SYNC_URL`，值为生产站点来源，例如 `https://jobtrace.example.com`；
 3. 在 Actions Secrets 新建同名 `JOB_MARKET_SYNC_SECRET`，值必须与生产应用一致；
-4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`，之后由计划任务持续认领到期来源。
+4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`；持续调度仍由服务器 timer 负责。
 
 这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
 
