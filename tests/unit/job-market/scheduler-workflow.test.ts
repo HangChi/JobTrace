@@ -21,10 +21,14 @@ describe("job-market scheduler workflow", () => {
 
     expect(timer.match(/^OnCalendar=/gm)).toHaveLength(4);
     expect(timer).toContain("Persistent=true");
-    expect(syncScript).toContain('max_batches="${JOBTRACE_SYNC_MAX_BATCHES:-30}"');
+    expect(syncScript).toContain(
+      'max_batches="${JOBTRACE_SYNC_MAX_BATCHES:-30}"',
+    );
     expect(syncScript).toContain("claimed < batch_size");
     expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).not.toContain("schedule:");
-    expect(workflow).toContain("production synchronization is handled by the server timer");
+    expect(workflow).toContain(
+      "production synchronization is handled by the server timer",
+    );
   });
 });
