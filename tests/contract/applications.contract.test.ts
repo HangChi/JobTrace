@@ -26,7 +26,12 @@ test("投递 CRUD、Problem 和 409 契约", async ({ request }) => {
     type: "campus_recruitment",
     version: 1,
   });
-  expect(application.stageOccurrences).toEqual([]);
+  expect(application.stageOccurrences).toEqual([
+    expect.objectContaining({
+      stage: "screening",
+      occurredOn: "2026-08-13",
+    }),
+  ]);
   try {
     expect(
       (await request.get(`/api/applications/${application.id}`)).status(),

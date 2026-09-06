@@ -344,6 +344,7 @@ components:
         notes: { type: [string, 'null'], maxLength: 10000 }
         stages:
           type: array
+          description: Empty or omitted values create a screening stage on appliedDate; non-empty values are used as supplied.
           items: { $ref: '#/components/schemas/StageInput' }
     UpdateApplication:
       allOf:

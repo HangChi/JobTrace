@@ -340,8 +340,9 @@
 **Purpose**: 封闭 Better Auth 原生认证旁路，并只在明确可信的单层反向代理边界内使用客户端 IP 头进行认证限流。
 
 - [X] T133 [US0] 默认拒绝公开 Better Auth 写入端点，仅保留密码重置 GET 回调；新增显式代理头信任配置、单值 IP 校验、统一认证限流 key、部署说明及 HTTP/数据库安全回归到 auth routes、identity-access infrastructure、tests、环境模板和运维文档
-- [X] T134 [US1-US3] 新投递允许零阶段并原子保存显式阶段；跟进按最近业务活动计算，默认列表按已投递优先且显式最新日期全局排序，并展示最新日期到 application migration、repository、analytics、UI 和回归测试
+- [X] T134 [US1-US3] 新投递原子保存显式阶段；跟进按最近业务活动计算，默认列表按已投递优先且显式最新日期全局排序，并展示最新日期到 application migration、repository、analytics、UI 和回归测试
 - [X] T135 [US4] 预检返回并允许修正无重复目标的源列映射，新预览成功后原子废弃旧批次；导出补齐审计列和可解析完整阶段历史并支持 CSV/XLSX 业务字段往返到 data-transfer、HTTP 契约、UI、规格和回归测试
+- [X] T136 [US1] 新投递未提供阶段时原子创建投递日期当天的“简历筛选”阶段及事件，显式非空阶段仍保持原样，并补充数据库、契约与集成回归测试
 
 ---
 
