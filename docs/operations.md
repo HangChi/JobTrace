@@ -273,7 +273,7 @@ pnpm lighthouse
 
 ### 本地代理与 Fake-IP DNS
 
-Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝。
+Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝，包括点分、压缩十六进制和展开形式的 IPv4-mapped IPv6 地址。
 
 每个来源请求及其重定向跳只解析一次 DNS，并将连接固定到该次全部通过校验的地址，避免校验后重新解析造成 DNS rebinding。启用 Fake-IP 等同于信任出站代理会把该地址安全地路由到白名单主机；生产环境若需为自定义来源启用该能力，必须先确认代理边界、配置权限和网络隔离。
 
@@ -284,7 +284,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
 3. 保留管理员已经设置的 `paused` 或 `revoked` 状态；
-4. 通过来源级唯一 `catalog_key` 更新和撤销目录条目；首次升级会按规范企业名、adapter 与 external key 回填旧来源，同公司的其他保留来源不会被误撤销，移除来源若正在同步会先终止其 fenced run；
+4. 通过来源级唯一 `catalog_key` 更新和撤销目录条目；旧来源按 adapter 与 external key 回填，多个来源只有显式共享稳定企业身份时才合并，不按显示名称推断法人主体；同公司的其他保留来源不会被误撤销，移除来源若正在同步会先终止其 fenced run；
 5. 每批最多同步 3 个活动来源，并报告成功、部分成功、失败和跳过数量。
 
 默认目录由源码管理，因为每个条目都会扩大服务端出站访问白名单。增加企业前必须人工验证其公开 ATS 接口；自动化测试仍只能访问本地 fixture，不能依赖真实企业站点。

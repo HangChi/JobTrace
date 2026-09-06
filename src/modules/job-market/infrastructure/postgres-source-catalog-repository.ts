@@ -42,13 +42,13 @@ export class PostgresSourceCatalogRepository {
           and campaign.status<>'closed'`;
 
       for (const entry of entries) {
-        // Companies with multiple catalog entries (e.g. social + campus
-        // sources of the same employer) must share one row, otherwise the
-        // campaign listing renders one card per source instead of per company.
+        // Multiple sources share a company only through an explicit, stable
+        // identity. A display name alone cannot identify a legal entity.
+        const companyIdentityKey =
+          entry.companyIdentityKey ?? entry.identityKey;
         let [company] = await tx<Array<{ id: string }>>`
           select id from job_market_companies
-          where normalized_name=${normalizeText(entry.companyName)}
-          order by case when identity_key=${entry.identityKey} then 0 else 1 end,created_at
+          where identity_key=${companyIdentityKey}
           limit 1`;
         if (company) {
           await tx`
@@ -64,18 +64,16 @@ export class PostgresSourceCatalogRepository {
               canonical_name,normalized_name,company_type,industry,website_url,identity_key
             ) values(
               ${entry.companyName},${normalizeText(entry.companyName)},${entry.companyType},
-              ${entry.industry},${entry.websiteUrl},${entry.identityKey}
+              ${entry.industry},${entry.websiteUrl},${companyIdentityKey}
             ) returning id`;
         }
 
         let [source] = await tx<Array<{ id: string; status: string }>>`
           select source.id,source.status::text
           from job_market_sources source
-          join job_market_companies existing_company on existing_company.id=source.company_id
           where source.catalog_key=${entry.identityKey}
             or (
               source.catalog_key is null
-              and existing_company.normalized_name=${normalizeText(entry.companyName)}
               and source.adapter=${entry.adapter}
               and source.external_key=${entry.externalKey}
             )
@@ -105,14 +103,13 @@ export class PostgresSourceCatalogRepository {
 
       const sourceCatalogPayload = entries.map((entry) => ({
         identity_key: entry.identityKey,
-        normalized_name: normalizeText(entry.companyName),
         adapter: entry.adapter,
         external_key: entry.externalKey,
       }));
       const [obsolete] = await tx<Array<{ ids: string[]; runIds: string[] }>>`
         with input as (
           select * from jsonb_to_recordset(${tx.json(sourceCatalogPayload as never)}::jsonb) as value(
-            identity_key text,normalized_name text,adapter job_market_source_adapter,external_key text
+            identity_key text,adapter job_market_source_adapter,external_key text
           )
         ), obsolete as (
           select source.id,source.lease_run_id
@@ -125,8 +122,8 @@ export class PostgresSourceCatalogRepository {
             source.catalog_key is null
             and company.identity_key like 'default:%'
             and not exists(
-              select 1 from input where input.normalized_name=company.normalized_name
-                and input.adapter=source.adapter and input.external_key=source.external_key
+              select 1 from input where input.adapter=source.adapter
+                and input.external_key=source.external_key
             )
           )
         )
@@ -229,11 +226,12 @@ export class PostgresSourceCatalogRepository {
       }
 
       return {
-        companyCount: new Set(
-          [...entries, ...directoryEntries].map((entry) =>
-            normalizeText(entry.companyName),
+        companyCount: new Set([
+          ...entries.map(
+            (entry) => entry.companyIdentityKey ?? entry.identityKey,
           ),
-        ).size,
+          ...directoryEntries.map((entry) => entry.identityKey),
+        ]).size,
         sourceCount: entries.length,
         createdCompanies,
         createdSources,

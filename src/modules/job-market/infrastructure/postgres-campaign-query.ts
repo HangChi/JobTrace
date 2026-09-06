@@ -23,6 +23,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
 
   private filters(ownerId: string, query: CampaignQuery) {
     const q = query.q?.toLowerCase();
+    const includeClosed = query.favorite === true || query.status === "closed";
     return this.sql`
       (${query.campaignId ?? null}::text is null or exists(
         select 1 from job_market_campaigns requested
@@ -34,11 +35,18 @@ export class PostgresCampaignQuery implements CampaignRepository {
           join job_market_source_records visible_record on visible_record.post_id=visible_post.id
           join job_market_sources visible_source on visible_source.id=visible_record.source_id and visible_source.status='active'
           where visible_post.company_id=company.id
+            and (visible_post.status<>'closed' or ${includeClosed})
         )
         or exists(
           select 1 from job_market_campaigns directory
-          where directory.company_id=company.id and directory.listing_kind='recruitment_directory' and directory.status<>'closed'
+          where directory.company_id=company.id and directory.listing_kind='recruitment_directory'
+            and (directory.status<>'closed' or ${includeClosed})
         )
+        or (${query.favorite ?? false}::boolean is true and exists(
+          select 1 from job_market_campaign_favorites favorite
+          join job_market_campaigns favorite_campaign on favorite_campaign.id=favorite.campaign_id
+          where favorite.owner_id=${ownerId} and favorite_campaign.company_id=company.id
+        ))
       )
       and (${q ?? null}::text is null
         or lower(company.canonical_name) like ${q ? `%${q}%` : null}::text
@@ -46,7 +54,9 @@ export class PostgresCampaignQuery implements CampaignRepository {
           select 1 from job_market_posts post
           join job_market_source_records record on record.post_id=post.id
           join job_market_sources source on source.id=record.source_id and source.status='active'
-          where post.company_id=company.id and post.status<>'closed' and lower(post.title) like ${q ? `%${q}%` : null}
+          where post.company_id=company.id
+            and (post.status<>'closed' or ${includeClosed})
+            and lower(post.title) like ${q ? `%${q}%` : null}
         )
       )
       and (${query.company ?? null}::text is null
@@ -57,7 +67,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
         join job_market_sources source on source.id=record.source_id and source.status='active'
         join job_market_post_locations relation on relation.post_id=post.id
         join job_market_locations location on location.id=relation.location_id
-        where post.company_id=company.id and post.status<>'closed'
+        where post.company_id=company.id
+          and (post.status<>'closed' or ${includeClosed})
           and lower(location.display_name) like ${query.location ? `%${query.location.toLowerCase()}%` : null}::text
       ))
       and (${query.status ?? null}::text is null or ${query.status ?? null}::text=(
@@ -87,12 +98,13 @@ export class PostgresCampaignQuery implements CampaignRepository {
         select 1 from job_market_posts post
         join job_market_source_records record on record.post_id=post.id
         join job_market_sources source on source.id=record.source_id and source.status='active'
-        where post.company_id=company.id and post.status<>'closed'
+        where post.company_id=company.id
+          and (post.status<>'closed' or ${includeClosed})
           and post.published_at::date>=${query.postedFrom ?? null}::date
         union all
         select 1 from job_market_campaigns directory
         where directory.company_id=company.id and directory.listing_kind='recruitment_directory'
-          and directory.status<>'closed'
+          and (directory.status<>'closed' or ${includeClosed})
           and directory.published_at::date>=${query.postedFrom ?? null}::date
       ))
       and (${query.favorite ?? null}::boolean is not true or exists(
@@ -104,6 +116,7 @@ export class PostgresCampaignQuery implements CampaignRepository {
 
   async list(ownerId: string, query: CampaignQuery) {
     const filters = this.filters(ownerId, query);
+    const includeClosed = query.favorite === true || query.status === "closed";
     const [selection] = await this.sql<CampaignPageSelection[]>`
       with eligible as materialized (
         select company.id,
@@ -116,12 +129,14 @@ export class PostgresCampaignQuery implements CampaignRepository {
           from job_market_posts post
           join job_market_source_records record on record.post_id=post.id
           join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
-          where post.company_id=company.id and post.status<>'closed'
+          where post.company_id=company.id
+            and (post.status<>'closed' or ${includeClosed})
         ) post_dates on true
         left join lateral (
           select campaign.published_at
           from job_market_campaigns campaign
-          where campaign.company_id=company.id and campaign.listing_kind='recruitment_directory' and campaign.status<>'closed'
+          where campaign.company_id=company.id and campaign.listing_kind='recruitment_directory'
+            and (campaign.status<>'closed' or ${includeClosed})
           order by case when campaign.recruitment_type='招聘官网' then 0 else 1 end,
             campaign.published_at desc nulls last,campaign.id
           limit 1
@@ -167,14 +182,16 @@ export class PostgresCampaignQuery implements CampaignRepository {
           from job_market_posts post
           join job_market_source_records record on record.post_id=post.id
           join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
-          where post.company_id=company.id and post.status<>'closed'
+          where post.company_id=company.id
+            and (post.status<>'closed' or ${includeClosed})
         ),'{}') as positions,
         (
           select count(distinct post.normalized_title)::int
           from job_market_posts post
           join job_market_source_records record on record.post_id=post.id
           join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
-          where post.company_id=company.id and post.status<>'closed'
+          where post.company_id=company.id
+            and (post.status<>'closed' or ${includeClosed})
         ) as "positionCount",
         coalesce((
           select jsonb_agg(location_row order by location_row->>'name')
@@ -185,7 +202,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
             join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
             join job_market_post_locations relation on relation.post_id=post.id
             join job_market_locations location on location.id=relation.location_id
-            where post.company_id=company.id and post.status<>'closed'
+            where post.company_id=company.id
+              and (post.status<>'closed' or ${includeClosed})
           ) locations
         ),'[]') as locations,
         case
@@ -215,12 +233,18 @@ export class PostgresCampaignQuery implements CampaignRepository {
         select campaign.id
         from job_market_campaigns campaign
         where campaign.company_id=company.id and (
-          (campaign.listing_kind='recruitment_directory' and campaign.status<>'closed')
+          (campaign.listing_kind='recruitment_directory'
+            and (campaign.status<>'closed' or ${includeClosed}))
           or (campaign.listing_kind='synced_jobs' and exists(
             select 1 from job_market_posts post
             join job_market_source_records record on record.post_id=post.id
             join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
             where post.campaign_id=campaign.id
+              and (post.status<>'closed' or ${includeClosed})
+          ))
+          or (${query.favorite ?? false}::boolean is true and exists(
+            select 1 from job_market_campaign_favorites favorite
+            where favorite.owner_id=${ownerId} and favorite.campaign_id=campaign.id
           ))
         )
         order by case when campaign.listing_kind='synced_jobs' then 0 else 1 end,campaign.created_at,campaign.id
@@ -231,7 +255,9 @@ export class PostgresCampaignQuery implements CampaignRepository {
           select 1 from job_market_posts post
           join job_market_source_records record on record.post_id=post.id
           join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
-          where post.company_id=company.id
+          where post.company_id=company.id and (
+            post.status<>'closed' or ${includeClosed}
+          )
         ) as has_synced
       ) sync_state on true
       left join lateral (
@@ -242,7 +268,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
       ) source on true
       left join lateral (
         select campaign.* from job_market_campaigns campaign
-        where campaign.company_id=company.id and campaign.listing_kind='recruitment_directory' and campaign.status<>'closed'
+        where campaign.company_id=company.id and campaign.listing_kind='recruitment_directory'
+          and (campaign.status<>'closed' or ${includeClosed})
         order by case when campaign.recruitment_type='招聘官网' then 0 else 1 end,
           campaign.published_at desc nulls last,campaign.id
         limit 1
@@ -273,7 +300,8 @@ export class PostgresCampaignQuery implements CampaignRepository {
         from job_market_posts post
         join job_market_source_records record on record.post_id=post.id
         join job_market_sources post_source on post_source.id=record.source_id and post_source.status='active'
-        where post.company_id=company.id and post.status<>'closed'
+        where post.company_id=company.id
+          and (post.status<>'closed' or ${includeClosed})
       ) post_dates on true
       left join lateral (
         select max(campaign.last_confirmed_at) as last_confirmed_at

@@ -143,8 +143,10 @@ test("directory initialization is idempotent and never creates a sync source", a
 test("catalog identity independently retains and revokes two sources for one company", async () => {
   const sql = testDatabase();
   const companyName = `多来源企业 ${testId("company")}`;
+  const companyIdentityKey = `default:${testId("shared-company")}`;
   const makeEntry = (suffix: string): DefaultSourceCatalogEntry => ({
     identityKey: `default:${testId(`catalog-${suffix}`)}`,
+    companyIdentityKey,
     companyName,
     companyType: "科技企业",
     industry: "测试",
@@ -197,6 +199,46 @@ test("catalog identity independently retains and revokes two sources for one com
   } finally {
     await sql`delete from job_market_sources where catalog_key in (${first.identityKey},${second.identityKey})`;
     await sql`delete from job_market_companies where normalized_name=${companyName.toLocaleLowerCase()}`;
+    await sql.end();
+  }
+});
+
+test("same-name legal entities remain separate without an explicit shared identity", async () => {
+  const sql = testDatabase();
+  const companyName = `同名企业 ${testId("company")}`;
+  const existingIdentityKey = `default:${testId("existing-company")}`;
+  const catalogIdentityKey = `default:${testId("catalog-company")}`;
+  const externalKey = testId("same-name-source");
+  const repository = new PostgresSourceCatalogRepository();
+  const entry: DefaultSourceCatalogEntry = {
+    identityKey: catalogIdentityKey,
+    companyName,
+    companyType: "科技企业",
+    industry: "测试",
+    websiteUrl: "https://company.example.com/",
+    adapter: "greenhouse",
+    externalKey,
+    baseUrl: "https://jobs.example.com/",
+    allowedHosts: ["jobs.example.com"],
+    countryCodes: ["cn"],
+    syncIntervalMinutes: 360,
+  };
+  try {
+    await sql`
+      insert into job_market_companies(canonical_name,normalized_name,identity_key)
+      values(${companyName},${companyName.toLocaleLowerCase()},${existingIdentityKey})`;
+    const initialized = await repository.initialize([entry], []);
+    expect(initialized).toMatchObject({ companyCount: 1, createdCompanies: 1 });
+    const companies = await sql<Array<{ identityKey: string }>>`
+      select identity_key as "identityKey" from job_market_companies
+      where normalized_name=${companyName.toLocaleLowerCase()}
+      order by identity_key`;
+    expect(companies.map((company) => company.identityKey)).toEqual(
+      [catalogIdentityKey, existingIdentityKey].sort(),
+    );
+  } finally {
+    await sql`delete from job_market_sources where external_key=${externalKey}`;
+    await sql`delete from job_market_companies where identity_key in (${catalogIdentityKey},${existingIdentityKey})`;
     await sql.end();
   }
 });

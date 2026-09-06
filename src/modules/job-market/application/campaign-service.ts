@@ -20,8 +20,15 @@ function cachedCampaignList(ownerId: string, input: CampaignQuery) {
       ownerId,
       JSON.stringify(input),
     ],
-    { revalidate: 30, tags: [campaignListCacheTag(ownerId)] },
+    {
+      revalidate: 30,
+      tags: [CAMPAIGN_LIST_CACHE_TAG, campaignListCacheTag(ownerId)],
+    },
   )();
+}
+
+export function invalidateCampaignLists() {
+  revalidateTag(CAMPAIGN_LIST_CACHE_TAG, { expire: 0 });
 }
 
 export async function listCampaigns(search: URLSearchParams) {
