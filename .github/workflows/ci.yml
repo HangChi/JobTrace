@@ -9,6 +9,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  DATABASE_URL: postgresql://jobtrace:jobtrace@127.0.0.1:5432/jobtrace
+  BETTER_AUTH_SECRET: ci-better-auth-secret-at-least-32-characters
+  BETTER_AUTH_URL: http://127.0.0.1:3000
   JOB_MARKET_ENABLED: "false"
   JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret-at-least-32-chars
 
