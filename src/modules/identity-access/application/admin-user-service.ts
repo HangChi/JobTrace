@@ -66,8 +66,8 @@ export async function getManagedUserDetail(
     targetId: userId,
     applicationsPage: applications.page,
     interviewsPage: interviews.page,
-    applicationCount: applications.total,
-    interviewCount: interviews.total,
+    applicationCount: applications.items.length,
+    interviewCount: interviews.items.length,
     durationMs: Math.round(performance.now() - started),
   });
   return { ...user, recentAuditEvents, applications, interviews };

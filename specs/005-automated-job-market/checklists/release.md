@@ -6,7 +6,7 @@
 ## Product and Maintainability
 
 - [x] Homepage presents one record per company recruitment campaign; titles and locations are deduplicated and merged.
-- [x] Every valid underlying post retains a selectable official HTTPS application target; unavailable or unsafe targets are disabled.
+- [x] Every company exposes at most one validated official HTTPS recruitment entry; underlying job targets remain traceable and unsafe entries are disabled.
 - [x] Source ingestion is adapter-based and covered for Greenhouse, Lever, Ashby, SmartRecruiters, Moka, Xiaomi, and Schema.org.
 - [x] Synchronization is idempotent and implements stale, closed, and reopened lifecycle transitions without deleting cached history.
 - [x] Public recruitment data, per-user favorites, and private application snapshots have explicit module and ownership boundaries.

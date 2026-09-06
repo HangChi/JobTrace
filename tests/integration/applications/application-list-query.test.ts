@@ -39,7 +39,7 @@ test("部分匹配、组合筛选和游标跨页稳定", async ({ request }) => 
   }
 });
 
-test("默认按状态分组并按最近进展排序，名称排序默认 A 到 Z", async ({
+test("默认按已投递优先并按最近进展排序，名称排序默认 A 到 Z", async ({
   request,
 }) => {
   const ids: string[] = [];
@@ -106,8 +106,8 @@ test("默认按状态分组并按最近进展排序，名称排序默认 A 到 Z
     expect(firstResponse.ok()).toBe(true);
     const first = await firstResponse.json();
     expect(first.items.map((item: { id: string }) => item.id)).toEqual([
-      offerLate.id,
-      offerEarly.id,
+      submittedWithRecentStage.id,
+      submittedWithoutStage.id,
     ]);
     expect(first.nextCursor).toEqual(expect.any(String));
 
@@ -117,8 +117,8 @@ test("默认按状态分组并按最近进展排序，名称排序默认 A 到 Z
     expect(secondResponse.ok()).toBe(true);
     const second = await secondResponse.json();
     expect(second.items.map((item: { id: string }) => item.id)).toEqual([
-      submittedWithRecentStage.id,
-      submittedWithoutStage.id,
+      refusedLate.id,
+      offerLate.id,
     ]);
     expect(second.nextCursor).toEqual(expect.any(String));
 
@@ -128,8 +128,8 @@ test("默认按状态分组并按最近进展排序，名称排序默认 A 到 Z
     expect(thirdResponse.ok()).toBe(true);
     const third = await thirdResponse.json();
     expect(third.items.map((item: { id: string }) => item.id)).toEqual([
-      refusedLate.id,
       refusedEarly.id,
+      offerEarly.id,
     ]);
     expect(third.nextCursor).toBeNull();
 

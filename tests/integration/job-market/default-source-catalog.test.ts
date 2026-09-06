@@ -139,3 +139,64 @@ test("directory initialization is idempotent and never creates a sync source", a
     await sql.end();
   }
 });
+
+test("catalog identity independently retains and revokes two sources for one company", async () => {
+  const sql = testDatabase();
+  const companyName = `多来源企业 ${testId("company")}`;
+  const makeEntry = (suffix: string): DefaultSourceCatalogEntry => ({
+    identityKey: `default:${testId(`catalog-${suffix}`)}`,
+    companyName,
+    companyType: "科技企业",
+    industry: "测试",
+    websiteUrl: "https://company.example.com/",
+    adapter: "greenhouse",
+    externalKey: testId(`source-${suffix}`),
+    baseUrl: `https://${suffix}.example.com/`,
+    allowedHosts: [`${suffix}.example.com`],
+    countryCodes: ["cn"],
+    syncIntervalMinutes: 360,
+  });
+  const first = makeEntry("campus");
+  const second = makeEntry("social");
+  const repository = new PostgresSourceCatalogRepository();
+  try {
+    const initialized = await repository.initialize([first, second], []);
+    expect(initialized).toMatchObject({ companyCount: 1, sourceCount: 2 });
+    await sql`update job_market_sources set status='paused' where catalog_key=${first.identityKey}`;
+
+    await repository.initialize([first], []);
+    const afterSecondRemoval = await sql<
+      { catalogKey: string; status: string }[]
+    >`
+      select catalog_key as "catalogKey",status::text from job_market_sources
+      where catalog_key in (${first.identityKey},${second.identityKey}) order by catalog_key`;
+    expect(
+      Object.fromEntries(
+        afterSecondRemoval.map((row) => [row.catalogKey, row.status]),
+      ),
+    ).toEqual({
+      [first.identityKey]: "paused",
+      [second.identityKey]: "revoked",
+    });
+
+    await sql`update job_market_sources set status='active' where catalog_key=${second.identityKey}`;
+    await repository.initialize([second], []);
+    const afterFirstRemoval = await sql<
+      { catalogKey: string; status: string }[]
+    >`
+      select catalog_key as "catalogKey",status::text from job_market_sources
+      where catalog_key in (${first.identityKey},${second.identityKey}) order by catalog_key`;
+    expect(
+      Object.fromEntries(
+        afterFirstRemoval.map((row) => [row.catalogKey, row.status]),
+      ),
+    ).toEqual({
+      [first.identityKey]: "revoked",
+      [second.identityKey]: "active",
+    });
+  } finally {
+    await sql`delete from job_market_sources where catalog_key in (${first.identityKey},${second.identityKey})`;
+    await sql`delete from job_market_companies where normalized_name=${companyName.toLocaleLowerCase()}`;
+    await sql.end();
+  }
+});

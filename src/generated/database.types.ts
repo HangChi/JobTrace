@@ -1284,6 +1284,11 @@ export const databaseSchema = {
       "name": "lease_run_id",
       "type": "uuid",
       "nullable": true
+    },
+    {
+      "name": "catalog_key",
+      "type": "text",
+      "nullable": true
     }
   ],
   "job_market_sync_runs": [

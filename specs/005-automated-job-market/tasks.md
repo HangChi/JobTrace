@@ -386,3 +386,4 @@ Each increment must retain public/private isolation and pass all previously comp
 ## Phase 14: Synchronization consistency
 
 - [X] T130 Create each run in the source-claim transaction, fence leases with the run ID, atomically commit successful batches with run/source state, atomically record failures, and reject expired or disabled workers with deterministic database regressions
+- [X] T131 Add nullable unique source `catalog_key`, backfill legacy matches during initialization, independently revoke removed same-company sources, deduplicate company counts, exclude closed content from `postedFrom`, and converge the company-level official-entry specification with migration, generated types, operations, and regressions

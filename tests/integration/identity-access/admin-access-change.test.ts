@@ -105,3 +105,45 @@ test("last active admin and self changes require safety confirmation", async () 
     await sql.end();
   }
 });
+
+test("self demotion revokes own sessions while another-admin demotion preserves sessions", async () => {
+  const sql = testDatabase();
+  const selfAdmin = testId("self-demote-admin");
+  const otherAdmin = testId("other-demote-admin");
+  const actor = testId("demotion-actor");
+  await createTestUser(sql, selfAdmin, "admin");
+  await createTestUser(sql, otherAdmin, "admin");
+  await createTestUser(sql, actor, "admin");
+  await createTestSession(sql, selfAdmin);
+  await createTestSession(sql, otherAdmin);
+  try {
+    const [selfDemotion] = await sql<{ result: Record<string, unknown> }[]>`
+      select change_user_access_as(
+        ${selfAdmin},${selfAdmin},${crypto.randomUUID()}::uuid,1,'demote_admin',
+        'Integration test confirms this administrator self demotion.',true
+      ) result`;
+    expect(selfDemotion.result).toMatchObject({
+      outcome: "succeeded",
+      role: "user",
+    });
+    expect(
+      await sql`select id from sessions where user_id=${selfAdmin}`,
+    ).toHaveLength(0);
+
+    const [demotedByOther] = await sql<{ result: Record<string, unknown> }[]>`
+      select change_user_access_as(
+        ${actor},${otherAdmin},${crypto.randomUUID()}::uuid,1,'demote_admin',
+        'Integration test demotes another administrator safely.',false
+      ) result`;
+    expect(demotedByOther.result).toMatchObject({
+      outcome: "succeeded",
+      role: "user",
+    });
+    expect(
+      await sql`select id from sessions where user_id=${otherAdmin}`,
+    ).toHaveLength(1);
+  } finally {
+    await sql`delete from users where id in (${selfAdmin},${otherAdmin},${actor})`;
+    await sql.end();
+  }
+});

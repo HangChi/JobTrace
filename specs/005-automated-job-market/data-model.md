@@ -34,6 +34,7 @@
 |---|---|---|
 | `id` | uuid | PK |
 | `company_id` | uuid | FK company, required |
+| `catalog_key` | text nullable | 默认目录来源的持久且唯一身份；非目录来源为空 |
 | `adapter` | text | `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `feishu`, `moka`, `schema_org`, `xiaomi` |
 | `external_key` | text | tenant/board identifier; unique with adapter |
 | `base_url` | text | HTTPS, required |
@@ -49,7 +50,7 @@
 | `etag`, `last_modified` | text nullable | conditional fetch metadata, bounded length |
 | `created_at`, `updated_at` | timestamptz | required |
 
-Unique: `(adapter, external_key, company_id)`. A claimed source stores the running sync ID as a fencing token; reclaiming an expired lease fails the superseded run, and only the current token may commit results. Revoked sources are never scheduled; reactivation requires explicit admin authorization update.
+Unique: `(adapter, external_key, company_id)` and partial unique `catalog_key where catalog_key is not null`. 默认目录升级时先按规范企业名、adapter、external key 回填旧来源；目录移除只撤销对应 `catalog_key`，不影响同公司保留来源。A claimed source stores the running sync ID as a fencing token; reclaiming an expired lease fails the superseded run, and only the current token may commit results. Revoked sources are never scheduled; reactivation requires explicit admin authorization update.
 
 ### `job_market_source_candidates`
 
