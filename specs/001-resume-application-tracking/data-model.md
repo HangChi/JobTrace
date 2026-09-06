@@ -81,7 +81,7 @@
 | `job_url` | text | no | 绝对 `http`/`https` URL，最长 2048 字符 |
 | `applied_date` | date | yes | 不晚于当前业务日期 |
 | `status` | application_status | yes | 默认 `submitted` |
-| `latest_date` | date | yes | `>= applied_date`，创建时等于投递日期与显式阶段日期中的最大值 |
+| `latest_date` | date | yes | `>= applied_date`，创建时等于投递日期与初始阶段日期中的最大值 |
 | `notes` | text | no | 最长 10,000 字符 |
 | `created_at` | timestamptz | yes | 数据库生成 |
 | `updated_at` | timestamptz | yes | 每次当前快照改变时更新 |
@@ -114,6 +114,8 @@
 | `created_at` | timestamptz | yes | 数据库生成 |
 
 **Relationship**: application 1:N stage occurrences。列表的“已达阶段”对 `stage` 去重；历史保留全部 occurrence。
+
+创建投递时，空或缺失的阶段列表会生成一条发生日期等于 `applied_date` 的 `screening`；非空阶段列表保持调用方提供的内容，不额外追加默认阶段。
 
 **Index**: `(application_id, occurred_on desc, id)`、`(stage, application_id)`。
 

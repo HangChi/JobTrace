@@ -11,9 +11,13 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
   });
   const application = await created.json();
   try {
-    expect(application.stageOccurrences).toEqual([]);
+    expect(application.stageOccurrences).toHaveLength(1);
+    expect(application.stageOccurrences[0]).toMatchObject({
+      stage: "screening",
+      occurredOn: "2026-08-01",
+    });
     await request.post(`/api/applications/${application.id}/stages`, {
-      data: { stage: "screening", occurredOn: "2026-08-05" },
+      data: { stage: "assessment", occurredOn: "2026-08-05" },
     });
     const updated = await request.patch(`/api/applications/${application.id}`, {
       data: {
@@ -31,11 +35,19 @@ test("创建、更新、阶段与历史完整性", async ({ request }) => {
       await request.get(`/api/applications/${application.id}`)
     ).json();
     expect(detail.version).toBe(3);
-    expect(detail.stageOccurrences).toHaveLength(1);
-    expect(detail.stageOccurrences[0]).toMatchObject({
-      stage: "screening",
-      occurredOn: "2026-08-05",
-    });
+    expect(detail.stageOccurrences).toHaveLength(2);
+    expect(detail.stageOccurrences).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stage: "screening",
+          occurredOn: "2026-08-01",
+        }),
+        expect.objectContaining({
+          stage: "assessment",
+          occurredOn: "2026-08-05",
+        }),
+      ]),
+    );
     expect(detail.events.map((event: { type: string }) => event.type)).toEqual(
       expect.arrayContaining(["created", "stage_added", "status_changed"]),
     );

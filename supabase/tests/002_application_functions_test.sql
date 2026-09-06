@@ -1,7 +1,9 @@
 begin;
-select plan(13);
+select plan(15);
 insert into users(id,display_name,email) values ('test-owner','Test Owner','owner@example.test');
 select lives_ok($$select public.create_application_for_owner('test-owner','{"companyName":"测试公司","positionName":"工程师","appliedDate":"2026-08-01"}'::jsonb)$$,'owner create is atomic');
+select is((select count(*) from public.application_stage_occurrences),1::bigint,'create defaults to one stage');
+select is((select stage::text from public.application_stage_occurrences limit 1),'screening','create defaults to resume screening');
 select is((select count(*) from public.application_events where type='created'),1::bigint,'created event recorded');
 select is((select type::text from applications limit 1),'campus_recruitment','existing create payload defaults to campus recruitment');
 select lives_ok($$select public.add_stage_occurrence_for_owner('test-owner',(select id from applications limit 1),'screening','2026-08-05')$$,'owner stage write is atomic');
@@ -13,6 +15,6 @@ select is((select type::text from applications limit 1),'summer_internship','upd
 select lives_ok(format($sql$select public.update_application_for_owner('test-owner',%L,3,'2026-08-06','{"type":"early_campus_recruitment"}'::jsonb)$sql$,(select id from applications limit 1)),'application can use early campus recruitment type');
 select is((select type::text from applications limit 1),'early_campus_recruitment','early campus recruitment type is stored');
 select throws_ok(format($sql$select public.update_application_for_owner('other-owner',%L,4,'2026-08-06','{}'::jsonb)$sql$,(select id from applications limit 1)),'P0002','application_not_found','cross-owner update is hidden');
-select is((select count(*) from application_events where type='stage_added'),1::bigint,'stage event recorded');
+select is((select count(*) from application_events where type='stage_added'),2::bigint,'default and explicit stage events recorded');
 select * from finish();
 rollback;
