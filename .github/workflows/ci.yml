@@ -10,7 +10,7 @@ concurrency:
 
 env:
   JOB_MARKET_ENABLED: "false"
-  JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret
+  JOB_MARKET_SYNC_SECRET: ci-job-market-sync-secret-at-least-32-chars
 
 jobs:
   static:
