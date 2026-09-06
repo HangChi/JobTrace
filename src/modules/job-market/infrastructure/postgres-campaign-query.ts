@@ -87,10 +87,12 @@ export class PostgresCampaignQuery implements CampaignRepository {
         select 1 from job_market_posts post
         join job_market_source_records record on record.post_id=post.id
         join job_market_sources source on source.id=record.source_id and source.status='active'
-        where post.company_id=company.id and post.published_at::date>=${query.postedFrom ?? null}::date
+        where post.company_id=company.id and post.status<>'closed'
+          and post.published_at::date>=${query.postedFrom ?? null}::date
         union all
         select 1 from job_market_campaigns directory
         where directory.company_id=company.id and directory.listing_kind='recruitment_directory'
+          and directory.status<>'closed'
           and directory.published_at::date>=${query.postedFrom ?? null}::date
       ))
       and (${query.favorite ?? null}::boolean is not true or exists(

@@ -15,7 +15,7 @@
 
 - `promote_admin`：普通用户提升为管理员。
 - `demote_admin`：管理员降为普通用户。
-- `disable_user`：禁用当前有效账号并撤销全部 Session。
+- `disable_user`：禁用当前有效账号并撤销全部 Session；`demote_admin` 仅在 actor 与 target 相同时撤销该账号全部 Session。
 - `enable_user`：重新启用已禁用账号，不恢复旧 Session。
 
 一个命令只能包含一个动作。动作与当前状态不匹配时返回确定性冲突，不执行无变化写入。
@@ -147,7 +147,7 @@ received
                  └─ append succeeded audit
 ```
 
-自我禁用/降级成功后，目标即当前 actor，其所有 Session 在事务内删除；当前响应可以完成，但下一次受保护请求必须为未登录状态。
+自我禁用/降级成功后，目标即当前 actor，其所有 Session 在事务内删除；当前响应可以完成，但下一次受保护请求必须为未登录状态。由其他管理员执行的降级保留目标的普通用户 Session。
 
 ## State transitions
 

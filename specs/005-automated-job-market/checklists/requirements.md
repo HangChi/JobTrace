@@ -33,6 +33,6 @@
 
 - Validation iterations 1, 2, and 3 passed all checklist items.
 - Iteration 2 clarified that every valid job exposes a first-class “立即投递” action directly in the list or card, without requiring a visit to the detail view; missing or unsafe links are explicitly disabled.
-- Iteration 3 changed the primary list unit to one company recruitment activity or batch, with deduplicated job titles and locations aggregated in that record. Multiple job-specific application links remain selectable inside the same record.
+- Iteration 3 changed the primary list unit to one company record, with deduplicated job titles and locations aggregated in that record. Each company exposes one official recruitment entry; job-specific links remain traceable but are not a list selector.
 - The specification intentionally defines broad, automated coverage as an expanding set of compliant public or authorized sources instead of promising unattainable universal company coverage.
 - Source-specific integration choices are deferred to planning and research so the specification remains technology-agnostic.

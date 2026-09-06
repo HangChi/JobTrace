@@ -28,20 +28,9 @@ export class PostgresSourceCatalogRepository {
       let createdSources = 0;
       let createdDirectoryEntries = 0;
       const activeSourceIds: string[] = [];
-      const currentSourceIdentityKeys = entries.map(
-        (entry) => entry.identityKey,
-      );
       const currentDirectoryIdentityKeys = directoryEntries.map(
         (entry) => entry.identityKey,
       );
-
-      await tx`
-        update job_market_sources source set status='revoked',lease_until=null,leased_by=null,updated_at=now()
-        from job_market_companies company
-        where source.company_id=company.id
-          and company.identity_key like 'default:%'
-          and not (company.identity_key=any(${currentSourceIdentityKeys}))
-          and source.status<>'revoked'`;
 
       await tx`
         update job_market_campaigns campaign set status='closed',updated_at=now()
@@ -80,23 +69,78 @@ export class PostgresSourceCatalogRepository {
         }
 
         let [source] = await tx<Array<{ id: string; status: string }>>`
-          insert into job_market_sources(
-            company_id,adapter,external_key,base_url,allowed_hosts,is_official,
-            access_basis,status,sync_interval_minutes,next_sync_at,country_codes
-          ) values(
-            ${company.id},${entry.adapter},${entry.externalKey},${entry.baseUrl},${entry.allowedHosts},
-            true,'public','active',${entry.syncIntervalMinutes},now(),${entry.countryCodes}
-          ) on conflict(company_id,adapter,external_key) do nothing returning id,status::text`;
-        if (source) createdSources += 1;
-        else {
+          select source.id,source.status::text
+          from job_market_sources source
+          join job_market_companies existing_company on existing_company.id=source.company_id
+          where source.catalog_key=${entry.identityKey}
+            or (
+              source.catalog_key is null
+              and existing_company.normalized_name=${normalizeText(entry.companyName)}
+              and source.adapter=${entry.adapter}
+              and source.external_key=${entry.externalKey}
+            )
+          order by case when source.catalog_key=${entry.identityKey} then 0 else 1 end
+          limit 1 for update of source`;
+        if (source) {
           [source] = await tx<Array<{ id: string; status: string }>>`
             update job_market_sources set
-              base_url=${entry.baseUrl},allowed_hosts=${entry.allowedHosts},is_official=true,
-              access_basis='public',sync_interval_minutes=${entry.syncIntervalMinutes},country_codes=${entry.countryCodes},updated_at=now()
-            where company_id=${company.id} and adapter=${entry.adapter} and external_key=${entry.externalKey}
-            returning id,status::text`;
+              company_id=${company.id},catalog_key=${entry.identityKey},adapter=${entry.adapter},
+              external_key=${entry.externalKey},base_url=${entry.baseUrl},allowed_hosts=${entry.allowedHosts},
+              is_official=true,access_basis='public',sync_interval_minutes=${entry.syncIntervalMinutes},
+              country_codes=${entry.countryCodes},updated_at=now()
+            where id=${source.id} returning id,status::text`;
+        } else {
+          createdSources += 1;
+          [source] = await tx<Array<{ id: string; status: string }>>`
+            insert into job_market_sources(
+              company_id,catalog_key,adapter,external_key,base_url,allowed_hosts,is_official,
+              access_basis,status,sync_interval_minutes,next_sync_at,country_codes
+            ) values(
+              ${company.id},${entry.identityKey},${entry.adapter},${entry.externalKey},${entry.baseUrl},${entry.allowedHosts},
+              true,'public','active',${entry.syncIntervalMinutes},now(),${entry.countryCodes}
+            ) returning id,status::text`;
         }
         if (source.status === "active") activeSourceIds.push(source.id);
+      }
+
+      const sourceCatalogPayload = entries.map((entry) => ({
+        identity_key: entry.identityKey,
+        normalized_name: normalizeText(entry.companyName),
+        adapter: entry.adapter,
+        external_key: entry.externalKey,
+      }));
+      const [obsolete] = await tx<Array<{ ids: string[]; runIds: string[] }>>`
+        with input as (
+          select * from jsonb_to_recordset(${tx.json(sourceCatalogPayload as never)}::jsonb) as value(
+            identity_key text,normalized_name text,adapter job_market_source_adapter,external_key text
+          )
+        ), obsolete as (
+          select source.id,source.lease_run_id
+          from job_market_sources source
+          join job_market_companies company on company.id=source.company_id
+          where (
+            source.catalog_key is not null
+            and not exists(select 1 from input where input.identity_key=source.catalog_key)
+          ) or (
+            source.catalog_key is null
+            and company.identity_key like 'default:%'
+            and not exists(
+              select 1 from input where input.normalized_name=company.normalized_name
+                and input.adapter=source.adapter and input.external_key=source.external_key
+            )
+          )
+        )
+        select coalesce(array_agg(id),'{}') ids,
+          coalesce(array_agg(lease_run_id) filter(where lease_run_id is not null),'{}') as run_ids
+        from obsolete`;
+      if (obsolete.runIds.length) {
+        await tx`update job_market_sync_runs set status='failed',finished_at=greatest(started_at,now()),
+          error_code='source_disabled',error_summary='The source was removed from the default catalog.'
+          where id=any(${obsolete.runIds}::uuid[]) and status='running'`;
+      }
+      if (obsolete.ids.length) {
+        await tx`update job_market_sources set status='revoked',lease_until=null,leased_by=null,
+          lease_run_id=null,updated_at=now() where id=any(${obsolete.ids}::uuid[])`;
       }
 
       if (directoryEntries.length) {
@@ -185,7 +229,11 @@ export class PostgresSourceCatalogRepository {
       }
 
       return {
-        companyCount: entries.length + directoryEntries.length,
+        companyCount: new Set(
+          [...entries, ...directoryEntries].map((entry) =>
+            normalizeText(entry.companyName),
+          ),
+        ).size,
         sourceCount: entries.length,
         createdCompanies,
         createdSources,

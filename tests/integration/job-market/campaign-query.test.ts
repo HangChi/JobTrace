@@ -22,8 +22,8 @@ test("campaign query aggregates child positions and locations while combining fi
   const [socialCampaign] = await sql<
     Array<{ id: string }>
   >`insert into job_market_campaigns(company_id,campaign_key,name,recruitment_type,last_confirmed_at) values(${company.id},'query-social','Social Hiring','social',now()) returning id`;
-  await sql`insert into job_market_campaigns(company_id,campaign_key,name,recruitment_type,status,official_apply_url,listing_kind)
-    values(${company.id},'directory:obsolete','Obsolete Directory','招聘官网','closed','https://old.example.com','recruitment_directory')`;
+  await sql`insert into job_market_campaigns(company_id,campaign_key,name,recruitment_type,status,official_apply_url,listing_kind,published_at)
+    values(${company.id},'directory:obsolete','Obsolete Directory','招聘官网','closed','https://old.example.com','recruitment_directory','2026-09-03')`;
   const [a, b, c] = await sql<
     Array<{ id: string }>
   >`insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash,primary_apply_url,published_at) values
@@ -96,6 +96,19 @@ test("campaign query aggregates child positions and locations while combining fi
       limit: 20,
     });
     expect(closedSearch.total).toBe(0);
+    const closedPostedFrom = await repo.list(owner, {
+      postedFrom: "2026-09-03",
+      page: 1,
+      limit: 20,
+    });
+    expect(closedPostedFrom.total).toBe(0);
+    await sql`update job_market_posts set status='stale',published_at='2026-09-03' where id=${a.id}`;
+    const stalePostedFrom = await repo.list(owner, {
+      postedFrom: "2026-09-03",
+      page: 1,
+      limit: 20,
+    });
+    expect(stalePostedFrom.total).toBe(1);
     await sql`update job_market_sources set status='revoked' where id=${source.id}`;
     const hidden = await repo.list(owner, { page: 1, limit: 20 });
     expect(hidden).toMatchObject({ total: 0, items: [] });
