@@ -12,7 +12,8 @@ select fk_ok('public','application_stage_occurrences','application_id','public',
 select has_index('public','applications','applications_search_idx','trigram search index exists');
 select has_index('public','applications','applications_filter_idx','filter index exists');
 select has_index('public','import_batches','import_batches_expiry_idx','expiry index exists');
-select throws_ok($$insert into public.applications(company_name,position_name,applied_date,latest_date) values('','x',current_date,current_date)$$,'23514');
+insert into public.users(id,display_name,email) values ('schema-owner','Schema Owner','schema-owner@example.test');
+select throws_ok($$insert into public.applications(owner_id,company_name,position_name,applied_date,latest_date) values('schema-owner','','x',current_date,current_date)$$,'23514');
 select ok((select relrowsecurity from pg_class where oid='public.applications'::regclass),'applications RLS enabled');
 select ok((select relrowsecurity from pg_class where oid='public.import_rows'::regclass),'import rows RLS enabled');
 select * from finish();

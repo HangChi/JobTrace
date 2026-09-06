@@ -14,6 +14,6 @@ select has_index('public','interview_questions','interview_questions_search_idx'
 select ok((select relrowsecurity from pg_class where oid='public.interview_reviews'::regclass),'review RLS enabled');
 select ok((select relrowsecurity from pg_class where oid='public.interview_questions'::regclass),'question RLS enabled');
 select ok((select relrowsecurity from pg_class where oid='public.interview_action_items'::regclass),'action RLS enabled');
-select throws_ok($$insert into public.interview_reviews(owner_id,application_id,stage_snapshot,interviewed_on) values('missing',gen_random_uuid(),'written_test',current_date)$$,'23503');
+select throws_ok($$insert into public.interview_reviews(owner_id,application_id,stage_snapshot,interviewed_on) values('missing',gen_random_uuid(),'assessment',current_date)$$,'23503');
 select * from finish();
 rollback;
