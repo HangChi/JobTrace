@@ -2,7 +2,7 @@ begin;
 select plan(13);
 
 select has_column('public','users','access_version','users expose access version');
-select col_default_is('public','users','access_version','1::bigint','access version starts at one');
+select col_default_is('public','users','access_version',1::bigint,'access version starts at one');
 select col_not_null('public','users','access_version','access version is required');
 select has_column('public','admin_audit_events','request_id','audit has idempotency key');
 select has_column('public','admin_audit_events','request_fingerprint','audit has request fingerprint');
