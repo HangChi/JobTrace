@@ -12,7 +12,7 @@ select has_column('public','import_batches','owner_id','batches have owner');
 select function_returns('public','assert_application_owner',array['text','uuid'],'void','owner assertion exists');
 select col_not_null('public','applications','owner_id','application owner is required');
 select col_not_null('public','import_batches','owner_id','batch owner is required');
-select col_default_is('public','users','role','''user''::text','new users default to user');
+select col_default_is('public','users','role','user'::text,'new users default to user');
 insert into users(id,display_name,email,role) values ('admin-a','Admin A','admin-a@example.test','admin'),('user-a','User A','user-a@example.test','user');
 select lives_ok($$select update_user_access_as('admin-a','user-a','admin',false)$$,'admin can promote user');
 select is((select count(*) from admin_audit_events where event_type='promote_admin'),1::bigint,'role change is audited');

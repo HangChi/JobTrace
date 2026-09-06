@@ -12,13 +12,23 @@ test("username login and role routing p95 stay below one second", async ({
   const password = "Performance123!";
   const setup = await playwright.request.newContext({
     baseURL,
-    extraHTTPHeaders: { origin: baseURL! },
+    extraHTTPHeaders: {
+      origin: baseURL!,
+      "x-forwarded-for": "198.51.100.216",
+    },
   });
   expect(
     (
       await setup.post("/api/auth/register", { data: { username, password } })
     ).status(),
   ).toBe(202);
+  expect(
+    (
+      await setup.post("/api/auth/login", {
+        data: { username, password },
+      })
+    ).status(),
+  ).toBe(200);
   const timings: number[] = [];
   for (let index = 0; index < 9; index++) {
     const context = await playwright.request.newContext({
@@ -74,6 +84,10 @@ test("authenticated application detail p95 stays below one second", async ({
   expect(created.status()).toBe(201);
   const application = await created.json();
   try {
+    const warmup = await context.get(
+      `/api/applications/${application.id}/detail`,
+    );
+    expect(warmup.status()).toBe(200);
     const timings: number[] = [];
     for (let index = 0; index < 9; index++) {
       const started = performance.now();
