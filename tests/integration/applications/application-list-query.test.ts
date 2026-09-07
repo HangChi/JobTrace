@@ -21,12 +21,14 @@ test("部分匹配、组合筛选和游标跨页稳定", async ({ request }) => 
       )
     ).json();
     expect(first.items).toHaveLength(2);
+    expect(first.total).toBe(3);
     expect(first.nextCursor).toEqual(expect.any(String));
     const second = await (
       await request.get(
         `/api/applications?q=Target&status=submitted&city=上海&sort=appliedDate&direction=asc&limit=2&cursor=${encodeURIComponent(first.nextCursor)}`,
       )
     ).json();
+    expect(second.total).toBe(3);
     const combined = [...first.items, ...second.items].map(
       (item: { id: string }) => item.id,
     );
@@ -34,6 +36,14 @@ test("部分匹配、组合筛选和游标跨页稳定", async ({ request }) => 
     expect(combined).toEqual(
       expect.arrayContaining(ids.filter((_, index) => index % 2 === 0)),
     );
+
+    const emptyDeepPage = await (
+      await request.get(
+        "/api/applications?q=Target&status=submitted&city=%E4%B8%8A%E6%B5%B7&sort=appliedDate&direction=asc&limit=2&page=99",
+      )
+    ).json();
+    expect(emptyDeepPage.items).toEqual([]);
+    expect(emptyDeepPage.total).toBe(3);
   } finally {
     for (const id of ids) await request.delete(`/api/applications/${id}`);
   }

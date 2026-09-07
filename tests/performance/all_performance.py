@@ -12,3 +12,4 @@ if __name__ == "__main__":
     subprocess.run(
         ["node", "tests/performance/job-market-performance.ts"], check=True
     )
+    subprocess.run(["pnpm", "performance:repositories:raw"], check=True)

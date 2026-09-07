@@ -44,6 +44,7 @@ test("campaign query aggregates child positions and locations while combining fi
     (${source.id},'a',${a.id},${"a".repeat(64)}),
     (${source.id},'b',${b.id},${"b".repeat(64)}),
     (${source.id},'c',${c.id},${"c".repeat(64)})`;
+  await sql`select public.refresh_job_market_company_read_model(${company.id})`;
   const repo = new PostgresCampaignQuery();
   try {
     const result = await repo.list(owner, {
@@ -81,6 +82,7 @@ test("campaign query aggregates child positions and locations while combining fi
       "https://company.example.com/careers",
     );
     await sql`update job_market_posts set status='closed' where id=${b.id}`;
+    await sql`select public.refresh_job_market_company_read_model(${company.id})`;
     const withoutClosed = await repo.list(owner, { page: 1, limit: 20 });
     expect(withoutClosed.items[0].positions).toEqual([
       "Frontend Engineer",
@@ -103,6 +105,7 @@ test("campaign query aggregates child positions and locations while combining fi
     });
     expect(closedPostedFrom.total).toBe(0);
     await sql`update job_market_posts set status='stale',published_at='2026-09-03' where id=${a.id}`;
+    await sql`select public.refresh_job_market_company_read_model(${company.id})`;
     const stalePostedFrom = await repo.list(owner, {
       postedFrom: "2026-09-03",
       page: 1,
@@ -110,6 +113,7 @@ test("campaign query aggregates child positions and locations while combining fi
     });
     expect(stalePostedFrom.total).toBe(1);
     await sql`update job_market_posts set status='closed' where company_id=${company.id}`;
+    await sql`select public.refresh_job_market_company_read_model(${company.id})`;
     const closedCompany = await repo.list(owner, { page: 1, limit: 20 });
     expect(closedCompany).toMatchObject({ total: 0, items: [] });
     const closedFilter = await repo.list(owner, {
@@ -158,6 +162,7 @@ test("campaign query aggregates child positions and locations while combining fi
       ],
     });
     await sql`update job_market_sources set status='revoked' where id=${source.id}`;
+    await sql`select public.refresh_job_market_company_read_model(${company.id})`;
     const hidden = await repo.list(owner, { page: 1, limit: 20 });
     expect(hidden).toMatchObject({ total: 0, items: [] });
   } finally {

@@ -151,14 +151,8 @@ export class PostgresInterviewRepository implements InterviewRepository {
     query: InterviewListQuery,
   ): Promise<InterviewPage> {
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
-    const rows = await this.sql<Row[]>`
-      select r.*,a.company_name,a.position_name,count(*) over() total_count,
-        coalesce(s.stage,r.stage_snapshot) as display_stage,
-        (select count(*) from interview_questions q where q.interview_review_id=r.id) question_count,
-        (select count(*) from interview_action_items i where i.interview_review_id=r.id) action_count
-      from interview_reviews r join applications a on a.id=r.application_id
-      left join application_stage_occurrences s on s.id=r.stage_occurrence_id
-      where r.owner_id=${ownerId}
+    const filters = this.sql`
+      r.owner_id=${ownerId}
         ${query.applicationId ? this.sql`and r.application_id=${query.applicationId}` : this.sql``}
         ${query.q ? this.sql`and (lower(a.company_name||' '||a.position_name) like ${`%${query.q.toLowerCase()}%`} or exists(select 1 from interview_questions q where q.interview_review_id=r.id and lower(q.question) like ${`%${query.q.toLowerCase()}%`}))` : this.sql``}
         ${query.status.length ? this.sql`and r.status=any(${query.status}::review_status[])` : this.sql``}
@@ -166,17 +160,44 @@ export class PostgresInterviewRepository implements InterviewRepository {
         ${query.result.length ? this.sql`and r.round_result=any(${query.result}::round_result[])` : this.sql``}
         ${query.interviewedFrom ? this.sql`and r.interviewed_on>=${query.interviewedFrom}::date` : this.sql``}
         ${query.interviewedTo ? this.sql`and r.interviewed_on<=${query.interviewedTo}::date` : this.sql``}
-        ${cursor ? this.sql`and (r.interviewed_on,r.id)<(${cursor.value}::date,${cursor.id}::uuid)` : this.sql``}
-      order by r.interviewed_on desc,r.id desc limit ${query.limit + 1}
     `;
-    const items = rows.slice(0, query.limit).map(mapSummary);
-    const last = rows[query.limit - 1];
+    const rows = await this.sql<Row[]>`
+      select selected.*, totals.total_count,
+        counts.question_count, counts.action_count
+      from (
+        select count(*)::int as total_count
+        from interview_reviews r
+        join applications a on a.id=r.application_id
+        left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+        where ${filters}
+      ) totals
+      left join lateral (
+        select r.*,a.company_name,a.position_name,
+          coalesce(s.stage,r.stage_snapshot) as display_stage
+        from interview_reviews r
+        join applications a on a.id=r.application_id
+        left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+        where ${filters}
+          ${cursor ? this.sql`and (r.interviewed_on,r.id)<(${cursor.value}::date,${cursor.id}::uuid)` : this.sql``}
+        order by r.interviewed_on desc,r.id desc
+        limit ${query.limit + 1}
+      ) selected on true
+      left join lateral (
+        select
+          (select count(*)::int from interview_questions q where q.interview_review_id=selected.id) question_count,
+          (select count(*)::int from interview_action_items i where i.interview_review_id=selected.id) action_count
+      ) counts on selected.id is not null
+      order by selected.interviewed_on desc,selected.id desc
+    `;
+    const dataRows = rows.filter((row) => row.id);
+    const items = dataRows.slice(0, query.limit).map(mapSummary);
+    const last = dataRows[query.limit - 1];
     return {
       items,
       total: Number(rows[0]?.totalCount ?? 0),
       limit: query.limit,
       nextCursor:
-        rows.length > query.limit && last
+        dataRows.length > query.limit && last
           ? encodeCursor({
               value: dateOnly(last.interviewedOn),
               id: String(last.id),

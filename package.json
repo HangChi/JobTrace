@@ -32,6 +32,7 @@
     "e2e": "uv run --python 3.12 --cache-dir .uv-cache --with psycopg[binary]==3.2.9 python scripts/run_with_temp_database.py pnpm e2e:raw",
     "performance:raw": "uv run --python 3.12 --cache-dir .uv-cache --with psycopg[binary]==3.2.9 python tests/performance/all_performance.py",
     "performance:auth:raw": "playwright test --config playwright.performance.config.ts",
+    "performance:repositories:raw": "node tests/performance/repository-performance.ts",
     "performance": "uv run --python 3.12 --cache-dir .uv-cache --with psycopg[binary]==3.2.9 python scripts/run_with_temp_database.py pnpm performance:raw",
     "performance:auth": "uv run --python 3.12 --cache-dir .uv-cache --with psycopg[binary]==3.2.9 python scripts/run_with_temp_database.py pnpm performance:auth:raw",
     "lighthouse": "lhci autorun"

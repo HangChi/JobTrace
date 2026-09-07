@@ -4,10 +4,22 @@ import type { AnalyticsResolvedRange } from "../application/contracts";
 import type { ReportAggregateData } from "../application/report-rules";
 
 type DbRecord = Record<string, unknown>;
+type AggregateRangeResult = {
+  data: ReportAggregateData;
+  availableCities: string[];
+};
 
 function dateOnly(value: unknown) {
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   return String(value).slice(0, 10);
+}
+
+function records(value: unknown): DbRecord[] {
+  return Array.isArray(value) ? (value as DbRecord[]) : [];
+}
+
+function field(record: DbRecord, camelName: string, snakeName = camelName) {
+  return record[camelName] ?? record[snakeName];
 }
 
 async function fetchAggregateRange(
@@ -16,227 +28,221 @@ async function fetchAggregateRange(
   from: string | undefined,
   to: string | undefined,
   includeDetails: boolean,
-): Promise<ReportAggregateData> {
+  includeCities: boolean,
+): Promise<AggregateRangeResult> {
   const sql = createServerDatabase();
   const type = query.type ?? null;
   const city = query.city ?? "";
-  const metricsQuery = sql<DbRecord[]>`
-    with cohort as (
-      select
-        a.id,
-        a.applied_date,
-        a.status::text as status,
-        exists(
-          select 1 from public.application_stage_occurrences s
-          where s.application_id = a.id and s.stage in (
-            'interview_1', 'interview_2', 'interview_3',
-            'hr_interview', 'final_interview'
-          )
-        ) as interviewed,
-        exists(
-          select 1 from public.application_stage_occurrences s
-          where s.application_id = a.id and s.stage = 'final_interview'
-        ) as final_interview,
-        (
-          select min(s.occurred_on)
-          from public.application_stage_occurrences s
-          where s.application_id = a.id and s.stage in (
-            'interview_1', 'interview_2', 'interview_3',
-            'hr_interview', 'final_interview'
-          )
-        ) as first_interview_on
+  const [row] = await sql<DbRecord[]>`
+    with base_applications as materialized (
+      select a.id, a.applied_date, a.status::text, a.type::text, coalesce(a.city, '') as city
       from public.applications a
       where a.owner_id = ${ownerId}
         and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
         and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
         and (${type}::text is null or a.type::text = ${type}::text)
         and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
+    ),
+    stage_facts as (
+      select
+        s.application_id,
+        bool_or(s.stage in ('interview_1', 'interview_2', 'interview_3', 'hr_interview', 'final_interview')) as interviewed,
+        bool_or(s.stage = 'final_interview') as final_interview,
+        min(s.occurred_on) filter(where s.stage in ('interview_1', 'interview_2', 'interview_3', 'hr_interview', 'final_interview')) as first_interview_on,
+        array_agg(distinct s.stage) as stages
+      from public.application_stage_occurrences s
+      join base_applications a on a.id = s.application_id
+      group by s.application_id
+    ),
+    cohort as materialized (
+      select
+        a.*,
+        coalesce(sf.interviewed, false) as interviewed,
+        coalesce(sf.final_interview, false) as final_interview,
+        sf.first_interview_on,
+        coalesce(sf.stages, array[]::public.recruitment_stage[]) as stages
+      from base_applications a
+      left join stage_facts sf on sf.application_id = a.id
+    ),
+    metrics as (
+      select
+        count(*)::int as applications,
+        count(*) filter(where interviewed)::int as interviewed,
+        count(*) filter(where status = 'offer')::int as offers,
+        count(*) filter(where final_interview)::int as final_interviews,
+        count(*) filter(where status = 'offer' and interviewed and final_interview)::int as path_offers,
+        percentile_cont(0.5) within group(order by first_interview_on - applied_date)
+          filter(where first_interview_on is not null) as median_days_to_first_interview,
+        count(*) filter(where status = 'offer' and not interviewed)::int as offers_without_interview,
+        count(*) filter(where status = 'offer' and interviewed and not final_interview)::int as offers_without_final
+      from cohort
+    ),
+    review_metrics as (
+      select
+        count(r.id)::int as total,
+        count(r.id) filter(where r.status = 'completed')::int as completed,
+        count(r.id) filter(where r.round_result in ('passed', 'failed'))::int as resolved,
+        count(r.id) filter(where r.round_result = 'passed')::int as passed
+      from cohort c
+      left join public.interview_reviews r
+        on r.application_id = c.id and r.owner_id = ${ownerId}
     )
     select
-      count(*)::int as applications,
-      count(*) filter(where interviewed)::int as interviewed,
-      count(*) filter(where status = 'offer')::int as offers,
-      count(*) filter(where final_interview)::int as final_interviews,
-      count(*) filter(where status = 'offer' and interviewed and final_interview)::int as path_offers,
-      percentile_cont(0.5) within group(
-        order by first_interview_on - applied_date
-      ) filter(where first_interview_on is not null) as median_days_to_first_interview,
-      count(*) filter(where status = 'offer' and not interviewed)::int as offers_without_interview,
-      count(*) filter(where status = 'offer' and interviewed and not final_interview)::int as offers_without_final
-    from cohort
-  `;
-  const reviewMetricsQuery = sql<DbRecord[]>`
-    select
-      count(r.id)::int as total,
-      count(r.id) filter(where r.status = 'completed')::int as completed,
-      count(r.id) filter(where r.round_result in ('passed', 'failed'))::int as resolved,
-      count(r.id) filter(where r.round_result = 'passed')::int as passed
-    from public.applications a
-    left join public.interview_reviews r
-      on r.application_id = a.id and r.owner_id = a.owner_id
-    where a.owner_id = ${ownerId}
-      and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
-      and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
-      and (${type}::text is null or a.type::text = ${type}::text)
-      and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
-  `;
-  const empty = Promise.resolve([] as DbRecord[]);
-  const trendQuery = includeDetails
-    ? sql<DbRecord[]>`
-        select
-          case when ${query.granularity} = 'week'
-            then date_trunc('week', a.applied_date)::date
-            else date_trunc('month', a.applied_date)::date
-          end as period_start,
-          count(*)::int as applications,
-          count(*) filter(where exists(
-            select 1 from public.application_stage_occurrences s
-            where s.application_id = a.id and s.stage in (
-              'interview_1', 'interview_2', 'interview_3',
-              'hr_interview', 'final_interview'
-            )
-          ))::int as interviewed,
-          count(*) filter(where a.status = 'offer')::int as offers
-        from public.applications a
-        where a.owner_id = ${ownerId}
-          and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
-          and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
-          and (${type}::text is null or a.type::text = ${type}::text)
-          and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
-        group by period_start order by period_start
-      `
-    : empty;
-  const stageQuery = includeDetails
-    ? sql<DbRecord[]>`
-        select s.stage::text as stage, count(distinct a.id)::int as count
-        from public.applications a
-        join public.application_stage_occurrences s on s.application_id = a.id
-        where a.owner_id = ${ownerId}
-          and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
-          and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
-          and (${type}::text is null or a.type::text = ${type}::text)
-          and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
-        group by s.stage
-      `
-    : empty;
-  const dimensionQuery = (dimension: "type" | "city") =>
-    includeDetails
-      ? sql<DbRecord[]>`
+      to_jsonb(metrics.*) as metrics,
+      to_jsonb(review_metrics.*) as review_metrics,
+      case when ${includeDetails} then coalesce((
+        select jsonb_agg(to_jsonb(t.*) order by t.period_start)
+        from (
           select
-            ${dimension === "type" ? sql`a.type::text` : sql`coalesce(a.city, '')`} as key,
+            case when ${query.granularity} = 'week'
+              then date_trunc('week', applied_date)::date
+              else date_trunc('month', applied_date)::date
+            end as period_start,
             count(*)::int as applications,
-            count(*) filter(where exists(
-              select 1 from public.application_stage_occurrences s
-              where s.application_id = a.id and s.stage in (
-                'interview_1', 'interview_2', 'interview_3',
-                'hr_interview', 'final_interview'
-              )
-            ))::int as interviewed,
-            count(*) filter(where a.status = 'offer')::int as offers
-          from public.applications a
-          where a.owner_id = ${ownerId}
-            and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
-            and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
-            and (${type}::text is null or a.type::text = ${type}::text)
-            and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
-          group by key
-        `
-      : empty;
-  const reviewsByStageQuery = includeDetails
-    ? sql<DbRecord[]>`
-        select
-          r.stage_snapshot::text as stage,
-          count(*)::int as total,
-          count(*) filter(where r.round_result = 'pending')::int as pending,
-          count(*) filter(where r.round_result = 'passed')::int as passed,
-          count(*) filter(where r.round_result = 'failed')::int as failed
-        from public.interview_reviews r
-        join public.applications a
-          on a.id = r.application_id and a.owner_id = r.owner_id
-        where r.owner_id = ${ownerId}
-          and (${from ?? null}::date is null or a.applied_date >= ${from ?? null}::date)
-          and (${to ?? null}::date is null or a.applied_date <= ${to ?? null}::date)
-          and (${type}::text is null or a.type::text = ${type}::text)
-          and (${query.hasCityFilter} = false or coalesce(a.city, '') = ${city})
-        group by r.stage_snapshot
-      `
-    : empty;
+            count(*) filter(where interviewed)::int as interviewed,
+            count(*) filter(where status = 'offer')::int as offers
+          from cohort
+          group by period_start
+        ) t
+      ), '[]'::jsonb) else '[]'::jsonb end as trend,
+      case when ${includeDetails} then coalesce((
+        select jsonb_agg(to_jsonb(s.*) order by s.stage)
+        from (
+          select stage::text, count(*)::int as count
+          from cohort c cross join lateral unnest(c.stages) stage
+          group by stage
+        ) s
+      ), '[]'::jsonb) else '[]'::jsonb end as stage_rows,
+      case when ${includeDetails} then coalesce((
+        select jsonb_agg(to_jsonb(d.*) order by d.key)
+        from (
+          select type as key, count(*)::int as applications,
+            count(*) filter(where interviewed)::int as interviewed,
+            count(*) filter(where status = 'offer')::int as offers
+          from cohort group by type
+        ) d
+      ), '[]'::jsonb) else '[]'::jsonb end as type_rows,
+      case when ${includeDetails} then coalesce((
+        select jsonb_agg(to_jsonb(d.*) order by d.key)
+        from (
+          select city as key, count(*)::int as applications,
+            count(*) filter(where interviewed)::int as interviewed,
+            count(*) filter(where status = 'offer')::int as offers
+          from cohort group by city
+        ) d
+      ), '[]'::jsonb) else '[]'::jsonb end as city_rows,
+      case when ${includeDetails} then coalesce((
+        select jsonb_agg(to_jsonb(r.*) order by r.stage)
+        from (
+          select reviews.stage_snapshot::text as stage, count(*)::int as total,
+            count(*) filter(where reviews.round_result = 'pending')::int as pending,
+            count(*) filter(where reviews.round_result = 'passed')::int as passed,
+            count(*) filter(where reviews.round_result = 'failed')::int as failed
+          from cohort c
+          join public.interview_reviews reviews
+            on reviews.application_id = c.id and reviews.owner_id = ${ownerId}
+          group by reviews.stage_snapshot
+        ) r
+      ), '[]'::jsonb) else '[]'::jsonb end as review_stage_rows,
+      case when ${includeCities} then coalesce((
+        select jsonb_agg(city order by city)
+        from (
+          select distinct city
+          from public.applications
+          where owner_id = ${ownerId} and city is not null and trim(city) <> ''
+        ) cities
+      ), '[]'::jsonb) else '[]'::jsonb end as available_cities
+    from metrics cross join review_metrics
+  `;
+  const metrics = row.metrics as DbRecord;
+  const reviewMetrics = row.reviewMetrics as DbRecord;
+  const trendRows = records(row.trend);
+  const stageRows = records(row.stageRows);
+  const typeRows = records(row.typeRows);
+  const cityRows = records(row.cityRows);
+  const reviewStageRows = records(row.reviewStageRows);
 
-  const [
-    [metrics],
-    [reviewMetrics],
-    trendRows,
-    stageRows,
-    typeRows,
-    cityRows,
-    reviewStageRows,
-  ] = await Promise.all([
-    metricsQuery,
-    reviewMetricsQuery,
-    trendQuery,
-    stageQuery,
-    dimensionQuery("type"),
-    dimensionQuery("city"),
-    reviewsByStageQuery,
-  ]);
   return {
-    metrics: {
-      applications: Number(metrics.applications),
-      interviewed: Number(metrics.interviewed),
-      offers: Number(metrics.offers),
-      finalInterviews: Number(metrics.finalInterviews),
-      pathOffers: Number(metrics.pathOffers),
-      medianDaysToFirstInterview:
-        metrics.medianDaysToFirstInterview === null
-          ? null
-          : Number(metrics.medianDaysToFirstInterview),
-      offersWithoutInterview: Number(metrics.offersWithoutInterview),
-      offersWithoutFinal: Number(metrics.offersWithoutFinal),
-    },
-    reviewMetrics: {
-      total: Number(reviewMetrics.total),
-      completed: Number(reviewMetrics.completed),
-      resolved: Number(reviewMetrics.resolved),
-      passed: Number(reviewMetrics.passed),
-    },
-    trend: trendRows.map((row) => {
-      const periodStart = dateOnly(row.periodStart);
-      return {
-        periodStart,
-        label: format(
-          new Date(`${periodStart}T12:00:00Z`),
-          query.granularity === "week" ? "MM/dd" : "yyyy/MM",
+    data: {
+      metrics: {
+        applications: Number(field(metrics, "applications")),
+        interviewed: Number(field(metrics, "interviewed")),
+        offers: Number(field(metrics, "offers")),
+        finalInterviews: Number(
+          field(metrics, "finalInterviews", "final_interviews"),
         ),
-        applications: Number(row.applications),
-        interviewed: Number(row.interviewed),
-        offers: Number(row.offers),
-      };
-    }),
-    stageReach: stageRows.map((row) => ({
-      stage: row.stage as never,
-      count: Number(row.count),
-    })),
-    typeBreakdown: typeRows.map((row) => ({
-      key: row.key as never,
-      applications: Number(row.applications),
-      interviewed: Number(row.interviewed),
-      offers: Number(row.offers),
-    })),
-    cityBreakdown: cityRows.map((row) => ({
-      key: String(row.key),
-      applications: Number(row.applications),
-      interviewed: Number(row.interviewed),
-      offers: Number(row.offers),
-    })),
-    reviewsByStage: reviewStageRows.map((row) => ({
-      stage: row.stage as never,
-      total: Number(row.total),
-      results: {
-        pending: Number(row.pending),
-        passed: Number(row.passed),
-        failed: Number(row.failed),
+        pathOffers: Number(field(metrics, "pathOffers", "path_offers")),
+        medianDaysToFirstInterview:
+          field(
+            metrics,
+            "medianDaysToFirstInterview",
+            "median_days_to_first_interview",
+          ) === null
+            ? null
+            : Number(
+                field(
+                  metrics,
+                  "medianDaysToFirstInterview",
+                  "median_days_to_first_interview",
+                ),
+              ),
+        offersWithoutInterview: Number(
+          field(metrics, "offersWithoutInterview", "offers_without_interview"),
+        ),
+        offersWithoutFinal: Number(
+          field(metrics, "offersWithoutFinal", "offers_without_final"),
+        ),
       },
-    })),
+      reviewMetrics: {
+        total: Number(reviewMetrics.total),
+        completed: Number(reviewMetrics.completed),
+        resolved: Number(reviewMetrics.resolved),
+        passed: Number(reviewMetrics.passed),
+      },
+      trend: trendRows.map((trendRow) => {
+        const periodStart = dateOnly(
+          field(trendRow, "periodStart", "period_start"),
+        );
+        return {
+          periodStart,
+          label: format(
+            new Date(`${periodStart}T12:00:00Z`),
+            query.granularity === "week" ? "MM/dd" : "yyyy/MM",
+          ),
+          applications: Number(trendRow.applications),
+          interviewed: Number(trendRow.interviewed),
+          offers: Number(trendRow.offers),
+        };
+      }),
+      stageReach: stageRows.map((stageRow) => ({
+        stage: stageRow.stage as never,
+        count: Number(stageRow.count),
+      })),
+      typeBreakdown: typeRows.map((dimensionRow) => ({
+        key: dimensionRow.key as never,
+        applications: Number(dimensionRow.applications),
+        interviewed: Number(dimensionRow.interviewed),
+        offers: Number(dimensionRow.offers),
+      })),
+      cityBreakdown: cityRows.map((dimensionRow) => ({
+        key: String(dimensionRow.key),
+        applications: Number(dimensionRow.applications),
+        interviewed: Number(dimensionRow.interviewed),
+        offers: Number(dimensionRow.offers),
+      })),
+      reviewsByStage: reviewStageRows.map((stageRow) => ({
+        stage: stageRow.stage as never,
+        total: Number(stageRow.total),
+        results: {
+          pending: Number(stageRow.pending),
+          passed: Number(stageRow.passed),
+          failed: Number(stageRow.failed),
+        },
+      })),
+    },
+    availableCities: Array.isArray(row.availableCities)
+      ? row.availableCities.map(String)
+      : [],
   };
 }
 
@@ -244,9 +250,8 @@ export async function fetchAnalyticsReportData(
   ownerId: string,
   query: AnalyticsResolvedRange,
 ) {
-  const sql = createServerDatabase();
-  const [current, previous, cityRows] = await Promise.all([
-    fetchAggregateRange(ownerId, query, query.from, query.to, true),
+  const [current, previous] = await Promise.all([
+    fetchAggregateRange(ownerId, query, query.from, query.to, true, true),
     query.comparisonFrom && query.comparisonTo
       ? fetchAggregateRange(
           ownerId,
@@ -254,18 +259,13 @@ export async function fetchAnalyticsReportData(
           query.comparisonFrom,
           query.comparisonTo,
           false,
+          false,
         )
       : Promise.resolve(undefined),
-    sql<DbRecord[]>`
-      select distinct city
-      from public.applications
-      where owner_id = ${ownerId} and city is not null and trim(city) <> ''
-      order by city
-    `,
   ]);
   return {
-    current,
-    previous,
-    availableCities: cityRows.map((row) => String(row.city)),
+    current: current.data,
+    previous: previous?.data,
+    availableCities: current.availableCities,
   };
 }

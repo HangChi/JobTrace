@@ -1,5 +1,5 @@
 begin;
-select plan(27);
+select plan(33);
 select has_table('public','job_market_companies','job market companies exist');
 select has_table('public','job_market_sources','job market sources exist');
 select has_column('public','job_market_sources','lease_run_id','source leases are fenced by sync run');
@@ -11,6 +11,11 @@ select has_table('public','job_market_sync_runs','sync audit exists');
 select has_table('public','job_market_events','explanation events exist');
 select has_table('public','job_market_campaign_favorites','favorites exist');
 select has_table('public','application_job_market_links','private application links exist');
+select has_table('public','job_market_company_read_models','company browse read model exists');
+select col_is_pk('public','job_market_company_read_models',array['company_id','include_closed'],'read model stores both visibility modes');
+select has_function('public','refresh_job_market_company_read_model',array['uuid'],'one company projection can be rebuilt');
+select has_function('public','rebuild_job_market_company_read_models',array[]::text[],'all company projections can be rebuilt');
+select has_index('public','job_market_company_read_models','job_market_company_read_model_browse_idx','read model browse index exists');
 select has_table('public','job_market_source_candidates','source discovery candidates exist');
 select has_column('public','job_market_source_candidates','review_status','candidates require review');
 select has_index('public','job_market_source_candidates','job_market_source_candidate_review_idx','candidate review index exists');
@@ -27,5 +32,6 @@ select has_index('public','job_market_sources','job_market_source_company_status
 select has_index('public','application_job_market_links','application_job_market_owner_idx','private link owner index exists');
 select ok((select relrowsecurity from pg_class where oid='public.job_market_campaign_favorites'::regclass),'favorites enable RLS');
 select ok((select relrowsecurity from pg_class where oid='public.application_job_market_links'::regclass),'application links enable RLS');
+select ok((select relrowsecurity from pg_class where oid='public.job_market_company_read_models'::regclass),'read model enables RLS');
 select * from finish();
 rollback;
