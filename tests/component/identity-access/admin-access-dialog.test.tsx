@@ -8,6 +8,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 const user = {
   id: "user-1",
   username: "target-user",
+  email: "target@example.test",
   internalEmail: "target@example.test",
   role: "user" as const,
   disabled: false,

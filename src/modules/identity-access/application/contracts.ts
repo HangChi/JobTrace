@@ -35,6 +35,7 @@ export type AccountAccessState = {
 export type ManagedUserSummary = AccountAccessState & {
   id: string;
   username: string;
+  email: string;
   internalEmail: string;
   createdAt: string;
   lastSignInAt: string | null;

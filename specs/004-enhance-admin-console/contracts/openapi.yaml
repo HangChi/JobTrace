@@ -156,10 +156,11 @@ components:
     ManagedUserSummary:
       type: object
       additionalProperties: false
-      required: [id, username, internalEmail, role, disabled, accessVersion, createdAt, lastSignInAt, applicationCount, interviewCount]
+      required: [id, username, email, internalEmail, role, disabled, accessVersion, createdAt, lastSignInAt, applicationCount, interviewCount]
       properties:
         id: { type: string }
         username: { type: string }
+        email: { type: string, format: email, description: Verified registration email, falling back to the internal email for legacy accounts }
         internalEmail: { type: string, format: email }
         role: { $ref: '#/components/schemas/AccountRole' }
         disabled: { type: boolean }

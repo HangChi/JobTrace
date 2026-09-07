@@ -5,6 +5,8 @@ export type AdminConsoleSql = ReturnType<typeof postgres>;
 export type AdminConsoleUserFixture = {
   id: string;
   username?: string;
+  internalEmail?: string;
+  recoveryEmail?: string | null;
   role?: "user" | "admin";
   disabled?: boolean;
   createdAt?: Date;
@@ -16,9 +18,11 @@ export async function seedAdminConsoleUser(
 ) {
   const username = fixture.username ?? fixture.id.slice(0, 30);
   await sql`insert into users(
-      id,display_name,email,email_verified,role,disabled,username,display_username,created_at,updated_at
+      id,display_name,email,email_verified,recovery_email,recovery_email_verified_at,
+      role,disabled,username,display_username,created_at,updated_at
     ) values(
-      ${fixture.id},${username},${`${username}@example.test`},true,
+      ${fixture.id},${username},${fixture.internalEmail ?? `${username}@example.test`},true,
+      ${fixture.recoveryEmail ?? null},${fixture.recoveryEmail ? (fixture.createdAt ?? new Date()) : null},
       ${fixture.role ?? "user"},${fixture.disabled ?? false},${username},${username},
       ${fixture.createdAt ?? new Date()},${fixture.createdAt ?? new Date()}
     )`;

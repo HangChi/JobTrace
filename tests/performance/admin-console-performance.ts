@@ -43,7 +43,7 @@ try {
       2000,
       () =>
         tx`select id from users where role='user' and disabled=false
-        and lower(coalesce(username,'') || ' ' || email) like '%admin_perf_42%'
+        and lower(coalesce(username,'') || ' ' || email || ' ' || coalesce(recovery_email,'')) like '%admin_perf_42%'
         order by created_at desc,id desc limit 50`,
     );
     await measure(

@@ -261,7 +261,7 @@ export function AdminUserDetail({
         <div className="admin-profile-title">
           <p>账号档案 · 只读求职数据</p>
           <h1>{user.username}</h1>
-          <span>{user.internalEmail}</span>
+          <span>{user.email}</span>
         </div>
         <div className="admin-profile-state">
           <span>{user.role === "admin" ? "管理员" : "普通用户"}</span>
