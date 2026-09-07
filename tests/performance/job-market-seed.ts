@@ -46,4 +46,5 @@ export async function seedJobMarketPerformance(sql: UnsafeSql) {
       md5('job-market-post-' || n) || md5('job-market-post-' || n)
     from generate_series(1,100000) n
   `);
+  await sql.unsafe(`select public.rebuild_job_market_company_read_models()`);
 }

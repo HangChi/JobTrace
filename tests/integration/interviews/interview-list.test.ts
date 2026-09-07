@@ -38,7 +38,7 @@ test("公司、岗位、问题搜索、组合筛选、稳定分页与级联删�
         status: "pending_review",
         roundResult: "pending",
         questions: [{ category: "technical", question: "缓存击穿" }],
-        actionItems: [],
+        actionItems: [{ content: "验证分页计数", completed: false }],
       },
     });
     await request.patch(`/api/interviews/${second.id}`, {
@@ -71,12 +71,22 @@ test("公司、岗位、问题搜索、组合筛选、稳定分页与级联删�
 
     const pageOne = await (await request.get("/api/interviews?limit=1")).json();
     expect(pageOne.items[0].id).toBe(second.id);
+    expect(pageOne.total).toBe(2);
+    expect(pageOne.items[0]).toMatchObject({
+      questionCount: 1,
+      actionCount: 0,
+    });
     const pageTwo = await (
       await request.get(
         `/api/interviews?limit=1&cursor=${encodeURIComponent(pageOne.nextCursor)}`,
       )
     ).json();
     expect(pageTwo.items[0].id).toBe(first.id);
+    expect(pageTwo.total).toBe(2);
+    expect(pageTwo.items[0]).toMatchObject({
+      questionCount: 1,
+      actionCount: 1,
+    });
 
     expect((await request.delete(`/api/interviews/${first.id}`)).status()).toBe(
       204,

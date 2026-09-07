@@ -164,8 +164,13 @@ export class PostgresSyncRepository implements SyncRepository {
     },
   ) {
     return this.sql.begin(async (tx) => {
-      const [current] = await tx<Array<{ leaseRunId: string | null }>>`
-        select lease_run_id as "leaseRunId" from job_market_sources
+      const [current] = await tx<
+        Array<{
+          leaseRunId: string | null;
+          companyId: string;
+        }>
+      >`
+        select lease_run_id as "leaseRunId",company_id as "companyId" from job_market_sources
         where id=${id} for update`;
       if (!current) return false;
       const disablesSource =
@@ -182,6 +187,7 @@ export class PostgresSyncRepository implements SyncRepository {
         leased_by=case when ${disablesSource} then null else leased_by end,
         lease_run_id=case when ${disablesSource} then null else lease_run_id end,
         updated_at=now() where id=${id}`;
+      await tx`select public.refresh_job_market_company_read_model(${current.companyId})`;
       return true;
     });
   }

@@ -30,6 +30,7 @@ function CompactValues({
     return <span className="campaign-table-empty">{emptyLabel}</span>;
   const preview = values.slice(0, 2);
   const remaining = Math.max(0, count - preview.length);
+  const truncated = count > values.length;
   const valueList = (
     <span className="campaign-table-values">
       {preview.map((value) => (
@@ -47,7 +48,11 @@ function CompactValues({
         type="button"
         className="campaign-more-count"
         popoverTarget={popoverId}
-        aria-label={`查看全部 ${count} 个${itemLabel}`}
+        aria-label={
+          truncated
+            ? `查看${itemLabel}摘要，共 ${count} 个`
+            : `查看全部 ${count} 个${itemLabel}`
+        }
       >
         +{remaining}
       </button>
@@ -59,8 +64,8 @@ function CompactValues({
         className="campaign-values-popover"
       >
         <header>
-          <span>全部{itemLabel}</span>
-          <strong>{count}</strong>
+          <span>{truncated ? `${itemLabel}摘要` : `全部${itemLabel}`}</span>
+          <strong>{truncated ? `${values.length} / ${count}` : count}</strong>
         </header>
         <ul>
           {values.map((value) => (

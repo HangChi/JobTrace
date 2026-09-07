@@ -145,6 +145,19 @@ test("sync completion is fenced and atomically updates data, run and source stat
       failures: 0,
       etag: '"consistent"',
     });
+    expect(
+      await sql`
+        select positions,position_count as "positionCount",status::text
+        from job_market_company_read_models
+        where company_id=${company.id} and include_closed=false
+      `,
+    ).toMatchObject([
+      {
+        positions: ["Consistency Engineer"],
+        positionCount: 1,
+        status: "open",
+      },
+    ]);
   } finally {
     if (sourceId) {
       await sql`update job_market_sources set lease_until=null,leased_by=null,lease_run_id=null where id=${sourceId}`.catch(

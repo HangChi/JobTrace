@@ -78,6 +78,8 @@ test("cohort 包含后续阶段和面经并保持 owner 隔离", async ({ reques
     expect(response.ok()).toBe(true);
     const report = await response.json();
     expect(report.metrics.applications.value).toBe(1);
+    expect(report.metrics.applications.previous).toBe(0);
+    expect(report.metrics.applications.delta).toBeNull();
     expect(report.metrics.interviewRate.value).toBe(100);
     expect(report.metrics.offerRate.value).toBe(100);
     expect(report.metrics.reviewCompletionRate.value).toBe(100);
@@ -87,6 +89,20 @@ test("cohort 包含后续阶段和面经并保持 owner 隔离", async ({ reques
       ).count,
     ).toBe(1);
     expect(report.availableCities).toEqual(["上海", "北京"]);
+
+    const emptyResponse = await request.get(
+      "/api/analytics/report?period=custom&from=2025-01-01&to=2025-01-07&city=%E5%B9%BF%E5%B7%9E",
+    );
+    expect(emptyResponse.ok()).toBe(true);
+    const emptyReport = await emptyResponse.json();
+    expect(emptyReport.metrics.applications).toMatchObject({
+      value: 0,
+      previous: 0,
+      delta: 0,
+    });
+    expect(emptyReport.trend).toEqual([]);
+    expect(emptyReport.interviews.byStage).toEqual([]);
+    expect(emptyReport.availableCities).toEqual(["上海", "北京"]);
   } finally {
     for (const id of ids) await request.delete(`/api/applications/${id}`);
     await cleanupTestUsers(sql, [otherOwner]);

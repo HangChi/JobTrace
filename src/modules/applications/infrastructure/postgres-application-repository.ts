@@ -418,13 +418,19 @@ export class PostgresApplicationRepository implements ApplicationRepository {
       ? this
           .sql`${statusRank} asc, a.latest_date ${direction}, a.id ${direction}`
       : this.sql`${this.sql(sortColumn)} ${direction}, a.id ${direction}`;
-    const rows = await this.sql<DbRecord[]>`
-      select a.*, count(*) over() as total_count,
-        max(s.occurred_on) as timeline_latest_date,
-        coalesce(array_agg(distinct s.stage) filter (where s.stage is not null), '{}') as stages
-      from public.applications a
-      left join public.application_stage_occurrences s on s.application_id = a.id
-      where a.owner_id = ${ownerId}
+    const selectedStatusRank = this.sql`
+      case selected.status
+        when 'submitted' then 0
+        else 1
+      end
+    `;
+    const selectedOrderBy = groupByStatus
+      ? this
+          .sql`${selectedStatusRank} asc, selected.latest_date ${direction}, selected.id ${direction}`
+      : this
+          .sql`selected.${this.sql(sortColumn)} ${direction}, selected.id ${direction}`;
+    const filters = this.sql`
+      a.owner_id = ${ownerId}
         ${query.q ? this.sql`and lower(a.company_name || ' ' || a.position_name) like ${`%${query.q.toLowerCase()}%`}` : this.sql``}
         ${query.status.length ? this.sql`and a.status = any(${query.status}::application_status[])` : this.sql``}
         ${query.type.length ? this.sql`and a.type = any(${query.type}::application_type[])` : this.sql``}
@@ -432,21 +438,43 @@ export class PostgresApplicationRepository implements ApplicationRepository {
         ${query.city.length ? this.sql`and a.city = any(${query.city})` : this.sql``}
         ${query.appliedFrom ? this.sql`and a.applied_date >= ${query.appliedFrom}::date` : this.sql``}
         ${query.appliedTo ? this.sql`and a.applied_date <= ${query.appliedTo}::date` : this.sql``}
-        ${cursorCondition}
-      group by a.id
-      order by ${orderBy}
-      limit ${query.limit + 1}
-      offset ${offset}
     `;
-    const items = rows.slice(0, query.limit).map(mapSummary);
-    const last = rows[query.limit - 1];
+    const rows = await this.sql<DbRecord[]>`
+      select selected.*, totals.total_count,
+        stage_summary.timeline_latest_date,
+        coalesce(stage_summary.stages, '{}') as stages
+      from (
+        select count(*)::int as total_count
+        from public.applications a
+        where ${filters}
+      ) totals
+      left join lateral (
+        select a.*
+        from public.applications a
+        where ${filters}
+          ${cursorCondition}
+        order by ${orderBy}
+        limit ${query.limit + 1}
+        offset ${offset}
+      ) selected on true
+      left join lateral (
+        select max(s.occurred_on) as timeline_latest_date,
+          array_agg(distinct s.stage) filter (where s.stage is not null) as stages
+        from public.application_stage_occurrences s
+        where s.application_id = selected.id
+      ) stage_summary on selected.id is not null
+      order by ${selectedOrderBy}
+    `;
+    const dataRows = rows.filter((row) => row.id);
+    const items = dataRows.slice(0, query.limit).map(mapSummary);
+    const last = dataRows[query.limit - 1];
     return {
       items,
       total: Number(rows[0]?.totalCount ?? 0),
       page: query.page,
       limit: query.limit,
       nextCursor:
-        rows.length > query.limit && last
+        dataRows.length > query.limit && last
           ? encodeCursor({
               value: String(
                 last[

@@ -106,13 +106,15 @@ export class PostgresSourceCatalogRepository {
         adapter: entry.adapter,
         external_key: entry.externalKey,
       }));
-      const [obsolete] = await tx<Array<{ ids: string[]; runIds: string[] }>>`
+      const [obsolete] = await tx<
+        Array<{ ids: string[]; runIds: string[]; companyIds: string[] }>
+      >`
         with input as (
           select * from jsonb_to_recordset(${tx.json(sourceCatalogPayload as never)}::jsonb) as value(
             identity_key text,adapter job_market_source_adapter,external_key text
           )
         ), obsolete as (
-          select source.id,source.lease_run_id
+          select source.id,source.lease_run_id,source.company_id
           from job_market_sources source
           join job_market_companies company on company.id=source.company_id
           where (
@@ -128,7 +130,8 @@ export class PostgresSourceCatalogRepository {
           )
         )
         select coalesce(array_agg(id),'{}') ids,
-          coalesce(array_agg(lease_run_id) filter(where lease_run_id is not null),'{}') as run_ids
+          coalesce(array_agg(lease_run_id) filter(where lease_run_id is not null),'{}') as run_ids,
+          coalesce(array_agg(distinct company_id),'{}') as company_ids
         from obsolete`;
       if (obsolete.runIds.length) {
         await tx`update job_market_sync_runs set status='failed',finished_at=greatest(started_at,now()),
@@ -223,6 +226,29 @@ export class PostgresSourceCatalogRepository {
             official_apply_url=excluded.official_apply_url,
             listing_kind='recruitment_directory',published_at=excluded.published_at,
             valid_through=null,last_confirmed_at=null,updated_at=now()`;
+      }
+
+      const affectedIdentityKeys = [
+        ...entries.map(
+          (entry) => entry.companyIdentityKey ?? entry.identityKey,
+        ),
+        ...directoryEntries.map((entry) => entry.identityKey),
+      ];
+      const affectedCompanies = affectedIdentityKeys.length
+        ? await tx<Array<{ id: string }>>`
+            select id from job_market_companies
+            where identity_key=any(${affectedIdentityKeys})`
+        : [];
+      const affectedCompanyIds = [
+        ...new Set([
+          ...affectedCompanies.map((company) => company.id),
+          ...obsolete.companyIds,
+        ]),
+      ];
+      if (affectedCompanyIds.length) {
+        await tx`
+          select public.refresh_job_market_company_read_model(company_id)
+          from unnest(${affectedCompanyIds}::uuid[]) company_id`;
       }
 
       return {
