@@ -103,6 +103,7 @@
 |-------|--------|-------|
 | `id` | users.id | text |
 | `username` | display_username/username | 仅账号标识 |
+| `email` | recovery_email，缺失时回退 users.email | 管理后台展示和搜索使用的邮箱 |
 | `internalEmail` | users.email | 仅管理员可见 |
 | `role` / `disabled` / `accessVersion` | users | 当前访问状态 |
 | `createdAt` | users.created_at | ISO 时间 |

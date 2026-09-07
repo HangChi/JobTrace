@@ -82,6 +82,7 @@ type UserRow = {
   username: string | null;
   displayUsername: string | null;
   email: string;
+  recoveryEmail: string | null;
   role: "user" | "admin";
   disabled: boolean;
   accessVersion: number;
@@ -95,6 +96,7 @@ function userDto(row: UserRow): ManagedUserSummary {
   return {
     id: row.id,
     username: row.displayUsername ?? row.username ?? row.email.split("@")[0],
+    email: row.recoveryEmail ?? row.email,
     internalEmail: row.email,
     role: row.role,
     disabled: row.disabled,
@@ -124,19 +126,19 @@ export async function readManagedUsers(
   const offset = (query.page - 1) * query.limit;
   const [countRows, rows] = await Promise.all([
     sql<Array<{ total: number }>>`select count(*)::int total from users u
-      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email) like lower(${filter.pattern}))
+      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email || ' ' || coalesce(u.recovery_email,'')) like lower(${filter.pattern}))
         and (${filter.role}::text is null or u.role=${filter.role})
         and (${filter.disabled}::boolean is null or u.disabled=${filter.disabled})
         and (${filter.from}::date is null or u.created_at >= (${filter.from}::date::timestamp at time zone 'Asia/Shanghai'))
         and (${filter.to}::date is null or u.created_at < ((${filter.to}::date+1)::timestamp at time zone 'Asia/Shanghai'))`,
     sql<
       UserRow[]
-    >`select u.id,u.username,u.display_username,u.email,u.role,u.disabled,u.access_version,u.created_at,
+    >`select u.id,u.username,u.display_username,u.email,u.recovery_email,u.role,u.disabled,u.access_version,u.created_at,
         (select max(s.created_at) from sessions s where s.user_id=u.id) last_sign_in_at,
         (select count(*)::int from applications a where a.owner_id=u.id) application_count,
         (select count(*)::int from interview_reviews i where i.owner_id=u.id) interview_count
       from users u
-      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email) like lower(${filter.pattern}))
+      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email || ' ' || coalesce(u.recovery_email,'')) like lower(${filter.pattern}))
         and (${filter.role}::text is null or u.role=${filter.role})
         and (${filter.disabled}::boolean is null or u.disabled=${filter.disabled})
         and (${filter.from}::date is null or u.created_at >= (${filter.from}::date::timestamp at time zone 'Asia/Shanghai'))
@@ -157,7 +159,7 @@ export async function readManagedUser(userId: string) {
   const sql = createServerDatabase();
   const [row] = await sql<
     UserRow[]
-  >`select u.id,u.username,u.display_username,u.email,u.role,u.disabled,u.access_version,u.created_at,
+  >`select u.id,u.username,u.display_username,u.email,u.recovery_email,u.role,u.disabled,u.access_version,u.created_at,
       (select max(s.created_at) from sessions s where s.user_id=u.id) last_sign_in_at,
       (select count(*)::int from applications a where a.owner_id=u.id) application_count,
       (select count(*)::int from interview_reviews i where i.owner_id=u.id) interview_count

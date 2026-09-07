@@ -16,7 +16,7 @@ const query = {
 describe("admin user directory", () => {
   test("restores URL-driven filters and exposes clear action", () => {
     render(<AdminUserFilters query={query} />);
-    expect(screen.getByLabelText("用户名或内部邮箱")).toHaveValue("ops");
+    expect(screen.getByLabelText("用户名或邮箱")).toHaveValue("ops");
     expect(screen.getByLabelText("角色")).toHaveValue("admin");
     expect(screen.getByLabelText("状态")).toHaveValue("active");
     expect(screen.getByRole("link", { name: "清除筛选" })).toHaveAttribute(
@@ -32,6 +32,7 @@ describe("admin user directory", () => {
           {
             id: "user-1",
             username: "ops-user",
+            email: "ops-user@example.test",
             internalEmail: "ops-user@example.test",
             role: "admin",
             disabled: false,

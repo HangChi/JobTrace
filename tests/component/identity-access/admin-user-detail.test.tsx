@@ -10,6 +10,7 @@ vi.mock("next/navigation", () => ({
 const user: ManagedUserDetail = {
   id: "user-1",
   username: "candidate",
+  email: "candidate@example.com",
   internalEmail: "candidate@users.jobtrace.local",
   role: "user",
   disabled: false,
@@ -88,6 +89,10 @@ describe("admin user detail", () => {
 
     expect(screen.getByRole("heading", { name: "投递记录" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "面经复盘" })).toBeVisible();
+    expect(screen.getByText("candidate@example.com")).toBeVisible();
+    expect(
+      screen.queryByText("candidate@users.jobtrace.local"),
+    ).not.toBeInTheDocument();
     expect(screen.getAllByText("星河科技")).toHaveLength(2);
     expect(screen.getByText("内推渠道，等待业务面。")).toBeInTheDocument();
     expect(screen.getByText("浏览器缓存如何工作？")).toBeInTheDocument();

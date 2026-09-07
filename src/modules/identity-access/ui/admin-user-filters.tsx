@@ -5,7 +5,7 @@ export function AdminUserFilters({ query }: { query: AdminUserQuery }) {
   return (
     <form className="panel admin-filters" action="/admin/users" method="get">
       <label>
-        <span>用户名或内部邮箱</span>
+        <span>用户名或邮箱</span>
         <input name="q" defaultValue={query.q} maxLength={100} />
       </label>
       <label>

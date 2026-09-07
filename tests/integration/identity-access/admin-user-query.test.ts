@@ -13,12 +13,15 @@ test("directory supports combined filters, stable pages and minimal detail", asy
   await seedAdminConsoleUser(sql, {
     id: first,
     username: "query_ops_alpha",
+    internalEmail: "query_ops_alpha@users.jobtrace.local",
+    recoveryEmail: "alpha.registered@example.com",
     role: "user",
     createdAt,
   });
   await seedAdminConsoleUser(sql, {
     id: second,
     username: "query_ops_beta",
+    internalEmail: "query_ops_beta@users.jobtrace.local",
     role: "user",
     createdAt,
   });
@@ -59,6 +62,42 @@ test("directory supports combined filters, stable pages and minimal detail", asy
     const page = await response.json();
     expect(page).toMatchObject({ total: 2, page: 1, limit: 1, totalPages: 2 });
     expect(page.items).toHaveLength(1);
+
+    const byRegistrationEmail = await request.get(
+      "/api/admin/users?q=alpha.registered%40example.com&page=1&limit=20",
+    );
+    expect(await byRegistrationEmail.json()).toMatchObject({
+      total: 1,
+      items: [
+        {
+          id: first,
+          email: "alpha.registered@example.com",
+          internalEmail: "query_ops_alpha@users.jobtrace.local",
+        },
+      ],
+    });
+
+    const byInternalEmail = await request.get(
+      "/api/admin/users?q=query_ops_alpha%40users.jobtrace.local&page=1&limit=20",
+    );
+    expect(await byInternalEmail.json()).toMatchObject({
+      total: 1,
+      items: [{ id: first, email: "alpha.registered@example.com" }],
+    });
+
+    const legacy = await request.get(
+      "/api/admin/users?q=query_ops_beta%40users.jobtrace.local&page=1&limit=20",
+    );
+    expect(await legacy.json()).toMatchObject({
+      total: 1,
+      items: [
+        {
+          id: second,
+          email: "query_ops_beta@users.jobtrace.local",
+          internalEmail: "query_ops_beta@users.jobtrace.local",
+        },
+      ],
+    });
 
     const page2 = await request.get(
       "/api/admin/users?q=query_ops&role=user&status=active&registeredFrom=2026-08-20&registeredTo=2026-08-20&page=2&limit=1",

@@ -9,6 +9,7 @@ describe("UserAdminTable", () => {
           {
             id: "1",
             username: "user",
+            email: "user@example.com",
             internalEmail: "user@example.com",
             role: "user",
             disabled: false,
@@ -23,6 +24,7 @@ describe("UserAdminTable", () => {
     );
     expect(screen.getByText("普通用户")).toBeInTheDocument();
     expect(screen.getByText("正常")).toBeInTheDocument();
+    expect(screen.getByText("user@example.com")).toBeVisible();
     expect(screen.getByRole("link", { name: "查看详情" })).toBeVisible();
   });
 });

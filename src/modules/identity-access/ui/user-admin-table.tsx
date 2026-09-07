@@ -69,7 +69,7 @@ export function UserAdminTable({
                   </span>
                   <span>
                     <strong>{user.username}</strong>
-                    <small>{user.internalEmail}</small>
+                    <small>{user.email}</small>
                   </span>
                 </div>
               </td>
