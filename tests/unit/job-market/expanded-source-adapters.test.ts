@@ -3,6 +3,7 @@ import { BeisenAdapter } from "@/modules/job-market/infrastructure/adapters/beis
 import { WorkdayAdapter } from "@/modules/job-market/infrastructure/adapters/workday-adapter";
 import { ChinaBigTechAdapter } from "@/modules/job-market/infrastructure/adapters/china-bigtech-adapter";
 import { HtmlListAdapter } from "@/modules/job-market/infrastructure/adapters/html-list-adapter";
+import { DayeeAdapter } from "@/modules/job-market/infrastructure/adapters/html-list-adapter";
 import type { SecureSourceFetch } from "@/modules/job-market/application/ports";
 import type { JobMarketSource } from "@/modules/job-market/domain/entities";
 
@@ -195,5 +196,43 @@ describe("expanded domestic recruitment adapters", () => {
       "https://careers.example.com/jobs?page=2",
     ]);
     expect(batch.completeness).toBe("complete");
+  });
+
+  it("parses Dayee mobile position cards without executing inline handlers", async () => {
+    const html = `<ul id="post_tb" class="position_list-list">
+      <input type="hidden" id="canApply_321015" value="1" />
+      <li class="position_list-list-demo">
+        <div onclick="javascript:toDetailPostUrl(321015,1,1)">
+          <div class="position_list-list-demo-title">核电站算法工程师</div>
+          <div class="position_list-first-row">
+            <span>深圳</span><span>招聘2人</span><span>深圳市</span>
+          </div>
+          <div class="position_list-list-demo-info"><span><i>3天前更新</i></span></div>
+        </div>
+        <div class="hidden" id="hidden321015">
+          <div class="detailedInformation">工作描述:<br/>负责智能运维平台</div>
+          <div class="detailedInformation">职位要求:<br/>本科及以上</div>
+        </div>
+      </li>
+    </ul><input type="hidden" id="lastPage" value="true" />`;
+    const batch = await new DayeeAdapter(async () =>
+      response(html, "text/html"),
+    ).fetch(
+      source(
+        "dayee",
+        "cgn.hotjob.cn|/wt/CGN/mobweb/v8/position/list",
+        "https://cgn.hotjob.cn/wt/CGN/mobweb/v8/position/list",
+      ),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.completeness).toBe("complete");
+    expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "321015",
+      title: "核电站算法工程师",
+      descriptionText: expect.stringContaining("负责智能运维平台"),
+      detailUrl: expect.stringContaining("postIdsAry=321015"),
+    });
+    expect(batch.jobs[0]!.locations.map((item) => item.name)).toEqual(["深圳"]);
   });
 });

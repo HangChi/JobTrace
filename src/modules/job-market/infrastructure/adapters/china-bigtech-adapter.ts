@@ -25,8 +25,10 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       return this.fetchJd(source, context, signal);
     if (source.externalKey === "baidu")
       return this.fetchBaidu(source, context, signal);
-    if (["alibaba", "meituan"].includes(source.externalKey))
+    if (source.externalKey === "alibaba")
       return fetchHtmlJobList(this.fetcher, source, context, signal);
+    if (source.externalKey === "meituan")
+      return this.fetchMeituan(source, context, signal);
     const [provider, channel] = source.externalKey.split("|");
     if (provider === "bytedance")
       return this.fetchBytedance(source, context, signal);
@@ -376,6 +378,101 @@ export class ChinaBigTechAdapter implements SourceAdapter {
             detailUrl,
             applyUrl: detailUrl,
             publishedAt: epochMillisToDate(job.updateTime),
+          };
+        }),
+      ),
+    };
+  }
+
+  private async fetchMeituan(
+    source: JobMarketSource,
+    context: { now: Date; maxItems: number },
+    signal: AbortSignal,
+  ) {
+    const pageSize = Math.min(50, context.maxItems);
+    const rows: Array<Record<string, any>> = [];
+    let total = 0;
+    while (rows.length < context.maxItems) {
+      const endpoint = new URL("/api/official/job/getJobList", source.baseUrl);
+      const response = await this.fetcher(endpoint.href, {
+        allowedHosts: source.allowedHosts,
+        signal,
+        accept: ["application/json"],
+        method: "POST",
+        body: JSON.stringify({
+          page: {
+            pageNo: Math.floor(rows.length / pageSize) + 1,
+            pageSize,
+          },
+          jobShareType: "1",
+          keywords: "",
+          cityList: [],
+          department: [],
+          jfJgList: [],
+          jobType: [{ code: "3", subCode: [] }],
+          typeCode: [],
+          specialCode: [],
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://job.meituan.com",
+          Referer: "https://job.meituan.com/web/social",
+        },
+      });
+      const payload = (await response.json()) as {
+        status?: number;
+        data?: {
+          list?: Array<Record<string, any>>;
+          page?: { totalCount?: number };
+        };
+      };
+      if (payload.status !== 1 || !Array.isArray(payload.data?.list))
+        throw new SourceError(
+          "invalid_source_payload",
+          "Meituan careers API returned an invalid response",
+        );
+      const page = payload.data.list;
+      total = Number(payload.data.page?.totalCount ?? page.length);
+      rows.push(...page.slice(0, context.maxItems - rows.length));
+      if (!page.length || rows.length >= total) break;
+    }
+    const listingUrl = "https://job.meituan.com/web/social";
+    return {
+      completeness:
+        rows.length < total ? ("partial" as const) : ("complete" as const),
+      sourceMetadata: { fetchedAt: context.now },
+      ...normalizeItems(
+        source,
+        rows.map((job) => {
+          const id =
+            job.jobUnionId == null ? null : String(job.jobUnionId).trim();
+          const detailUrl = id
+            ? `https://job.meituan.com/web/position/detail?jobUnionId=${encodeURIComponent(id)}&highlightType=social`
+            : listingUrl;
+          return {
+            id,
+            title: job.name,
+            locations: Array.isArray(job.cityList)
+              ? job.cityList.map((item: Record<string, unknown>) => item.name)
+              : [],
+            campaign: Array.isArray(job.department)
+              ? job.department
+                  .map((item: Record<string, unknown>) => item.name)
+                  .filter(Boolean)
+                  .join(" / ")
+              : job.jobFamily,
+            recruitmentType: "社会招聘",
+            description: [job.jobDuty, job.jobRequirement, job.highLight]
+              .filter(
+                (value): value is string =>
+                  typeof value === "string" && value.trim().length > 0,
+              )
+              .join("\n\n"),
+            detailUrl,
+            applyUrl: detailUrl,
+            publishedAt: epochMillisToDate(job.refreshTime),
+            closed:
+              typeof job.jobStatus === "string" && job.jobStatus !== "000",
           };
         }),
       ),

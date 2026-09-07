@@ -28,6 +28,7 @@ test("favorite PUT/DELETE is idempotent and favorite filtering is owner-scoped",
     values(${company.id},${campaign.id},'Favorite Role','favorite role',${"f".repeat(64)}) returning id`;
   await sql`insert into job_market_source_records(source_id,external_job_id,post_id,payload_hash)
     values(${source.id},'favorite-role',${post.id},${"f".repeat(64)})`;
+  await sql`select public.refresh_job_market_company_read_model(${company.id})`;
   try {
     await sql`insert into job_market_campaign_favorites(owner_id,campaign_id)
       values(${otherOwner},${campaign.id})`;

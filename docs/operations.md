@@ -273,13 +273,13 @@ pnpm lighthouse
 
 ### 本地代理与 Fake-IP DNS
 
-Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招聘以及字节跳动、华为、网易、米哈游官网的已审核官方公共 API 主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝，包括点分、压缩十六进制和展开形式的 IPv4-mapped IPv6 地址。
+Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米招聘以及字节跳动、华为、网易、米哈游、美团和中广核官网的已审核官方公共 API 或页面主机默认兼容 Clash 等代理的 `198.18.0.0/15` Fake-IP DNS。其他来源只有在开发环境或显式设置 `JOB_MARKET_ALLOW_PROXY_DNS=true` 时才启用兼容。所有情况仍要求精确 HTTPS 主机白名单；回环、RFC1918、链路本地和云元数据地址继续被拒绝，包括点分、压缩十六进制和展开形式的 IPv4-mapped IPv6 地址。安全客户端对网络错误和 HTTP 408/425/5xx 最多尝试三次，并发送可识别的 JobTrace User-Agent；401/403/404 等状态会先于内容类型检查被记录为准确的安全错误码。
 
 每个来源请求及其重定向跳只解析一次 DNS，并将连接固定到该次全部通过校验的地址，避免校验后重新解析造成 DNS rebinding。启用 Fake-IP 等同于信任出站代理会把该地址安全地路由到白名单主机；生产环境若需为自定义来源启用该能力，必须先确认代理边界、配置权限和网络隔离。
 
 ### 默认目录一键初始化
 
-管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 279 家企业、283 个来源（224 个中国来源、59 个在中国大陆招聘的外企来源；华为与米哈游按校招/社招拆分为两个来源），已于 2026-09-03 复核公开入口。中国企业优先使用飞书招聘、Moka、北森或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；北森（`*.zhiye.com`）已收录 7 家（宇树科技、科大讯飞、长安汽车、奇瑞汽车、上汽通用、蒙牛集团、扬子江船业），腾讯、百度、京东、字节跳动、华为（`apigw-dgg-b0.huawei.com` 网关，校招 `jobType=CR`、社招 `jobType=SR`）、网易（`hr.163.com`，社招全量）和米哈游（`ats.openout.mihoyo.com`，社招 `hireType=0`、校招 `hireType=1`）走 `china_bigtech` 适配器的官方公开接口；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 203 家企业、207 个来源，仍超过 100 家健康自动来源的目标；华为与米哈游按校招/社招拆分为两个来源。中国企业优先使用 Moka、北森或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；北森（`*.zhiye.com`）已收录 7 家（宇树科技、科大讯飞、长安汽车、奇瑞汽车、上汽通用、蒙牛集团、扬子江船业），腾讯、百度、京东、字节跳动、华为、网易、米哈游和美团走 `china_bigtech` 适配器的官方公开接口，中广核走 Dayee 公开移动职位页；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
 
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
@@ -302,26 +302,25 @@ Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米招�
 3. 在 Actions Secrets 新建同名 `JOB_MARKET_SYNC_SECRET`，值必须与生产应用一致；
 4. 手动运行一次 **Job market sync**，确认返回的 `failed` 为 `0`；持续调度仍由服务器 timer 负责。
 
-这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、飞书招聘、Moka、小米及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。飞书目录只承担企业入口发现和人工审核，不是运行时岗位数据源。
+这条链路不依赖飞书表格：已登记的 Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米、企业公开 API、Dayee 页面及 Schema.org 官方来源会自动发现岗位，规范化公司、岗位和地点，并关闭来源中已经下架的旧岗位。Moka 发现器兼容 `social-recruitment`、`campus-recruitment`、`apply`、`campus_apply` 及其移动端入口。需要页面签名或服务器 IP 授权的入口只作为人工目录，不进入运行时岗位数据源。
 
 公众号文章不纳入自动抓取。公众号没有稳定的公开岗位 API，页面访问还受登录、频率和反自动化限制；对仅通过公众号发布的企业，首页保留经审核的招聘原文链接，并以原文内容为准。新增自动企业时，应优先接入其官方 ATS/API 或官网 `JobPosting` 结构化数据。
 
-### 已评估但暂不接入的渠道（2026-09-03 实测）
+### 已评估但暂不接入的渠道（2026-09-07 实测）
 
 以下头部公司渠道已实测评估，因反爬或登录态限制暂不接入，避免重复调研：
 
-| 公司                                   | 评估结论                                                                                                           |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| 哔哩哔哩（jobs.bilibili.com）          | 全部 API 端点要求前端风控 SDK 生成的 `ajSessionId` 会话参数，伪造值被拒绝                                          |
-| 美团（zhaopin.meituan.com）            | 职位 API 返回 401 未登录；页面纯 SPA 无 SSR 职位链接，`html_list` 兜底也不可行                                     |
-| 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接                                                         |
-| 中国广核（cgn.hotjob.cn）              | 大易站点为 SPA 且接口带 crypto-js 加密签名，无法静态抓取                                                           |
-| 字节跳动校招（portal_type 区分）       | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连                                               |
-| 快手（zhaopin.kuaishou.cn）            | 职位 API 要求页面 JS 生成的 `sign` + `signTimestamp` 签名头（2026-09-03 实测，开源项目记载的旧端点已 404）         |
-| 拼多多（careers.pinduoduo.com）        | 职位 API 返回 403 风控拦截                                                                                         |
-| 携程（careers.ctrip.com）              | SPA 交互链路复杂，列表 API 未在公开请求中暴露，直连探测失败                                                        |
-| DeepSeek（talent.deepseek.com）        | 官网壳跳转 Moka 新版门户（`app.mokahr.com` 的 high-flyer 租户），其 `ats-apply` API 响应为加密密文，需页面 JS 解密 |
-| vivo / OPPO / 滴滴 / 小红书 / 蚂蚁     | vivo 要登录 token、OPPO 接口 500、滴滴旧端点 404、小红书与蚂蚁为纯 SPA，开源项目记载的端点均已失效                 |
+| 公司                                   | 评估结论                                                                                                   |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 哔哩哔哩（jobs.bilibili.com）          | 全部 API 端点要求前端风控 SDK 生成的 `ajSessionId` 会话参数，伪造值被拒绝                                  |
+| 阿里巴巴（talent-holding.alibaba.com） | 接口 403 并接入 baxia 风控（滑块），目录仅保留官网入口链接                                                 |
+| 飞书招聘（`*.jobs.feishu.cn`）         | 公开页面职位请求新增前端混淆 `_signature`；服务端旧 POST 返回 405。默认自动来源已退役并保留官方目录入口    |
+| 字节跳动校招（portal_type 区分）       | 校招列表请求需页面 JS 生成的 `_signature` 签名参数，仅社招通道可直连                                       |
+| 快手（zhaopin.kuaishou.cn）            | 职位 API 要求页面 JS 生成的 `sign` + `signTimestamp` 签名头（2026-09-03 实测，开源项目记载的旧端点已 404） |
+| 拼多多（careers.pinduoduo.com）        | 职位 API 返回 403 风控拦截                                                                                 |
+| 携程（careers.ctrip.com）              | SPA 交互链路复杂，列表 API 未在公开请求中暴露，直连探测失败                                                |
+| 幻方量化 / DeepSeek（Moka）            | 旧公开 API 对生产出口返回 `IP not allowed`，新版门户响应为加密密文；默认自动来源已退役并保留官方目录入口   |
+| vivo / OPPO / 滴滴 / 小红书 / 蚂蚁     | vivo 要登录 token、OPPO 接口 500、滴滴旧端点 404、小红书与蚂蚁为纯 SPA，开源项目记载的端点均已失效         |
 
 ### 来源发现与人工审核
 

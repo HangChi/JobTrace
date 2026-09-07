@@ -1,4 +1,7 @@
-import { DEFAULT_SOURCE_CATALOG } from "./default-source-catalog";
+import {
+  DEFAULT_SOURCE_CATALOG,
+  RETIRED_FEISHU_SOURCES,
+} from "./default-source-catalog";
 import companyDirectoryAliases from "./company-directory-aliases.json";
 import recentWechatArticles from "./recent-wechat-articles.json";
 
@@ -362,6 +365,23 @@ const TRACKER_GAP_OFFICIAL_COMPANIES = [
  * lookup without claiming that closed WeChat content has been collected.
  */
 const CURATED_COMPANY_DIRECTORY = [
+  ...RETIRED_FEISHU_SOURCES.filter(([key]) => key !== "avatr").map(
+    ([key, companyName, industry, host, path]) =>
+      officialDirectory({
+        identityKey: `default:${key}-cn`,
+        companyName,
+        companyType: "民营企业",
+        industry,
+        entryUrl: `https://${host}/${path ?? ""}`,
+      }),
+  ),
+  officialDirectory({
+    identityKey: "default:highflyer-cn",
+    companyName: "幻方量化",
+    companyType: "民营企业",
+    industry: "量化投资 / 人工智能",
+    entryUrl: "https://app.mokahr.com/social-recruitment/high-flyer/140576",
+  }),
   ...TRACKER_GAP_OFFICIAL_COMPANIES.map(
     ([identityKey, companyName, companyType, industry, entryUrl]) =>
       officialDirectory({

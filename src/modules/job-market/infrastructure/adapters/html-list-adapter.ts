@@ -143,6 +143,105 @@ export async function fetchHtmlJobList(
   };
 }
 
+function parseDayeePage(html: string, entryUrl: string, maxItems: number) {
+  const $ = load(html);
+  const jobs: AdapterJobInput[] = [];
+  $(".position_list-list-demo").each((_index, element) => {
+    if (jobs.length >= maxItems) return false;
+    const card = $(element);
+    const handler = card
+      .find("[onclick*='toDetailPostUrl']")
+      .first()
+      .attr("onclick");
+    const match = handler?.match(/toDetailPostUrl\(\s*(\d+)\s*,\s*(\d+)/);
+    const title = clean(
+      card.find(".position_list-list-demo-title").first().text(),
+    );
+    if (!match || !title) return;
+    const [, postId, recruitType] = match;
+    const location = clean(
+      card.find(".position_list-first-row span").first().text(),
+    );
+    const description = card
+      .find(".detailedInformation")
+      .toArray()
+      .map((item) => clean($(item).text()))
+      .filter(Boolean)
+      .join("\n\n");
+    const detail = new URL("/wt/CGN/mobweb/v8/position/detail", entryUrl);
+    detail.searchParams.set("safe", "Y");
+    detail.searchParams.set("canBack", "true");
+    detail.searchParams.set("recruitType", recruitType);
+    detail.searchParams.set("postIdsAry", postId);
+    detail.searchParams.set("brandCode", "1");
+    jobs.push({
+      id: postId,
+      title,
+      locations: location ? [location] : [],
+      description,
+      detailUrl: detail.href,
+      applyUrl: detail.href,
+    });
+  });
+  return {
+    jobs,
+    lastPage: $("#lastPage").attr("value") === "true",
+  };
+}
+
+async function fetchDayeeJobList(
+  fetcher: SecureSourceFetch,
+  source: JobMarketSource,
+  context: { now: Date; maxItems: number },
+  signal: AbortSignal,
+) {
+  const rows: AdapterJobInput[] = [];
+  const seen = new Set<string>();
+  let lastPage = false;
+  for (
+    let page = 1;
+    page <= MAX_PAGES_PER_SYNC && rows.length < context.maxItems && !lastPage;
+    page += 1
+  ) {
+    const url = new URL(source.baseUrl);
+    if (page > 1) {
+      url.searchParams.set("ajaxMini", "true");
+      url.searchParams.set("pc.currentPage", String(page));
+    }
+    const response = await fetcher(url.href, {
+      allowedHosts: source.allowedHosts,
+      signal,
+      accept: ["text/html", "application/xhtml+xml"],
+    });
+    const parsed = parseDayeePage(
+      await response.text(),
+      url.href,
+      context.maxItems - rows.length,
+    );
+    lastPage = parsed.lastPage;
+    for (const job of parsed.jobs) {
+      const key = String(job.id);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push(job);
+    }
+    if (!parsed.jobs.length) break;
+  }
+  if (!rows.length)
+    throw new SourceError(
+      "invalid_source_payload",
+      "Dayee page did not expose recognizable public position cards",
+    );
+  return {
+    completeness:
+      lastPage || rows.length < context.maxItems
+        ? ("complete" as const)
+        : ("partial" as const),
+    sourceMetadata: { fetchedAt: context.now },
+    ...normalizeItems(source, rows),
+  };
+}
+
 export class HtmlListAdapter implements SourceAdapter {
   readonly kind = "html_list" as const;
   constructor(private readonly fetcher: SecureSourceFetch) {}
@@ -163,7 +262,7 @@ export class DayeeAdapter implements SourceAdapter {
     context: { runId: string; now: Date; maxItems: number },
     signal: AbortSignal,
   ) {
-    return fetchHtmlJobList(this.fetcher, source, context, signal);
+    return fetchDayeeJobList(this.fetcher, source, context, signal);
   }
 }
 
