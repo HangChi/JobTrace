@@ -49,6 +49,7 @@ test("favorites persist per owner, filter correctly and retain closed history", 
 
     await sql`update job_market_posts set status='closed' where campaign_id=${seeded.campaign.id}`;
     await sql`update job_market_campaigns set status='closed' where id=${seeded.campaign.id}`;
+    await sql`select public.refresh_job_market_company_read_model(${seeded.company.id})`;
     // Direct SQL setup bypasses the production sync path's cache invalidation,
     // so use a distinct filtered view to assert closed favorite semantics.
     await page.goto("/?q=E2E%20收藏公司&favorite=true");

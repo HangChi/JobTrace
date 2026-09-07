@@ -50,6 +50,7 @@ export async function seedJobMarketCampaign(
         values(${post.id},${location.id})`;
     }
   }
+  await sql`select public.refresh_job_market_company_read_model(${company.id})`;
   return { company, source, campaign, posts };
 }
 

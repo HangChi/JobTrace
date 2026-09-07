@@ -60,6 +60,7 @@ test("fixture-backed marketplace aggregates jobs and supports combined URL filte
 
     // 列表默认视图有 30 秒缓存，用全新筛选参数触发一次未缓存的读取来验证更新
     await sql`update job_market_posts set title='更新后的算法岗位',normalized_title='更新后的算法岗位' where id=${first.posts[2].id}`;
+    await sql`select public.refresh_job_market_company_read_model(${first.company.id})`;
     await page.goto("/?q=更新后的算法岗位");
     const updatedRow = page
       .getByRole("row")
