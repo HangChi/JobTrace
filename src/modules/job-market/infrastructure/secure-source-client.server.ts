@@ -20,6 +20,9 @@ type DispatcherFactory = (
   addresses: readonly string[],
 ) => ManagedDispatcher;
 
+const RETRYABLE_HTTP_STATUSES = new Set([408, 425, 500, 502, 503, 504]);
+const SOURCE_USER_AGENT = "JobTrace/0.1 (+https://jobtrace.idouble.cn)";
+
 const PROXY_SAFE_PUBLIC_ATS_HOSTS = new Set([
   "boards-api.greenhouse.io",
   "api.lever.co",
@@ -285,6 +288,33 @@ async function limitedBody(response: Response, maxBytes: number) {
   return body;
 }
 
+function httpStatusError(status: number) {
+  const code =
+    status === 401
+      ? "source_unauthorized"
+      : status === 403
+        ? "source_forbidden"
+        : status === 404
+          ? "source_not_found"
+          : "source_unavailable";
+  return new SourceError(code, `Source returned HTTP ${status}`);
+}
+
+async function waitBeforeRetry(delayMs: number, signal: AbortSignal) {
+  if (delayMs <= 0) return;
+  await new Promise<void>((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, delayMs);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 export function createSecureSourceClient(options?: {
   resolver?: Resolver;
   fetcher?: SourceFetcher;
@@ -292,6 +322,8 @@ export function createSecureSourceClient(options?: {
   timeoutMs?: number;
   maxResponseBytes?: number;
   allowProxyDns?: boolean;
+  maxAttempts?: number;
+  retryDelayMs?: number;
 }) {
   const env = getJobMarketEnv();
   const resolver = options?.resolver ?? defaultResolver;
@@ -301,6 +333,8 @@ export function createSecureSourceClient(options?: {
   const timeoutMs = options?.timeoutMs ?? env.fetchTimeoutMs;
   const maxResponseBytes = options?.maxResponseBytes ?? env.maxResponseBytes;
   const allowProxyDns = options?.allowProxyDns ?? env.allowProxyDns;
+  const maxAttempts = Math.max(1, Math.min(options?.maxAttempts ?? 3, 3));
+  const retryDelayMs = Math.max(0, options?.retryDelayMs ?? 200);
 
   return async function secureFetch(
     value: string,
@@ -313,78 +347,98 @@ export function createSecureSourceClient(options?: {
       body?: string;
     },
   ) {
-    let url = validateHttpsUrl(value, request.allowedHosts);
+    const initialUrl = validateHttpsUrl(value, request.allowedHosts);
     const timeout = AbortSignal.timeout(timeoutMs);
     const signal = AbortSignal.any([request.signal, timeout]);
-    for (let redirects = 0; redirects <= 3; redirects += 1) {
-      const addresses = await resolvePublicHost(url, resolver, allowProxyDns);
-      const transport = dispatcherFactory(url.hostname, addresses);
-      let response: Response | undefined;
-      try {
-        response = await fetcher(url, {
-          dispatcher: transport.dispatcher,
-          redirect: "manual",
-          signal,
-          method: request.method,
-          body: request.body,
-          headers: { Accept: request.accept.join(", "), ...request.headers },
-        });
-        if ([301, 302, 303, 307, 308].includes(response.status)) {
-          const location = response.headers.get("location");
-          if (!location || redirects === 3)
-            throw new SourceError(
-              "unsafe_source_url",
-              "Source redirect limit exceeded",
-            );
-          url = validateHttpsUrl(
-            new URL(location, url).href,
-            request.allowedHosts,
-          );
-          continue;
-        }
-        if (response.status === 429) {
-          const retry = Number(response.headers.get("retry-after") || "0");
-          throw new SourceError(
-            "source_rate_limited",
-            "Source rate limit reached",
-            Number.isFinite(retry) ? retry : undefined,
-          );
-        }
-        const contentType =
-          response.headers.get("content-type")?.split(";")[0] ?? "";
-        if (!request.accept.some((accepted) => contentType === accepted))
-          throw new SourceError(
-            "unsupported_content_type",
-            "Source returned an unsupported content type",
-          );
-        const body = await limitedBody(response, maxResponseBytes);
-        const text = new TextDecoder().decode(body);
-        return {
-          status: response.status,
-          headers: response.headers,
-          async text() {
-            return text;
-          },
-          async json() {
-            try {
-              return JSON.parse(text) as unknown;
-            } catch {
+    attempts: for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      let url = initialUrl;
+      for (let redirects = 0; redirects <= 3; redirects += 1) {
+        const addresses = await resolvePublicHost(url, resolver, allowProxyDns);
+        const transport = dispatcherFactory(url.hostname, addresses);
+        let response: Response | undefined;
+        try {
+          response = await fetcher(url, {
+            dispatcher: transport.dispatcher,
+            redirect: "manual",
+            signal,
+            method: request.method,
+            body: request.body,
+            headers: {
+              Accept: request.accept.join(", "),
+              "User-Agent": SOURCE_USER_AGENT,
+              ...request.headers,
+            },
+          });
+          if ([301, 302, 303, 307, 308].includes(response.status)) {
+            const location = response.headers.get("location");
+            if (!location || redirects === 3)
               throw new SourceError(
-                "invalid_source_payload",
-                "Source JSON is invalid",
+                "unsafe_source_url",
+                "Source redirect limit exceeded",
               );
-            }
-          },
-        };
-      } catch (error) {
-        if (signal.aborted)
-          throw new SourceError("source_timeout", "Source request timed out");
-        throw error;
-      } finally {
-        if (response?.body && !response.bodyUsed) {
-          await response.body.cancel().catch(() => undefined);
+            url = validateHttpsUrl(
+              new URL(location, url).href,
+              request.allowedHosts,
+            );
+            continue;
+          }
+          if (response.status === 429) {
+            const retry = Number(response.headers.get("retry-after") || "0");
+            throw new SourceError(
+              "source_rate_limited",
+              "Source rate limit reached",
+              Number.isFinite(retry) ? retry : undefined,
+            );
+          }
+          if (
+            RETRYABLE_HTTP_STATUSES.has(response.status) &&
+            attempt + 1 < maxAttempts
+          ) {
+            await waitBeforeRetry(retryDelayMs * (attempt + 1), signal);
+            continue attempts;
+          }
+          if (response.status < 200 || response.status >= 400)
+            throw httpStatusError(response.status);
+          const contentType =
+            response.headers.get("content-type")?.split(";")[0] ?? "";
+          if (!request.accept.some((accepted) => contentType === accepted))
+            throw new SourceError(
+              "unsupported_content_type",
+              "Source returned an unsupported content type",
+            );
+          const body = await limitedBody(response, maxResponseBytes);
+          const text = new TextDecoder().decode(body);
+          return {
+            status: response.status,
+            headers: response.headers,
+            async text() {
+              return text;
+            },
+            async json() {
+              try {
+                return JSON.parse(text) as unknown;
+              } catch {
+                throw new SourceError(
+                  "invalid_source_payload",
+                  "Source JSON is invalid",
+                );
+              }
+            },
+          };
+        } catch (error) {
+          if (signal.aborted)
+            throw new SourceError("source_timeout", "Source request timed out");
+          if (!(error instanceof SourceError) && attempt + 1 < maxAttempts) {
+            await waitBeforeRetry(retryDelayMs * (attempt + 1), signal);
+            continue attempts;
+          }
+          throw error;
+        } finally {
+          if (response?.body && !response.bodyUsed) {
+            await response.body.cancel().catch(() => undefined);
+          }
+          await transport.close().catch(() => undefined);
         }
-        await transport.close().catch(() => undefined);
       }
     }
     throw new SourceError(

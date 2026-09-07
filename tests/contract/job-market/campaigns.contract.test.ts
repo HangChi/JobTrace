@@ -21,6 +21,7 @@ test("authenticated campaign list and detail return aggregated public fields", a
     Array<{ id: string }>
   >`insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash,primary_apply_url) values(${company.id},${campaign.id},'Contract Engineer','contract engineer',${"c".repeat(64)},'https://jobs.example.com/apply') returning id`;
   await sql`insert into job_market_source_records(source_id,external_job_id,post_id,payload_hash) values(${source.id},'contract-job',${post.id},${"c".repeat(64)})`;
+  await sql`select public.refresh_job_market_company_read_model(${company.id})`;
   try {
     const list = await request.get(
       "/api/job-market/campaigns?q=Contract&limit=20",

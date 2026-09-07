@@ -359,4 +359,77 @@ describe("job market source request security", () => {
     ).rejects.toMatchObject({ code: "response_too_large" });
     expect(close).toHaveBeenCalledOnce();
   });
+
+  it.each([
+    [401, "source_unauthorized"],
+    [403, "source_forbidden"],
+    [404, "source_not_found"],
+    [405, "source_unavailable"],
+  ])(
+    "classifies HTTP %s before checking the response content type",
+    async (status, code) => {
+      const client = createSecureSourceClient({
+        resolver: async () => ["8.8.8.8"],
+        maxAttempts: 1,
+        dispatcherFactory: () => ({
+          dispatcher: {} as never,
+          close: vi.fn(async () => undefined),
+        }),
+        fetcher: async () =>
+          new Response("upstream error", {
+            status,
+            headers: { "content-type": "text/html" },
+          }),
+      });
+      await expect(
+        client("https://jobs.example.com/jobs", {
+          allowedHosts: ["jobs.example.com"],
+          accept: ["application/json"],
+          signal: new AbortController().signal,
+        }),
+      ).rejects.toMatchObject({
+        code,
+        message: `Source returned HTTP ${status}`,
+      });
+    },
+  );
+
+  it("retries bounded network and transient HTTP failures with an identifiable user agent", async () => {
+    const fetcher = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("connection reset"))
+      .mockResolvedValueOnce(
+        new Response("temporarily unavailable", {
+          status: 503,
+          headers: { "content-type": "text/html" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response("{}", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    const close = vi.fn(async () => undefined);
+    const client = createSecureSourceClient({
+      resolver: async () => ["8.8.8.8"],
+      maxAttempts: 3,
+      retryDelayMs: 0,
+      dispatcherFactory: () => ({ dispatcher: {} as never, close }),
+      fetcher,
+    });
+
+    await expect(
+      client("https://jobs.example.com/jobs", {
+        allowedHosts: ["jobs.example.com"],
+        accept: ["application/json"],
+        signal: new AbortController().signal,
+      }),
+    ).resolves.toMatchObject({ status: 200 });
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    expect(fetcher.mock.calls[0]?.[1]?.headers).toMatchObject({
+      "User-Agent": expect.stringContaining("JobTrace"),
+    });
+    expect(close).toHaveBeenCalledTimes(3);
+  });
 });

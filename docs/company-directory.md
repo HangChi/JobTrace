@@ -1,313 +1,312 @@
 # 公司招聘入口总览
 
-> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1287** 家公司（自动同步 279 · 官网入口 14 · 公众号 994）。
+> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1286** 家公司（自动同步 203 · 官网入口 89 · 公众号 994）。
 
-## 自动同步公司（279 家）
+## 自动同步公司（203 家）
 
 岗位由公开招聘来源自动同步。
 
-| 公司                   | 类型     | 行业                           | 渠道     | 链接                                                                  |
-| ---------------------- | -------- | ------------------------------ | -------- | --------------------------------------------------------------------- |
-| 阿维塔                 | 民营企业 | 汽车 / 新能源                  | 自动同步 | <https://xcn5vbnquq58.jobs.feishu.cn/>                                |
-| 艾利丹尼森中国         | 外企     | 材料科学 / 制造业              | 自动同步 | <https://jobs.smartrecruiters.com/AveryDennison>                      |
-| 艾罗能源               | 上市公司 | 光伏 / 储能                    | 自动同步 | <https://app.mokahr.com/social-recruitment/solaxpower/151400>         |
-| 爱笔智能               | 民营企业 | 人工智能                       | 自动同步 | <https://aibee.jobs.feishu.cn/>                                       |
-| 爱诗科技               | 民营企业 | AI视频                         | 自动同步 | <https://aisphere.jobs.feishu.cn/>                                    |
-| 安克创新               | 民营企业 | 消费电子                       | 自动同步 | <https://anker-in.jobs.feishu.cn/>                                    |
-| 安踏集团               | 上市公司 | 服饰 / 零售                    | 自动同步 | <https://app.mokahr.com/social-recruitment/antahr/142914>             |
-| 安永中国               | 外企     | 专业服务                       | 自动同步 | <https://app.mokahr.com/social-recruitment/ey/102474>                 |
-| 百川智能               | 民营企业 | 大模型                         | 自动同步 | <https://cq6qe6bvfr6.jobs.feishu.cn/>                                 |
-| 百度                   | 民营企业 | 互联网 / 人工智能 / 云计算     | 自动同步 | <https://talent.baidu.com/jobs/list>                                  |
-| 百济神州               | 上市公司 | 生物医药 / 肿瘤创新药          | 自动同步 | <https://app.mokahr.com/social-recruitment/beigene>                   |
-| 百威中国               | 外企     | 食品饮料 / 消费品              | 自动同步 | <https://app.mokahr.com/campus-recruitment/budweiser/148097>          |
-| 拜耳中国               | 外企     | 医药 / 农业科技                | 自动同步 | <https://app.mokahr.com/social-recruitment/bayer/148387>              |
-| 邦德激光               | 民营企业 | 激光装备 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/bonditech/143552>          |
-| 宝洁中国               | 外企     | 消费品                         | 自动同步 | <https://app.mokahr.com/social-recruitment/pg/92352>                  |
-| 北京人形机器人创新中心 | 民营企业 | 人形机器人                     | 自动同步 | <https://zitd5je6f7j.jobs.feishu.cn/>                                 |
-| 北京智源研究院         | 事业单位 | 人工智能科研                   | 自动同步 | <https://app.mokahr.com/social-recruitment/baai/42174>                |
-| 倍轻松                 | 民营企业 | 智能穿戴                       | 自动同步 | <https://e0cmewvq7v7.jobs.feishu.cn/>                                 |
-| 毕马威中国             | 外企     | 审计 / 咨询 / 专业服务         | 自动同步 | <https://app.mokahr.com/campus-recruitment/kpmg/74356>                |
-| 壁仞科技               | 民营企业 | 人工智能 / GPU / 半导体        | 自动同步 | <https://app.mokahr.com/social-recruitment/biren/44726>               |
-| 伯曼机械中国           | 外企     | 物流装备 / 智能制造            | 自动同步 | <https://jobs.smartrecruiters.com/BEUMERGroup1>                       |
-| 博乐科技               | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/bolegames/37642>           |
-| 博瑞迪                 | 民营企业 | 生物育种                       | 自动同步 | <https://molbreeding.jobs.feishu.cn/>                                 |
-| 博世中国               | 外企     | 汽车技术 / 工业技术            | 自动同步 | <https://jobs.smartrecruiters.com/BoschGroup>                         |
-| 博思软件               | 上市公司 | 政务软件 / 数字财政            | 自动同步 | <https://app.mokahr.com/campus-recruitment/bosssoft/68370>            |
-| 博西家电中国           | 外企     | 家用电器 / 智能制造            | 自动同步 | <https://app.mokahr.com/apply/bshg/28741>                             |
-| 蔡司中国               | 外企     | 光学 / 医疗科技                | 自动同步 | <https://app.mokahr.com/social-recruitment/zeiss/70004>               |
-| 畅游                   | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/cyou-inc/42232>            |
-| 大华股份               | 上市公司 | 智能物联 / 计算机视觉          | 自动同步 | <https://job.dahuatech.com/#/CampusPosition?id=1>                     |
-| 大陆集团中国           | 外企     | 汽车科技 / 智能出行            | 自动同步 | <https://jobs.smartrecruiters.com/Continental>                        |
-| 道通智能               | 民营企业 | 无人机                         | 自动同步 | <https://iwpirwbutbu.jobs.feishu.cn/>                                 |
-| 得到                   | 民营企业 | 知识付费                       | 自动同步 | <https://dedao.jobs.feishu.cn/>                                       |
-| 得力集团               | 民营企业 | 文创科技 / 智能制造 / 零售     | 自动同步 | <https://app.mokahr.com/campus-recruitment/nbdeli/70019>              |
-| 德赛西威               | 民营企业 | 智能驾驶                       | 自动同步 | <https://yesv-desaysv.jobs.feishu.cn/>                                |
-| 滴滴                   | 民营企业 | 出行 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/didiglobal/96064>          |
-| 第四范式               | 上市公司 | 人工智能 / 机器学习平台        | 自动同步 | <https://app.mokahr.com/social-recruitment/4paradigm>                 |
-| 电魂网络               | 上市公司 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/dianhun/55952>             |
-| 东方财富               | 上市公司 | 金融科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/eastmoney/57970>           |
-| 东方海外               | 外企     | 航运 / 物流                    | 自动同步 | <https://app.mokahr.com/social-recruitment/oocl/44732>                |
-| 懂车帝                 | 民营企业 | 汽车互联网                     | 自动同步 | <https://dcar.jobs.feishu.cn/>                                        |
-| 斗鱼                   | 上市公司 | 直播 / 游戏 / 互联网           | 自动同步 | <https://app.mokahr.com/campus-recruitment/douyu/21995>               |
-| 度小满                 | 民营企业 | 金融科技 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus_apply/duxiaoman/74050>                 |
-| 鳄游                   | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/eyugame/47373>             |
-| 非夕机器人             | 民营企业 | 机器人                         | 自动同步 | <https://flexivrobotics.jobs.feishu.cn/>                              |
-| 菲尼克斯电气中国       | 外企     | 工业自动化 / 电气              | 自动同步 | <https://app.mokahr.com/apply/phoenixcontact/99349>                   |
-| 烽火通信               | 国有企业 | 通信设备 / 光通信              | 自动同步 | <https://app.mokahr.com/campus-recruitment/whfhtx/73922>              |
-| 福瑞泰克               | 民营企业 | 智能驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/freetech>                  |
-| 高力国际中国           | 外企     | 房地产服务 / 咨询              | 自动同步 | <https://jobs.smartrecruiters.com/Colliers1>                          |
-| 高途                   | 上市公司 | 教育科技 / 互联网              | 自动同步 | <https://app.mokahr.com/campus-recruitment/bjhl/102145>               |
-| 古茗                   | 上市公司 | 茶饮 / 消费                    | 自动同步 | <https://app.mokahr.com/social-recruitment/guming/39377>              |
-| 固生堂                 | 上市公司 | 医疗服务                       | 自动同步 | <https://app.mokahr.com/social-recruitment/gstzy/147395>              |
-| 光明之芯               | 民营企业 | 半导体                         | 自动同步 | <https://brightchip.jobs.feishu.cn/>                                  |
-| 广立微                 | 上市公司 | 半导体 / EDA / 集成电路        | 自动同步 | <https://app.mokahr.com/social-recruitment/semitronix/140042>         |
-| 海辰储能               | 民营企业 | 储能 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/hithium/141287>            |
-| 寒武纪                 | 上市公司 | 人工智能 / AI 芯片             | 自动同步 | <https://app.mokahr.com/social-recruitment/cambricon>                 |
-| 毫末智行               | 民营企业 | 自动驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/haomo>                     |
-| 好未来                 | 上市公司 | 教育科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/tal>                       |
-| 禾多科技               | 民营企业 | 自动驾驶                       | 自动同步 | <https://holomatic.jobs.feishu.cn/>                                   |
-| 禾赛科技               | 民营企业 | 激光雷达                       | 自动同步 | <https://kwh0jtf778.jobs.feishu.cn/>                                  |
-| 和而泰                 | 民营企业 | 智能控制器                     | 自动同步 | <https://salcje7shg.jobs.feishu.cn/>                                  |
-| 黑湖科技               | 民营企业 | 工业软件                       | 自动同步 | <https://blacklake.jobs.feishu.cn/>                                   |
-| 恒瑞医药               | 上市公司 | 生物医药 / 创新药              | 自动同步 | <https://app.mokahr.com/social-recruitment/hengrui>                   |
-| 红杉中国               | 民营企业 | 投资                           | 自动同步 | <https://hongshan.jobs.feishu.cn/>                                    |
-| 后摩智能               | 民营企业 | 半导体                         | 自动同步 | <https://houmo.jobs.feishu.cn/>                                       |
-| 华测检测               | 上市公司 | 检测认证 / 技术服务            | 自动同步 | <https://app.mokahr.com/social-recruitment/cti/145979>                |
-| 华虹集团               | 国有企业 | 半导体 / 晶圆制造              | 自动同步 | <https://app.mokahr.com/campus-recruitment/huahong/70000>             |
-| 华勤技术               | 上市公司 | 智能硬件 / 电子制造            | 自动同步 | <https://app.mokahr.com/campus-recruitment/hq/44757>                  |
-| 华为                   | 民营企业 | 通信设备 / 智能终端 / 云计算   | 自动同步 | <https://career.huawei.com/cn/campus-recruitment-job-list>            |
-| 幻方量化               | 民营企业 | 量化投资 / 人工智能            | 自动同步 | <https://app.mokahr.com/social-recruitment/high-flyer/140576>         |
-| 吉利控股集团           | 民营企业 | 汽车 / 新能源 / 智能出行       | 自动同步 | <https://app.mokahr.com/campus-recruitment/geely/78436>               |
-| 即构科技               | 民营企业 | RTC                            | 自动同步 | <https://zegocloud.jobs.feishu.cn/>                                   |
-| 极佳科技               | 民营企业 | 世界模型                       | 自动同步 | <https://gigaai0118.jobs.feishu.cn/>                                  |
-| 极兔速递               | 民营企业 | 快递物流 / 供应链              | 自动同步 | <https://jtexpress.jobs.feishu.cn/>                                   |
-| 极越汽车               | 民营企业 | 智能汽车 / 自动驾驶            | 自动同步 | <https://app.mokahr.com/social-recruitment/jiduauto>                  |
-| 嘉士伯中国             | 外企     | 食品饮料                       | 自动同步 | <https://app.mokahr.com/social-recruitment/carlsberg/37541>           |
-| 阶跃星辰               | 民营企业 | 大模型 / 人工智能              | 自动同步 | <https://app.mokahr.com/social-recruitment/step/94904>                |
-| 金山办公               | 上市公司 | 办公软件 / 协作应用            | 自动同步 | <https://app.mokahr.com/social-recruitment/wps>                       |
-| 金山软件               | 上市公司 | 软件 / 游戏 / 云服务           | 自动同步 | <https://app.mokahr.com/social-recruitment/kingsoft>                  |
-| 京东集团               | 民营企业 | 互联网 / 电商 / 物流科技       | 自动同步 | <https://campus.jd.com/#/jobs>                                        |
-| 晶科能源               | 上市公司 | 光伏 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/jinkosolar/41896>          |
-| 九号公司               | 上市公司 | 智能出行 / 机器人              | 自动同步 | <https://app.mokahr.com/social-recruitment/ninebot/45627>             |
-| 九坤投资               | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/jhlfund/46283>             |
-| 巨人网络               | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/ztgame/37485>              |
-| 句子互动               | 民营企业 | AI Agent                       | 自动同步 | <https://juzihudong.jobs.feishu.cn/>                                  |
-| 均胜集团               | 上市公司 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/joyson/94310>              |
-| 恺英网络               | 上市公司 | 游戏 / 互联网                  | 自动同步 | <https://app.mokahr.com/apply/kingnet/2247>                           |
-| 康龙化成               | 上市公司 | 医药研发外包 / CRO             | 自动同步 | <https://app.mokahr.com/social-recruitment/pharmaron>                 |
-| 科大讯飞               | 上市公司 | 人工智能 / 智能语音            | 自动同步 | <https://iflytek.zhiye.com/jobs>                                      |
-| 科捷智能               | 民营企业 | 物流装备                       | 自动同步 | <https://kengic.jobs.feishu.cn/>                                      |
-| 科尼中国               | 外企     | 工业设备 / 智能制造            | 自动同步 | <https://jobs.smartrecruiters.com/Konecranes>                         |
-| 库洛游戏               | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/kuro/46886>                |
-| 库犸科技               | 民营企业 | 机器人                         | 自动同步 | <https://mammotion.jobs.feishu.cn/>                                   |
-| 酷睿程                 | 民营企业 | 智能驾驶芯片                   | 自动同步 | <https://carizon.jobs.feishu.cn/>                                     |
-| 旷视科技               | 民营企业 | 人工智能 / 计算机视觉          | 自动同步 | <https://app.mokahr.com/social-recruitment/megviihr/38641>            |
-| 岚图汽车               | 国有企业 | 新能源汽车 / 智能制造          | 自动同步 | <https://app.mokahr.com/campus-recruitment/voyah/146293>              |
-| 蓝晶微生物             | 民营企业 | 合成生物                       | 自动同步 | <https://bluepha.jobs.feishu.cn/>                                     |
-| 蓝色光标               | 民营企业 | 营销                           | 自动同步 | <https://bluefocus.jobs.feishu.cn/>                                   |
-| 乐府互娱               | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/lovegames/21946>           |
-| 乐歌股份               | 上市公司 | 智能家居 / 跨境电商 / 机器人   | 自动同步 | <https://app.mokahr.com/social-recruitment/loctek>                    |
-| 乐刻运动               | 民营企业 | 健身                           | 自动同步 | <https://leoao-inc.jobs.feishu.cn/>                                   |
-| 乐元素                 | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/apply/leyuansu/2358>                          |
-| 雷赛智能               | 上市公司 | 工业自动化 / 机器人            | 自动同步 | <https://app.mokahr.com/campus-recruitment/leisai/115939>             |
-| 李宁                   | 上市公司 | 运动服饰 / 消费品              | 自动同步 | <https://app.mokahr.com/social-recruitment/lining>                    |
-| 理想汽车               | 民营企业 | 汽车 / 新能源                  | 自动同步 | <https://li.jobs.feishu.cn/>                                          |
-| 荔枝                   | 民营企业 | 音频 / 互联网                  | 自动同步 | <https://lizhi2021.jobs.feishu.cn/>                                   |
-| 莉莉丝                 | 民营企业 | 游戏                           | 自动同步 | <https://lilithgames.jobs.feishu.cn/>                                 |
-| 灵均投资               | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/lingjuninvest/46355>       |
-| 凌云光                 | 上市公司 | 机器视觉 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/lusterinc/44881>           |
-| 零一汽车               | 民营企业 | 新能源重卡                     | 自动同步 | <https://zeron.jobs.feishu.cn/>                                       |
-| 零一万物               | 民营企业 | 大模型                         | 自动同步 | <https://01ai.jobs.feishu.cn/>                                        |
-| 路易达孚中国           | 外企     | 农产品 / 食品供应链            | 自动同步 | <https://jobs.smartrecruiters.com/LouisDreyfusCompany>                |
-| 绿盟科技               | 上市公司 | 网络安全 / 云安全              | 自动同步 | <https://app.mokahr.com/campus-recruitment/nsfocus/29118>             |
-| 罗兰贝格中国           | 外企     | 管理咨询                       | 自动同步 | <https://jobs.smartrecruiters.com/rolandberger>                       |
-| 迈瑞医疗               | 上市公司 | 医疗器械 / 生命科学            | 自动同步 | <https://app.mokahr.com/social-recruitment/mindray>                   |
-| 脉脉                   | 民营企业 | 互联网                         | 自动同步 | <https://maimai.jobs.feishu.cn/>                                      |
-| 满帮集团               | 上市公司 | 物流 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/manbang/46269>             |
-| 蒙牛集团               | 民营企业 | 乳业 / 快速消费品              | 自动同步 | <https://mengniu.zhiye.com/jobs>                                      |
-| 米哈游                 | 民营企业 | 游戏 / 动漫 / 虚拟世界         | 自动同步 | <https://campus.mihoyo.com/>                                          |
-| 面壁智能               | 民营企业 | 大模型                         | 自动同步 | <https://modelbest.jobs.feishu.cn/>                                   |
-| 摩尔线程               | 民营企业 | GPU / 半导体                   | 自动同步 | <https://mthreads.jobs.feishu.cn/>                                    |
-| 沐瞳科技               | 民营企业 | 游戏                           | 自动同步 | <https://moonton.jobs.feishu.cn/>                                     |
-| 哪吒汽车               | 民营企业 | 新能源汽车                     | 自动同步 | <https://hozonauto.jobs.feishu.cn/>                                   |
-| 尼尔森IQ中国           | 外企     | 数据分析 / 市场研究            | 自动同步 | <https://jobs.smartrecruiters.com/NielsenIQ>                          |
-| 柠檬微趣               | 民营企业 | 游戏 / 移动互联网              | 自动同步 | <https://app.mokahr.com/apply/microfunhr/36715>                       |
-| 欧陆科技集团中国       | 外企     | 检测认证 / 生命科学            | 自动同步 | <https://jobs.smartrecruiters.com/Eurofins>                           |
-| 奇瑞汽车               | 民营企业 | 汽车 / 整车制造                | 自动同步 | <https://chery.zhiye.com/jobs>                                        |
-| 旗捷科技               | 民营企业 | 集成电路 / 打印芯片            | 自动同步 | <https://app.mokahr.com/social-recruitment/chipjet>                   |
-| 启迈QIMA中国           | 外企     | 质量检测 / 供应链服务          | 自动同步 | <https://jobs.smartrecruiters.com/QIMA>                               |
-| 千里科技               | 上市公司 | 智能驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/qianli1/147197>            |
-| 千寻智能               | 民营企业 | 具身智能                       | 自动同步 | <https://nwd4iy9rd2s.jobs.feishu.cn/>                                 |
-| 轻舟智航               | 民营企业 | 自动驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/qcraft>                    |
-| 雀巢大中华区           | 外企     | 食品 / 消费品                  | 自动同步 | <https://app.mokahr.com/social-recruitment/nestlezgc/91898>           |
-| 锐捷网络               | 上市公司 | 网络设备 / 云计算              | 自动同步 | <https://app.mokahr.com/campus-recruitment/ruijie/136206>             |
-| 瑞萨电子中国           | 外企     | 半导体 / 嵌入式系统            | 自动同步 | <https://jobs.smartrecruiters.com/RenesasElectronics>                 |
-| 赛力斯                 | 上市公司 | 新能源汽车                     | 自动同步 | <https://app.mokahr.com/social-recruitment/sokon>                     |
-| 赛智SAJ                | 民营企业 | 电气 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/saj/54336>                 |
-| 三花智控               | 上市公司 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/zjshc/56208>               |
-| 三只松鼠               | 上市公司 | 食品 / 消费品                  | 自动同步 | <https://app.mokahr.com/social-recruitment/3songshu/457>              |
-| 散爆网络               | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/micateam/142158>           |
-| 商汤科技               | 民营企业 | 人工智能 / 计算机视觉          | 自动同步 | <https://sensetime.jobs.feishu.cn/>                                   |
-| 上海创智学院           | 民营企业 | AI科研                         | 自动同步 | <https://sii-czxy.jobs.feishu.cn/>                                    |
-| 上海医药               | 国有企业 | 医药研发 / 医药流通            | 自动同步 | <https://app.mokahr.com/campus-recruitment/sphchina/39826>            |
-| 上汽通用               | 外企     | 汽车 / 整车制造                | 自动同步 | <https://sgm.zhiye.com/jobs>                                          |
-| 尚游游戏               | 民营企业 | 游戏 / 软件                    | 自动同步 | <https://app.mokahr.com/social-recruitment/shangyou/42165>            |
-| 韶音科技               | 民营企业 | 消费电子 / 声学 / 可穿戴设备   | 自动同步 | <https://app.mokahr.com/campus-recruitment/aftershokzhr/36940>        |
-| 深信服                 | 上市公司 | 网络安全 / 云计算              | 自动同步 | <https://app.mokahr.com/campus_apply/sangfor/27944>                   |
-| 生数科技               | 民营企业 | AI视频                         | 自动同步 | <https://shengshu.jobs.feishu.cn/>                                    |
-| 盛趣游戏               | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shengqu/4077>              |
-| 诗悦网络               | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shiyuehr/72054>            |
-| 施耐德电气中国         | 外企     | 能源管理 / 自动化              | 自动同步 | <https://app.mokahr.com/social-recruitment/se/98712>                  |
-| 时代新安               | 民营企业 | 动力电池                       | 自动同步 | <https://app.mokahr.com/social-recruitment/synland/58041>             |
-| 拾象科技               | 民营企业 | AI投研                         | 自动同步 | <https://shixiangtech.jobs.feishu.cn/>                                |
-| 舜宇光学科技           | 上市公司 | 光学 / 消费电子 / 智能制造     | 自动同步 | <https://app.mokahr.com/campus-recruitment/sunnyoptical/146167>       |
-| 思摩尔国际             | 上市公司 | 消费电子                       | 自动同步 | <https://app.mokahr.com/social-recruitment/smoore/126055>             |
-| 思谋科技               | 民营企业 | 人工智能 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/smartmore/40505>           |
-| 思瑞浦                 | 上市公司 | 半导体                         | 自动同步 | <https://app.mokahr.com/social-recruitment/3peakic/67894>             |
-| 思勰投资               | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/sixiecapital/42909>        |
-| 搜狐                   | 上市公司 | 互联网 / 媒体                  | 自动同步 | <https://app.mokahr.com/campus_apply/sohu/28313>                      |
-| 苏商银行               | 民营银行 | 金融科技 / 银行                | 自动同步 | <https://app.mokahr.com/social-recruitment/snb/45591>                 |
-| 它石智航               | 民营企业 | 具身智能                       | 自动同步 | <https://tarsrobot.jobs.feishu.cn/>                                   |
-| 拓维信息               | 上市公司 | 软件服务 / 人工智能 / 教育科技 | 自动同步 | <https://app.mokahr.com/social-recruitment/talkweb/71920>             |
-| 太初元碁               | 民营企业 | 人工智能 / 芯片                | 自动同步 | <https://app.mokahr.com/social-recruitment/tecorigin/47401>           |
-| 陶朗中国               | 外企     | 智能分选 / 循环经济            | 自动同步 | <https://jobs.smartrecruiters.com/TOMRA>                              |
-| 特步                   | 上市公司 | 运动服饰 / 消费品              | 自动同步 | <https://app.mokahr.com/social-recruitment/xtep>                      |
-| 特纳唐逊中国           | 外企     | 工程咨询 / 项目管理            | 自动同步 | <https://jobs.smartrecruiters.com/TurnerTownsend>                     |
-| 特斯拉中国             | 外企     | 新能源汽车 / 能源              | 自动同步 | <https://app.mokahr.com/social-recruitment/tesla/46129>               |
-| 腾讯                   | 民营企业 | 互联网 / 游戏 / 云计算         | 自动同步 | <https://careers.tencent.com/search.html>                             |
-| 天合光能               | 上市公司 | 光伏 / 储能                    | 自动同步 | <https://app.mokahr.com/social-recruitment/trinasolar/39871>          |
-| 天演资本               | 民营企业 | 量化投资 / 金融科技            | 自动同步 | <https://app.mokahr.com/social-recruitment/tianyancapital/98901>      |
-| 添可                   | 民营企业 | 智能清洁电器                   | 自动同步 | <https://app.mokahr.com/social-recruitment/tineco>                    |
-| 通威股份               | 上市公司 | 光伏 / 农业饲料                | 自动同步 | <https://app.mokahr.com/social-recruitment/tongwei>                   |
-| 途虎养车               | 上市公司 | 汽车服务 / 电商                | 自动同步 | <https://app.mokahr.com/campus_apply/tuhu/28398>                      |
-| 途游游戏               | 民营企业 | 游戏 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/tuyoogame/73946>           |
-| 完美世界               | 上市公司 | 游戏 / 影视                    | 自动同步 | <https://app.mokahr.com/campus-recruitment/pwrd/144582>               |
-| 万达商管               | 民营企业 | 商业运营 / 地产                | 自动同步 | <https://app.mokahr.com/campus-recruitment/wandacm/164049>            |
-| 万豪国际中国           | 外企     | 酒店 / 旅游                    | 自动同步 | <https://app.mokahr.com/social-recruitment/marriott/141002>           |
-| 万集科技               | 民营企业 | 雷达 / V2X                     | 自动同步 | <https://fpq5u8xh3h.jobs.feishu.cn/>                                  |
-| 万泰生物               | 上市公司 | 生物医药                       | 自动同步 | <https://app.mokahr.com/social-recruitment/ystwt/97880>               |
-| 网易                   | 上市公司 | 互联网 / 游戏 / 音乐           | 自动同步 | <https://hr.163.com/>                                                 |
-| 微步在线               | 民营企业 | 网络安全 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus-recruitment/threatbook/39679>          |
-| 微派网络               | 民营企业 | 游戏                           | 自动同步 | <https://wepie.jobs.feishu.cn/>                                       |
-| 微众银行               | 民营银行 | 数字银行 / 金融科技            | 自动同步 | <https://app.mokahr.com/social-recruitment/webank>                    |
-| 蔚来                   | 民营企业 | 汽车 / 新能源                  | 自动同步 | <https://nio.jobs.feishu.cn/>                                         |
-| 文远知行               | 上市公司 | 自动驾驶 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus-recruitment/jingchi/2137>              |
-| 沃尔沃汽车中国         | 外企     | 汽车 / 智能出行                | 自动同步 | <https://app.mokahr.com/social-recruitment/volvocars/56034>           |
-| 无问芯穹               | 民营企业 | AI Infra                       | 自动同步 | <https://infinigence.jobs.feishu.cn/>                                 |
-| 西部数据中国           | 外企     | 半导体 / 数据存储              | 自动同步 | <https://jobs.smartrecruiters.com/WesternDigital>                     |
-| 西湖大学               | 事业单位 | 科研 / 教育                    | 自动同步 | <https://app.mokahr.com/social-recruitment/westlake/43525>            |
-| 西山居                 | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/campus-recruitment/xishanju/37430>            |
-| 矽力杰                 | 上市公司 | 模拟芯片 / 半导体              | 自动同步 | <https://app.mokahr.com/social-recruitment/silergy>                   |
-| 先正达集团中国         | 外企     | 农业科技 / 生物科学            | 自动同步 | <https://jobs.smartrecruiters.com/SyngentaGroup>                      |
-| 小马智行               | 民营企业 | 自动驾驶                       | 自动同步 | <https://ponyai.jobs.feishu.cn/>                                      |
-| 小米集团               | 民营企业 | 消费电子 / 汽车 / 人工智能     | 自动同步 | <https://hr.xiaomi.com/>                                              |
-| 小鹏汽车               | 民营企业 | 汽车 / 新能源                  | 自动同步 | <https://xiaopeng.jobs.feishu.cn/>                                    |
-| 心动网络               | 民营企业 | 游戏                           | 自动同步 | <https://xd-legacy.jobs.feishu.cn/>                                   |
-| 芯盟科技               | 民营企业 | 半导体                         | 自动同步 | <https://icleague.jobs.feishu.cn/>                                    |
-| 芯永飞                 | 民营企业 | 半导体 / 集成电路              | 自动同步 | <https://app.mokahr.com/social-recruitment/xinyongfei/98087>          |
-| 新浪集团               | 民营企业 | 互联网 / 媒体 / 社交平台       | 自动同步 | <https://app.mokahr.com/campus-recruitment/sina/43536>                |
-| 星动纪元               | 民营企业 | 人形机器人                     | 自动同步 | <https://k0fqxcszc9.jobs.feishu.cn/>                                  |
-| 星辉娱乐               | 上市公司 | 游戏 / 文体娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/rastar/96228>              |
-| 徐工集团               | 国有企业 | 工程机械 / 智能制造            | 自动同步 | <https://app.mokahr.com/campus-recruitment/xcmg/148091>               |
-| 迅雷                   | 上市公司 | 互联网 / 云计算                | 自动同步 | <https://app.mokahr.com/social-recruitment/xunlei/26599>              |
-| 延锋                   | 国有企业 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/yanfeng/45086>             |
-| 扬子江船业             | 上市公司 | 船舶制造 / 重工                | 自动同步 | <https://yangzijiang.zhiye.com/jobs>                                  |
-| 阳光电源               | 上市公司 | 光伏逆变器 / 储能              | 自动同步 | <https://app.mokahr.com/social-recruitment/sungrow>                   |
-| 椰岛游戏               | 民营企业 | 游戏                           | 自动同步 | <https://coconutisland.jobs.feishu.cn/>                               |
-| 宜家中国               | 外企     | 家居零售 / 供应链              | 自动同步 | <https://jobs.smartrecruiters.com/InterIKEAGroup>                     |
-| 亿咖通                 | 民营企业 | 汽车电子                       | 自动同步 | <https://ecarxgroup.jobs.feishu.cn/>                                  |
-| 易咖智车               | 民营企业 | 无人物流车                     | 自动同步 | <https://ecartech.jobs.feishu.cn/>                                    |
-| 银河通用               | 民营企业 | 具身智能                       | 自动同步 | <https://owm6ymi5v9b.jobs.feishu.cn/870797>                           |
-| 英富曼中国             | 外企     | 会展 / 专业信息服务            | 自动同步 | <https://jobs.smartrecruiters.com/InformaGroupPlc>                    |
-| 鹰角网络               | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/campus_apply/hypergryph/26326>                |
-| 影石Insta360           | 民营企业 | 消费电子                       | 自动同步 | <https://arashivision.jobs.feishu.cn/>                                |
-| 影视飓风               | 民营企业 | 内容 / 传媒                    | 自动同步 | <https://mediastorm.jobs.feishu.cn/>                                  |
-| 勇仕网络               | 民营企业 | 游戏 / 软件                    | 自动同步 | <https://app.mokahr.com/campus-recruitment/ys4fun/45636>              |
-| 悠星网络               | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/apply/yostar/26843>                           |
-| 游族网络               | 上市公司 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/yoozoo/91950>              |
-| 友谊时光               | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/yokagames/41939>           |
-| 宇树科技               | 民营企业 | 机器人 / 具身智能              | 自动同步 | <https://unitree.zhiye.com/jobs>                                      |
-| 育碧中国               | 外企     | 游戏 / 数字娱乐                | 自动同步 | <https://jobs.smartrecruiters.com/Ubisoft2>                           |
-| 元气森林               | 民营企业 | 消费品                         | 自动同步 | <https://k11pnjpvz1.jobs.feishu.cn/>                                  |
-| 元戎启行               | 民营企业 | 自动驾驶 / 人工智能            | 自动同步 | <https://app.mokahr.com/social-recruitment/deeproute/143885>          |
-| 远景科技集团           | 民营企业 | 新能源 / 智能物联              | 自动同步 | <https://app.mokahr.com/campus-recruitment/envisiongroup/43123>       |
-| 月之暗面               | 民营企业 | 大模型                         | 自动同步 | <https://moonshot.jobs.feishu.cn/>                                    |
-| 云从科技               | 上市公司 | 人工智能 / 计算机视觉          | 自动同步 | <https://app.mokahr.com/social-recruitment/cloudwalk>                 |
-| 长安汽车               | 国有企业 | 汽车 / 整车制造                | 自动同步 | <https://changan.zhiye.com/jobs>                                      |
-| 掌阅科技               | 民营企业 | 互联网                         | 自动同步 | <https://q7w8vltyes.jobs.feishu.cn/>                                  |
-| 兆易创新               | 上市公司 | 存储芯片 / MCU                 | 自动同步 | <https://app.mokahr.com/social-recruitment/gigadevice>                |
-| 正泰集团               | 民营企业 | 电气设备 / 新能源              | 自动同步 | <https://app.mokahr.com/social-recruitment/chint>                     |
-| 知乎                   | 上市公司 | 互联网 / 内容社区              | 自动同步 | <https://app.mokahr.com/apply/zhihu/78336>                            |
-| 志凌海纳 SmartX        | 民营企业 | 云计算 / 超融合 / 企业软件     | 自动同步 | <https://app.mokahr.com/social-recruitment/smartx>                    |
-| 智驾新程               | 民营企业 | 自动驾驶                       | 自动同步 | <https://neuehct.jobs.feishu.cn/>                                     |
-| 智谱AI                 | 民营企业 | 大模型                         | 自动同步 | <https://zhipu-ai.jobs.feishu.cn/>                                    |
-| 智元机器人             | 民营企业 | 人形机器人                     | 自动同步 | <https://agirobot.jobs.feishu.cn/>                                    |
-| 中科创达               | 民营企业 | 智能软件                       | 自动同步 | <https://thundersoft.jobs.feishu.cn/>                                 |
-| 中兴通讯               | 上市公司 | 通信设备 / 云计算 / 芯片       | 自动同步 | <https://app.mokahr.com/campus-recruitment/zte/46903>                 |
-| 紫光展锐               | 民营企业 | 芯片设计 / 移动通信            | 自动同步 | <https://app.mokahr.com/social-recruitment/unisoc>                    |
-| 紫金矿业               | 上市公司 | 矿业 / 新能源材料              | 自动同步 | <https://app.mokahr.com/social-recruitment/zijinmining/140688>        |
-| 字节跳动               | 民营企业 | 互联网 / 人工智能 / 内容平台   | 自动同步 | <https://jobs.bytedance.com/experienced>                              |
-| 自变量机器人           | 民营企业 | 具身智能                       | 自动同步 | <https://x2-robot.jobs.feishu.cn/>                                    |
-| 作业帮                 | 民营企业 | 教育科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/zuoyebang/41328>           |
-| Alpha2 Fund            | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/alpha2fund/151123>         |
-| Altium中国             | 外企     | EDA / 企业软件                 | 自动同步 | <https://job-boards.greenhouse.io/altium>                             |
-| Appier中国             | 外企     | 人工智能 / 营销科技            | 自动同步 | <https://job-boards.greenhouse.io/appier>                             |
-| ASML中国               | 外企     | 半导体设备 / 光刻              | 自动同步 | <https://campus.51job.com/asml2027/>                                  |
-| AUMOVIO中国            | 外企     | 汽车科技 / 智能出行            | 自动同步 | <https://jobs.smartrecruiters.com/Aumovio>                            |
-| Babycare               | 民营企业 | 母婴消费                       | 自动同步 | <https://babycare.jobs.feishu.cn/>                                    |
-| BIGO中国               | 外企     | 互联网 / 直播                  | 自动同步 | <https://app.mokahr.com/social-recruitment/bigo/37723>                |
-| BoomingTech            | 民营企业 | 游戏                           | 自动同步 | <https://boomingtech.jobs.feishu.cn/>                                 |
-| Brooks Running中国     | 外企     | 运动用品 / 零售                | 自动同步 | <https://jobs.lever.co/brooksrunning>                                 |
-| Canva中国              | 外企     | 设计软件 / 互联网              | 自动同步 | <https://jobs.smartrecruiters.com/Canva>                              |
-| Cider                  | 民营企业 | 跨境电商                       | 自动同步 | <https://ciderglobal.jobs.feishu.cn/>                                 |
-| Coda Payments中国      | 外企     | 游戏支付 / 金融科技            | 自动同步 | <https://jobs.lever.co/Coda>                                          |
-| DolphinDB              | 民营企业 | 数据库 / 金融科技              | 自动同步 | <https://app.mokahr.com/social-recruitment/dolphindb/37785>           |
-| Ekimetrics中国         | 外企     | 数据科学 / 咨询                | 自动同步 | <https://jobs.lever.co/ekimetrics>                                    |
-| Garena中国             | 外企     | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/garena/147001>             |
-| Guidepoint中国         | 外企     | 专家咨询 / 行业研究            | 自动同步 | <https://job-boards.greenhouse.io/guidepoint>                         |
-| H&M中国                | 外企     | 时尚零售 / 电商                | 自动同步 | <https://jobs.smartrecruiters.com/HMGroup>                            |
-| IDEO中国               | 外企     | 设计咨询 / 创新                | 自动同步 | <https://job-boards.greenhouse.io/ideo>                               |
-| LINE MAN Wongnai       | 外企     | 互联网 / 本地生活              | 自动同步 | <https://app.mokahr.com/social-recruitment/linecorp/150828>           |
-| Meshy太极图形          | 民营企业 | 人工智能 / 3D                  | 自动同步 | <https://app.mokahr.com/social-recruitment/taichi/148086>             |
-| MetaApp                | 民营企业 | 游戏平台                       | 自动同步 | <https://meta.jobs.feishu.cn/>                                        |
-| MiniMax                | 民营企业 | 大模型                         | 自动同步 | <https://vrfi1sk8a0.jobs.feishu.cn/>                                  |
-| Moloco中国             | 外企     | 人工智能 / 广告科技            | 自动同步 | <https://job-boards.greenhouse.io/moloco>                             |
-| NVIDIA中国             | 外企     | 半导体 / GPU / 人工智能        | 自动同步 | <https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite> |
-| PPRO中国               | 外企     | 支付 / 金融科技                | 自动同步 | <https://jobs.lever.co/ppro>                                          |
-| PRADA中国              | 外企     | 奢侈品 / 零售                  | 自动同步 | <https://app.mokahr.com/social-recruitment/pradagroup/151069>         |
-| PSI CRO中国            | 外企     | 临床研究 / 医药                | 自动同步 | <https://jobs.smartrecruiters.com/PSICRO>                             |
-| Sharpa                 | 民营企业 | 灵巧手                         | 自动同步 | <https://fcn5hvc5qbfs.jobs.feishu.cn/>                                |
-| SHEIN希音              | 民营企业 | 跨境电商 / 时尚                | 自动同步 | <https://app.mokahr.com/social-recruitment/shein/2933>                |
-| Shopee中国             | 外企     | 电商                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shopee/2962>               |
-| Sobi中国               | 外企     | 生物医药                       | 自动同步 | <https://jobs.smartrecruiters.com/Sobi>                               |
-| Solidigm中国           | 外企     | 半导体 / 数据存储              | 自动同步 | <https://jobs.smartrecruiters.com/Solidigm>                           |
-| Third Bridge中国       | 外企     | 行业研究 / 专家咨询            | 自动同步 | <https://jobs.smartrecruiters.com/ThirdBridge>                        |
-| uwant                  | 民营企业 | 智能清洁电器                   | 自动同步 | <https://app.mokahr.com/social-recruitment/uwant>                     |
-| VAST                   | 民营企业 | AI 3D                          | 自动同步 | <https://a9ihi0un9c.jobs.feishu.cn/>                                  |
-| Xsolla中国             | 外企     | 游戏支付 / 金融科技            | 自动同步 | <https://jobs.lever.co/xsolla>                                        |
-| xTool                  | 民营企业 | 智能硬件                       | 自动同步 | <https://xtool.jobs.feishu.cn/>                                       |
-| Zenni Optical中国      | 外企     | 眼镜 / 电商 / 制造             | 自动同步 | <https://job-boards.greenhouse.io/zennioptical>                       |
+| 公司               | 类型     | 行业                           | 渠道     | 链接                                                                  |
+| ------------------ | -------- | ------------------------------ | -------- | --------------------------------------------------------------------- |
+| 艾利丹尼森中国     | 外企     | 材料科学 / 制造业              | 自动同步 | <https://jobs.smartrecruiters.com/AveryDennison>                      |
+| 艾罗能源           | 上市公司 | 光伏 / 储能                    | 自动同步 | <https://app.mokahr.com/social-recruitment/solaxpower/151400>         |
+| 安踏集团           | 上市公司 | 服饰 / 零售                    | 自动同步 | <https://app.mokahr.com/social-recruitment/antahr/142914>             |
+| 安永中国           | 外企     | 专业服务                       | 自动同步 | <https://app.mokahr.com/social-recruitment/ey/102474>                 |
+| 百度               | 民营企业 | 互联网 / 人工智能 / 云计算     | 自动同步 | <https://talent.baidu.com/jobs/list>                                  |
+| 百济神州           | 上市公司 | 生物医药 / 肿瘤创新药          | 自动同步 | <https://app.mokahr.com/social-recruitment/beigene>                   |
+| 百威中国           | 外企     | 食品饮料 / 消费品              | 自动同步 | <https://app.mokahr.com/campus-recruitment/budweiser/148097>          |
+| 拜耳中国           | 外企     | 医药 / 农业科技                | 自动同步 | <https://app.mokahr.com/social-recruitment/bayer/148387>              |
+| 邦德激光           | 民营企业 | 激光装备 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/bonditech/143552>          |
+| 宝洁中国           | 外企     | 消费品                         | 自动同步 | <https://app.mokahr.com/social-recruitment/pg/92352>                  |
+| 北京智源研究院     | 事业单位 | 人工智能科研                   | 自动同步 | <https://app.mokahr.com/social-recruitment/baai/42174>                |
+| 毕马威中国         | 外企     | 审计 / 咨询 / 专业服务         | 自动同步 | <https://app.mokahr.com/campus-recruitment/kpmg/74356>                |
+| 壁仞科技           | 民营企业 | 人工智能 / GPU / 半导体        | 自动同步 | <https://app.mokahr.com/social-recruitment/biren/44726>               |
+| 伯曼机械中国       | 外企     | 物流装备 / 智能制造            | 自动同步 | <https://jobs.smartrecruiters.com/BEUMERGroup1>                       |
+| 博乐科技           | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/bolegames/37642>           |
+| 博世中国           | 外企     | 汽车技术 / 工业技术            | 自动同步 | <https://jobs.smartrecruiters.com/BoschGroup>                         |
+| 博思软件           | 上市公司 | 政务软件 / 数字财政            | 自动同步 | <https://app.mokahr.com/campus-recruitment/bosssoft/68370>            |
+| 博西家电中国       | 外企     | 家用电器 / 智能制造            | 自动同步 | <https://app.mokahr.com/apply/bshg/28741>                             |
+| 蔡司中国           | 外企     | 光学 / 医疗科技                | 自动同步 | <https://app.mokahr.com/social-recruitment/zeiss/70004>               |
+| 畅游               | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/cyou-inc/42232>            |
+| 大华股份           | 上市公司 | 智能物联 / 计算机视觉          | 自动同步 | <https://job.dahuatech.com/#/CampusPosition?id=1>                     |
+| 大陆集团中国       | 外企     | 汽车科技 / 智能出行            | 自动同步 | <https://jobs.smartrecruiters.com/Continental>                        |
+| 得力集团           | 民营企业 | 文创科技 / 智能制造 / 零售     | 自动同步 | <https://app.mokahr.com/campus-recruitment/nbdeli/70019>              |
+| 滴滴               | 民营企业 | 出行 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/didiglobal/96064>          |
+| 第四范式           | 上市公司 | 人工智能 / 机器学习平台        | 自动同步 | <https://app.mokahr.com/social-recruitment/4paradigm>                 |
+| 电魂网络           | 上市公司 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/dianhun/55952>             |
+| 东方财富           | 上市公司 | 金融科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/eastmoney/57970>           |
+| 东方海外           | 外企     | 航运 / 物流                    | 自动同步 | <https://app.mokahr.com/social-recruitment/oocl/44732>                |
+| 斗鱼               | 上市公司 | 直播 / 游戏 / 互联网           | 自动同步 | <https://app.mokahr.com/campus-recruitment/douyu/21995>               |
+| 度小满             | 民营企业 | 金融科技 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus_apply/duxiaoman/74050>                 |
+| 鳄游               | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/eyugame/47373>             |
+| 菲尼克斯电气中国   | 外企     | 工业自动化 / 电气              | 自动同步 | <https://app.mokahr.com/apply/phoenixcontact/99349>                   |
+| 烽火通信           | 国有企业 | 通信设备 / 光通信              | 自动同步 | <https://app.mokahr.com/campus-recruitment/whfhtx/73922>              |
+| 福瑞泰克           | 民营企业 | 智能驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/freetech>                  |
+| 高力国际中国       | 外企     | 房地产服务 / 咨询              | 自动同步 | <https://jobs.smartrecruiters.com/Colliers1>                          |
+| 高途               | 上市公司 | 教育科技 / 互联网              | 自动同步 | <https://app.mokahr.com/campus-recruitment/bjhl/102145>               |
+| 古茗               | 上市公司 | 茶饮 / 消费                    | 自动同步 | <https://app.mokahr.com/social-recruitment/guming/39377>              |
+| 固生堂             | 上市公司 | 医疗服务                       | 自动同步 | <https://app.mokahr.com/social-recruitment/gstzy/147395>              |
+| 广立微             | 上市公司 | 半导体 / EDA / 集成电路        | 自动同步 | <https://app.mokahr.com/social-recruitment/semitronix/140042>         |
+| 海辰储能           | 民营企业 | 储能 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/hithium/141287>            |
+| 寒武纪             | 上市公司 | 人工智能 / AI 芯片             | 自动同步 | <https://app.mokahr.com/social-recruitment/cambricon>                 |
+| 毫末智行           | 民营企业 | 自动驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/haomo>                     |
+| 好未来             | 上市公司 | 教育科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/tal>                       |
+| 恒瑞医药           | 上市公司 | 生物医药 / 创新药              | 自动同步 | <https://app.mokahr.com/social-recruitment/hengrui>                   |
+| 华测检测           | 上市公司 | 检测认证 / 技术服务            | 自动同步 | <https://app.mokahr.com/social-recruitment/cti/145979>                |
+| 华虹集团           | 国有企业 | 半导体 / 晶圆制造              | 自动同步 | <https://app.mokahr.com/campus-recruitment/huahong/70000>             |
+| 华勤技术           | 上市公司 | 智能硬件 / 电子制造            | 自动同步 | <https://app.mokahr.com/campus-recruitment/hq/44757>                  |
+| 华为               | 民营企业 | 通信设备 / 智能终端 / 云计算   | 自动同步 | <https://career.huawei.com/cn/campus-recruitment-job-list>            |
+| 吉利控股集团       | 民营企业 | 汽车 / 新能源 / 智能出行       | 自动同步 | <https://app.mokahr.com/campus-recruitment/geely/78436>               |
+| 极越汽车           | 民营企业 | 智能汽车 / 自动驾驶            | 自动同步 | <https://app.mokahr.com/social-recruitment/jiduauto>                  |
+| 嘉士伯中国         | 外企     | 食品饮料                       | 自动同步 | <https://app.mokahr.com/social-recruitment/carlsberg/37541>           |
+| 阶跃星辰           | 民营企业 | 大模型 / 人工智能              | 自动同步 | <https://app.mokahr.com/social-recruitment/step/94904>                |
+| 金山办公           | 上市公司 | 办公软件 / 协作应用            | 自动同步 | <https://app.mokahr.com/social-recruitment/wps>                       |
+| 金山软件           | 上市公司 | 软件 / 游戏 / 云服务           | 自动同步 | <https://app.mokahr.com/social-recruitment/kingsoft>                  |
+| 京东集团           | 民营企业 | 互联网 / 电商 / 物流科技       | 自动同步 | <https://campus.jd.com/#/jobs>                                        |
+| 晶科能源           | 上市公司 | 光伏 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/jinkosolar/41896>          |
+| 九号公司           | 上市公司 | 智能出行 / 机器人              | 自动同步 | <https://app.mokahr.com/social-recruitment/ninebot/45627>             |
+| 九坤投资           | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/jhlfund/46283>             |
+| 巨人网络           | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/ztgame/37485>              |
+| 均胜集团           | 上市公司 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/joyson/94310>              |
+| 恺英网络           | 上市公司 | 游戏 / 互联网                  | 自动同步 | <https://app.mokahr.com/apply/kingnet/2247>                           |
+| 康龙化成           | 上市公司 | 医药研发外包 / CRO             | 自动同步 | <https://app.mokahr.com/social-recruitment/pharmaron>                 |
+| 科大讯飞           | 上市公司 | 人工智能 / 智能语音            | 自动同步 | <https://iflytek.zhiye.com/jobs>                                      |
+| 科尼中国           | 外企     | 工业设备 / 智能制造            | 自动同步 | <https://jobs.smartrecruiters.com/Konecranes>                         |
+| 库洛游戏           | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/kuro/46886>                |
+| 旷视科技           | 民营企业 | 人工智能 / 计算机视觉          | 自动同步 | <https://app.mokahr.com/social-recruitment/megviihr/38641>            |
+| 岚图汽车           | 国有企业 | 新能源汽车 / 智能制造          | 自动同步 | <https://app.mokahr.com/campus-recruitment/voyah/146293>              |
+| 乐府互娱           | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/lovegames/21946>           |
+| 乐歌股份           | 上市公司 | 智能家居 / 跨境电商 / 机器人   | 自动同步 | <https://app.mokahr.com/social-recruitment/loctek>                    |
+| 乐元素             | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/apply/leyuansu/2358>                          |
+| 雷赛智能           | 上市公司 | 工业自动化 / 机器人            | 自动同步 | <https://app.mokahr.com/campus-recruitment/leisai/115939>             |
+| 李宁               | 上市公司 | 运动服饰 / 消费品              | 自动同步 | <https://app.mokahr.com/social-recruitment/lining>                    |
+| 灵均投资           | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/lingjuninvest/46355>       |
+| 凌云光             | 上市公司 | 机器视觉 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/lusterinc/44881>           |
+| 路易达孚中国       | 外企     | 农产品 / 食品供应链            | 自动同步 | <https://jobs.smartrecruiters.com/LouisDreyfusCompany>                |
+| 绿盟科技           | 上市公司 | 网络安全 / 云安全              | 自动同步 | <https://app.mokahr.com/campus-recruitment/nsfocus/29118>             |
+| 罗兰贝格中国       | 外企     | 管理咨询                       | 自动同步 | <https://jobs.smartrecruiters.com/rolandberger>                       |
+| 迈瑞医疗           | 上市公司 | 医疗器械 / 生命科学            | 自动同步 | <https://app.mokahr.com/social-recruitment/mindray>                   |
+| 满帮集团           | 上市公司 | 物流 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/manbang/46269>             |
+| 美团               | 民营企业 | 互联网 / 本地生活 / 科技零售   | 自动同步 | <https://job.meituan.com/web/social>                                  |
+| 蒙牛集团           | 民营企业 | 乳业 / 快速消费品              | 自动同步 | <https://mengniu.zhiye.com/jobs>                                      |
+| 米哈游             | 民营企业 | 游戏 / 动漫 / 虚拟世界         | 自动同步 | <https://campus.mihoyo.com/>                                          |
+| 尼尔森IQ中国       | 外企     | 数据分析 / 市场研究            | 自动同步 | <https://jobs.smartrecruiters.com/NielsenIQ>                          |
+| 柠檬微趣           | 民营企业 | 游戏 / 移动互联网              | 自动同步 | <https://app.mokahr.com/apply/microfunhr/36715>                       |
+| 欧陆科技集团中国   | 外企     | 检测认证 / 生命科学            | 自动同步 | <https://jobs.smartrecruiters.com/Eurofins>                           |
+| 奇瑞汽车           | 民营企业 | 汽车 / 整车制造                | 自动同步 | <https://chery.zhiye.com/jobs>                                        |
+| 旗捷科技           | 民营企业 | 集成电路 / 打印芯片            | 自动同步 | <https://app.mokahr.com/social-recruitment/chipjet>                   |
+| 启迈QIMA中国       | 外企     | 质量检测 / 供应链服务          | 自动同步 | <https://jobs.smartrecruiters.com/QIMA>                               |
+| 千里科技           | 上市公司 | 智能驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/qianli1/147197>            |
+| 轻舟智航           | 民营企业 | 自动驾驶                       | 自动同步 | <https://app.mokahr.com/social-recruitment/qcraft>                    |
+| 雀巢大中华区       | 外企     | 食品 / 消费品                  | 自动同步 | <https://app.mokahr.com/social-recruitment/nestlezgc/91898>           |
+| 锐捷网络           | 上市公司 | 网络设备 / 云计算              | 自动同步 | <https://app.mokahr.com/campus-recruitment/ruijie/136206>             |
+| 瑞萨电子中国       | 外企     | 半导体 / 嵌入式系统            | 自动同步 | <https://jobs.smartrecruiters.com/RenesasElectronics>                 |
+| 赛力斯             | 上市公司 | 新能源汽车                     | 自动同步 | <https://app.mokahr.com/social-recruitment/sokon>                     |
+| 赛智SAJ            | 民营企业 | 电气 / 新能源                  | 自动同步 | <https://app.mokahr.com/social-recruitment/saj/54336>                 |
+| 三花智控           | 上市公司 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/zjshc/56208>               |
+| 三只松鼠           | 上市公司 | 食品 / 消费品                  | 自动同步 | <https://app.mokahr.com/social-recruitment/3songshu/457>              |
+| 散爆网络           | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/micateam/142158>           |
+| 上海医药           | 国有企业 | 医药研发 / 医药流通            | 自动同步 | <https://app.mokahr.com/campus-recruitment/sphchina/39826>            |
+| 上汽通用           | 外企     | 汽车 / 整车制造                | 自动同步 | <https://sgm.zhiye.com/jobs>                                          |
+| 尚游游戏           | 民营企业 | 游戏 / 软件                    | 自动同步 | <https://app.mokahr.com/social-recruitment/shangyou/42165>            |
+| 韶音科技           | 民营企业 | 消费电子 / 声学 / 可穿戴设备   | 自动同步 | <https://app.mokahr.com/campus-recruitment/aftershokzhr/36940>        |
+| 深信服             | 上市公司 | 网络安全 / 云计算              | 自动同步 | <https://app.mokahr.com/campus_apply/sangfor/27944>                   |
+| 盛趣游戏           | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shengqu/4077>              |
+| 诗悦网络           | 民营企业 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shiyuehr/72054>            |
+| 施耐德电气中国     | 外企     | 能源管理 / 自动化              | 自动同步 | <https://app.mokahr.com/social-recruitment/se/98712>                  |
+| 时代新安           | 民营企业 | 动力电池                       | 自动同步 | <https://app.mokahr.com/social-recruitment/synland/58041>             |
+| 舜宇光学科技       | 上市公司 | 光学 / 消费电子 / 智能制造     | 自动同步 | <https://app.mokahr.com/campus-recruitment/sunnyoptical/146167>       |
+| 思摩尔国际         | 上市公司 | 消费电子                       | 自动同步 | <https://app.mokahr.com/social-recruitment/smoore/126055>             |
+| 思谋科技           | 民营企业 | 人工智能 / 智能制造            | 自动同步 | <https://app.mokahr.com/social-recruitment/smartmore/40505>           |
+| 思瑞浦             | 上市公司 | 半导体                         | 自动同步 | <https://app.mokahr.com/social-recruitment/3peakic/67894>             |
+| 思勰投资           | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/sixiecapital/42909>        |
+| 搜狐               | 上市公司 | 互联网 / 媒体                  | 自动同步 | <https://app.mokahr.com/campus_apply/sohu/28313>                      |
+| 苏商银行           | 民营银行 | 金融科技 / 银行                | 自动同步 | <https://app.mokahr.com/social-recruitment/snb/45591>                 |
+| 拓维信息           | 上市公司 | 软件服务 / 人工智能 / 教育科技 | 自动同步 | <https://app.mokahr.com/social-recruitment/talkweb/71920>             |
+| 太初元碁           | 民营企业 | 人工智能 / 芯片                | 自动同步 | <https://app.mokahr.com/social-recruitment/tecorigin/47401>           |
+| 陶朗中国           | 外企     | 智能分选 / 循环经济            | 自动同步 | <https://jobs.smartrecruiters.com/TOMRA>                              |
+| 特步               | 上市公司 | 运动服饰 / 消费品              | 自动同步 | <https://app.mokahr.com/social-recruitment/xtep>                      |
+| 特纳唐逊中国       | 外企     | 工程咨询 / 项目管理            | 自动同步 | <https://jobs.smartrecruiters.com/TurnerTownsend>                     |
+| 特斯拉中国         | 外企     | 新能源汽车 / 能源              | 自动同步 | <https://app.mokahr.com/social-recruitment/tesla/46129>               |
+| 腾讯               | 民营企业 | 互联网 / 游戏 / 云计算         | 自动同步 | <https://careers.tencent.com/search.html>                             |
+| 天合光能           | 上市公司 | 光伏 / 储能                    | 自动同步 | <https://app.mokahr.com/social-recruitment/trinasolar/39871>          |
+| 天演资本           | 民营企业 | 量化投资 / 金融科技            | 自动同步 | <https://app.mokahr.com/social-recruitment/tianyancapital/98901>      |
+| 添可               | 民营企业 | 智能清洁电器                   | 自动同步 | <https://app.mokahr.com/social-recruitment/tineco>                    |
+| 通威股份           | 上市公司 | 光伏 / 农业饲料                | 自动同步 | <https://app.mokahr.com/social-recruitment/tongwei>                   |
+| 途虎养车           | 上市公司 | 汽车服务 / 电商                | 自动同步 | <https://app.mokahr.com/campus_apply/tuhu/28398>                      |
+| 途游游戏           | 民营企业 | 游戏 / 互联网                  | 自动同步 | <https://app.mokahr.com/social-recruitment/tuyoogame/73946>           |
+| 完美世界           | 上市公司 | 游戏 / 影视                    | 自动同步 | <https://app.mokahr.com/campus-recruitment/pwrd/144582>               |
+| 万达商管           | 民营企业 | 商业运营 / 地产                | 自动同步 | <https://app.mokahr.com/campus-recruitment/wandacm/164049>            |
+| 万豪国际中国       | 外企     | 酒店 / 旅游                    | 自动同步 | <https://app.mokahr.com/social-recruitment/marriott/141002>           |
+| 万泰生物           | 上市公司 | 生物医药                       | 自动同步 | <https://app.mokahr.com/social-recruitment/ystwt/97880>               |
+| 网易               | 上市公司 | 互联网 / 游戏 / 音乐           | 自动同步 | <https://hr.163.com/>                                                 |
+| 微步在线           | 民营企业 | 网络安全 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus-recruitment/threatbook/39679>          |
+| 微众银行           | 民营银行 | 数字银行 / 金融科技            | 自动同步 | <https://app.mokahr.com/social-recruitment/webank>                    |
+| 文远知行           | 上市公司 | 自动驾驶 / 人工智能            | 自动同步 | <https://app.mokahr.com/campus-recruitment/jingchi/2137>              |
+| 沃尔沃汽车中国     | 外企     | 汽车 / 智能出行                | 自动同步 | <https://app.mokahr.com/social-recruitment/volvocars/56034>           |
+| 西部数据中国       | 外企     | 半导体 / 数据存储              | 自动同步 | <https://jobs.smartrecruiters.com/WesternDigital>                     |
+| 西湖大学           | 事业单位 | 科研 / 教育                    | 自动同步 | <https://app.mokahr.com/social-recruitment/westlake/43525>            |
+| 西山居             | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/campus-recruitment/xishanju/37430>            |
+| 矽力杰             | 上市公司 | 模拟芯片 / 半导体              | 自动同步 | <https://app.mokahr.com/social-recruitment/silergy>                   |
+| 先正达集团中国     | 外企     | 农业科技 / 生物科学            | 自动同步 | <https://jobs.smartrecruiters.com/SyngentaGroup>                      |
+| 小米集团           | 民营企业 | 消费电子 / 汽车 / 人工智能     | 自动同步 | <https://hr.xiaomi.com/>                                              |
+| 芯永飞             | 民营企业 | 半导体 / 集成电路              | 自动同步 | <https://app.mokahr.com/social-recruitment/xinyongfei/98087>          |
+| 新浪集团           | 民营企业 | 互联网 / 媒体 / 社交平台       | 自动同步 | <https://app.mokahr.com/campus-recruitment/sina/43536>                |
+| 星辉娱乐           | 上市公司 | 游戏 / 文体娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/rastar/96228>              |
+| 徐工集团           | 国有企业 | 工程机械 / 智能制造            | 自动同步 | <https://app.mokahr.com/campus-recruitment/xcmg/148091>               |
+| 迅雷               | 上市公司 | 互联网 / 云计算                | 自动同步 | <https://app.mokahr.com/social-recruitment/xunlei/26599>              |
+| 延锋               | 国有企业 | 汽车零部件                     | 自动同步 | <https://app.mokahr.com/social-recruitment/yanfeng/45086>             |
+| 扬子江船业         | 上市公司 | 船舶制造 / 重工                | 自动同步 | <https://yangzijiang.zhiye.com/jobs>                                  |
+| 阳光电源           | 上市公司 | 光伏逆变器 / 储能              | 自动同步 | <https://app.mokahr.com/social-recruitment/sungrow>                   |
+| 宜家中国           | 外企     | 家居零售 / 供应链              | 自动同步 | <https://jobs.smartrecruiters.com/InterIKEAGroup>                     |
+| 英富曼中国         | 外企     | 会展 / 专业信息服务            | 自动同步 | <https://jobs.smartrecruiters.com/InformaGroupPlc>                    |
+| 鹰角网络           | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/campus_apply/hypergryph/26326>                |
+| 勇仕网络           | 民营企业 | 游戏 / 软件                    | 自动同步 | <https://app.mokahr.com/campus-recruitment/ys4fun/45636>              |
+| 悠星网络           | 民营企业 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/apply/yostar/26843>                           |
+| 游族网络           | 上市公司 | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/yoozoo/91950>              |
+| 友谊时光           | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/yokagames/41939>           |
+| 宇树科技           | 民营企业 | 机器人 / 具身智能              | 自动同步 | <https://unitree.zhiye.com/jobs>                                      |
+| 育碧中国           | 外企     | 游戏 / 数字娱乐                | 自动同步 | <https://jobs.smartrecruiters.com/Ubisoft2>                           |
+| 元戎启行           | 民营企业 | 自动驾驶 / 人工智能            | 自动同步 | <https://app.mokahr.com/social-recruitment/deeproute/143885>          |
+| 远景科技集团       | 民营企业 | 新能源 / 智能物联              | 自动同步 | <https://app.mokahr.com/campus-recruitment/envisiongroup/43123>       |
+| 云从科技           | 上市公司 | 人工智能 / 计算机视觉          | 自动同步 | <https://app.mokahr.com/social-recruitment/cloudwalk>                 |
+| 长安汽车           | 国有企业 | 汽车 / 整车制造                | 自动同步 | <https://changan.zhiye.com/jobs>                                      |
+| 兆易创新           | 上市公司 | 存储芯片 / MCU                 | 自动同步 | <https://app.mokahr.com/social-recruitment/gigadevice>                |
+| 正泰集团           | 民营企业 | 电气设备 / 新能源              | 自动同步 | <https://app.mokahr.com/social-recruitment/chint>                     |
+| 知乎               | 上市公司 | 互联网 / 内容社区              | 自动同步 | <https://app.mokahr.com/apply/zhihu/78336>                            |
+| 志凌海纳 SmartX    | 民营企业 | 云计算 / 超融合 / 企业软件     | 自动同步 | <https://app.mokahr.com/social-recruitment/smartx>                    |
+| 中国广核集团       | 中央企业 | 核能 / 新能源                  | 自动同步 | <https://cgn.hotjob.cn/wt/CGN/mobweb/v8/position/list>                |
+| 中兴通讯           | 上市公司 | 通信设备 / 云计算 / 芯片       | 自动同步 | <https://app.mokahr.com/campus-recruitment/zte/46903>                 |
+| 紫光展锐           | 民营企业 | 芯片设计 / 移动通信            | 自动同步 | <https://app.mokahr.com/social-recruitment/unisoc>                    |
+| 紫金矿业           | 上市公司 | 矿业 / 新能源材料              | 自动同步 | <https://app.mokahr.com/social-recruitment/zijinmining/140688>        |
+| 字节跳动           | 民营企业 | 互联网 / 人工智能 / 内容平台   | 自动同步 | <https://jobs.bytedance.com/experienced>                              |
+| 作业帮             | 民营企业 | 教育科技                       | 自动同步 | <https://app.mokahr.com/social-recruitment/zuoyebang/41328>           |
+| Alpha2 Fund        | 民营企业 | 量化投资                       | 自动同步 | <https://app.mokahr.com/social-recruitment/alpha2fund/151123>         |
+| Altium中国         | 外企     | EDA / 企业软件                 | 自动同步 | <https://job-boards.greenhouse.io/altium>                             |
+| Appier中国         | 外企     | 人工智能 / 营销科技            | 自动同步 | <https://job-boards.greenhouse.io/appier>                             |
+| ASML中国           | 外企     | 半导体设备 / 光刻              | 自动同步 | <https://campus.51job.com/asml2027/>                                  |
+| AUMOVIO中国        | 外企     | 汽车科技 / 智能出行            | 自动同步 | <https://jobs.smartrecruiters.com/Aumovio>                            |
+| BIGO中国           | 外企     | 互联网 / 直播                  | 自动同步 | <https://app.mokahr.com/social-recruitment/bigo/37723>                |
+| Brooks Running中国 | 外企     | 运动用品 / 零售                | 自动同步 | <https://jobs.lever.co/brooksrunning>                                 |
+| Canva中国          | 外企     | 设计软件 / 互联网              | 自动同步 | <https://jobs.smartrecruiters.com/Canva>                              |
+| Coda Payments中国  | 外企     | 游戏支付 / 金融科技            | 自动同步 | <https://jobs.lever.co/Coda>                                          |
+| DolphinDB          | 民营企业 | 数据库 / 金融科技              | 自动同步 | <https://app.mokahr.com/social-recruitment/dolphindb/37785>           |
+| Ekimetrics中国     | 外企     | 数据科学 / 咨询                | 自动同步 | <https://jobs.lever.co/ekimetrics>                                    |
+| Garena中国         | 外企     | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/garena/147001>             |
+| Guidepoint中国     | 外企     | 专家咨询 / 行业研究            | 自动同步 | <https://job-boards.greenhouse.io/guidepoint>                         |
+| H&M中国            | 外企     | 时尚零售 / 电商                | 自动同步 | <https://jobs.smartrecruiters.com/HMGroup>                            |
+| IDEO中国           | 外企     | 设计咨询 / 创新                | 自动同步 | <https://job-boards.greenhouse.io/ideo>                               |
+| LINE MAN Wongnai   | 外企     | 互联网 / 本地生活              | 自动同步 | <https://app.mokahr.com/social-recruitment/linecorp/150828>           |
+| Meshy太极图形      | 民营企业 | 人工智能 / 3D                  | 自动同步 | <https://app.mokahr.com/social-recruitment/taichi/148086>             |
+| Moloco中国         | 外企     | 人工智能 / 广告科技            | 自动同步 | <https://job-boards.greenhouse.io/moloco>                             |
+| NVIDIA中国         | 外企     | 半导体 / GPU / 人工智能        | 自动同步 | <https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite> |
+| PPRO中国           | 外企     | 支付 / 金融科技                | 自动同步 | <https://jobs.lever.co/ppro>                                          |
+| PRADA中国          | 外企     | 奢侈品 / 零售                  | 自动同步 | <https://app.mokahr.com/social-recruitment/pradagroup/151069>         |
+| PSI CRO中国        | 外企     | 临床研究 / 医药                | 自动同步 | <https://jobs.smartrecruiters.com/PSICRO>                             |
+| SHEIN希音          | 民营企业 | 跨境电商 / 时尚                | 自动同步 | <https://app.mokahr.com/social-recruitment/shein/2933>                |
+| Shopee中国         | 外企     | 电商                           | 自动同步 | <https://app.mokahr.com/social-recruitment/shopee/2962>               |
+| Sobi中国           | 外企     | 生物医药                       | 自动同步 | <https://jobs.smartrecruiters.com/Sobi>                               |
+| Solidigm中国       | 外企     | 半导体 / 数据存储              | 自动同步 | <https://jobs.smartrecruiters.com/Solidigm>                           |
+| Third Bridge中国   | 外企     | 行业研究 / 专家咨询            | 自动同步 | <https://jobs.smartrecruiters.com/ThirdBridge>                        |
+| uwant              | 民营企业 | 智能清洁电器                   | 自动同步 | <https://app.mokahr.com/social-recruitment/uwant>                     |
+| Xsolla中国         | 外企     | 游戏支付 / 金融科技            | 自动同步 | <https://jobs.lever.co/xsolla>                                        |
+| Zenni Optical中国  | 外企     | 眼镜 / 电商 / 制造             | 自动同步 | <https://job-boards.greenhouse.io/zennioptical>                       |
 
-## 官网入口公司（14 家）
+## 官网入口公司（89 家）
 
 暂无公开岗位接口，链接直达官方招聘官网。
 
-| 公司         | 类型     | 行业                         | 渠道 | 链接                                                          |
-| ------------ | -------- | ---------------------------- | ---- | ------------------------------------------------------------- |
-| 阿里巴巴集团 | 民营企业 | 互联网 / 电商 / 云计算       | 官网 | <https://talent-holding.alibaba.com/off-campus/position-list> |
-| 大疆创新     | 民营企业 | 无人机 / 机器人 / 智能硬件   | 官网 | <https://we.dji.com/zh-CN>                                    |
-| 德明利       | 上市公司 | 半导体 / 存储芯片            | 官网 | <https://www.twsc.com.cn/job/index.html>                      |
-| 汉得信息     | 上市公司 | 企业软件 / 数字化服务        | 官网 | <https://www.hand-china.com/p-join.html>                      |
-| 快手         | 上市公司 | 互联网 / 短视频 / 直播       | 官网 | <https://zhaopin.kuaishou.cn/>                                |
-| 联合利华中国 | 外企     | 快消 / 食品 / 美妆日化       | 官网 | <https://careers.unilever.com/en/china>                       |
-| 美团         | 民营企业 | 互联网 / 本地生活 / 科技零售 | 官网 | <https://zhaopin.meituan.com/>                                |
-| 南孚         | 民营企业 | 消费电子 / 电池              | 官网 | <https://www.nanfu.com/join/campus.html>                      |
-| 水滴         | 上市公司 | 保险科技 / 医疗健康          | 官网 | <https://jobs.waterdrop-inc.com/>                             |
-| 新东方       | 上市公司 | 教育培训 / 教育科技          | 官网 | <https://zhaopin.xdf.cn/>                                     |
-| 中国广核集团 | 中央企业 | 核能 / 新能源                | 官网 | <https://cgn.hotjob.cn/>                                      |
-| 中科飞测     | 上市公司 | 半导体设备 / 检测量测        | 官网 | <https://job.skyverse.cn/req/campus-index>                    |
-| 中信建投证券 | 国有企业 | 证券 / 金融科技              | 官网 | <https://www.csc108.citic/joinus>                             |
-| DeepSeek     | 民营企业 | 人工智能 / 大模型            | 官网 | <https://talent.deepseek.com/>                                |
+| 公司                   | 类型     | 行业                       | 渠道 | 链接                                                          |
+| ---------------------- | -------- | -------------------------- | ---- | ------------------------------------------------------------- |
+| 阿里巴巴集团           | 民营企业 | 互联网 / 电商 / 云计算     | 官网 | <https://talent-holding.alibaba.com/off-campus/position-list> |
+| 爱笔智能               | 民营企业 | 人工智能                   | 官网 | <https://aibee.jobs.feishu.cn/>                               |
+| 爱诗科技               | 民营企业 | AI视频                     | 官网 | <https://aisphere.jobs.feishu.cn/>                            |
+| 安克创新               | 民营企业 | 消费电子                   | 官网 | <https://anker-in.jobs.feishu.cn/>                            |
+| 百川智能               | 民营企业 | 大模型                     | 官网 | <https://cq6qe6bvfr6.jobs.feishu.cn/>                         |
+| 北京人形机器人创新中心 | 民营企业 | 人形机器人                 | 官网 | <https://zitd5je6f7j.jobs.feishu.cn/>                         |
+| 倍轻松                 | 民营企业 | 智能穿戴                   | 官网 | <https://e0cmewvq7v7.jobs.feishu.cn/>                         |
+| 博瑞迪                 | 民营企业 | 生物育种                   | 官网 | <https://molbreeding.jobs.feishu.cn/>                         |
+| 大疆创新               | 民营企业 | 无人机 / 机器人 / 智能硬件 | 官网 | <https://we.dji.com/zh-CN>                                    |
+| 道通智能               | 民营企业 | 无人机                     | 官网 | <https://iwpirwbutbu.jobs.feishu.cn/>                         |
+| 得到                   | 民营企业 | 知识付费                   | 官网 | <https://dedao.jobs.feishu.cn/>                               |
+| 德明利                 | 上市公司 | 半导体 / 存储芯片          | 官网 | <https://www.twsc.com.cn/job/index.html>                      |
+| 德赛西威               | 民营企业 | 智能驾驶                   | 官网 | <https://yesv-desaysv.jobs.feishu.cn/>                        |
+| 懂车帝                 | 民营企业 | 汽车互联网                 | 官网 | <https://dcar.jobs.feishu.cn/>                                |
+| 非夕机器人             | 民营企业 | 机器人                     | 官网 | <https://flexivrobotics.jobs.feishu.cn/>                      |
+| 光明之芯               | 民营企业 | 半导体                     | 官网 | <https://brightchip.jobs.feishu.cn/>                          |
+| 汉得信息               | 上市公司 | 企业软件 / 数字化服务      | 官网 | <https://www.hand-china.com/p-join.html>                      |
+| 禾多科技               | 民营企业 | 自动驾驶                   | 官网 | <https://holomatic.jobs.feishu.cn/>                           |
+| 禾赛科技               | 民营企业 | 激光雷达                   | 官网 | <https://kwh0jtf778.jobs.feishu.cn/>                          |
+| 和而泰                 | 民营企业 | 智能控制器                 | 官网 | <https://salcje7shg.jobs.feishu.cn/>                          |
+| 黑湖科技               | 民营企业 | 工业软件                   | 官网 | <https://blacklake.jobs.feishu.cn/>                           |
+| 红杉中国               | 民营企业 | 投资                       | 官网 | <https://hongshan.jobs.feishu.cn/>                            |
+| 后摩智能               | 民营企业 | 半导体                     | 官网 | <https://houmo.jobs.feishu.cn/>                               |
+| 幻方量化               | 民营企业 | 量化投资 / 人工智能        | 官网 | <https://app.mokahr.com/social-recruitment/high-flyer/140576> |
+| 即构科技               | 民营企业 | RTC                        | 官网 | <https://zegocloud.jobs.feishu.cn/>                           |
+| 极佳科技               | 民营企业 | 世界模型                   | 官网 | <https://gigaai0118.jobs.feishu.cn/>                          |
+| 极兔速递               | 民营企业 | 快递物流 / 供应链          | 官网 | <https://jtexpress.jobs.feishu.cn/>                           |
+| 句子互动               | 民营企业 | AI Agent                   | 官网 | <https://juzihudong.jobs.feishu.cn/>                          |
+| 科捷智能               | 民营企业 | 物流装备                   | 官网 | <https://kengic.jobs.feishu.cn/>                              |
+| 库犸科技               | 民营企业 | 机器人                     | 官网 | <https://mammotion.jobs.feishu.cn/>                           |
+| 酷睿程                 | 民营企业 | 智能驾驶芯片               | 官网 | <https://carizon.jobs.feishu.cn/>                             |
+| 快手                   | 上市公司 | 互联网 / 短视频 / 直播     | 官网 | <https://zhaopin.kuaishou.cn/>                                |
+| 蓝晶微生物             | 民营企业 | 合成生物                   | 官网 | <https://bluepha.jobs.feishu.cn/>                             |
+| 蓝色光标               | 民营企业 | 营销                       | 官网 | <https://bluefocus.jobs.feishu.cn/>                           |
+| 乐刻运动               | 民营企业 | 健身                       | 官网 | <https://leoao-inc.jobs.feishu.cn/>                           |
+| 理想汽车               | 民营企业 | 汽车 / 新能源              | 官网 | <https://li.jobs.feishu.cn/>                                  |
+| 荔枝                   | 民营企业 | 音频 / 互联网              | 官网 | <https://lizhi2021.jobs.feishu.cn/>                           |
+| 莉莉丝                 | 民营企业 | 游戏                       | 官网 | <https://lilithgames.jobs.feishu.cn/>                         |
+| 联合利华中国           | 外企     | 快消 / 食品 / 美妆日化     | 官网 | <https://careers.unilever.com/en/china>                       |
+| 零一汽车               | 民营企业 | 新能源重卡                 | 官网 | <https://zeron.jobs.feishu.cn/>                               |
+| 零一万物               | 民营企业 | 大模型                     | 官网 | <https://01ai.jobs.feishu.cn/>                                |
+| 脉脉                   | 民营企业 | 互联网                     | 官网 | <https://maimai.jobs.feishu.cn/>                              |
+| 面壁智能               | 民营企业 | 大模型                     | 官网 | <https://modelbest.jobs.feishu.cn/>                           |
+| 摩尔线程               | 民营企业 | GPU / 半导体               | 官网 | <https://mthreads.jobs.feishu.cn/>                            |
+| 沐瞳科技               | 民营企业 | 游戏                       | 官网 | <https://moonton.jobs.feishu.cn/>                             |
+| 哪吒汽车               | 民营企业 | 新能源汽车                 | 官网 | <https://hozonauto.jobs.feishu.cn/>                           |
+| 南孚                   | 民营企业 | 消费电子 / 电池            | 官网 | <https://www.nanfu.com/join/campus.html>                      |
+| 千寻智能               | 民营企业 | 具身智能                   | 官网 | <https://nwd4iy9rd2s.jobs.feishu.cn/>                         |
+| 商汤科技               | 民营企业 | 人工智能 / 计算机视觉      | 官网 | <https://sensetime.jobs.feishu.cn/>                           |
+| 上海创智学院           | 民营企业 | AI科研                     | 官网 | <https://sii-czxy.jobs.feishu.cn/>                            |
+| 生数科技               | 民营企业 | AI视频                     | 官网 | <https://shengshu.jobs.feishu.cn/>                            |
+| 拾象科技               | 民营企业 | AI投研                     | 官网 | <https://shixiangtech.jobs.feishu.cn/>                        |
+| 水滴                   | 上市公司 | 保险科技 / 医疗健康        | 官网 | <https://jobs.waterdrop-inc.com/>                             |
+| 它石智航               | 民营企业 | 具身智能                   | 官网 | <https://tarsrobot.jobs.feishu.cn/>                           |
+| 万集科技               | 民营企业 | 雷达 / V2X                 | 官网 | <https://fpq5u8xh3h.jobs.feishu.cn/>                          |
+| 微派网络               | 民营企业 | 游戏                       | 官网 | <https://wepie.jobs.feishu.cn/>                               |
+| 蔚来                   | 民营企业 | 汽车 / 新能源              | 官网 | <https://nio.jobs.feishu.cn/>                                 |
+| 无问芯穹               | 民营企业 | AI Infra                   | 官网 | <https://infinigence.jobs.feishu.cn/>                         |
+| 小马智行               | 民营企业 | 自动驾驶                   | 官网 | <https://ponyai.jobs.feishu.cn/>                              |
+| 小鹏汽车               | 民营企业 | 汽车 / 新能源              | 官网 | <https://xiaopeng.jobs.feishu.cn/>                            |
+| 心动网络               | 民营企业 | 游戏                       | 官网 | <https://xd-legacy.jobs.feishu.cn/>                           |
+| 芯盟科技               | 民营企业 | 半导体                     | 官网 | <https://icleague.jobs.feishu.cn/>                            |
+| 新东方                 | 上市公司 | 教育培训 / 教育科技        | 官网 | <https://zhaopin.xdf.cn/>                                     |
+| 星动纪元               | 民营企业 | 人形机器人                 | 官网 | <https://k0fqxcszc9.jobs.feishu.cn/>                          |
+| 椰岛游戏               | 民营企业 | 游戏                       | 官网 | <https://coconutisland.jobs.feishu.cn/>                       |
+| 亿咖通                 | 民营企业 | 汽车电子                   | 官网 | <https://ecarxgroup.jobs.feishu.cn/>                          |
+| 易咖智车               | 民营企业 | 无人物流车                 | 官网 | <https://ecartech.jobs.feishu.cn/>                            |
+| 银河通用               | 民营企业 | 具身智能                   | 官网 | <https://owm6ymi5v9b.jobs.feishu.cn/870797>                   |
+| 影石Insta360           | 民营企业 | 消费电子                   | 官网 | <https://arashivision.jobs.feishu.cn/>                        |
+| 影视飓风               | 民营企业 | 内容 / 传媒                | 官网 | <https://mediastorm.jobs.feishu.cn/>                          |
+| 元气森林               | 民营企业 | 消费品                     | 官网 | <https://k11pnjpvz1.jobs.feishu.cn/>                          |
+| 月之暗面               | 民营企业 | 大模型                     | 官网 | <https://moonshot.jobs.feishu.cn/>                            |
+| 掌阅科技               | 民营企业 | 互联网                     | 官网 | <https://q7w8vltyes.jobs.feishu.cn/>                          |
+| 智驾新程               | 民营企业 | 自动驾驶                   | 官网 | <https://neuehct.jobs.feishu.cn/>                             |
+| 智谱AI                 | 民营企业 | 大模型                     | 官网 | <https://zhipu-ai.jobs.feishu.cn/>                            |
+| 智元机器人             | 民营企业 | 人形机器人                 | 官网 | <https://agirobot.jobs.feishu.cn/>                            |
+| 中科创达               | 民营企业 | 智能软件                   | 官网 | <https://thundersoft.jobs.feishu.cn/>                         |
+| 中科飞测               | 上市公司 | 半导体设备 / 检测量测      | 官网 | <https://job.skyverse.cn/req/campus-index>                    |
+| 中信建投证券           | 国有企业 | 证券 / 金融科技            | 官网 | <https://www.csc108.citic/joinus>                             |
+| 自变量机器人           | 民营企业 | 具身智能                   | 官网 | <https://x2-robot.jobs.feishu.cn/>                            |
+| Babycare               | 民营企业 | 母婴消费                   | 官网 | <https://babycare.jobs.feishu.cn/>                            |
+| BoomingTech            | 民营企业 | 游戏                       | 官网 | <https://boomingtech.jobs.feishu.cn/>                         |
+| Cider                  | 民营企业 | 跨境电商                   | 官网 | <https://ciderglobal.jobs.feishu.cn/>                         |
+| DeepSeek               | 民营企业 | 人工智能 / 大模型          | 官网 | <https://talent.deepseek.com/>                                |
+| MetaApp                | 民营企业 | 游戏平台                   | 官网 | <https://meta.jobs.feishu.cn/>                                |
+| MiniMax                | 民营企业 | 大模型                     | 官网 | <https://vrfi1sk8a0.jobs.feishu.cn/>                          |
+| Sharpa                 | 民营企业 | 灵巧手                     | 官网 | <https://fcn5hvc5qbfs.jobs.feishu.cn/>                        |
+| VAST                   | 民营企业 | AI 3D                      | 官网 | <https://a9ihi0un9c.jobs.feishu.cn/>                          |
+| xTool                  | 民营企业 | 智能硬件                   | 官网 | <https://xtool.jobs.feishu.cn/>                               |
 
 ## 公众号发布公司（994 家）
 

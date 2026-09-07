@@ -226,6 +226,61 @@ describe("China big-tech API providers", () => {
     );
   });
 
+  it("paginates and normalizes Meituan public job results", async () => {
+    const fetcher: SecureSourceFetch = async (url, options) => {
+      expect(String(url)).toBe(
+        "https://job.meituan.com/api/official/job/getJobList",
+      );
+      expect(options.headers).toMatchObject({
+        Origin: "https://job.meituan.com",
+        Referer: "https://job.meituan.com/web/social",
+      });
+      expect(JSON.parse(String(options.body))).toMatchObject({
+        page: { pageNo: 1, pageSize: 20 },
+        jobShareType: "1",
+        jobType: [{ code: "3", subCode: [] }],
+      });
+      return response({
+        status: 1,
+        message: "成功",
+        data: {
+          page: { pageNo: 1, pageSize: 10, totalCount: 1, totalPage: 1 },
+          list: [
+            {
+              jobUnionId: "4701923674",
+              name: "Picker分拣端产品经理",
+              jobStatus: "000",
+              jobFamily: "产品类",
+              jobFamilyGroup: "产品",
+              cityList: [{ name: "北京市" }],
+              department: [{ name: "Keeta" }],
+              jobDuty: "负责分拣产品规划",
+              jobRequirement: "三年以上产品经验",
+              refreshTime: 1788747026000,
+            },
+          ],
+        },
+      });
+    };
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("meituan", "https://job.meituan.com/"),
+      context,
+      new AbortController().signal,
+    );
+    expect(batch.completeness).toBe("complete");
+    expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "4701923674",
+      title: "Picker分拣端产品经理",
+      campaignName: "Keeta",
+      recruitmentType: "社会招聘",
+      detailUrl:
+        "https://job.meituan.com/web/position/detail?jobUnionId=4701923674&highlightType=social",
+    });
+    expect(batch.jobs[0]!.locations.map((item) => item.name)).toEqual([
+      "北京市",
+    ]);
+  });
+
   it("normalizes miHoYo social jobs with campus/social channels", async () => {
     const fetcher: SecureSourceFetch = async (url, options) => {
       expect(String(url)).toBe(

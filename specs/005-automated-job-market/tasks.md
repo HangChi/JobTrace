@@ -394,3 +394,11 @@ Each increment must retain public/private isolation and pass all previously comp
 - [X] T133 Replace display-name company merging with explicit stable company identities, migrate curated multi-source identities, and cover same-name legal entities in integration tests
 - [X] T134 Hide closed-only companies from the default marketplace while retaining explicit closed-status filtering and owner-favorite history
 - [X] T135 Invalidate the shared campaign-list cache after successful synchronization and retain owner-scoped invalidation after favorite writes
+
+## Phase 16: Production source reliability remediation
+
+- [X] T136 Add regression coverage for safe HTTP status classification, bounded transient retries, and a stable source user agent in `tests/unit/job-market/source-request-security.test.ts`
+- [X] T137 Replace the obsolete Meituan HTML fallback with its current public job-list API and add pagination/normalization coverage in `src/modules/job-market/infrastructure/adapters/china-bigtech-adapter.ts` and `tests/unit/job-market/bigtech-api-adapters.test.ts`
+- [X] T138 Parse the current public Dayee mobile job-list markup without executing scripts and add deterministic adapter coverage in `src/modules/job-market/infrastructure/adapters/html-list-adapter.ts` and `tests/unit/job-market/expanded-source-adapters.test.ts`
+- [X] T139 Update the reviewed source catalog and operations guidance: onboard the working Meituan and CGN endpoints, and retire Feishu-signed and IP-restricted sources that no longer provide a compliant server-to-server interface
+- [X] T140 Run focused coverage, formatting, linting, type checking, the production build, and catalog consistency checks; then commit the coherent remediation locally

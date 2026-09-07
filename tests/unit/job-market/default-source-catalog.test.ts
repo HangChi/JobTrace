@@ -5,7 +5,7 @@ import { DEFAULT_COMPANY_DIRECTORY } from "@/modules/job-market/application/defa
 
 describe("default job-market source catalog", () => {
   it("contains unique, bounded, public HTTPS sources", () => {
-    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(200);
+    expect(DEFAULT_SOURCE_CATALOG.length).toBeGreaterThanOrEqual(100);
     expect(
       new Set(DEFAULT_SOURCE_CATALOG.map((entry) => entry.identityKey)).size,
     ).toBe(DEFAULT_SOURCE_CATALOG.length);
@@ -71,14 +71,17 @@ describe("default job-market source catalog", () => {
     const automaticCompanies = new Set(
       DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
     );
-    expect(automaticCompanies.has("蔚来")).toBe(true);
-    expect(automaticCompanies.has("小鹏汽车")).toBe(true);
+    expect(automaticCompanies.has("蔚来")).toBe(false);
+    expect(automaticCompanies.has("小鹏汽车")).toBe(false);
     expect(automaticCompanies.has("宇树科技")).toBe(true);
     expect(automaticCompanies.has("科大讯飞")).toBe(true);
     expect(automaticCompanies.has("ASML中国")).toBe(true);
     expect(automaticCompanies.has("字节跳动")).toBe(true);
     expect(automaticCompanies.has("华为")).toBe(true);
     expect(automaticCompanies.has("网易")).toBe(true);
+    expect(automaticCompanies.has("美团")).toBe(true);
+    expect(automaticCompanies.has("中国广核集团")).toBe(true);
+    expect(automaticCompanies.has("幻方量化")).toBe(false);
     expect(automaticCompanies.has("长安汽车")).toBe(true);
     expect(automaticCompanies.has("奇瑞汽车")).toBe(true);
     expect(automaticCompanies.has("上汽通用")).toBe(true);
@@ -108,8 +111,10 @@ describe("default job-market source catalog", () => {
       "中科飞测",
       "南孚",
       "中信建投证券",
-      "中国广核集团",
       "联合利华中国",
+      "蔚来",
+      "小鹏汽车",
+      "幻方量化",
     ]) {
       expect(directoryByCompany.get(companyName)?.channel).toBe(
         "official_site",
@@ -151,7 +156,7 @@ describe("default job-market source catalog", () => {
     expect(directory).toContain(
       `共计 **${automaticCompanies.size + DEFAULT_COMPANY_DIRECTORY.length}** 家公司`,
     );
-    expect(DEFAULT_COMPANY_DIRECTORY).toHaveLength(1008);
+    expect(DEFAULT_COMPANY_DIRECTORY).toHaveLength(1083);
     expect(
       DEFAULT_COMPANY_DIRECTORY.some(
         (entry) => entry.companyName === "蜜雪集团",

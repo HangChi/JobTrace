@@ -84,28 +84,6 @@ function publicAtsSource(input: {
   } satisfies DefaultSourceCatalogEntry;
 }
 
-function feishuSource(input: {
-  identityKey: string;
-  companyName: string;
-  industry: string;
-  host: string;
-  path?: string;
-}) {
-  return {
-    identityKey: input.identityKey,
-    companyName: input.companyName,
-    companyType: "民营企业",
-    industry: input.industry,
-    websiteUrl: `https://${input.host}/${input.path ?? ""}`,
-    adapter: "feishu" as const,
-    externalKey: `${input.host}|${input.path ?? ""}`,
-    baseUrl: `https://${input.host}/`,
-    allowedHosts: [input.host],
-    countryCodes: ["cn"],
-    syncIntervalMinutes: 360,
-  } satisfies DefaultSourceCatalogEntry;
-}
-
 const EXPANDED_MOKA_SOURCES = [
   {
     identityKey: "default:bonditech-cn",
@@ -668,14 +646,6 @@ const SECOND_WAVE_MOKA_SOURCES = [
     "47401",
   ],
   ["3peak", "思瑞浦", "上市公司", "半导体", "3peakic", "67894"],
-  [
-    "highflyer",
-    "幻方量化",
-    "民营企业",
-    "量化投资 / 人工智能",
-    "high-flyer",
-    "140576",
-  ],
   ["stepfun", "阶跃星辰", "民营企业", "大模型 / 人工智能", "step", "94904"],
   ["baai", "北京智源研究院", "事业单位", "人工智能科研", "baai", "42174"],
   [
@@ -740,7 +710,7 @@ const SECOND_WAVE_MOKA_SOURCES = [
   ["westlake", "西湖大学", "事业单位", "科研 / 教育", "westlake", "43525"],
 ] as const;
 
-const FEISHU_SOURCES = [
+export const RETIRED_FEISHU_SOURCES = [
   ["li", "理想汽车", "汽车 / 新能源", "li.jobs.feishu.cn"],
   ["nio", "蔚来", "汽车 / 新能源", "nio.jobs.feishu.cn"],
   ["xpeng", "小鹏汽车", "汽车 / 新能源", "xiaopeng.jobs.feishu.cn"],
@@ -926,6 +896,34 @@ export const DEFAULT_SOURCE_CATALOG = [
     externalKey: "netease",
     baseUrl: "https://hr.163.com/",
     allowedHosts: ["hr.163.com"],
+    countryCodes: ["cn"],
+    syncIntervalMinutes: 360,
+  },
+  {
+    identityKey: "default:meituan-cn",
+    companyName: "美团",
+    companyType: "民营企业",
+    industry: "互联网 / 本地生活 / 科技零售",
+    websiteUrl: "https://job.meituan.com/web/social",
+    adapter: "china_bigtech",
+    externalKey: "meituan",
+    baseUrl: "https://job.meituan.com/",
+    allowedHosts: ["job.meituan.com"],
+    countryCodes: ["cn"],
+    syncIntervalMinutes: 360,
+  },
+  {
+    identityKey: "default:cgn-cn",
+    companyName: "中国广核集团",
+    companyType: "中央企业",
+    industry: "核能 / 新能源",
+    websiteUrl: "https://cgn.hotjob.cn/wt/CGN/mobweb/v8/position/list",
+    adapter: "dayee",
+    // Keep the legacy key so an existing production source is updated in
+    // place instead of creating a duplicate during catalog reconciliation.
+    externalKey: "cgn.hotjob.cn|/",
+    baseUrl: "https://cgn.hotjob.cn/wt/CGN/mobweb/v8/position/list",
+    allowedHosts: ["cgn.hotjob.cn"],
     countryCodes: ["cn"],
     syncIntervalMinutes: 360,
   },
@@ -1778,15 +1776,6 @@ export const DEFAULT_SOURCE_CATALOG = [
         mode: "social",
         siteId,
       }),
-  ),
-  ...FEISHU_SOURCES.map(([key, companyName, industry, host, path]) =>
-    feishuSource({
-      identityKey: `default:${key}-cn`,
-      companyName,
-      industry,
-      host,
-      path,
-    }),
   ),
 ] as const satisfies readonly DefaultSourceCatalogEntry[];
 
