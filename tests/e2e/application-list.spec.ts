@@ -16,7 +16,7 @@ test("筛选、清空与空状态", async ({ request, page }) => {
     const filterControls = filterBar.locator(
       "input:not([type='hidden']), select, .application-filter-actions > button",
     );
-    await expect(filterControls).toHaveCount(7);
+    await expect(filterControls).toHaveCount(6);
     const controlTops = await filterControls.evaluateAll((controls) =>
       controls.map((control) => control.getBoundingClientRect().top),
     );

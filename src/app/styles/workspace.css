@@ -400,7 +400,7 @@
 .filter-bar {
   grid-template-columns:
     minmax(240px, 2fr) minmax(126px, 0.9fr) minmax(126px, 0.9fr)
-    minmax(190px, 1.2fr) minmax(100px, 0.65fr) auto;
+    minmax(190px, 1.2fr) auto;
   gap: 10px;
 }
 
