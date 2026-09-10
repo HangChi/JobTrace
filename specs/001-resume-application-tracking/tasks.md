@@ -445,7 +445,8 @@ T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T
 
 ## Phase 17: Application filter layout refinement
 
-- [X] T138 Keep search, status, type, sorting, direction, apply, and clear controls on one desktop row while retaining responsive stacking and keyboard access
+- [X] T138 Keep search, status, type, sorting, apply, and clear controls on one desktop row while retaining responsive stacking and keyboard access
+- [X] T139 Remove the separate direction field; apply a newly selected sort field ascending and toggle the active field's direction on each subsequent application
 
 ## Implementation Strategy
 

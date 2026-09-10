@@ -23,6 +23,18 @@ export function ApplicationFilters({
     typeof query.limit === "string" && PAGE_SIZES.includes(query.limit)
       ? query.limit
       : "10";
+  const currentSort = typeof query.sort === "string" ? query.sort : null;
+  const currentDirection =
+    query.direction === "asc" || query.direction === "desc"
+      ? query.direction
+      : currentSort === "company" || currentSort === "position"
+        ? "asc"
+        : "desc";
+
+  function sortLabel(value: string, label: string) {
+    if (value !== currentSort) return label;
+    return `${label} ${currentDirection === "asc" ? "↑" : "↓"}`;
+  }
 
   function navigate(params: URLSearchParams) {
     const suffix = params.toString();
@@ -40,6 +52,16 @@ export function ApplicationFilters({
     const params = new URLSearchParams();
     for (const [key, value] of form.entries()) {
       if (typeof value === "string" && value) params.append(key, value);
+    }
+    const nextSort = form.get("sort");
+    if (typeof nextSort === "string" && nextSort) {
+      const nextDirection =
+        nextSort === currentSort
+          ? currentDirection === "asc"
+            ? "desc"
+            : "asc"
+          : "asc";
+      params.set("direction", nextDirection);
     }
     navigate(params);
   }
@@ -112,28 +134,16 @@ export function ApplicationFilters({
             defaultValue={typeof query.sort === "string" ? query.sort : ""}
           >
             <option value="">默认排序（已投递优先）</option>
-            <option value="latestDate">最新日期</option>
-            <option value="appliedDate">投递日期</option>
-            <option value="company">公司名称</option>
-            <option value="position">岗位名称</option>
-          </select>
-          <svg aria-hidden="true" viewBox="0 0 16 16">
-            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
-          </svg>
-        </span>
-      </label>
-      <label>
-        方向
-        <span className="select-wrap">
-          <select
-            name="direction"
-            disabled={pending}
-            defaultValue={
-              typeof query.direction === "string" ? query.direction : "desc"
-            }
-          >
-            <option value="desc">降序</option>
-            <option value="asc">升序</option>
+            <option value="latestDate">
+              {sortLabel("latestDate", "最新日期")}
+            </option>
+            <option value="appliedDate">
+              {sortLabel("appliedDate", "投递日期")}
+            </option>
+            <option value="company">{sortLabel("company", "公司名称")}</option>
+            <option value="position">
+              {sortLabel("position", "岗位名称")}
+            </option>
           </select>
           <svg aria-hidden="true" viewBox="0 0 16 16">
             <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
