@@ -402,3 +402,7 @@ Each increment must retain public/private isolation and pass all previously comp
 - [X] T138 Parse the current public Dayee mobile job-list markup without executing scripts and add deterministic adapter coverage in `src/modules/job-market/infrastructure/adapters/html-list-adapter.ts` and `tests/unit/job-market/expanded-source-adapters.test.ts`
 - [X] T139 Update the reviewed source catalog and operations guidance: onboard the working Meituan and CGN endpoints, and retire Feishu-signed and IP-restricted sources that no longer provide a compliant server-to-server interface
 - [X] T140 Run focused coverage, formatting, linting, type checking, the production build, and catalog consistency checks; then commit the coherent remediation locally
+
+## Phase 17: Incremental freshness presentation
+
+- [X] T141 Preserve previously stored job dates during unchanged synchronization and show each company's latest source-provided job date instead of the shared synchronization timestamp

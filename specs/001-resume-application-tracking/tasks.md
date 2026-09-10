@@ -443,6 +443,10 @@ T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T
 
 - [X] T137 Align the new-application dialog's accessible name with its trigger and restore WCAG 2.2 AA contrast for muted profile labels across supported viewports
 
+## Phase 17: Application filter layout refinement
+
+- [X] T138 Keep search, status, type, sorting, direction, apply, and clear controls on one desktop row while retaining responsive stacking and keyboard access
+
 ## Implementation Strategy
 
 ### MVP First

@@ -22,7 +22,7 @@ const campaign: CampaignSummary = {
   applyMode: "single",
   primaryApplyUrl: "https://jobs.example.com/apply",
   source: { name: "greenhouse", url: "https://jobs.example.com" },
-  publishedAt: null,
+  publishedAt: "2026-08-20T00:00:00Z",
   validThrough: null,
   lastConfirmedAt: "2026-08-30T00:00:00Z",
   isFavorite: false,
@@ -63,6 +63,28 @@ describe("job market page", () => {
       "href",
       "https://jobs.example.com",
     );
+  });
+  it("shows the source job date instead of the latest synchronization date", () => {
+    render(
+      <JobMarketPage
+        page={{
+          items: [
+            {
+              ...campaign,
+              publishedAt: "2026-08-12T00:00:00Z",
+              lastConfirmedAt: "2026-09-10T00:00:00Z",
+            },
+          ],
+          page: 1,
+          limit: 20,
+          total: 1,
+        }}
+        query={{}}
+      />,
+    );
+
+    expect(screen.getByText("更新 2026/08/12")).toBeVisible();
+    expect(screen.queryByText("更新 2026/09/10")).not.toBeInTheDocument();
   });
   it("renders a directory-only company with a clearly labelled public-account link", () => {
     render(

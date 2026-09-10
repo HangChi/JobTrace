@@ -140,17 +140,19 @@ export function ApplicationFilters({
           </svg>
         </span>
       </label>
-      <button className="button" type="submit" disabled={pending}>
-        {pending ? "更新中…" : "应用条件"}
-      </button>
-      <button
-        className="button secondary"
-        type="button"
-        disabled={pending}
-        onClick={() => navigate(new URLSearchParams({ limit }))}
-      >
-        清空
-      </button>
+      <div className="application-filter-actions">
+        <button className="button" type="submit" disabled={pending}>
+          {pending ? "更新中…" : "应用条件"}
+        </button>
+        <button
+          className="button secondary"
+          type="button"
+          disabled={pending}
+          onClick={() => navigate(new URLSearchParams({ limit }))}
+        >
+          清空
+        </button>
+      </div>
     </form>
   );
 }
