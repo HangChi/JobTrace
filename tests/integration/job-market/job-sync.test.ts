@@ -78,13 +78,34 @@ test("job sync is idempotent, auditable, and requires two complete absences to c
     expect((await run([job], new Date("2026-08-30T00:00:00Z"))).created).toBe(
       1,
     );
-    expect((await run([job], new Date("2026-08-30T01:00:00Z"))).created).toBe(
-      0,
-    );
+    const [initialPost] = await sql<
+      Array<{ publishedAt: string; updatedAt: string }>
+    >`select published_at::text as "publishedAt",updated_at::text as "updatedAt"
+      from job_market_posts where company_id=${company.id}`;
+    const unchanged = await run([job], new Date("2026-08-30T01:00:00Z"));
+    expect(unchanged).toMatchObject({ created: 0, updated: 0 });
+    expect(
+      await sql`select published_at::text as "publishedAt",updated_at::text as "updatedAt"
+        from job_market_posts where company_id=${company.id}`,
+    ).toEqual([initialPost]);
+
+    const nextBase = {
+      ...base,
+      externalJobId: "job-2",
+      title: "Designer",
+      normalizedTitle: normalizeText("Designer"),
+      detailUrl: "https://jobs.example.com/job-2",
+      applyUrl: "https://jobs.example.com/job-2/apply",
+      publishedAt: new Date("2026-08-31"),
+    };
+    const nextJob = { ...nextBase, contentHash: contentHash(nextBase) };
+    expect(
+      await run([job, nextJob], new Date("2026-08-31T01:00:00Z")),
+    ).toMatchObject({ created: 1, updated: 0 });
     expect(
       await sql`select id from job_market_posts where company_id=${company.id}`,
-    ).toHaveLength(1);
-    await run([], new Date("2026-08-30T02:00:00Z"));
+    ).toHaveLength(2);
+    await run([], new Date("2026-09-01T02:00:00Z"));
     expect(
       (
         await sql<
@@ -92,7 +113,7 @@ test("job sync is idempotent, auditable, and requires two complete absences to c
         >`select status::text from job_market_posts where company_id=${company.id}`
       )[0].status,
     ).toBe("stale");
-    await run([], new Date("2026-08-30T09:00:00Z"));
+    await run([], new Date("2026-09-01T09:00:00Z"));
     expect(
       (
         await sql<
@@ -100,12 +121,12 @@ test("job sync is idempotent, auditable, and requires two complete absences to c
         >`select status::text from job_market_posts where company_id=${company.id}`
       )[0].status,
     ).toBe("closed");
-    await run([job], new Date("2026-08-30T10:00:00Z"));
+    await run([job], new Date("2026-09-01T10:00:00Z"));
     expect(
       (
         await sql<
           Array<{ status: string }>
-        >`select status::text from job_market_posts where company_id=${company.id}`
+        >`select status::text from job_market_posts where company_id=${company.id} and title='Engineer'`
       )[0].status,
     ).toBe("open");
     expect(

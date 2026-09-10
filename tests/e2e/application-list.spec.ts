@@ -12,6 +12,22 @@ test("筛选、清空与空状态", async ({ request, page }) => {
   const application = await created.json();
   try {
     await page.goto("/applications");
+    const filterBar = page.getByRole("form", { name: "筛选投递记录" });
+    const filterControls = filterBar.locator(
+      "input:not([type='hidden']), select, .application-filter-actions > button",
+    );
+    await expect(filterControls).toHaveCount(7);
+    const controlTops = await filterControls.evaluateAll((controls) =>
+      controls.map((control) => control.getBoundingClientRect().top),
+    );
+    expect(
+      Math.max(...controlTops) - Math.min(...controlTops),
+    ).toBeLessThanOrEqual(1);
+    expect(
+      await filterBar.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
     await page.getByLabel("搜索公司或岗位").fill("E2E 筛选公司");
     await page.getByRole("button", { name: "应用条件" }).click();
     await expect(
