@@ -31,6 +31,22 @@ export const sourceCandidateReviewSchema = z.object({
   action: z.enum(["approve", "ignore"]),
 });
 
+export const wechatCollectSchema = z.object({
+  queries: z
+    .array(z.string().trim().min(2).max(30))
+    .max(6)
+    .optional(),
+});
+
+export const companyCandidateIdSchema = z.uuid();
+
+export const companyCandidateReviewSchema = z.object({
+  action: z.enum(["approve", "ignore"]),
+  companyName: z.string().trim().min(2).max(60).optional(),
+  companyType: z.enum(["企业", "民营企业", "上市公司", "国有企业", "中央企业", "事业单位", "外企"]).optional(),
+  industry: z.string().trim().min(2).max(60).optional(),
+});
+
 export const defaultCatalogQuerySchema = z.object({
   q: z.string().trim().max(100).optional(),
   page: z.coerce.number().int().min(1).default(1),
@@ -79,6 +95,42 @@ export type SourceCandidate = {
   httpStatus: number | null;
   approvedSourceId: string | null;
   lastCheckedAt: string;
+};
+
+export type CompanyCandidate = {
+  id: string;
+  companyName: string;
+  articleUrl: string;
+  articleTitle: string;
+  snippet: string | null;
+  publishedAt: string | null;
+  sourceEngine: "sogou" | "bing";
+  articleCount: number;
+  reviewStatus: "pending" | "approved" | "ignored";
+  createdCompanyId: string | null;
+  createdAt: string;
+};
+
+export type CompanyCandidateList = {
+  items: CompanyCandidate[];
+  summary: {
+    pending: number;
+    approved: number;
+    ignored: number;
+  };
+};
+
+export type WechatCollectionResult = {
+  engines: Array<{
+    engine: "sogou" | "bing";
+    status: "ok" | "blocked" | "error";
+    articles: number;
+    detail: string | null;
+  }>;
+  extracted: number;
+  knownCompanies: number;
+  queued: number;
+  candidates: number;
 };
 
 export const sourceInputSchema = z.object({

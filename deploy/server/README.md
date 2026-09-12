@@ -93,6 +93,17 @@ sudo journalctl -u jobtrace-sync.service -n 100 --no-pager
 
 同步服务每批处理最多 10 个来源，最多循环 30 批。数据库租约会阻止多个任务重复处理同一来源。
 
+## 新公司公众号采集
+
+`jobtrace-collect.timer` 每天早上调用内部采集接口（`POST /api/internal/job-market/collect-wechat`），从公开搜索引擎的微信文章索引中提取新公司，进入管理后台「公众号招聘采集」面板等待审核；批准后公司即进入公众号目录。手动触发：
+
+```bash
+sudo systemctl start jobtrace-collect.service
+sudo journalctl -u jobtrace-collect.service -n 50 --no-pager
+```
+
+采集依赖公开搜索结果页（搜狗微信搜索为主、必应为备），被反爬拦截时当次跳过，不影响岗位同步。
+
 ## 日常运维
 
 ```bash

@@ -1,0 +1,11 @@
+[Unit]
+Description=Collect JobTrace WeChat recruitment articles daily
+
+[Timer]
+OnCalendar=*-*-* 08:41:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=300
+Unit=jobtrace-collect.service
+
+[Install]
+WantedBy=timers.target

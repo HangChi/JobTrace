@@ -6,13 +6,16 @@ import { DefaultSourceBootstrap } from "@/modules/job-market/ui/admin/default-so
 import { getDefaultSourceCatalogSummary } from "@/modules/job-market/application/source-admin-service";
 import { getJobMarketEnv } from "@/shared/config/env";
 import { listSourceCandidates } from "@/modules/job-market/application/source-discovery-service";
+import { listCompanyCandidates } from "@/modules/job-market/application/wechat-intake-service";
 import { SourceDiscoveryPanel } from "@/modules/job-market/ui/admin/source-discovery-panel";
+import { CompanyCandidatePanel } from "@/modules/job-market/ui/admin/company-candidate-panel";
 export const dynamic = "force-dynamic";
 export default async function AdminJobMarketPage() {
   await requirePageAdmin();
-  const [{ items }, discovery] = await Promise.all([
+  const [{ items }, discovery, companyCandidates] = await Promise.all([
     listSourceHealth(),
     listSourceCandidates(),
+    listCompanyCandidates(),
   ]);
   const activeSourceCount = items.filter(
     (source) => source.status === "active",
@@ -55,6 +58,10 @@ export default async function AdminJobMarketPage() {
       <SourceDiscoveryPanel
         candidates={discovery.items}
         summary={discovery.summary}
+      />
+      <CompanyCandidatePanel
+        candidates={companyCandidates.items}
+        summary={companyCandidates.summary}
       />
       <SourceHealthTable sources={items} />
       <div className="admin-sync-setup-grid">
