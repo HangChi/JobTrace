@@ -161,6 +161,9 @@ install -m 0750 -o root -g "$app_group" \
 research_bin="${JOBTRACE_RESEARCH_BIN:-/usr/local/libexec/jobtrace-research}"
 install -m 0750 -o root -g "$app_group" \
   "${source_dir}/deploy/server/jobtrace-research.sh" "$research_bin"
+sitescan_bin="${JOBTRACE_SITESCAN_BIN:-/usr/local/libexec/jobtrace-sitescan}"
+install -m 0750 -o root -g "$app_group" \
+  "${source_dir}/deploy/server/jobtrace-sitescan.sh" "$sitescan_bin"
 
 node_bin="$(command -v node)"
 sed \
@@ -205,6 +208,17 @@ sed \
 install -m 0644 -o root -g root \
   "${source_dir}/deploy/server/jobtrace-research.timer" \
   /etc/systemd/system/jobtrace-research.timer
+sed \
+  -e "s|@@APP_USER@@|${app_user}|g" \
+  -e "s|@@APP_GROUP@@|${app_group}|g" \
+  -e "s|@@ENV_FILE@@|${env_file}|g" \
+  -e "s|@@APP_PORT@@|${PORT:-3000}|g" \
+  -e "s|@@SITESCAN_BIN@@|${sitescan_bin}|g" \
+  "${source_dir}/deploy/server/jobtrace-sitescan.service.in" \
+  > /etc/systemd/system/jobtrace-sitescan.service
+install -m 0644 -o root -g root \
+  "${source_dir}/deploy/server/jobtrace-sitescan.timer" \
+  /etc/systemd/system/jobtrace-sitescan.timer
 
 if command -v systemd-analyze >/dev/null 2>&1; then
   systemd-analyze verify \
@@ -214,14 +228,16 @@ if command -v systemd-analyze >/dev/null 2>&1; then
     /etc/systemd/system/jobtrace-collect.service \
     /etc/systemd/system/jobtrace-collect.timer \
     /etc/systemd/system/jobtrace-research.service \
-    /etc/systemd/system/jobtrace-research.timer
+    /etc/systemd/system/jobtrace-research.timer \
+    /etc/systemd/system/jobtrace-sitescan.service \
+    /etc/systemd/system/jobtrace-sitescan.timer
 fi
 
 ln -sfn "$release_dir" "${app_root}/.current-new"
 mv -Tf "${app_root}/.current-new" "${app_current}"
 
 systemctl daemon-reload
-systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer >/dev/null
+systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer >/dev/null
 systemctl restart jobtrace.service
 
 healthy=false

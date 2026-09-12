@@ -1,0 +1,11 @@
+[Unit]
+Description=Scan ATS job boards for JobTrace daily
+
+[Timer]
+OnCalendar=*-*-* 09:53:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=300
+Unit=jobtrace-sitescan.service
+
+[Install]
+WantedBy=timers.target

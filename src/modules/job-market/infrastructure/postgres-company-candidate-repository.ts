@@ -13,6 +13,19 @@ export type CompanyCandidateIntake = {
   sourceEngine: "sogou" | "bing";
 };
 
+export type SiteScanIntake = {
+  companyName: string;
+  boardUrl: string;
+  articleTitle: string;
+  detected: {
+    adapter: string;
+    externalKey: string;
+    baseUrl: string;
+    allowedHosts: string[];
+    confidence: "high" | "medium";
+  };
+};
+
 export type CompanyApprovalOverrides = {
   companyName?: string;
   companyType?: string;
@@ -67,12 +80,75 @@ export class PostgresCompanyCandidateRepository {
     return { known: known?.count ?? 0, queued: queued?.count ?? 0 };
   }
 
+  // A 方案 site: 枚举产出：已知公司的板子直接进 source_candidates，
+  // 新公司进本候选队列（带 ATS 检测结果，批准后自动转来源候选）。
+  async enqueueSiteScan(intake: SiteScanIntake[]) {
+    if (!intake.length) return { known: 0, queued: 0, existingSources: 0 };
+    let known = 0;
+    let queued = 0;
+    let existingSources = 0;
+    for (const item of intake) {
+      const normalized = normalizeText(item.companyName);
+      const [company] = await this.sql<Array<{ id: string }>>`
+        select id from job_market_companies where normalized_name=${normalized} limit 1`;
+      if (company) {
+        known += 1;
+        await this.sql`
+          insert into job_market_source_candidates(
+            company_id,entry_url,adapter,external_key,base_url,allowed_hosts,
+            confidence,evidence_code,review_status,health_status,last_checked_at
+          ) values(
+            ${company.id},${item.boardUrl},${item.detected.adapter as never},
+            ${item.detected.externalKey},${item.detected.baseUrl},
+            ${item.detected.allowedHosts},${item.detected.confidence},
+            'ats_site_scan','pending','healthy',now())
+          on conflict (company_id,entry_url) do update set
+            last_checked_at=now(),updated_at=now()`;
+        continue;
+      }
+      const [duplicateSource] = await this.sql<Array<{ id: string }>>`
+        select id from job_market_sources
+        where adapter=${item.detected.adapter as never}
+          and external_key=${item.detected.externalKey} limit 1`;
+      if (duplicateSource) {
+        existingSources += 1;
+        continue;
+      }
+      const [candidate] = await this.sql<Array<{ id: string }>>`
+        insert into job_market_company_candidates(
+          company_name,normalized_name,article_url,article_title,source_engine,
+          detected_adapter,detected_external_key,detected_base_url,
+          detected_allowed_hosts,detected_confidence
+        ) values(
+          ${item.companyName},${normalized},${item.boardUrl},
+          ${item.articleTitle.slice(0, 300)},'site_scan',
+          ${item.detected.adapter as never},${item.detected.externalKey},
+          ${item.detected.baseUrl},${item.detected.allowedHosts},
+          ${item.detected.confidence})
+        on conflict (normalized_name) do update set
+          article_url=excluded.article_url,article_title=excluded.article_title,
+          detected_adapter=excluded.detected_adapter,
+          detected_external_key=excluded.detected_external_key,
+          detected_base_url=excluded.detected_base_url,
+          detected_allowed_hosts=excluded.detected_allowed_hosts,
+          detected_confidence=excluded.detected_confidence,
+          article_count=job_market_company_candidates.article_count+1,
+          updated_at=now()
+        where job_market_company_candidates.review_status='pending'
+        returning id`;
+      if (candidate) queued += 1;
+    }
+    return { known, queued, existingSources };
+  }
+
   async list(status?: CompanyCandidate["reviewStatus"]) {
     const items = await this.sql<CompanyCandidate[]>`
       select candidate.id,candidate.company_name as "companyName",
         candidate.article_url as "articleUrl",candidate.article_title as "articleTitle",
         candidate.snippet,candidate.published_at as "publishedAt",
         candidate.source_engine::text as "sourceEngine",candidate.article_count as "articleCount",
+        candidate.detected_adapter::text as "detectedAdapter",
+        candidate.detected_confidence::text as "detectedConfidence",
         candidate.review_status::text as "reviewStatus",
         candidate.created_company_id as "createdCompanyId",
         candidate.created_at as "createdAt"
@@ -106,11 +182,23 @@ export class PostgresCompanyCandidateRepository {
         id: string;
         companyName: string;
         articleUrl: string;
+        articleTitle: string;
         publishedAt: string | null;
         reviewStatus: string;
+        detectedAdapter: string | null;
+        detectedExternalKey: string | null;
+        detectedBaseUrl: string | null;
+        detectedAllowedHosts: string[];
+        detectedConfidence: string | null;
       }>>`
         select id,company_name as "companyName",article_url as "articleUrl",
-          published_at as "publishedAt",review_status::text as "reviewStatus"
+          article_title as "articleTitle",published_at as "publishedAt",
+          review_status::text as "reviewStatus",
+          detected_adapter::text as "detectedAdapter",
+          detected_external_key as "detectedExternalKey",
+          detected_base_url as "detectedBaseUrl",
+          detected_allowed_hosts as "detectedAllowedHosts",
+          detected_confidence::text as "detectedConfidence"
         from job_market_company_candidates where id=${id} for update`;
       if (!candidate) return { outcome: "not_found" as const };
       if (candidate.reviewStatus !== "pending")
@@ -119,7 +207,11 @@ export class PostgresCompanyCandidateRepository {
       const companyName = overrides.companyName ?? candidate.companyName;
       const companyType = overrides.companyType ?? "企业";
       const industry = overrides.industry ?? "综合行业";
-      const identityKey = `runtime:wechat:${normalizeText(companyName)}`;
+      const identityKey = `runtime:intake:${normalizeText(companyName)}`;
+      const isWechatLink =
+        /^https:\/\/(mp\.weixin\.qq\.com|weixin\.sogou\.com\/wechat)/.test(
+          candidate.articleUrl,
+        );
 
       let [company] = await tx<Array<{ id: string }>>`
         select id from job_market_companies where normalized_name=${normalizeText(companyName)} limit 1`;
@@ -136,8 +228,27 @@ export class PostgresCompanyCandidateRepository {
             company_id,campaign_key,name,recruitment_type,status,official_apply_url,
             listing_kind,published_at
           ) values(
-            ${company.id},'directory:wechat','公众号招聘原文','公众号','open',
+            ${company.id},
+            ${isWechatLink ? "directory:wechat" : "directory:official_site"},
+            ${isWechatLink ? "公众号招聘原文" : "官方招聘网站"},
+            ${isWechatLink ? "公众号" : "招聘官网"},'open',
             ${candidate.articleUrl},'recruitment_directory',${candidate.publishedAt})`;
+      }
+
+      // site: 枚举带来的 ATS 检测结果转为待审核来源候选，走既有批准流。
+      if (candidate.detectedAdapter && candidate.detectedExternalKey) {
+        await tx`
+          insert into job_market_source_candidates(
+            company_id,entry_url,adapter,external_key,base_url,allowed_hosts,
+            confidence,evidence_code,review_status,health_status,last_checked_at
+          ) values(
+            ${company.id},${candidate.articleUrl},
+            ${candidate.detectedAdapter as never},${candidate.detectedExternalKey},
+            ${candidate.detectedBaseUrl},${candidate.detectedAllowedHosts},
+            ${candidate.detectedConfidence as never},
+            'ats_site_scan','pending','healthy',now())
+          on conflict (company_id,entry_url) do update set
+            last_checked_at=now(),updated_at=now()`;
       }
 
       await tx`

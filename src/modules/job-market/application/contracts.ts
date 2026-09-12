@@ -104,8 +104,10 @@ export type CompanyCandidate = {
   articleTitle: string;
   snippet: string | null;
   publishedAt: string | null;
-  sourceEngine: "sogou" | "bing";
+  sourceEngine: "sogou" | "bing" | "site_scan";
   articleCount: number;
+  detectedAdapter: string | null;
+  detectedConfidence: string | null;
   reviewStatus: "pending" | "approved" | "ignored";
   createdCompanyId: string | null;
   createdAt: string;

@@ -2,11 +2,23 @@ import { requireAdmin } from "@/modules/identity-access";
 import { z } from "zod";
 import type { DiscoveryObservation } from "./source-discovery";
 import { researchCompanySite } from "./company-website-research";
+import {
+  DEFAULT_SITE_SCAN_QUERIES,
+  scanAtsBoards,
+} from "./ats-site-scan";
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
 import { PostgresSourceDiscoveryRepository } from "../infrastructure/postgres-source-discovery-repository";
+import { PostgresCompanyCandidateRepository } from "../infrastructure/postgres-company-candidate-repository";
 
 export const companyResearchSchema = z.object({
   limit: z.coerce.number().int().min(1).max(10).default(5),
+});
+
+export const atsSiteScanSchema = z.object({
+  queries: z
+    .array(z.string().trim().min(4).max(80))
+    .max(6)
+    .optional(),
 });
 
 export type CompanyResearchResult = {
@@ -117,4 +129,61 @@ export async function runCompanyResearch(
 export async function runCompanyResearchNow(value: unknown) {
   await requireAdmin();
   return runCompanyResearch(value);
+}
+
+export type AtsSiteScanResult = {
+  queries: number;
+  hits: number;
+  skipped: number;
+  knownCompanies: number;
+  existingSources: number;
+  queued: number;
+  pendingCandidates: number;
+  details: Array<{ company: string; boardUrl: string; adapter: string }>;
+};
+
+export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult> {
+  const input = atsSiteScanSchema.parse(value ?? {});
+  const queries = input.queries ?? [...DEFAULT_SITE_SCAN_QUERIES];
+  const fetcher = createSecureSourceClient();
+  const scan = await scanAtsBoards(queries, { fetcher });
+
+  const repository = new PostgresCompanyCandidateRepository();
+  const { known, queued, existingSources } = await repository.enqueueSiteScan(
+    scan.hits.map((hit) => ({
+      companyName: hit.companyName,
+      boardUrl: hit.boardUrl,
+      articleTitle: hit.articleTitle,
+      detected: {
+        adapter: hit.detected.adapter,
+        externalKey: hit.detected.externalKey,
+        baseUrl: hit.detected.baseUrl,
+        allowedHosts: hit.detected.allowedHosts,
+        confidence: hit.detected.confidence as "high" | "medium",
+      },
+    })),
+  );
+  const { summary } = await repository.list();
+
+  return {
+    queries: queries.length,
+    hits: scan.hits.length,
+    skipped: scan.skipped,
+    knownCompanies: known,
+    existingSources,
+    queued,
+    pendingCandidates: summary.pending,
+    details: scan.hits
+      .slice(0, 10)
+      .map((hit) => ({
+        company: hit.companyName,
+        boardUrl: hit.boardUrl,
+        adapter: hit.detected.adapter,
+      })),
+  };
+}
+
+export async function runAtsSiteScanNow(value: unknown) {
+  await requireAdmin();
+  return runAtsSiteScan(value);
 }

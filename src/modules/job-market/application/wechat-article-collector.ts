@@ -61,6 +61,9 @@ const GENERIC_NAMES = new Set([
   "合集",
   "精选",
   "资讯",
+  "官网",
+  "官网汇总",
+  "官方",
 ]);
 
 // 常见省市区域词整词出现时几乎一定是地域标签而非公司名
@@ -168,7 +171,12 @@ export function extractCompanyFromTitle(title: string): string | null {
 
   const best = scored[0];
   if (!best || best.score < 1) return null;
-  return best.candidate.replace(NOISE_PREFIX, "").trim() || null;
+  return (
+    best.candidate
+      .replace(NOISE_PREFIX, "")
+      .replace(/(官方|官网|专门|专属)$/, "")
+      .trim() || null
+  );
 }
 
 function parseSogouArticles(html: string): WechatArticleHit[] {

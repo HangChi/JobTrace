@@ -19,6 +19,7 @@ const REVIEW_LABELS: Record<CompanyCandidate["reviewStatus"], string> = {
 const ENGINE_LABELS: Record<CompanyCandidate["sourceEngine"], string> = {
   sogou: "搜狗",
   bing: "必应",
+  site_scan: "ATS 枚举",
 };
 
 export function CompanyCandidatePanel({
@@ -57,6 +58,35 @@ export function CompanyCandidatePanel({
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "采集失败");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function scanNow() {
+    setBusy("scan");
+    setMessage("正在用 site: 查询枚举 ATS 招聘板…");
+    try {
+      const response = await fetch("/api/admin/job-market/ats-site-scan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const body = (await response.json()) as {
+        hits?: number;
+        queued?: number;
+        knownCompanies?: number;
+        pendingCandidates?: number;
+        message?: string;
+      };
+      if (!response.ok) throw new Error(body.message || "扫描失败");
+      setMessage(
+        `命中 ${body.hits ?? 0} 个招聘板，新入队 ${body.queued ?? 0} 家、` +
+          `已知公司 ${body.knownCompanies ?? 0} 家，当前待审核 ${body.pendingCandidates ?? 0} 家。`,
+      );
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "扫描失败");
     } finally {
       setBusy(null);
     }
@@ -103,9 +133,18 @@ export function CompanyCandidatePanel({
             再由入口扫描识别其官网与来源。
           </p>
         </div>
-        <button className="button" disabled={busy !== null} onClick={collectNow}>
-          {busy === "collect" ? "正在采集…" : "立即采集一批"}
-        </button>
+        <div className="source-discovery-actions">
+          <button className="button" disabled={busy !== null} onClick={collectNow}>
+            {busy === "collect" ? "正在采集…" : "立即采集一批"}
+          </button>
+          <button
+            className="button secondary"
+            disabled={busy !== null}
+            onClick={scanNow}
+          >
+            {busy === "scan" ? "正在枚举…" : "扫描 ATS 招聘板"}
+          </button>
+        </div>
       </div>
 
       <dl className="source-discovery-stats">

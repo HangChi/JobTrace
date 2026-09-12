@@ -113,6 +113,14 @@ sudo systemctl start jobtrace-research.service
 sudo journalctl -u jobtrace-research.service -n 50 --no-pager
 ```
 
+## ATS 招聘板枚举
+
+`jobtrace-sitescan.timer` 每天上午用 `site:` 查询枚举公开搜索引擎收录的 ATS 托管招聘板（Moka、SmartRecruiters、Greenhouse、Lever、北森）。已知公司的板子直接进「发现与审核」；新公司进入「新公司情报」候选队列，批准后连同 ATS 检测结果一起转成待审核来源。手动触发：
+
+```bash
+sudo systemctl start jobtrace-sitescan.service
+```
+
 ## 日常运维
 
 ```bash
