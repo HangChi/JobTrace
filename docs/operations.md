@@ -279,7 +279,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米招聘以及字节�
 
 ### 默认目录一键初始化
 
-管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 203 家企业、207 个来源，仍超过 100 家健康自动来源的目标；华为与米哈游按校招/社招拆分为两个来源。中国企业优先使用 Moka、北森或企业官网公开招聘接口，覆盖民营企业、国企和上市公司；北森（`*.zhiye.com`）已收录 7 家（宇树科技、科大讯飞、长安汽车、奇瑞汽车、上汽通用、蒙牛集团、扬子江船业），腾讯、百度、京东、字节跳动、华为、网易、米哈游和美团走 `china_bigtech` 适配器的官方公开接口，中广核走 Dayee 公开移动职位页；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每家公司每次最多保留最新 100 个返回岗位，超出时运行状态为 `partial`。该操作会：
+管理员可以打开 `/admin/job-market` 并点击“一键初始化并首次同步”。当前受审查的自动目录包含 475 个来源，以 Moka（240）与北森 `*.zhiye.com`（160）为主，辅以 SmartRecruiters、前程无忧、Greenhouse、Lever、Dayee、Workday 与 `china_bigtech` 官方接口；精确规模与公司构成以自动生成的[公司招聘入口总览](company-directory.md)为准。华为与米哈游按校招/社招拆分为两个来源；腾讯、百度、京东、字节跳动、华为、网易、米哈游和美团走 `china_bigtech` 适配器的官方公开接口，中广核走 Dayee 公开移动职位页；SmartRecruiters 来源使用 `country=cn`，Greenhouse 与 Lever 在规范化前按中国大陆地点过滤；小米官网接口同时返回全球岗位，因此适配器也会按中国大陆城市白名单过滤。每个来源单次同步最多获取 10,000 个岗位（`maxItems` 默认值），超出时运行状态为 `partial`。该操作会：
 
 1. 使用稳定的 `default:*` 标识幂等创建或更新企业；
 2. 将缺失来源创建为启用状态，不重复创建已有记录；
@@ -287,11 +287,11 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米招聘以及字节�
 4. 通过来源级唯一 `catalog_key` 更新和撤销目录条目；旧来源按 adapter 与 external key 回填，多个来源只有显式共享稳定企业身份时才合并，不按显示名称推断法人主体；同公司的其他保留来源不会被误撤销，移除来源若正在同步会先终止其 fenced run；
 5. 每批最多同步 3 个活动来源，并报告成功、部分成功、失败和跳过数量。
 
-默认目录由源码管理，因为每个条目都会扩大服务端出站访问白名单。增加企业前必须人工验证其公开 ATS 接口；自动化测试仍只能访问本地 fixture，不能依赖真实企业站点。
+默认目录数据由 `scripts/generate-default-catalog.ts` 与 `scripts/generate-default-directory.ts` 维护：两个脚本是唯一数据源，生成 `default-source-catalog.json` 与 `default-company-directory.json` 供运行时导入（`pnpm catalog:generate` / `pnpm company-directory:generate`），CI 通过 `catalog:check` 与 `company-directory:check` 拒绝过期产物，直接手改运行时模块或 JSON 会被下次生成覆盖。因为每个条目都会扩大服务端出站访问白名单，增加企业前必须人工验证其公开 ATS 接口；自动化测试仍只能访问本地 fixture，不能依赖真实企业站点。
 
-一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
+一键初始化、招聘入口扫描、ATS 招聘板枚举、公司官网研究与公众号采集都是后台任务：POST 立即返回 `jobId`，管理页轮询同一路径的 `GET ?jobId=` 显示阶段与进度，可以离开页面；同类任务同时只允许一个（重复触发返回 409）。任务状态保存在进程内存中，应用重启即终止，但以上操作都设计为可安全重跑。一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
 
-外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以 10 个来源为一批持续认领，队列清空时提前结束，最多执行 30 批、覆盖 300 个到期来源。这为继续扩展更多公司预留了容量，同时避免空跑。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
+外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以最多 10 个来源为一批持续认领（`JOB_MARKET_SYNC_BATCH_SIZE`，1–10），队列清空时提前结束，单次运行最多 30 批、覆盖 300 个到期来源（`JOBTRACE_SYNC_MAX_BATCHES`，部署脚本自身校验上限为 30）。当前目录规模（475 个来源）已超过单窗口覆盖上限：全量同时到期（例如刚完成一键初始化）时，剩余来源会顺延到后续六小时窗口直到全部追平；来源到期时间天然错峰时不受影响。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
 
 认领来源时会在同一事务中创建运行记录，并把运行 ID 写入来源租约作为 fencing token。成功结果、岗位批次、运行计数、来源健康与租约释放在一个数据库事务内提交；失败诊断与退避调度也原子提交。租约过期重领或管理员暂停/撤销来源会终止旧运行，旧 worker 之后的成功或失败回写都会被拒绝。因此排障时应以来源当前的 `lease_run_id` 和对应运行记录为准，不要手工只修改 `lease_until` 或 `leased_by`。
 

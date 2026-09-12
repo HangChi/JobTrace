@@ -22,15 +22,16 @@ SQL 迁移位于 `supabase/migrations/`。该目录名沿用早期规格，但�
 
 主要依赖方向是 `app/UI → application → domain`。`domain` 与 `application` 层的跨模块调用通过各模块的 `index.ts` 公开接口完成；`src/app` 作为组合层以及跨模块 UI 组合允许直接引用具体模块的应用服务与 UI 组件。客户端 UI 不得直接导入数据库或基础设施实现，该约束由 ESLint 检查。应用服务默认在服务端直接实例化 PostgreSQL 仓储，关键流程（如来源同步）使用端口注入以便测试替换。
 
-| 目录                          | 职责                                                              |
-| ----------------------------- | ----------------------------------------------------------------- |
-| `src/app`                     | 页面、布局、Server Components、Server Actions 与 Route Handlers。 |
-| `src/modules/applications`    | 投递聚合、招聘阶段、历史事件、列表查询和 PostgreSQL 仓储。        |
-| `src/modules/interviews`      | 面经聚合、Markdown 转换、自动保存、筛选和阶段关联。               |
-| `src/modules/analytics`       | 首页摘要、跟进提醒、进度提醒与周期求职报告。                      |
-| `src/modules/data-transfer`   | CSV/XLSX 解析、预检批次、投递导出和面经导出。                     |
-| `src/modules/identity-access` | Better Auth、服务端 actor、个人资料、角色授权和管理后台。         |
-| `src/shared`                  | 业务日期、游标、统一错误、日志、请求安全与数据库客户端。          |
+| 目录                          | 职责                                                                         |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| `src/app`                     | 页面、布局、Server Components、Server Actions 与 Route Handlers。            |
+| `src/modules/applications`    | 投递聚合、招聘阶段、历史事件、列表查询和 PostgreSQL 仓储。                   |
+| `src/modules/interviews`      | 面经聚合、Markdown 转换、自动保存、筛选和阶段关联。                          |
+| `src/modules/analytics`       | 首页摘要、跟进提醒、进度提醒与周期求职报告。                                 |
+| `src/modules/data-transfer`   | CSV/XLSX 解析、预检批次、投递导出和面经导出。                                |
+| `src/modules/identity-access` | Better Auth、服务端 actor、个人资料、角色授权和管理后台。                    |
+| `src/modules/job-market`      | 公共招聘市场：默认来源目录、ATS 适配器、安全出站客户端、同步调度与候选审核。 |
+| `src/shared`                  | 业务日期、游标、统一错误、日志、请求安全与数据库客户端。                     |
 
 每个业务模块内部按职责分为：
 
@@ -136,7 +137,7 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 
 ## 自动招聘市场边界
 
-默认企业来源目录位于 `src/modules/job-market/application/default-source-catalog.ts`。它属于受审查的出站来源配置，而不是数据库 seed；当前包含 471 家可自动同步企业、475 个来源，并保持中国企业占多数。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。
+默认企业来源目录与公司目录的数据由生成脚本维护：`scripts/generate-default-catalog.ts` 与 `scripts/generate-default-directory.ts` 是唯一数据源，产出 `default-source-catalog.json` / `default-company-directory.json` 供运行时导入（`pnpm catalog:generate` / `pnpm company-directory:generate`，CI 用对应 `:check` 命令拒绝过期产物）；当前规模以自动生成的[公司招聘入口总览](company-directory.md)为准。目录属于受审查的出站来源配置，而不是数据库 seed。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。管理端的长耗时操作（初始化、入口扫描、ATS 枚举、公司研究、公众号采集）以进程内后台任务执行：POST 立即返回 `jobId`，状态与进度通过同一路径的 `GET` 查询，同类任务单并发。
 
 来源发现使用独立的 `job_market_source_candidates` 边界。管理员触发的扫描只检查目录中已登记的公开 HTTPS 招聘入口，识别受支持 ATS 链接或 `JobPosting` JSON-LD，并记录有界健康诊断；扫描不直接写入活动来源。只有管理员明确执行“批准并启用”后，审批事务才以候选中保存的精确主机白名单创建 `job_market_sources`。因此，自动发现不能绕过来源登记、访问依据审核或适配器注册表。
 

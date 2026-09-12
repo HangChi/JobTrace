@@ -104,10 +104,11 @@ src/
 │   ├── analytics/       首页摘要、提醒与周期分析
 │   ├── data-transfer/   CSV/XLSX 导入和数据导出
 │   ├── identity-access/ 认证、个人资料、角色与管理后台
-│   └── interviews/      面经、问题、行动项与自动保存
+│   ├── interviews/      面经、问题、行动项与自动保存
+│   └── job-market/      公共招聘市场：来源目录、ATS 适配器与岗位同步
 └── shared/              日期、错误、日志、数据库与通用能力
+scripts/                 迁移、目录生成、校验、管理员和旧数据工具
 supabase/migrations/     按顺序执行的 PostgreSQL 迁移
-scripts/                 迁移、校验、管理员和旧数据工具
 tests/                   集成、端到端、契约、无障碍与性能测试
 specs/                   功能规格、计划、数据模型和 API 契约
 docs/                    面向开发与运维的长期文档
@@ -134,6 +135,8 @@ pnpm db:reset:verify  # 从空库重放迁移并校验种子
 pnpm db:types:check   # 检查生成的数据库类型是否漂移
 pnpm db:test          # 数据库函数与约束烟雾校验
 pnpm db:sql:test      # 运行 supabase/tests 中的 pgTAP SQL 断言
+pnpm catalog:check    # 校验默认来源目录 JSON 与生成脚本一致
+pnpm company-directory:check # 校验公司目录 JSON 与生成脚本一致
 pnpm contract         # HTTP 契约测试
 pnpm integration      # 集成测试
 pnpm e2e              # Playwright 端到端与无障碍测试
@@ -172,7 +175,10 @@ pnpm lighthouse       # Web 性能与可访问性审计
 - [运行、部署与故障处理](docs/operations.md)
 - [数据导入与导出](docs/data-transfer.md)
 - [测试策略与命令](docs/testing.md)
+- [公司招聘入口总览](docs/company-directory.md)（`pnpm directory:generate` 自动生成）
 - [核心投递规格](specs/001-resume-application-tracking/spec.md)
 - [面试复盘规格](specs/002-interview-review/spec.md)
 - [求职分析规格](specs/003-job-search-analytics/spec.md)
 - [管理后台规格](specs/004-enhance-admin-console/spec.md)
+- [自动招聘市场规格](specs/005-automated-job-market/spec.md)
+- [查询性能规格](specs/006-query-performance/spec.md)
