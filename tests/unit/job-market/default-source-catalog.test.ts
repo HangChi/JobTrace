@@ -156,7 +156,7 @@ describe("default job-market source catalog", () => {
     expect(directory).toContain(
       `共计 **${automaticCompanies.size + DEFAULT_COMPANY_DIRECTORY.length}** 家公司`,
     );
-    expect(DEFAULT_COMPANY_DIRECTORY).toHaveLength(811);
+    expect(DEFAULT_COMPANY_DIRECTORY).toHaveLength(815);
     expect(
       DEFAULT_SOURCE_CATALOG.some((entry) => entry.companyName === "蜜雪集团"),
     ).toBe(true);

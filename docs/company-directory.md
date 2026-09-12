@@ -1,8 +1,8 @@
 # 公司招聘入口总览
 
-> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1286** 家公司（自动同步 475 · 官网入口 635 · 公众号 176）。
+> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1286** 家公司（自动同步 471 · 官网入口 639 · 公众号 176）。
 
-## 自动同步公司（475 家）
+## 自动同步公司（471 家）
 
 岗位由公开招聘来源自动同步。
 
@@ -238,7 +238,6 @@
 | 全志科技                           | 企业     | 科技                           | 自动同步 | <https://app.mokahr.com/campus-recruitment/allwinnertech/43436>                            |
 | 雀巢大中华区                       | 外企     | 食品 / 消费品                  | 自动同步 | <https://app.mokahr.com/social-recruitment/nestlezgc/91898>                                |
 | 锐捷网络                           | 上市公司 | 网络设备 / 云计算              | 自动同步 | <https://app.mokahr.com/campus-recruitment/ruijie/136206>                                  |
-| 锐捷智能                           | 企业     | 科技                           | 自动同步 | <https://app.mokahr.com/social-recruitment/ruijie/26518>                                   |
 | 瑞萨电子中国                       | 外企     | 半导体 / 嵌入式系统            | 自动同步 | <https://jobs.smartrecruiters.com/RenesasElectronics>                                      |
 | 睿联技术                           | 企业     | 互联网                         | 自动同步 | <https://app.mokahr.com/social-recruitment/reo/136005>                                     |
 | 睿能科技                           | 企业     | 科技                           | 自动同步 | <https://app.mokahr.com/social-recruitment/raynen/115954>                                  |
@@ -288,7 +287,6 @@
 | 崧盛股份                           | 企业     | 汽车新能源                     | 自动同步 | <https://sosen.zhiye.com/>                                                                 |
 | 搜狐                               | 上市公司 | 互联网 / 媒体                  | 自动同步 | <https://app.mokahr.com/campus_apply/sohu/28313>                                           |
 | 搜狐畅游                           | 企业     | 互联网                         | 自动同步 | <https://campus.changyou.com/>                                                             |
-| 搜狐集团-AI人才专项                | 企业     | 互联网                         | 自动同步 | <https://campus.sohu.com/>                                                                 |
 | 苏纳                               | 企业     | 半导体                         | 自动同步 | <https://suna-opto.zhiye.com/social/jobs>                                                  |
 | 苏商银行                           | 民营银行 | 金融科技 / 银行                | 自动同步 | <https://app.mokahr.com/social-recruitment/snb/45591>                                      |
 | 索尼                               | 外企     | 外企 / 科技                    | 自动同步 | <https://www.sony.com.cn/content/sonyportal_hr/Social_recruitment.html>                    |
@@ -356,7 +354,6 @@
 | 新芯股份                           | 企业     | 科技                           | 自动同步 | <https://whxmc.zhiye.com/social/jobs>                                                      |
 | 新易盛                             | 企业     | 科技                           | 自动同步 | <https://eoptolink.zhiye.com/campus>                                                       |
 | 信捷电气                           | 企业     | 科技                           | 自动同步 | <https://xinje.zhiye.com/social/jobs>                                                      |
-| 信锐技术                           | 企业     | 科技                           | 自动同步 | <https://app.mokahr.com/campus-recruitment/sangfor/37521>                                  |
 | 星宸科技                           | 企业     | 半导体                         | 自动同步 | <https://sigmastar.zhiye.com/social/jobs>                                                  |
 | 星海图                             | 企业     | 科技                           | 自动同步 | <https://galaxea.zhiye.com/social/jobs>                                                    |
 | 星环科技                           | 企业     | 互联网                         | 自动同步 | <https://app.mokahr.com/campus_apply/transwarp/3196>                                       |
@@ -366,7 +363,6 @@
 | 徐工集团                           | 国有企业 | 工程机械 / 智能制造            | 自动同步 | <https://app.mokahr.com/campus-recruitment/xcmg/148091>                                    |
 | 旭阳集团                           | 企业     | 其他                           | 自动同步 | <https://risun.zhiye.com/jobs>                                                             |
 | 旭之源科技                         | 企业     | 汽车新能源                     | 自动同步 | <https://atazpower.zhiye.com/jobs>                                                         |
-| 学而思                             | 企业     | 教育                           | 自动同步 | <https://app.mokahr.com/social-recruitment/tal/118640>                                     |
 | 雪川农业集团                       | 企业     | 农业                           | 自动同步 | <https://snowvalleyfood.zhiye.com/jobs>                                                    |
 | 雪人集团                           | 企业     | 新能源                         | 自动同步 | <https://snowman.zhiye.com/jobs>                                                           |
 | 迅雷                               | 上市公司 | 互联网 / 云计算                | 自动同步 | <https://app.mokahr.com/social-recruitment/xunlei/26599>                                   |
@@ -484,7 +480,7 @@
 | Xsolla中国                         | 外企     | 游戏支付 / 金融科技            | 自动同步 | <https://jobs.lever.co/xsolla>                                                             |
 | Zenni Optical中国                  | 外企     | 眼镜 / 电商 / 制造             | 自动同步 | <https://job-boards.greenhouse.io/zennioptical>                                            |
 
-## 官网入口公司（635 家）
+## 官网入口公司（639 家）
 
 暂无公开岗位接口，链接直达官方招聘官网。
 
@@ -805,6 +801,7 @@
 | 荣盛集团                                     | 企业     | 其他                       | 官网 | <https://www.cnrspc.com/ProductInfoCategory?categoryId=818960&PageInfoId=0>                        |
 | 荣耀                                         | 企业     | 科技 / 快消零售            | 官网 | <https://wecruit500.hotjob.cn/SU5fb249ec44e800c1fce8567a/pb/index.html>                            |
 | 容知日新                                     | 企业     | 科技                       | 官网 | <https://job.ronds.com/social-recruitment/anhuirohgzhirixin/73949>                                 |
+| 锐捷智能                                     | 企业     | 科技                       | 官网 | <https://app.mokahr.com/social-recruitment/ruijie/26518>                                           |
 | 瑞浦兰钧能源                                 | 企业     | 新能源                     | 官网 | <https://cn.reptbattero.com/join-us/>                                                              |
 | 瑞银-中国内地校招                            | 外企     | 外企 / 金融                | 官网 | <https://www.ubs.com/global/en/careers/search-jobs.html>                                           |
 | 瑞昱半导体                                   | 企业     | 半导体                     | 官网 | <https://www.realtek.com.cn/Home/Social>                                                           |
@@ -838,6 +835,7 @@
 | 斯达半导体                                   | 企业     | 科技                       | 官网 | <https://www.powersemi.com/join.html>                                                              |
 | 斯堪尼亚-校园大使                            | 外企     | 外企 / 制造业              | 官网 | <https://www.scania.com/cn/zh_cn/home/about-scania/career/available-positions.html>                |
 | 四川蜀道装备科技股份有限公司                 | 国有企业 | 国央企                     | 官网 | <https://www.shudaojt.com/qyjob/>                                                                  |
+| 搜狐集团-AI人才专项                          | 企业     | 互联网                     | 官网 | <https://campus.sohu.com/>                                                                         |
 | 苏州科达                                     | 企业     | 半导体                     | 官网 | <https://kedacom.zhiye.com/social/jobs>                                                            |
 | 算苗科技                                     | 企业     | 半导体                     | 官网 | <https://www.sunmmio.com/position>                                                                 |
 | 它石智航                                     | 民营企业 | 具身智能                   | 官网 | <https://tarsrobot.jobs.feishu.cn/>                                                                |
@@ -927,6 +925,7 @@
 | 新星集团                                     | 企业     | 物流                       | 官网 | <https://www.xinxing100.com/JobPosting_list.html>                                                  |
 | 新紫光集团下属产业公司                       | 企业     | 科技                       | 官网 | <https://wecruit.hotjob.cn/SU650d409e6202cc7d7a295264/pb/social.html>                              |
 | 信步科技                                     | 企业     | 科技                       | 官网 | <https://seavo.hotjob.cn/>                                                                         |
+| 信锐技术                                     | 企业     | 科技                       | 官网 | <https://app.mokahr.com/campus-recruitment/sangfor/37521>                                          |
 | 信芯微                                       | 企业     | 科技                       | 官网 | <https://www.hi-image.com/html/careers/socialrecruitment/>                                         |
 | 星动纪元                                     | 民营企业 | 人形机器人                 | 官网 | <https://k0fqxcszc9.jobs.feishu.cn/>                                                               |
 | 星辉游戏                                     | 企业     | 互联网                     | 官网 | <https://rastargame.jobs.feishu.cn/066491>                                                         |
@@ -936,6 +935,7 @@
 | 兴森科技                                     | 企业     | 半导体                     | 官网 | <https://www.hotjob.cn/wt/FASTPRINT/web/index?brandCode=1>                                         |
 | 许昌智能                                     | 企业     | 互联网                     | 官网 | <https://www.xjpmf.com/recruitSociety.html>                                                        |
 | 旋智科技                                     | 企业     | 科技                       | 官网 | <https://www.spintrol.com/index/index/join.html>                                                   |
+| 学而思                                       | 企业     | 教育                       | 官网 | <https://app.mokahr.com/social-recruitment/tal/118640>                                             |
 | 学而思网校                                   | 企业     | 教育                       | 官网 | <https://app.mokahr.com/social-recruitment/tal/118640>                                             |
 | 亚马逊                                       | 外企     | 外企 / 互联网              | 官网 | <https://www.amazon.jobs/en/>                                                                      |
 | 研极微电                                     | 企业     | 机电                       | 官网 | <https://campus.51job.com/superacme>                                                               |

@@ -1869,6 +1869,13 @@
   "entryUrl": "https://job.ronds.com/social-recruitment/anhuirohgzhirixin/73949"
  },
  {
+  "identityKey": "default:wechat-article:锐捷智能",
+  "companyName": "锐捷智能",
+  "companyType": "企业",
+  "industry": "科技",
+  "entryUrl": "https://app.mokahr.com/social-recruitment/ruijie/26518"
+ },
+ {
   "identityKey": "default:wechat-article:瑞浦兰钧能源",
   "companyName": "瑞浦兰钧能源",
   "companyType": "企业",
@@ -2063,6 +2070,13 @@
   "companyType": "国有企业",
   "industry": "国央企",
   "entryUrl": "https://www.shudaojt.com/qyjob/"
+ },
+ {
+  "identityKey": "default:wechat-article:搜狐集团-AI人才专项",
+  "companyName": "搜狐集团-AI人才专项",
+  "companyType": "企业",
+  "industry": "互联网",
+  "entryUrl": "https://campus.sohu.com/"
  },
  {
   "identityKey": "default:wechat-article:苏州科达",
@@ -2618,6 +2632,13 @@
   "entryUrl": "https://seavo.hotjob.cn/"
  },
  {
+  "identityKey": "default:wechat-article:信锐技术",
+  "companyName": "信锐技术",
+  "companyType": "企业",
+  "industry": "科技",
+  "entryUrl": "https://app.mokahr.com/campus-recruitment/sangfor/37521"
+ },
+ {
   "identityKey": "default:wechat-article:信芯微",
   "companyName": "信芯微",
   "companyType": "企业",
@@ -2672,6 +2693,13 @@
   "companyType": "企业",
   "industry": "科技",
   "entryUrl": "https://www.spintrol.com/index/index/join.html"
+ },
+ {
+  "identityKey": "default:wechat-article:学而思",
+  "companyName": "学而思",
+  "companyType": "企业",
+  "industry": "教育",
+  "entryUrl": "https://app.mokahr.com/social-recruitment/tal/118640"
  },
  {
   "identityKey": "default:wechat-article:学而思网校",

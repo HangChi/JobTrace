@@ -22,6 +22,7 @@ export type DefaultSourceCatalogEntry = {
 
 function mokaSource(input: {
   identityKey: string;
+  companyIdentityKey?: string;
   companyName: string;
   companyType: string;
   industry: string;
@@ -37,6 +38,7 @@ function mokaSource(input: {
   const sitePath = input.siteId ? `/${input.siteId}` : "";
   return {
     identityKey: input.identityKey,
+    companyIdentityKey: input.companyIdentityKey,
     companyName: input.companyName,
     companyType: input.companyType,
     industry: input.industry,
@@ -1053,6 +1055,8 @@ export const DEFAULT_SOURCE_CATALOG = [
   },
   mokaSource({
     identityKey: "default:zte-social-cn",
+    // 与校招条目 default:zte-cn 同属中兴通讯，共用一家公司行。
+    companyIdentityKey: "default:zte-cn",
     companyName: "中兴通讯",
     companyType: "上市公司",
     industry: "通信设备 / 5G / 智能终端",

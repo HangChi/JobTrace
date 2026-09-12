@@ -2484,24 +2484,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-25e065d60b",
-  "companyIdentityKey": "default:wechat-article:锐捷智能",
-  "companyName": "锐捷智能",
-  "companyType": "企业",
-  "industry": "科技",
-  "websiteUrl": "https://app.mokahr.com/social-recruitment/ruijie/26518",
-  "adapter": "moka",
-  "externalKey": "ruijie|social|26518",
-  "baseUrl": "https://api.mokahr.com/",
-  "allowedHosts": [
-   "api.mokahr.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-bcc132df37",
   "companyIdentityKey": "default:wechat-article:睿联技术",
   "companyName": "睿联技术",
@@ -2996,24 +2978,6 @@
   "websiteUrl": "https://campus.changyou.com/",
   "adapter": "moka",
   "externalKey": "cyou-inc|campus|42233",
-  "baseUrl": "https://api.mokahr.com/",
-  "allowedHosts": [
-   "api.mokahr.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
-  "identityKey": "default:researched-src-c7515882f2",
-  "companyIdentityKey": "default:wechat-article:搜狐集团-AI人才专项",
-  "companyName": "搜狐集团-AI人才专项",
-  "companyType": "企业",
-  "industry": "互联网",
-  "websiteUrl": "https://campus.sohu.com/",
-  "adapter": "moka",
-  "externalKey": "sohu|campus|5682",
   "baseUrl": "https://api.mokahr.com/",
   "allowedHosts": [
    "api.mokahr.com"
@@ -3672,24 +3636,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-638aa31943",
-  "companyIdentityKey": "default:wechat-article:信锐技术",
-  "companyName": "信锐技术",
-  "companyType": "企业",
-  "industry": "科技",
-  "websiteUrl": "https://app.mokahr.com/campus-recruitment/sangfor/37521",
-  "adapter": "moka",
-  "externalKey": "sangfor|campus|37521",
-  "baseUrl": "https://api.mokahr.com/",
-  "allowedHosts": [
-   "api.mokahr.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-bfb8e6b2fe",
   "companyIdentityKey": "default:wechat-article:星宸科技",
   "companyName": "星宸科技",
@@ -3809,24 +3755,6 @@
   "baseUrl": "https://atazpower.zhiye.com/",
   "allowedHosts": [
    "atazpower.zhiye.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
-  "identityKey": "default:researched-src-4305738287",
-  "companyIdentityKey": "default:wechat-article:学而思",
-  "companyName": "学而思",
-  "companyType": "企业",
-  "industry": "教育",
-  "websiteUrl": "https://app.mokahr.com/social-recruitment/tal/118640",
-  "adapter": "moka",
-  "externalKey": "tal|social|118640",
-  "baseUrl": "https://api.mokahr.com/",
-  "allowedHosts": [
-   "api.mokahr.com"
   ],
   "countryCodes": [
    "cn"

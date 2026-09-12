@@ -90,6 +90,19 @@ const retiredFeishuHosts = new Set(
   RETIRED_FEISHU_SOURCES.map((row) => row[3] as string),
 );
 
+// Moka 同一租户的同一渠道（org+mode）只保留一个来源：不同 siteId 是同一池子
+// 的站点筛选，会同步出重复岗位（如 学而思 ⊂ 好未来）。
+const existingMokaOrgModes = new Set(
+  baseCatalog
+    .filter((entry) => entry.adapter === "moka")
+    .map((entry) => {
+      const [org, mode] = entry.externalKey.split("|");
+      return `${org}|${mode}`;
+    }),
+);
+// 与既有目录公司同主体但名称不同的，人工排除，降级为官网条目。
+const MANUAL_SOURCE_EXCLUSIONS = new Set(["锐捷智能"]);
+
 const sourceAdditions: Array<Record<string, unknown>> = [];
 const officialSiteAdditions: Array<Record<string, unknown>> = [];
 const seenSourceKeys = new Set<string>();
@@ -122,6 +135,11 @@ for (const company of verified) {
     detected &&
     best.kind === "high" &&
     PROVEN_ADAPTERS.has(detected.adapter) &&
+    !MANUAL_SOURCE_EXCLUSIONS.has(company.company) &&
+    !(detected.adapter === "moka" &&
+      existingMokaOrgModes.has(
+        detected.externalKey.split("|").slice(0, 2).join("|"),
+      )) &&
     !failedIdentityKeys.has(
       `default:researched-src-${shortHash(company.company)}`,
     ) &&
@@ -132,7 +150,10 @@ for (const company of verified) {
     );
 
   if (proven && detected) {
-    const duplicateKey = `${detected.adapter}|${detected.externalKey}`;
+    const duplicateKey =
+      detected.adapter === "moka"
+        ? `moka|${detected.externalKey.split("|").slice(0, 2).join("|")}`
+        : `${detected.adapter}|${detected.externalKey}`;
     if (!seenSourceKeys.has(duplicateKey)) {
       seenSourceKeys.add(duplicateKey);
       sourceAdditions.push({
