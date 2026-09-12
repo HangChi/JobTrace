@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import type { AuthActionState } from "@/app/(auth)/actions";
+import { useVerificationCodeSender } from "./use-verification-code-sender";
 
 type Mode = "login" | "register" | "forgot" | "reset";
 type Action = (
@@ -115,33 +116,15 @@ export function AuthForm({
   const [registrationEmail, setRegistrationEmail] = useState("");
   const [codeMessage, setCodeMessage] = useState("");
   const [codeError, setCodeError] = useState("");
-  const [sendingCode, setSendingCode] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const email = mode === "forgot" || mode === "register";
   const password = mode === "login" || mode === "register" || mode === "reset";
   const fieldErrors = state.fieldErrors ?? {};
   const errorEntries = Object.entries(fieldErrors);
 
-  useEffect(() => {
-    if (state.error) errorSummaryRef.current?.focus();
-  }, [state]);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [cooldown]);
-
-  async function sendRegistrationCode() {
-    if (!registrationEmail) {
-      setCodeError("请先输入邮箱。");
-      return;
-    }
-    setSendingCode(true);
-    setCodeError("");
-    setCodeMessage("");
-    try {
+  const codeSender = useVerificationCodeSender(
+    async () => {
+      if (!registrationEmail) throw new Error("请先输入邮箱。");
       const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -161,16 +144,14 @@ export function AuthForm({
             "验证码发送失败，请稍后重试。",
         );
       }
-      setCodeMessage(result?.message || "验证码已发送。");
-      setCooldown(60);
-    } catch (reason) {
-      setCodeError(
-        reason instanceof Error ? reason.message : "验证码发送失败。",
-      );
-    } finally {
-      setSendingCode(false);
-    }
-  }
+      return result?.message || "验证码已发送。";
+    },
+    { onSuccess: setCodeMessage, onError: setCodeError },
+  );
+
+  useEffect(() => {
+    if (state.error) errorSummaryRef.current?.focus();
+  }, [state]);
 
   const describedBy = (...ids: Array<string | false>) =>
     ids.filter(Boolean).join(" ") || undefined;
@@ -347,13 +328,13 @@ export function AuthForm({
               <button
                 className="button secondary auth-code-button"
                 type="button"
-                disabled={sendingCode || cooldown > 0}
-                onClick={() => void sendRegistrationCode()}
+                disabled={codeSender.sending || codeSender.cooldown > 0}
+                onClick={() => void codeSender.run()}
               >
-                {sendingCode
+                {codeSender.sending
                   ? "发送中…"
-                  : cooldown > 0
-                    ? `${cooldown} 秒`
+                  : codeSender.cooldown > 0
+                    ? `${codeSender.cooldown} 秒`
                     : "发送验证码"}
               </button>
             )}

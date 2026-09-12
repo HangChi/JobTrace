@@ -1,7 +1,7 @@
 import "../../styles/profile.css";
 import "../../styles/profile-refined.css";
 import Link from "next/link";
-import { getAnalyticsSummary } from "@/modules/analytics";
+import { countApplications } from "@/modules/applications";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
 import { getProfile, listAccountSessions } from "@/modules/identity-access";
 import { CredentialSettings } from "@/modules/identity-access/ui/credential-settings";
@@ -18,9 +18,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const [profile, summary, sessions] = await Promise.all([
+  const [profile, totalApplications, sessions] = await Promise.all([
     getProfile(),
-    getAnalyticsSummary(),
+    countApplications(),
     listAccountSessions(),
   ]);
   const roleLabel = profile.role === "admin" ? "管理员账号" : "个人账号";
@@ -131,18 +131,18 @@ export default async function ProfilePage() {
             </div>
             <div className="profile-data-overview">
               <div className="profile-data-count">
-                <span>{summary.total.toLocaleString("zh-CN")}</span>
+                <span>{totalApplications.toLocaleString("zh-CN")}</span>
                 <p>条投递记录由当前账号独立保存</p>
               </div>
               <div className="profile-data-actions">
                 <Link className="button secondary" href="/import">
                   导入投递记录
                 </Link>
-                <ExportButton scope="all" disabled={summary.total === 0} />
+                <ExportButton scope="all" disabled={totalApplications === 0} />
               </div>
             </div>
             <p className="profile-data-note">
-              {summary.total
+              {totalApplications
                 ? "导出文件包含全部投递记录，可选择 Excel 或 CSV 格式。"
                 : "创建或导入第一条投递记录后，即可导出个人数据。"}
               面经暂不包含在导出文件中。

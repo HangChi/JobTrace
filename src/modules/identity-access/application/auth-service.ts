@@ -53,6 +53,21 @@ export async function register(input: unknown) {
     value.verificationCode,
     "registration",
   );
+  const sql = createServerDatabase();
+  // 预检查与 users_recovery_email_idx（lower(recovery_email) 唯一）一致，
+  // 避免先建账号再回滚的补偿路径成为常规分支。
+  const [taken] = await sql<{ one: number }[]>`
+    select 1 as one from public.users
+    where lower(recovery_email)=lower(${verification.email})
+    limit 1`;
+  if (taken)
+    throw new Problem("registration_conflict", "该邮箱已被使用。", 409, [
+      {
+        field: "email",
+        code: "registration_conflict",
+        message: "该邮箱已关联其他账号。",
+      },
+    ]);
   try {
     const result = await auth.api.signUpEmail({
       body: {
@@ -63,7 +78,6 @@ export async function register(input: unknown) {
         displayUsername: value.username,
       },
     });
-    const sql = createServerDatabase();
     try {
       await sql.begin(async (transaction) => {
         await transaction`
@@ -82,7 +96,16 @@ export async function register(input: unknown) {
         }
       });
     } catch (error) {
-      await sql`delete from public.users where id=${result.user.id}`;
+      // 补偿删除失败时账号会成为孤儿（用户名被占用但未绑定邮箱），
+      // 只能尽力删除并留下可观测的错误，绝不掩盖原始失败原因。
+      try {
+        await sql`delete from public.users where id=${result.user.id}`;
+      } catch (cleanupError) {
+        console.error(
+          `registration compensation failed for user ${result.user.id}`,
+          cleanupError,
+        );
+      }
       if ((error as { code?: string }).code === "23505") {
         throw new Problem("registration_conflict", "该邮箱已被使用。", 409, [
           {
@@ -154,7 +177,15 @@ export async function login(input: unknown) {
         safeReturnTo(value.returnTo) ??
         (user.role === "admin" ? "/admin" : "/"),
     };
-  } catch {
+  } catch (error) {
+    // 保留已映射的业务错误；better-auth 自身的限流（customRules）不得
+    // 被误报成“用户名或密码不正确”，其余异常统一 401 避免账号枚举。
+    if (error instanceof Problem) throw error;
+    if (
+      error instanceof APIError &&
+      (error.status === 429 || error.body?.code === "RATE_LIMITED")
+    )
+      throw new Problem("rate_limited", "尝试次数过多，请稍后再试。", 429);
     throw credentialError();
   }
 }

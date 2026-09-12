@@ -3,18 +3,11 @@ import { listApplications } from "@/modules/applications";
 import { ApplicationDashboard } from "@/modules/applications/ui/application-dashboard";
 import { ResetPageOnReload } from "@/modules/applications/ui/reset-page-on-reload";
 import { requirePageUser } from "@/modules/identity-access";
+import { toSearchParams } from "@/shared/url/search-params";
 
 export const dynamic = "force-dynamic";
 type Search = Record<string, string | string[] | undefined>;
 const PAGE_SIZES = ["10", "20", "50", "100"] as const;
-function toSearchParams(search: Search) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(search)) {
-    if (Array.isArray(value)) value.forEach((item) => params.append(key, item));
-    else if (value) params.set(key, value);
-  }
-  return params;
-}
 export default async function ApplicationsPage({
   searchParams,
 }: {

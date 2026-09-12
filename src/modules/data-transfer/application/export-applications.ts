@@ -1,4 +1,5 @@
 import { createServerDatabase } from "@/shared/database";
+import { dateOnly } from "@/shared/date/date-only";
 import { Problem } from "@/shared/errors/problem";
 import { rowsToCsv, rowsToXlsx } from "../infrastructure/spreadsheet-writer";
 import { requireUser } from "@/modules/identity-access";
@@ -49,10 +50,6 @@ export async function exportApplications(options: ExportOptions) {
   `;
   if (!data.length)
     throw new Problem("not_found", "所选范围内没有可导出的记录。", 404);
-  const dateOnly = (value: unknown) =>
-    value instanceof Date
-      ? value.toISOString().slice(0, 10)
-      : String(value).slice(0, 10);
   const timestamp = (value: unknown) => new Date(String(value)).toISOString();
   const rows = data.map((row) => ({
     ID: row.id,

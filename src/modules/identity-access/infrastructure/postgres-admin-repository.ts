@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServerDatabase } from "@/shared/database";
+import { dateOnly } from "@/shared/date/date-only";
 import type {
   AdminAuditEvent,
   AdminManagedApplication,
@@ -168,10 +169,6 @@ export async function readManagedUser(userId: string) {
 }
 
 const contentPageSize = 10;
-const dateOnly = (value: unknown) =>
-  value instanceof Date
-    ? value.toISOString().slice(0, 10)
-    : String(value).slice(0, 10);
 
 type ManagedApplicationRow = {
   id: string;

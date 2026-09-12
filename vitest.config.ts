@@ -22,7 +22,7 @@ export default defineConfig({
       provider: "v8",
       include: [
         "src/modules/*/domain/**/*.ts",
-        "src/modules/*/application/{*rules,*query,*schema,display,interview-markdown,source-discovery}.ts",
+        "src/modules/*/application/{*rules,*query,*schema,display,interview-markdown,source-discovery,admin-jobs}.ts",
         "src/modules/data-transfer/infrastructure/spreadsheet-{reader,writer}.ts",
         "src/shared/{date,pagination,errors,observability}/**/*.ts",
       ],

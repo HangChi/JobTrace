@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import type { SecureSourceFetch, SourceFetchResponse } from "./ports";
+import { BROWSER_HEADERS } from "./browser-http";
 import { detectSourceCandidate } from "./source-discovery";
 
 // B 方案研究核心：给定公司名，从公开网页搜索（360 so.com，结果直出真实
@@ -76,12 +77,6 @@ const BLOCKED_RESULT_HOSTS = [
   "baike.so.com",
 ];
 
-const BROWSER_HEADERS = {
-  "user-agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "accept-language": "zh-CN,zh;q=0.9",
-};
-
 export function parseSoResults(html: string): WebSearchResult[] {
   const $ = load(html);
   const results: WebSearchResult[] = [];
@@ -112,12 +107,22 @@ export function filterRecruitmentResults(results: WebSearchResult[]) {
       } catch {
         return false;
       }
-      if (!host.endsWith(".cn") && !host.endsWith(".com") && !host.endsWith(".net"))
-        return false;
-      if (BLOCKED_RESULT_HOSTS.some((blocked) => host === blocked || host.endsWith(`.${blocked}`)))
+      if (
+        !host.endsWith(".cn") &&
+        !host.endsWith(".com") &&
+        !host.endsWith(".net")
+      )
         return false;
       if (
-        !/招聘|校招|社招|招募|人才|talent|career|job|hire|join/i.test(result.title) &&
+        BLOCKED_RESULT_HOSTS.some(
+          (blocked) => host === blocked || host.endsWith(`.${blocked}`),
+        )
+      )
+        return false;
+      if (
+        !/招聘|校招|社招|招募|人才|talent|career|job|hire|join/i.test(
+          result.title,
+        ) &&
         !/job|career|talent|hire|zhaopin|recruit|hr/i.test(result.url)
       )
         return false;
@@ -215,7 +220,10 @@ export async function verifySite(
       site.httpStatus = response.status;
       if (response.status >= 200 && response.status < 400) {
         const html = await response.text().catch(() => "");
-        site.detected = detectSourceCandidate(site.finalUrl, html.slice(0, 500000));
+        site.detected = detectSourceCandidate(
+          site.finalUrl,
+          html.slice(0, 500000),
+        );
       } else {
         site.error = `http_${response.status}`;
       }
@@ -252,7 +260,8 @@ export async function researchCompanySite(
   const rank = { high: 0, medium: 1, none: 2 } as const;
   verified.sort(
     (left, right) =>
-      rank[left.detected?.confidence ?? "none"] - rank[right.detected?.confidence ?? "none"],
+      rank[left.detected?.confidence ?? "none"] -
+      rank[right.detected?.confidence ?? "none"],
   );
   return {
     companyName,

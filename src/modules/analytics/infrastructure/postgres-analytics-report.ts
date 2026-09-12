@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { createServerDatabase } from "@/shared/database";
+import { dateOnly } from "@/shared/date/date-only";
 import type { AnalyticsResolvedRange } from "../application/contracts";
 import type { ReportAggregateData } from "../application/report-rules";
 
@@ -8,11 +9,6 @@ type AggregateRangeResult = {
   data: ReportAggregateData;
   availableCities: string[];
 };
-
-function dateOnly(value: unknown) {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value).slice(0, 10);
-}
 
 function records(value: unknown): DbRecord[] {
   return Array.isArray(value) ? (value as DbRecord[]) : [];

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useVerificationCodeSender } from "./use-verification-code-sender";
 
 export function EmailBindingForm({
   email,
@@ -16,26 +17,12 @@ export function EmailBindingForm({
   const [verificationCode, setVerificationCode] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [cooldown]);
-
-  async function sendCode() {
-    if (!nextEmail) {
-      setError("请输入要绑定的新邮箱。");
-      return;
-    }
-    setSending(true);
-    setError("");
-    setMessage("");
-    try {
+  const codeSender = useVerificationCodeSender(
+    async () => {
+      if (!nextEmail) throw new Error("请输入要绑定的新邮箱。");
       const response = await fetch("/api/profile/email/code", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -43,14 +30,10 @@ export function EmailBindingForm({
       });
       const result = (await response.json()) as { message?: string };
       if (!response.ok) throw new Error(result.message || "验证码发送失败。");
-      setMessage(result.message || "验证码已发送。");
-      setCooldown(60);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "验证码发送失败。");
-    } finally {
-      setSending(false);
-    }
-  }
+      return result.message || "验证码已发送。";
+    },
+    { onSuccess: setMessage, onError: setError },
+  );
 
   async function bind(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -159,13 +142,13 @@ export function EmailBindingForm({
             <button
               className="button secondary profile-email-code-button"
               type="button"
-              disabled={sending || cooldown > 0}
-              onClick={() => void sendCode()}
+              disabled={codeSender.sending || codeSender.cooldown > 0}
+              onClick={() => void codeSender.run()}
             >
-              {sending
+              {codeSender.sending
                 ? "发送中…"
-                : cooldown > 0
-                  ? `${cooldown} 秒后重试`
+                : codeSender.cooldown > 0
+                  ? `${codeSender.cooldown} 秒后重试`
                   : "发送验证码"}
             </button>
           </div>
@@ -219,7 +202,7 @@ export function EmailBindingForm({
               解绑邮箱
             </button>
           )}
-          <button className="button" disabled={busy || sending}>
+          <button className="button" disabled={busy || codeSender.sending}>
             {busy ? "处理中…" : currentEmail ? "换绑邮箱" : "绑定邮箱"}
           </button>
         </div>

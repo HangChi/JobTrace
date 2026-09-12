@@ -1,5 +1,6 @@
 import { createServerDatabase } from "@/shared/database";
 import { Problem } from "@/shared/errors/problem";
+import { dateOnly } from "@/shared/date/date-only";
 import { decodeCursor, encodeCursor } from "@/shared/pagination/cursor";
 import type { InterviewRepository } from "../application/ports";
 import type { InterviewListQuery } from "../application/list-query";
@@ -14,10 +15,6 @@ import type {
 } from "../domain/interview.schema";
 
 type Row = Record<string, unknown>;
-const dateOnly = (value: unknown) =>
-  value instanceof Date
-    ? value.toISOString().slice(0, 10)
-    : String(value).slice(0, 10);
 
 function mapSummary(row: Row): InterviewSummary {
   return {

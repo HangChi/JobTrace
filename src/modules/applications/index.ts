@@ -14,6 +14,11 @@ export {
   updateApplicationStatus,
 } from "./application/application-service";
 export {
+  countApplications,
+  listApplicationOptions,
+  type ApplicationOption,
+} from "./application/application-options";
+export {
   createApplicationSchema,
   updateApplicationSchema,
 } from "./domain/application.schema";

@@ -1,5 +1,6 @@
 import { createServerDatabase } from "@/shared/database";
 import { Problem } from "@/shared/errors/problem";
+import { dateOnly } from "@/shared/date/date-only";
 import { decodeCursor, encodeCursor } from "@/shared/pagination/cursor";
 import type { ApplicationRepository } from "../application/ports";
 import type {
@@ -16,11 +17,6 @@ import type { ListQuery } from "../application/list-query";
 import { FOLLOW_UP_THRESHOLD_DAYS } from "../domain/catalog";
 
 type DbRecord = Record<string, unknown>;
-
-function dateOnly(value: unknown) {
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  return String(value).slice(0, 10);
-}
 
 function mapSummary(row: DbRecord): ApplicationSummary {
   const latest = dateOnly(row.latestDate);
@@ -490,5 +486,43 @@ export class PostgresApplicationRepository implements ApplicationRepository {
             })
           : null,
     };
+  }
+
+  // 面试关联下拉等场景只需要少量展示字段，避免 list() 的
+  // count + stage lateral join 开销。
+  async listOptions(ownerId: string): Promise<
+    Array<{
+      id: string;
+      companyName: string;
+      city: string | null;
+      positionName: string;
+      appliedDate: string;
+    }>
+  > {
+    const rows = await this.sql<
+      Array<{
+        id: string;
+        companyName: string;
+        city: string | null;
+        positionName: string;
+        appliedDate: unknown;
+      }>
+    >`
+      select id,company_name as "companyName",city,position_name as "positionName",
+        applied_date as "appliedDate"
+      from applications
+      where owner_id=${ownerId}
+      order by applied_date desc, created_at desc, id
+      limit 100`;
+    return rows.map((row) => ({
+      ...row,
+      appliedDate: dateOnly(row.appliedDate),
+    }));
+  }
+
+  async count(ownerId: string): Promise<number> {
+    const [row] = await this.sql<Array<{ total: number }>>`
+      select count(*)::int as total from applications where owner_id=${ownerId}`;
+    return row?.total ?? 0;
   }
 }

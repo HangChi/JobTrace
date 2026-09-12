@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import type { SecureSourceFetch } from "./ports";
+import { BROWSER_HEADERS } from "./browser-http";
 
 // 微信公众号是国内新公司发布招聘最快的公开信号。采集器从公开搜索引擎
 // 的微信文章索引中拉取招聘类文章标题，提取公司名后交由候选队列审核。
@@ -316,12 +317,6 @@ function parseBingArticles(html: string): WechatArticleHit[] {
   });
   return hits;
 }
-
-const BROWSER_HEADERS = {
-  "user-agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-  "accept-language": "zh-CN,zh;q=0.9",
-};
 
 async function fetchSogou(
   query: string,

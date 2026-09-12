@@ -3,7 +3,7 @@ import type { Route } from "next";
 import {
   formatCompanyWithCity,
   getApplication,
-  listApplications,
+  listApplicationOptions,
 } from "@/modules/applications";
 import { listApplicationInterviews } from "@/modules/interviews";
 import { InterviewCreateForm } from "@/modules/interviews/ui/interview-create-form";
@@ -28,7 +28,7 @@ export default async function NewInterviewPage({
       if (existing) redirect(`/interviews/${existing.id}` as Route);
     }
   }
-  const page = await listApplications(new URLSearchParams({ limit: "100" }));
+  const applicationOptions = await listApplicationOptions();
   const occurrence = selected?.stageOccurrences.find(
     (item) => item.id === query.stageOccurrenceId,
   );
@@ -41,7 +41,7 @@ export default async function NewInterviewPage({
         </div>
       </div>
       <InterviewCreateForm
-        applications={page.items.map((item) => ({
+        applications={applicationOptions.map((item) => ({
           id: item.id,
           label: `${formatCompanyWithCity(item.companyName, item.city)} · ${item.positionName}`,
           appliedDate: item.appliedDate,
