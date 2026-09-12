@@ -69,7 +69,10 @@ function inV4Range(address: string, network: string, prefix: number) {
 }
 
 export function isSyntheticProxyIp(address: string) {
-  return isIP(address) === 4 && inV4Range(address, "198.18.0.0", 15);
+  // 部分 fake-ip 代理的 AAAA 记录返回 IPv4 映射写法（::ffff:198.18.x.x），
+  // 先归一化再判断，否则 allowProxyDns 环境下仍会被误判为不安全地址。
+  const ipv4 = isIP(address) === 6 ? mappedIpv4Address(address) : address;
+  return ipv4 !== null && isIP(ipv4) === 4 && inV4Range(ipv4, "198.18.0.0", 15);
 }
 
 const RESERVED_V4_RANGES: Array<[string, number]> = [

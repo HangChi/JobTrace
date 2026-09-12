@@ -55,6 +55,10 @@ describe("job market source request security", () => {
     expect(isPublicIp("2606:4700:4700::1111")).toBe(true);
     expect(isPublicIp("198.18.0.182")).toBe(false);
     expect(isSyntheticProxyIp("198.18.0.182")).toBe(true);
+    // fake-ip 代理的 AAAA 记录可能是 IPv4 映射写法。
+    expect(isSyntheticProxyIp("::ffff:198.18.1.65")).toBe(true);
+    expect(isSyntheticProxyIp("::ffff:203.0.113.9")).toBe(false);
+    expect(isSyntheticProxyIp("fd00::1")).toBe(false);
   });
 
   it("serves only pinned addresses to the expected hostname and family", async () => {
