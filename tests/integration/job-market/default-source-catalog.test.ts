@@ -3,6 +3,62 @@ import { testDatabase, testId } from "../../setup/database";
 import { PostgresSourceCatalogRepository } from "@/modules/job-market/infrastructure/postgres-source-catalog-repository";
 import type { DefaultSourceCatalogEntry } from "@/modules/job-market/application/default-source-catalog";
 import type { DefaultCompanyDirectoryEntry } from "@/modules/job-market/application/default-company-directory";
+import { DEFAULT_COMPANY_DIRECTORY } from "@/modules/job-market/application/default-company-directory";
+import { DEFAULT_SOURCE_CATALOG } from "@/modules/job-market/application/default-source-catalog";
+
+test("real default catalog initializes fully and idempotently", async () => {
+  const sql = testDatabase();
+  const repository = new PostgresSourceCatalogRepository();
+  try {
+    const first = await repository.initialize(
+      DEFAULT_SOURCE_CATALOG,
+      DEFAULT_COMPANY_DIRECTORY,
+    );
+    expect(first.sourceCount).toBe(DEFAULT_SOURCE_CATALOG.length);
+    expect(first.createdSources).toBe(DEFAULT_SOURCE_CATALOG.length);
+    expect(first.activeSourceIds).toHaveLength(DEFAULT_SOURCE_CATALOG.length);
+    expect(first.companyCount).toBe(
+      new Set([
+        ...DEFAULT_SOURCE_CATALOG.map(
+          (entry) =>
+            (entry as DefaultSourceCatalogEntry).companyIdentityKey ??
+            entry.identityKey,
+        ),
+        ...DEFAULT_COMPANY_DIRECTORY.map((entry) => entry.identityKey),
+      ]).size,
+    );
+
+    const second = await repository.initialize(
+      DEFAULT_SOURCE_CATALOG,
+      DEFAULT_COMPANY_DIRECTORY,
+    );
+    expect(second).toMatchObject({
+      sourceCount: DEFAULT_SOURCE_CATALOG.length,
+      createdCompanies: 0,
+      createdSources: 0,
+      createdDirectoryEntries: 0,
+    });
+
+    const [uniqueness] = await sql<
+      Array<{
+        total: number;
+        distinctSources: number;
+        distinctCompanies: number;
+      }>
+    >`
+      select
+        (select count(*)::int from job_market_sources where catalog_key is not null) total,
+        (select count(distinct (company_id,adapter,external_key))::int
+          from job_market_sources where catalog_key is not null) "distinctSources",
+        (select count(distinct identity_key)::int from job_market_companies
+          where identity_key like 'default:%') "distinctCompanies"`;
+    expect(uniqueness.total).toBe(DEFAULT_SOURCE_CATALOG.length);
+    expect(uniqueness.distinctSources).toBe(DEFAULT_SOURCE_CATALOG.length);
+    expect(uniqueness.distinctCompanies).toBe(first.companyCount);
+  } finally {
+    await sql.end();
+  }
+});
 
 test("default source initialization is idempotent and preserves operator state", async () => {
   const sql = testDatabase();

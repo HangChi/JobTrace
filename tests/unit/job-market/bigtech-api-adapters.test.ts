@@ -129,7 +129,7 @@ describe("China big-tech API providers", () => {
       });
       expect(JSON.parse(String(options.body))).toEqual({
         curPage: 1,
-        pageSize: 10,
+        pageSize: 20,
         jobType: "SR",
       });
       return response({
@@ -187,7 +187,7 @@ describe("China big-tech API providers", () => {
       );
       expect(JSON.parse(String(options.body))).toMatchObject({
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 20,
       });
       return response({
         code: 200,
@@ -291,7 +291,7 @@ describe("China big-tech API providers", () => {
       });
       expect(JSON.parse(String(options.body))).toEqual({
         pageNo: 1,
-        pageSize: 10,
+        pageSize: 20,
         channelDetailIds: [1],
         hireType: 0,
       });

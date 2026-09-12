@@ -10,6 +10,9 @@ function epochMillisToDate(value: unknown) {
   return new Date(value).toISOString();
 }
 
+// ByteDance/华为/网易/米哈游开放接口实测均接受且完整返回 100 条/页
+const MAX_API_PAGE_SIZE = 100;
+
 export class ChinaBigTechAdapter implements SourceAdapter {
   readonly kind = "china_bigtech" as const;
   constructor(private readonly fetcher: SecureSourceFetch) {}
@@ -133,7 +136,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
     context: { now: Date; maxItems: number },
     signal: AbortSignal,
   ) {
-    const pageSize = Math.min(10, context.maxItems);
+    const pageSize = Math.min(MAX_API_PAGE_SIZE, context.maxItems);
     const rows: Array<Record<string, any>> = [];
     let total = 0;
     while (rows.length < context.maxItems) {
@@ -217,7 +220,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
     channel: string,
   ) {
     const campus = channel === "cr";
-    const pageSize = Math.min(10, context.maxItems);
+    const pageSize = Math.min(MAX_API_PAGE_SIZE, context.maxItems);
     const rows: Array<Record<string, any>> = [];
     let total = 0;
     while (rows.length < context.maxItems) {
@@ -308,7 +311,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
     context: { now: Date; maxItems: number },
     signal: AbortSignal,
   ) {
-    const pageSize = Math.min(10, context.maxItems);
+    const pageSize = Math.min(MAX_API_PAGE_SIZE, context.maxItems);
     const rows: Array<Record<string, any>> = [];
     let total = 0;
     while (rows.length < context.maxItems) {
@@ -486,7 +489,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
     channel: string,
   ) {
     const campus = channel === "campus";
-    const pageSize = Math.min(10, context.maxItems);
+    const pageSize = Math.min(MAX_API_PAGE_SIZE, context.maxItems);
     const rows: Array<Record<string, any>> = [];
     let total = 0;
     while (rows.length < context.maxItems) {
@@ -630,7 +633,7 @@ export class ChinaBigTechAdapter implements SourceAdapter {
     context: { now: Date; maxItems: number },
     signal: AbortSignal,
   ) {
-    const pageSize = Math.min(100, context.maxItems);
+    const pageSize = Math.min(MAX_API_PAGE_SIZE, context.maxItems);
     const rows: Array<Record<string, unknown>> = [];
     let total = 0;
     while (rows.length < context.maxItems) {

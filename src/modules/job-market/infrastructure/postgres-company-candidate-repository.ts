@@ -1,6 +1,9 @@
 import { createServerDatabase } from "@/shared/database";
 import { normalizeText } from "../domain/normalization";
-import type { CompanyCandidate, CompanyCandidateList } from "../application/contracts";
+import type {
+  CompanyCandidate,
+  CompanyCandidateList,
+} from "../application/contracts";
 
 type Sql = ReturnType<typeof createServerDatabase>;
 
@@ -82,49 +85,77 @@ export class PostgresCompanyCandidateRepository {
 
   // A 方案 site: 枚举产出：已知公司的板子直接进 source_candidates，
   // 新公司进本候选队列（带 ATS 检测结果，批准后自动转来源候选）。
+  // 单语句 set-based：计数均按去重后的公司/板块计，批内重复不会报
+  // "cannot affect row a second time"，且整批原子提交。
   async enqueueSiteScan(intake: SiteScanIntake[]) {
     if (!intake.length) return { known: 0, queued: 0, existingSources: 0 };
-    let known = 0;
-    let queued = 0;
-    let existingSources = 0;
-    for (const item of intake) {
-      const normalized = normalizeText(item.companyName);
-      const [company] = await this.sql<Array<{ id: string }>>`
-        select id from job_market_companies where normalized_name=${normalized} limit 1`;
-      if (company) {
-        known += 1;
-        await this.sql`
-          insert into job_market_source_candidates(
-            company_id,entry_url,adapter,external_key,base_url,allowed_hosts,
-            confidence,evidence_code,review_status,health_status,last_checked_at
-          ) values(
-            ${company.id},${item.boardUrl},${item.detected.adapter as never},
-            ${item.detected.externalKey},${item.detected.baseUrl},
-            ${item.detected.allowedHosts},${item.detected.confidence},
-            'ats_site_scan','pending','healthy',now())
-          on conflict (company_id,entry_url) do update set
-            last_checked_at=now(),updated_at=now()`;
-        continue;
-      }
-      const [duplicateSource] = await this.sql<Array<{ id: string }>>`
-        select id from job_market_sources
-        where adapter=${item.detected.adapter as never}
-          and external_key=${item.detected.externalKey} limit 1`;
-      if (duplicateSource) {
-        existingSources += 1;
-        continue;
-      }
-      const [candidate] = await this.sql<Array<{ id: string }>>`
+    const payload = intake.map((item) => ({
+      company_name: item.companyName,
+      normalized_name: normalizeText(item.companyName),
+      board_url: item.boardUrl,
+      article_title: item.articleTitle.slice(0, 300),
+      adapter: item.detected.adapter,
+      external_key: item.detected.externalKey,
+      base_url: item.detected.baseUrl,
+      allowed_hosts: item.detected.allowedHosts,
+      confidence: item.detected.confidence,
+    }));
+    const [result] = await this.sql<
+      Array<{ known: number; queued: number; existingSources: number }>
+    >`
+      with input as (
+        select * from jsonb_to_recordset(${this.sql.json(payload as never)}::jsonb) as value(
+          company_name text,normalized_name text,board_url text,article_title text,
+          adapter text,external_key text,base_url text,allowed_hosts text[],confidence text
+        )),
+      known_boards as (
+        select distinct on (company.id, input.board_url)
+          company.id as company_id, input.normalized_name,
+          input.board_url, input.adapter, input.external_key,
+          input.base_url, input.allowed_hosts, input.confidence
+        from input
+        join job_market_companies company
+          on company.normalized_name = input.normalized_name
+      ),
+      source_upsert as (
+        insert into job_market_source_candidates(
+          company_id,entry_url,adapter,external_key,base_url,allowed_hosts,
+          confidence,evidence_code,review_status,health_status,last_checked_at
+        )
+        select company_id,board_url,adapter::job_market_source_adapter,external_key,
+          base_url,allowed_hosts,confidence,'ats_site_scan','pending','healthy',now()
+        from known_boards
+        on conflict (company_id,entry_url) do update set
+          last_checked_at=now(),updated_at=now()
+        returning company_id
+      ),
+      duplicate_sources as (
+        select distinct input.normalized_name from input
+        where not exists (
+            select 1 from known_boards
+            where known_boards.normalized_name = input.normalized_name)
+          and exists (
+            select 1 from job_market_sources source
+            where source.adapter = input.adapter::job_market_source_adapter
+              and source.external_key = input.external_key)
+      ),
+      candidate_upsert as (
         insert into job_market_company_candidates(
           company_name,normalized_name,article_url,article_title,source_engine,
           detected_adapter,detected_external_key,detected_base_url,
           detected_allowed_hosts,detected_confidence
-        ) values(
-          ${item.companyName},${normalized},${item.boardUrl},
-          ${item.articleTitle.slice(0, 300)},'site_scan',
-          ${item.detected.adapter as never},${item.detected.externalKey},
-          ${item.detected.baseUrl},${item.detected.allowedHosts},
-          ${item.detected.confidence})
+        )
+        select distinct on (input.normalized_name)
+          input.company_name,input.normalized_name,input.board_url,input.article_title,
+          'site_scan',input.adapter::job_market_source_adapter,input.external_key,
+          input.base_url,input.allowed_hosts,input.confidence
+        from input
+        where not exists (
+            select 1 from known_boards
+            where known_boards.normalized_name = input.normalized_name)
+          and not exists (
+            select 1 from duplicate_sources
+            where duplicate_sources.normalized_name = input.normalized_name)
         on conflict (normalized_name) do update set
           article_url=excluded.article_url,article_title=excluded.article_title,
           detected_adapter=excluded.detected_adapter,
@@ -135,10 +166,17 @@ export class PostgresCompanyCandidateRepository {
           article_count=job_market_company_candidates.article_count+1,
           updated_at=now()
         where job_market_company_candidates.review_status='pending'
-        returning id`;
-      if (candidate) queued += 1;
-    }
-    return { known, queued, existingSources };
+        returning id
+      )
+      select
+        (select count(*)::int from known_boards) as known,
+        (select count(*)::int from candidate_upsert) as queued,
+        (select count(*)::int from duplicate_sources) as existing_sources`;
+    return {
+      known: result?.known ?? 0,
+      queued: result?.queued ?? 0,
+      existingSources: result?.existingSources ?? 0,
+    };
   }
 
   async list(status?: CompanyCandidate["reviewStatus"]) {
@@ -165,7 +203,10 @@ export class PostgresCompanyCandidateRepository {
         count(*) filter(where review_status='approved')::int as approved,
         count(*) filter(where review_status='ignored')::int as ignored
       from job_market_company_candidates`;
-    return { items, summary: summary ?? { pending: 0, approved: 0, ignored: 0 } };
+    return {
+      items,
+      summary: summary ?? { pending: 0, approved: 0, ignored: 0 },
+    };
   }
 
   async ignore(id: string) {
@@ -178,19 +219,21 @@ export class PostgresCompanyCandidateRepository {
   async approve(id: string, overrides: CompanyApprovalOverrides = {}) {
     return this.sql.begin(async (transaction) => {
       const tx = transaction as unknown as Sql;
-      const [candidate] = await tx<Array<{
-        id: string;
-        companyName: string;
-        articleUrl: string;
-        articleTitle: string;
-        publishedAt: string | null;
-        reviewStatus: string;
-        detectedAdapter: string | null;
-        detectedExternalKey: string | null;
-        detectedBaseUrl: string | null;
-        detectedAllowedHosts: string[];
-        detectedConfidence: string | null;
-      }>>`
+      const [candidate] = await tx<
+        Array<{
+          id: string;
+          companyName: string;
+          articleUrl: string;
+          articleTitle: string;
+          publishedAt: string | null;
+          reviewStatus: string;
+          detectedAdapter: string | null;
+          detectedExternalKey: string | null;
+          detectedBaseUrl: string | null;
+          detectedAllowedHosts: string[];
+          detectedConfidence: string | null;
+        }>
+      >`
         select id,company_name as "companyName",article_url as "articleUrl",
           article_title as "articleTitle",published_at as "publishedAt",
           review_status::text as "reviewStatus",

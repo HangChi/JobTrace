@@ -41,64 +41,114 @@ export class PostgresSourceCatalogRepository {
           and not (company.identity_key=any(${currentDirectoryIdentityKeys}))
           and campaign.status<>'closed'`;
 
-      for (const entry of entries) {
-        // Multiple sources share a company only through an explicit, stable
-        // identity. A display name alone cannot identify a legal entity.
-        const companyIdentityKey =
-          entry.companyIdentityKey ?? entry.identityKey;
-        let [company] = await tx<Array<{ id: string }>>`
-          select id from job_market_companies
-          where identity_key=${companyIdentityKey}
-          limit 1`;
-        if (company) {
-          await tx`
-            update job_market_companies set
-              canonical_name=${entry.companyName},
-              company_type=${entry.companyType},industry=${entry.industry},
-              website_url=${entry.websiteUrl},updated_at=now()
-            where id=${company.id}`;
-        } else {
-          createdCompanies += 1;
-          [company] = await tx<Array<{ id: string }>>`
+      // 目录公司与来源分两批 set-based upsert（原逐条循环为 157 条 entry × 4 条 SQL）。
+      // Multiple sources share a company only through an explicit, stable
+      // identity. A display name alone cannot identify a legal entity.
+      // 同一 companyIdentityKey 的多条 entry 由 TS 侧 Map 去重（后写覆盖，
+      // 与原循环的最后一次 update 语义一致），避免批内 on conflict 重复行。
+      if (entries.length) {
+        const companyPayload = [
+          ...new Map(
+            entries.map((entry) => [
+              entry.companyIdentityKey ?? entry.identityKey,
+              entry,
+            ]),
+          ).values(),
+        ].map((entry) => ({
+          identity_key: entry.companyIdentityKey ?? entry.identityKey,
+          company_name: entry.companyName,
+          normalized_name: normalizeText(entry.companyName),
+          company_type: entry.companyType,
+          industry: entry.industry,
+          website_url: entry.websiteUrl,
+        }));
+        const [companyResult] = await tx<Array<{ created: number }>>`
+          with input as (
+            select * from jsonb_to_recordset(${tx.json(companyPayload as never)}::jsonb) as value(
+              identity_key text,company_name text,normalized_name text,
+              company_type text,industry text,website_url text
+            )),
+          upserted as (
             insert into job_market_companies(
               canonical_name,normalized_name,company_type,industry,website_url,identity_key
-            ) values(
-              ${entry.companyName},${normalizeText(entry.companyName)},${entry.companyType},
-              ${entry.industry},${entry.websiteUrl},${companyIdentityKey}
-            ) returning id`;
-        }
-
-        let [source] = await tx<Array<{ id: string; status: string }>>`
-          select source.id,source.status::text
-          from job_market_sources source
-          where source.catalog_key=${entry.identityKey}
-            or (
-              source.catalog_key is null
-              and source.adapter=${entry.adapter}
-              and source.external_key=${entry.externalKey}
             )
-          order by case when source.catalog_key=${entry.identityKey} then 0 else 1 end
-          limit 1 for update of source`;
-        if (source) {
-          [source] = await tx<Array<{ id: string; status: string }>>`
-            update job_market_sources set
-              company_id=${company.id},catalog_key=${entry.identityKey},adapter=${entry.adapter},
-              external_key=${entry.externalKey},base_url=${entry.baseUrl},allowed_hosts=${entry.allowedHosts},
-              is_official=true,access_basis='public',sync_interval_minutes=${entry.syncIntervalMinutes},
-              country_codes=${entry.countryCodes},updated_at=now()
-            where id=${source.id} returning id,status::text`;
-        } else {
-          createdSources += 1;
-          [source] = await tx<Array<{ id: string; status: string }>>`
+            select company_name,normalized_name,company_type,industry,website_url,identity_key
+            from input
+            on conflict(identity_key) do update set
+              canonical_name=excluded.canonical_name,company_type=excluded.company_type,
+              industry=excluded.industry,website_url=excluded.website_url,updated_at=now()
+            returning (xmax=0) as created
+          )
+          select count(*) filter(where created)::int as created from upserted`;
+        createdCompanies += companyResult?.created ?? 0;
+
+        const sourcePayload = entries.map((entry) => ({
+          identity_key: entry.identityKey,
+          company_identity_key: entry.companyIdentityKey ?? entry.identityKey,
+          adapter: entry.adapter,
+          external_key: entry.externalKey,
+          base_url: entry.baseUrl,
+          allowed_hosts: entry.allowedHosts,
+          sync_interval_minutes: entry.syncIntervalMinutes,
+          country_codes: entry.countryCodes,
+        }));
+        const [sourceResult] = await tx<
+          Array<{ createdSources: number; activeSourceIds: string[] }>
+        >`
+          with input as (
+            select * from jsonb_to_recordset(${tx.json(sourcePayload as never)}::jsonb) as value(
+              identity_key text,company_identity_key text,adapter job_market_source_adapter,
+              external_key text,base_url text,allowed_hosts text[],
+              sync_interval_minutes int,country_codes text[]
+            )),
+          matched as (
+            select distinct on (input.identity_key)
+              input.identity_key, source.id as source_id
+            from input
+            left join job_market_sources source
+              on source.catalog_key=input.identity_key
+                or (source.catalog_key is null
+                  and source.adapter=input.adapter
+                  and source.external_key=input.external_key)
+            order by input.identity_key,
+              case when source.catalog_key=input.identity_key then 0 else 1 end,
+              source.id
+          ),
+          updated as (
+            update job_market_sources source set
+              company_id=company.id,catalog_key=input.identity_key,adapter=input.adapter,
+              external_key=input.external_key,base_url=input.base_url,allowed_hosts=input.allowed_hosts,
+              is_official=true,access_basis='public',sync_interval_minutes=input.sync_interval_minutes,
+              country_codes=input.country_codes,updated_at=now()
+            from matched
+            join input on input.identity_key=matched.identity_key
+            join job_market_companies company on company.identity_key=input.company_identity_key
+            where matched.source_id is not null and source.id=matched.source_id
+            returning source.id,source.status::text as status
+          ),
+          inserted as (
             insert into job_market_sources(
               company_id,catalog_key,adapter,external_key,base_url,allowed_hosts,is_official,
               access_basis,status,sync_interval_minutes,next_sync_at,country_codes
-            ) values(
-              ${company.id},${entry.identityKey},${entry.adapter},${entry.externalKey},${entry.baseUrl},${entry.allowedHosts},
-              true,'public','active',${entry.syncIntervalMinutes},now(),${entry.countryCodes}
-            ) returning id,status::text`;
-        }
-        if (source.status === "active") activeSourceIds.push(source.id);
+            )
+            select company.id,input.identity_key,input.adapter,input.external_key,input.base_url,
+              input.allowed_hosts,true,'public','active',input.sync_interval_minutes,now(),input.country_codes
+            from input
+            join matched on matched.identity_key=input.identity_key
+            join job_market_companies company on company.identity_key=input.company_identity_key
+            where matched.source_id is null
+            returning id,status::text as status
+          ),
+          active as (
+            select id from updated where status='active'
+            union all
+            select id from inserted where status='active'
+          )
+          select
+            (select count(*)::int from inserted) as "createdSources",
+            (select coalesce(array_agg(id order by id),'{}'::uuid[]) from active) as "activeSourceIds"`;
+        createdSources += sourceResult?.createdSources ?? 0;
+        activeSourceIds.push(...(sourceResult?.activeSourceIds ?? []));
       }
 
       const sourceCatalogPayload = entries.map((entry) => ({
