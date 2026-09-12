@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { SourceCandidate } from "../../application/contracts";
+import { useAdminJob } from "./use-admin-job";
 
 type Summary = {
   directoryCompanies: number;
@@ -33,62 +34,43 @@ export function SourceDiscoveryPanel({
   summary: Summary;
 }) {
   const router = useRouter();
+  const job = useAdminJob();
+  const [action, setAction] = useState<"scan" | "research" | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  async function scan() {
-    setBusy("scan");
-    setMessage("正在安全检查招聘入口…");
-    try {
-      const response = await fetch("/api/admin/job-market/discovery", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ limit: 25 }),
-      });
-      const body = (await response.json()) as {
-        scanned?: number;
-        recognized?: number;
-        message?: string;
-      };
-      if (!response.ok) throw new Error(body.message || "扫描失败");
-      setMessage(
-        `已检查 ${body.scanned ?? 0} 家，识别到 ${body.recognized ?? 0} 个待审核来源。`,
-      );
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "扫描失败");
-    } finally {
-      setBusy(null);
-    }
+  function scan() {
+    setAction("scan");
+    void job.start({
+      url: "/api/admin/job-market/discovery",
+      body: { limit: 25 },
+      runningMessage: "正在后台安全检查招聘入口…",
+      summarize: (result) => {
+        const body = result as { scanned?: number; recognized?: number };
+        return `已检查 ${body.scanned ?? 0} 家，识别到 ${body.recognized ?? 0} 个待审核来源。`;
+      },
+    });
   }
 
-  async function research() {
-    setBusy("research");
-    setMessage("正在通过公开搜索研究公众号公司的招聘官网…");
-    try {
-      const response = await fetch("/api/admin/job-market/company-research", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ limit: 5 }),
-      });
-      const body = (await response.json()) as {
-        researched?: number;
-        detected?: number;
-        unrecognized?: number;
-        pendingCandidates?: number;
-        message?: string;
-      };
-      if (!response.ok) throw new Error(body.message || "研究失败");
-      setMessage(
-        `已研究 ${body.researched ?? 0} 家，识别 ${body.detected ?? 0} 家 ATS，` +
-          `当前待审核来源 ${body.pendingCandidates ?? 0} 个。`,
-      );
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "研究失败");
-    } finally {
-      setBusy(null);
-    }
+  function research() {
+    setAction("research");
+    void job.start({
+      url: "/api/admin/job-market/company-research",
+      body: { limit: 5 },
+      runningMessage: "正在后台通过公开搜索研究公众号公司的招聘官网…",
+      summarize: (result) => {
+        const body = result as {
+          researched?: number;
+          detected?: number;
+          unrecognized?: number;
+          pendingCandidates?: number;
+        };
+        return (
+          `已研究 ${body.researched ?? 0} 家，识别 ${body.detected ?? 0} 家 ATS，` +
+          `当前待审核来源 ${body.pendingCandidates ?? 0} 个。`
+        );
+      },
+    });
   }
 
   async function review(id: string, action: "approve" | "ignore") {
@@ -124,15 +106,21 @@ export function SourceDiscoveryPanel({
           </p>
         </div>
         <div className="source-discovery-actions">
-          <button className="button" disabled={busy !== null} onClick={scan}>
-            {busy === "scan" ? "正在扫描…" : "扫描下一批 25 家"}
+          <button
+            className="button"
+            disabled={busy !== null || job.busy}
+            onClick={scan}
+          >
+            {job.busy && action === "scan" ? "正在扫描…" : "扫描下一批 25 家"}
           </button>
           <button
             className="button secondary"
-            disabled={busy !== null}
+            disabled={busy !== null || job.busy}
             onClick={research}
           >
-            {busy === "research" ? "正在研究…" : "研究公众号公司官网"}
+            {job.busy && action === "research"
+              ? "正在研究…"
+              : "研究公众号公司官网"}
           </button>
         </div>
       </div>
@@ -157,7 +145,10 @@ export function SourceDiscoveryPanel({
       </dl>
 
       <p className="source-discovery-message" role="status" aria-live="polite">
-        {message || `已检查 ${summary.reviewedCompanies} 家目录企业`}
+        {job.progressText ||
+          message ||
+          job.message ||
+          `已检查 ${summary.reviewedCompanies} 家目录企业`}
       </p>
 
       {candidates.length ? (

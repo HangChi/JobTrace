@@ -107,11 +107,12 @@ const GENERIC_NAMES = new Set([
 // 常见省市区域词整词出现时几乎一定是地域标签而非公司名
 // （「【湖南招聘】中联重科…」），作为整词候选降权；作前缀不受影响。
 const REGION_NAMES = new Set(
-  ("北京 上海 天津 重庆 河北 山西 内蒙古 辽宁 吉林 黑龙江 江苏 浙江 安徽 福建 江西 山东 河南 湖北 " +
+  (
+    "北京 上海 天津 重庆 河北 山西 内蒙古 辽宁 吉林 黑龙江 江苏 浙江 安徽 福建 江西 山东 河南 湖北 " +
     "湖南 广东 广西 海南 四川 贵州 云南 西藏 陕西 甘肃 青海 宁夏 新疆 香港 澳门 台湾 " +
     "深圳 广州 杭州 南京 成都 武汉 西安 苏州 厦门 青岛 长沙 郑州 合肥 昆明 大连 宁波 无锡 佛山 东莞 " +
-    "全球 全国 华北 华南 华东 西南 西北 东北 各地")
-    .split(" "),
+    "全球 全国 华北 华南 华东 西南 西北 东北 各地"
+  ).split(" "),
 );
 
 const NOISE_PREFIX =
@@ -124,13 +125,15 @@ const TITLE_KEYWORDS =
   /社会招聘|校园招聘|实习招聘|全球招聘|招聘|校招|社招|秋招|春招|实习|内推|网申|宣讲会|join\s*us|hiring/gi;
 
 function stripDecorations(value: string) {
-  return value
-    // 注意 丨(U+4E28)、〡(U+3031) 是 CJK 字符，不等同于 ASCII/全角竖线。
-    .replace(
-      /[【】\[\]「」『』《》<>（）()｜|丨〡∣■&＆&·•—\-_/\\,，、。:：!！?？~～*"'\s]+/g,
-      " ",
-    )
-    .trim();
+  return (
+    value
+      // 注意 丨(U+4E28)、〡(U+3031) 是 CJK 字符，不等同于 ASCII/全角竖线。
+      .replace(
+        /[【】\[\]「」『』《》<>（）()｜|丨〡∣■&＆&·•—\-_/\\,，、。:：!！?？~～*"'\s]+/g,
+        " ",
+      )
+      .trim()
+  );
 }
 
 function cleanSegment(segment: string): string {
@@ -191,8 +194,14 @@ export function extractCompanyFromTitle(title: string): string | null {
         ? [
             ...meaningful
               .filter((token) => COMPANY_SUFFIX.test(token))
-              .map((token) => ({ candidate: token, origin: segments.indexOf(segment) })),
-            { candidate: meaningful.join(" "), origin: segments.indexOf(segment) },
+              .map((token) => ({
+                candidate: token,
+                origin: segments.indexOf(segment),
+              })),
+            {
+              candidate: meaningful.join(" "),
+              origin: segments.indexOf(segment),
+            },
           ]
         : [{ candidate: meaningful[0], origin: segments.indexOf(segment) }];
     })
@@ -317,7 +326,11 @@ const BROWSER_HEADERS = {
 async function fetchSogou(
   query: string,
   fetcher: SecureSourceFetch,
-): Promise<{ hits: WechatArticleHit[]; status: EngineStatus["status"]; detail: string | null }> {
+): Promise<{
+  hits: WechatArticleHit[];
+  status: EngineStatus["status"];
+  detail: string | null;
+}> {
   const url = `https://weixin.sogou.com/weixin?type=2&query=${encodeURIComponent(query)}`;
   try {
     const response = await fetcher(url, {
@@ -347,7 +360,11 @@ async function fetchSogou(
 async function fetchBing(
   query: string,
   fetcher: SecureSourceFetch,
-): Promise<{ hits: WechatArticleHit[]; status: EngineStatus["status"]; detail: string | null }> {
+): Promise<{
+  hits: WechatArticleHit[];
+  status: EngineStatus["status"];
+  detail: string | null;
+}> {
   const url = `https://www.bing.com/search?q=${encodeURIComponent(`site:mp.weixin.qq.com ${query}`)}&setlang=zh-hans`;
   try {
     const response = await fetcher(url, {
@@ -358,10 +375,18 @@ async function fetchBing(
     });
     const html = await response.text();
     if (response.status !== 200) {
-      return { hits: [], status: "error", detail: `bing http_${response.status}` };
+      return {
+        hits: [],
+        status: "error",
+        detail: `bing http_${response.status}`,
+      };
     }
     const hits = parseBingArticles(html);
-    return { hits, status: "ok", detail: hits.length ? null : "no_wechat_results" };
+    return {
+      hits,
+      status: "ok",
+      detail: hits.length ? null : "no_wechat_results",
+    };
   } catch (error) {
     return {
       hits: [],
@@ -373,7 +398,10 @@ async function fetchBing(
 
 export async function collectWechatArticles(
   queries: readonly string[],
-  dependencies: { fetcher: SecureSourceFetch },
+  dependencies: {
+    fetcher: SecureSourceFetch;
+    onQuery?: (current: number, total: number, query: string) => void;
+  },
 ): Promise<{ hits: WechatArticleHit[]; engines: EngineStatus[] }> {
   const perEngine: Record<
     "sogou" | "bing",
@@ -385,7 +413,8 @@ export async function collectWechatArticles(
   const hits: WechatArticleHit[] = [];
   const seenTitles = new Set<string>();
 
-  for (const query of queries) {
+  for (const [index, query] of queries.entries()) {
+    dependencies.onQuery?.(index + 1, queries.length, query);
     const [sogou, bing] = await Promise.all([
       fetchSogou(query, dependencies.fetcher),
       fetchBing(query, dependencies.fetcher),

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { CompanyCandidate } from "../../application/contracts";
+import { useAdminJob } from "./use-admin-job";
 
 type Summary = {
   pending: number;
@@ -29,67 +30,51 @@ export function CompanyCandidatePanel({
   candidates: CompanyCandidate[];
   summary: Summary;
 }) {
+  const job = useAdminJob();
   const router = useRouter();
+  const [action, setAction] = useState<"collect" | "scan" | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  async function collectNow() {
-    setBusy("collect");
-    setMessage("正在从搜索引擎采集微信招聘文章…");
-    try {
-      const response = await fetch("/api/admin/job-market/company-candidates", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const body = (await response.json()) as {
-        extracted?: number;
-        queued?: number;
-        candidates?: number;
-        engines?: Array<{ engine: string; status: string }>;
-        message?: string;
-      };
-      if (!response.ok) throw new Error(body.message || "采集失败");
-      const engineSummary =
-        body.engines?.map((engine) => `${engine.engine}:${engine.status}`).join(" ") ?? "";
-      setMessage(
-        `提取 ${body.extracted ?? 0} 家，新入队 ${body.queued ?? 0} 家，当前待审核 ${body.candidates ?? 0} 家（${engineSummary}）。`,
-      );
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "采集失败");
-    } finally {
-      setBusy(null);
-    }
+  function collectNow() {
+    setAction("collect");
+    void job.start({
+      url: "/api/admin/job-market/company-candidates",
+      runningMessage: "正在后台从搜索引擎采集微信招聘文章…",
+      summarize: (result) => {
+        const body = result as {
+          extracted?: number;
+          queued?: number;
+          candidates?: number;
+          engines?: Array<{ engine: string; status: string }>;
+        };
+        const engineSummary =
+          body.engines
+            ?.map((engine) => `${engine.engine}:${engine.status}`)
+            .join(" ") ?? "";
+        return `提取 ${body.extracted ?? 0} 家，新入队 ${body.queued ?? 0} 家，当前待审核 ${body.candidates ?? 0} 家（${engineSummary}）。`;
+      },
+    });
   }
 
-  async function scanNow() {
-    setBusy("scan");
-    setMessage("正在用 site: 查询枚举 ATS 招聘板…");
-    try {
-      const response = await fetch("/api/admin/job-market/ats-site-scan", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const body = (await response.json()) as {
-        hits?: number;
-        queued?: number;
-        knownCompanies?: number;
-        pendingCandidates?: number;
-        message?: string;
-      };
-      if (!response.ok) throw new Error(body.message || "扫描失败");
-      setMessage(
-        `命中 ${body.hits ?? 0} 个招聘板，新入队 ${body.queued ?? 0} 家、` +
-          `已知公司 ${body.knownCompanies ?? 0} 家，当前待审核 ${body.pendingCandidates ?? 0} 家。`,
-      );
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "扫描失败");
-    } finally {
-      setBusy(null);
-    }
+  function scanNow() {
+    setAction("scan");
+    void job.start({
+      url: "/api/admin/job-market/ats-site-scan",
+      runningMessage: "正在后台用 site: 查询枚举 ATS 招聘板…",
+      summarize: (result) => {
+        const body = result as {
+          hits?: number;
+          queued?: number;
+          knownCompanies?: number;
+          pendingCandidates?: number;
+        };
+        return (
+          `命中 ${body.hits ?? 0} 个招聘板，新入队 ${body.queued ?? 0} 家、` +
+          `已知公司 ${body.knownCompanies ?? 0} 家，当前待审核 ${body.pendingCandidates ?? 0} 家。`
+        );
+      },
+    });
   }
 
   async function review(
@@ -134,15 +119,19 @@ export function CompanyCandidatePanel({
           </p>
         </div>
         <div className="source-discovery-actions">
-          <button className="button" disabled={busy !== null} onClick={collectNow}>
-            {busy === "collect" ? "正在采集…" : "立即采集一批"}
+          <button
+            className="button"
+            disabled={busy !== null || job.busy}
+            onClick={collectNow}
+          >
+            {job.busy && action === "collect" ? "正在采集…" : "立即采集一批"}
           </button>
           <button
             className="button secondary"
-            disabled={busy !== null}
+            disabled={busy !== null || job.busy}
             onClick={scanNow}
           >
-            {busy === "scan" ? "正在枚举…" : "扫描 ATS 招聘板"}
+            {job.busy && action === "scan" ? "正在枚举…" : "扫描 ATS 招聘板"}
           </button>
         </div>
       </div>
@@ -163,7 +152,9 @@ export function CompanyCandidatePanel({
       </dl>
 
       <p className="source-discovery-message" role="status" aria-live="polite">
-        {message ||
+        {job.progressText ||
+          message ||
+          job.message ||
           `候选来自公众号文章标题的规则提取，批准前请核对公司名与文章归属。`}
       </p>
 
@@ -245,8 +236,8 @@ export function CompanyCandidatePanel({
         <div className="source-discovery-empty">
           <strong>暂无新公司候选</strong>
           <span>
-            定时任务会调用内部采集接口（POST /api/internal/job-market/collect-wechat），
-            也可手动触发一次采集。
+            定时任务会调用内部采集接口（POST
+            /api/internal/job-market/collect-wechat）， 也可手动触发一次采集。
           </span>
         </div>
       )}

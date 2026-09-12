@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type {
   DefaultCatalogItem,
   DefaultCatalogPage,
   DefaultCatalogSummary,
 } from "../../application/contracts";
+import { useAdminJob } from "./use-admin-job";
 
 type BootstrapResult = {
   companyCount: number;
@@ -31,9 +31,7 @@ export function DefaultSourceBootstrap({
   summary: DefaultCatalogSummary;
   scheduledSyncEnabled: boolean;
 }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const job = useAdminJob();
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [catalogPage, setCatalogPage] = useState<DefaultCatalogPage | null>(
     null,
@@ -66,26 +64,19 @@ export function DefaultSourceBootstrap({
     if (nextOpen && !catalogPage && !catalogLoading) void loadCatalog(1);
   }
 
-  async function initialize() {
-    setBusy(true);
-    setMessage("正在登记默认企业并同步公开岗位，首次运行可能需要 1–2 分钟…");
-    try {
-      const response = await fetch("/api/admin/job-market/bootstrap", {
-        method: "POST",
-      });
-      const body = (await response.json()) as BootstrapResult & {
-        message?: string;
-      };
-      if (!response.ok) throw new Error(body.message || "初始化失败");
-      setMessage(
-        `已处理 ${body.companyCount} 家企业（自动来源 ${body.sourceCount ?? body.createdSources} 个、公众号目录 ${body.directoryCount ?? 0} 个）；首次同步成功 ${body.sync.succeeded} 个、部分成功 ${body.sync.partial} 个、失败 ${body.sync.failed} 个。`,
-      );
-      router.refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "初始化失败");
-    } finally {
-      setBusy(false);
-    }
+  function initialize() {
+    void job.start({
+      url: "/api/admin/job-market/bootstrap",
+      runningMessage: "正在后台登记默认企业并同步公开岗位…",
+      summarize: (result) => {
+        const body = result as BootstrapResult;
+        return `已处理 ${body.companyCount} 家企业（自动来源 ${
+          body.sourceCount ?? body.createdSources
+        } 个、公众号目录 ${body.directoryCount ?? 0} 个）；首次同步成功 ${
+          body.sync.succeeded
+        } 个、部分成功 ${body.sync.partial} 个、失败 ${body.sync.failed} 个。`;
+      },
+    });
   }
 
   return (
@@ -119,10 +110,10 @@ export function DefaultSourceBootstrap({
         </div>
       </dl>
       <div className="default-source-action-row">
-        <button className="button" disabled={busy} onClick={initialize}>
-          {busy ? "正在初始化并同步…" : "一键初始化并首次同步"}
+        <button className="button" disabled={job.busy} onClick={initialize}>
+          {job.busy ? "正在初始化并同步…" : "一键初始化并首次同步"}
         </button>
-        <span>首次运行约需 1–2 分钟</span>
+        <span>后台执行，进度实时显示，可离开本页</span>
       </div>
       <div className="default-source-directory">
         <button
@@ -163,9 +154,9 @@ export function DefaultSourceBootstrap({
           </div>
         </aside>
       )}
-      {message && (
+      {(job.progressText || job.message) && (
         <p className="admin-sync-message" role="status" aria-live="polite">
-          {message}
+          {job.progressText ?? job.message}
         </p>
       )}
     </section>

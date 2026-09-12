@@ -7,6 +7,9 @@ import { Pool } from "pg";
 import { getAuthEnv, getDatabaseEnv } from "@/shared/config/env";
 import { deliverEmail } from "./email-delivery.server";
 
+// better-auth 1.6 对 Postgres 的唯一官方适配路径是 pg + Kysely（其内置测试亦如此），
+// 没有 postgres.js 适配器。这里刻意保留 pg 而不是自写 shim 或引入第三方方言包，
+// 避免在鉴权链路上引入不受上游支持的依赖；应用侧数据访问统一走 postgres.js。
 const databaseEnv = getDatabaseEnv();
 const database = new Pool({
   connectionString: databaseEnv.DATABASE_URL,

@@ -1,15 +1,35 @@
-import { runCompanyResearchNow } from "@/modules/job-market/application/company-research-service";
+import { runCompanyResearch } from "@/modules/job-market/application/company-research-service";
+import {
+  getJobMarketJob,
+  startJobMarketJob,
+} from "@/modules/job-market/application/admin-job-service";
 import { problemResponse } from "@/shared/http/problem-response";
 
 export async function POST(request: Request) {
   const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
   try {
     const body = await request.json().catch(() => ({}));
-    return Response.json(await runCompanyResearchNow(body), {
-      status: 202,
-      headers: { "x-request-id": requestId },
-    });
+    const jobId = await startJobMarketJob("company_research", (report) =>
+      runCompanyResearch(body, report),
+    );
+    return Response.json(
+      { jobId },
+      { status: 202, headers: { "x-request-id": requestId } },
+    );
   } catch (error) {
     return problemResponse(error, requestId);
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    return Response.json(
+      await getJobMarketJob(
+        "company_research",
+        new URL(request.url).searchParams.get("jobId"),
+      ),
+    );
+  } catch (error) {
+    return problemResponse(error);
   }
 }

@@ -2,11 +2,15 @@ import { createServerDatabase } from "@/shared/database";
 import { getJobMarketEnv } from "@/shared/config/env";
 import type { JobMarketSource } from "../domain/entities";
 import type { SourceAdapter } from "./ports";
-import { createAdapterRegistry, synchronizeOneSource } from "./synchronize-due-sources";
+import {
+  createAdapterRegistry,
+  synchronizeOneSource,
+} from "./synchronize-due-sources";
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
 import { PostgresSourceDiscoveryRepository } from "../infrastructure/postgres-source-discovery-repository";
 import { PostgresCompanyCandidateRepository } from "../infrastructure/postgres-company-candidate-repository";
 import { isAutoApprovable } from "./auto-approval-policy";
+import type { AdminJobReporter } from "./admin-jobs";
 
 async function syncImmediately(sourceId: string) {
   try {
@@ -20,7 +24,12 @@ async function syncImmediately(sourceId: string) {
 
 async function smokeFetch(
   adapter: SourceAdapter,
-  fields: { adapter: string; externalKey: string; baseUrl: string; allowedHosts: string[] },
+  fields: {
+    adapter: string;
+    externalKey: string;
+    baseUrl: string;
+    allowedHosts: string[];
+  },
 ): Promise<boolean> {
   const source: JobMarketSource = {
     id: "auto-approve-smoke",
@@ -60,7 +69,9 @@ export type AutoApprovalReport = {
   details: Array<{ company: string; note: string }>;
 };
 
-export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
+export async function autoApproveHighConfidence(
+  onProgress?: AdminJobReporter,
+): Promise<AutoApprovalReport> {
   const report: AutoApprovalReport = {
     enabled: getJobMarketEnv().autoApprove,
     approvedCompanies: 0,
@@ -78,22 +89,30 @@ export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
   const sql = createServerDatabase();
 
   // 1) site_scan 公司候选：冒烟 → 收录 → 来源候选 → 批准来源 → 立即同步。
-  const companyCandidates = await sql<Array<{
-    id: string;
-    companyName: string;
-    detectedAdapter: string | null;
-    detectedConfidence: string | null;
-    detectedExternalKey: string | null;
-    detectedBaseUrl: string | null;
-    detectedAllowedHosts: string[];
-  }>>`
+  const companyCandidates = await sql<
+    Array<{
+      id: string;
+      companyName: string;
+      detectedAdapter: string | null;
+      detectedConfidence: string | null;
+      detectedExternalKey: string | null;
+      detectedBaseUrl: string | null;
+      detectedAllowedHosts: string[];
+    }>
+  >`
     select id,company_name as "companyName",detected_adapter::text as "detectedAdapter",
       detected_confidence::text as "detectedConfidence",detected_external_key as "detectedExternalKey",
       detected_base_url as "detectedBaseUrl",detected_allowed_hosts as "detectedAllowedHosts"
     from job_market_company_candidates
     where review_status='pending' and source_engine='site_scan'
     order by created_at limit 10`;
-  for (const candidate of companyCandidates) {
+  for (const [index, candidate] of companyCandidates.entries()) {
+    onProgress?.({
+      phase: "自动转正公司候选",
+      current: index + 1,
+      total: companyCandidates.length,
+      message: candidate.companyName,
+    });
     if (
       !isAutoApprovable({
         adapter: candidate.detectedAdapter,
@@ -144,19 +163,24 @@ export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
       report.approvedSources += 1;
       if (await syncImmediately(sourceApproval.sourceId)) report.synced += 1;
     }
-    report.details.push({ company: candidate.companyName, note: "auto_approved" });
+    report.details.push({
+      company: candidate.companyName,
+      note: "auto_approved",
+    });
   }
 
   // 2) 已有公司的 ats_site_scan 来源候选：冒烟 → 批准 → 立即同步。
-  const sourceCandidates = await sql<Array<{
-    id: string;
-    companyName: string;
-    adapter: string | null;
-    confidence: string | null;
-    externalKey: string | null;
-    baseUrl: string | null;
-    allowedHosts: string[];
-  }>>`
+  const sourceCandidates = await sql<
+    Array<{
+      id: string;
+      companyName: string;
+      adapter: string | null;
+      confidence: string | null;
+      externalKey: string | null;
+      baseUrl: string | null;
+      allowedHosts: string[];
+    }>
+  >`
     select candidate.id,company.canonical_name as "companyName",candidate.adapter::text as "adapter",
       candidate.confidence::text as "confidence",candidate.external_key as "externalKey",
       candidate.base_url as "baseUrl",candidate.allowed_hosts as "allowedHosts"
@@ -165,7 +189,13 @@ export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
     where candidate.review_status='pending' and candidate.evidence_code='ats_site_scan'
       and candidate.confidence='high'
     order by candidate.created_at limit 10`;
-  for (const candidate of sourceCandidates) {
+  for (const [index, candidate] of sourceCandidates.entries()) {
+    onProgress?.({
+      phase: "自动转正来源候选",
+      current: index + 1,
+      total: sourceCandidates.length,
+      message: candidate.companyName,
+    });
     if (
       !isAutoApprovable({
         adapter: candidate.adapter,
@@ -178,7 +208,9 @@ export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
       report.skipped += 1;
       continue;
     }
-    const adapter = adapters.get(candidate.adapter as JobMarketSource["adapter"]);
+    const adapter = adapters.get(
+      candidate.adapter as JobMarketSource["adapter"],
+    );
     if (!adapter) {
       report.skipped += 1;
       continue;
@@ -201,7 +233,10 @@ export async function autoApproveHighConfidence(): Promise<AutoApprovalReport> {
     if (approval.outcome === "approved" && approval.sourceId) {
       report.approvedSources += 1;
       if (await syncImmediately(approval.sourceId)) report.synced += 1;
-      report.details.push({ company: candidate.companyName, note: "auto_approved" });
+      report.details.push({
+        company: candidate.companyName,
+        note: "auto_approved",
+      });
     }
   }
   return report;

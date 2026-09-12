@@ -7,16 +7,26 @@ import {
   type SourceCandidate,
 } from "./contracts";
 import { scanDiscoveryTargets } from "./source-discovery";
+import type { AdminJobReporter } from "./admin-jobs";
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
 import { PostgresSourceDiscoveryRepository } from "../infrastructure/postgres-source-discovery-repository";
 
-export async function scanSourceCandidates(value: unknown) {
-  await requireAdmin();
+// 纯执行体（无鉴权、无请求上下文依赖），供后台任务使用。
+export async function runSourceDiscoveryScan(
+  value: unknown,
+  onProgress?: AdminJobReporter,
+) {
   const input = sourceDiscoveryScanSchema.parse(value);
   return scanDiscoveryTargets(input.limit, {
     repository: new PostgresSourceDiscoveryRepository(),
     fetcher: createSecureSourceClient(),
+    onProgress,
   });
+}
+
+export async function scanSourceCandidates(value: unknown) {
+  await requireAdmin();
+  return runSourceDiscoveryScan(value);
 }
 
 export async function listSourceCandidates(status?: string) {

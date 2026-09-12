@@ -15,12 +15,28 @@ import {
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
 import { PostgresCompanyCandidateRepository } from "../infrastructure/postgres-company-candidate-repository";
 import { normalizeText } from "../domain/normalization";
+import type { AdminJobReporter } from "./admin-jobs";
 
-export async function runWechatCollection(value: unknown): Promise<WechatCollectionResult> {
+export async function runWechatCollection(
+  value: unknown,
+  onProgress?: AdminJobReporter,
+): Promise<WechatCollectionResult> {
   const input = wechatCollectSchema.parse(value ?? {});
   const queries = input.queries ?? [...DEFAULT_COLLECT_QUERIES];
+  onProgress?.({
+    phase: "采集微信公众号招聘文章",
+    current: 0,
+    total: queries.length,
+  });
   const { hits, engines } = await collectWechatArticles(queries, {
     fetcher: createSecureSourceClient(),
+    onQuery: (current, total, query) =>
+      onProgress?.({
+        phase: "采集微信公众号招聘文章",
+        current,
+        total,
+        message: query,
+      }),
   });
 
   const extracted = hits
@@ -35,13 +51,18 @@ export async function runWechatCollection(value: unknown): Promise<WechatCollect
 
   // 同批多篇文章可能命中同一家公司：按规范化名去重，保留发布最新的一篇，
   // 否则批量 upsert 会两次触及同一唯一键。
-  const byCompany = new Map<string, { hit: (typeof hits)[number]; companyName: string }>();
+  const byCompany = new Map<
+    string,
+    { hit: (typeof hits)[number]; companyName: string }
+  >();
   for (const item of extracted) {
     const normalized = normalizeText(item.companyName);
     const existing = byCompany.get(normalized);
     if (
       !existing ||
-      (item.hit.publishedAt && (!existing.hit.publishedAt || item.hit.publishedAt > existing.hit.publishedAt))
+      (item.hit.publishedAt &&
+        (!existing.hit.publishedAt ||
+          item.hit.publishedAt > existing.hit.publishedAt))
     )
       byCompany.set(normalized, item);
   }
@@ -67,11 +88,6 @@ export async function runWechatCollection(value: unknown): Promise<WechatCollect
     queued,
     candidates: summary.pending,
   };
-}
-
-export async function collectCompanyCandidatesNow(value: unknown) {
-  await requireAdmin();
-  return runWechatCollection(value);
 }
 
 export async function listCompanyCandidates(

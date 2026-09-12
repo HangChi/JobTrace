@@ -1,11 +1,8 @@
-import { requireAdmin } from "@/modules/identity-access";
 import { z } from "zod";
 import type { DiscoveryObservation } from "./source-discovery";
+import type { AdminJobReporter } from "./admin-jobs";
 import { researchCompanySite } from "./company-website-research";
-import {
-  DEFAULT_SITE_SCAN_QUERIES,
-  scanAtsBoards,
-} from "./ats-site-scan";
+import { DEFAULT_SITE_SCAN_QUERIES, scanAtsBoards } from "./ats-site-scan";
 import { createSecureSourceClient } from "../infrastructure/secure-source-client.server";
 import { PostgresSourceDiscoveryRepository } from "../infrastructure/postgres-source-discovery-repository";
 import { PostgresCompanyCandidateRepository } from "../infrastructure/postgres-company-candidate-repository";
@@ -15,10 +12,7 @@ export const companyResearchSchema = z.object({
 });
 
 export const atsSiteScanSchema = z.object({
-  queries: z
-    .array(z.string().trim().min(4).max(80))
-    .max(6)
-    .optional(),
+  queries: z.array(z.string().trim().min(4).max(80)).max(6).optional(),
 });
 
 export type CompanyResearchResult = {
@@ -39,6 +33,7 @@ export type CompanyResearchResult = {
 
 export async function runCompanyResearch(
   value: unknown,
+  onProgress?: AdminJobReporter,
 ): Promise<CompanyResearchResult> {
   const input = companyResearchSchema.parse(value ?? {});
   const fetcher = createSecureSourceClient();
@@ -55,9 +50,17 @@ export async function runCompanyResearch(
   };
 
   for (const [index, target] of targets.entries()) {
+    onProgress?.({
+      phase: "调研公司招聘官网",
+      current: index + 1,
+      total: targets.length,
+      message: target.companyName,
+    });
     // 搜索引擎对连续查询限流，公司之间做间隔节流。
     if (index > 0)
-      await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1500));
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1500 + Math.random() * 1500),
+      );
     result.researched += 1;
     let research;
     try {
@@ -126,11 +129,6 @@ export async function runCompanyResearch(
   return result;
 }
 
-export async function runCompanyResearchNow(value: unknown) {
-  await requireAdmin();
-  return runCompanyResearch(value);
-}
-
 export type AtsSiteScanResult = {
   queries: number;
   hits: number;
@@ -145,15 +143,34 @@ export type AtsSiteScanResult = {
     approvedSources: number;
     synced: number;
     skipped: number;
+    error?: string;
   };
   details: Array<{ company: string; boardUrl: string; adapter: string }>;
 };
 
-export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult> {
+export async function runAtsSiteScan(
+  value: unknown,
+  onProgress?: AdminJobReporter,
+): Promise<AtsSiteScanResult> {
   const input = atsSiteScanSchema.parse(value ?? {});
   const queries = input.queries ?? [...DEFAULT_SITE_SCAN_QUERIES];
+  onProgress?.({
+    phase: "site: 枚举 ATS 招聘板",
+    current: 0,
+    total: queries.length,
+  });
   const fetcher = createSecureSourceClient();
-  const scan = await scanAtsBoards(queries, { fetcher });
+  const scan = await scanAtsBoards(queries, {
+    fetcher,
+    onQuery: (current, total, query) =>
+      onProgress?.({
+        phase: "site: 枚举 ATS 招聘板",
+        current,
+        total,
+        message: query,
+      }),
+  });
+  onProgress?.({ phase: "写入扫描结果", current: 0, total: null });
 
   const repository = new PostgresCompanyCandidateRepository();
   const { known, queued, existingSources } = await repository.enqueueSiteScan(
@@ -177,7 +194,7 @@ export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult>
   let autoApproval: AtsSiteScanResult["autoApproval"];
   try {
     const { autoApproveHighConfidence } = await import("./auto-approval");
-    const report = await autoApproveHighConfidence();
+    const report = await autoApproveHighConfidence(onProgress);
     autoApproval = {
       enabled: report.enabled,
       approvedCompanies: report.approvedCompanies,
@@ -185,8 +202,15 @@ export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult>
       synced: report.synced,
       skipped: report.skipped,
     };
-  } catch {
-    autoApproval = { enabled: false, approvedCompanies: 0, approvedSources: 0, synced: 0, skipped: 0 };
+  } catch (error) {
+    autoApproval = {
+      enabled: false,
+      approvedCompanies: 0,
+      approvedSources: 0,
+      synced: 0,
+      skipped: 0,
+      error: error instanceof Error ? error.message : "auto_approval_failed",
+    };
   }
 
   return {
@@ -198,17 +222,10 @@ export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult>
     queued,
     pendingCandidates: summary.pending,
     autoApproval,
-    details: scan.hits
-      .slice(0, 10)
-      .map((hit) => ({
-        company: hit.companyName,
-        boardUrl: hit.boardUrl,
-        adapter: hit.detected.adapter,
-      })),
+    details: scan.hits.slice(0, 10).map((hit) => ({
+      company: hit.companyName,
+      boardUrl: hit.boardUrl,
+      adapter: hit.detected.adapter,
+    })),
   };
-}
-
-export async function runAtsSiteScanNow(value: unknown) {
-  await requireAdmin();
-  return runAtsSiteScan(value);
 }

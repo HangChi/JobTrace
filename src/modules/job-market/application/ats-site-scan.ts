@@ -58,11 +58,15 @@ export function extractBoardHits(results: WebSearchResult[]): {
 
 export async function scanAtsBoards(
   queries: readonly string[],
-  dependencies: { fetcher: SecureSourceFetch },
+  dependencies: {
+    fetcher: SecureSourceFetch;
+    onQuery?: (current: number, total: number, query: string) => void;
+  },
 ) {
   const hits: BoardHit[] = [];
   const skipped: number[] = [];
   for (const [index, query] of queries.entries()) {
+    dependencies.onQuery?.(index + 1, queries.length, query);
     if (index > 0)
       await new Promise((resolve) =>
         setTimeout(resolve, 1500 + Math.random() * 1500),

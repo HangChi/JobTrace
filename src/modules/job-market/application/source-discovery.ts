@@ -304,6 +304,8 @@ export function detectSourceCandidate(
   }
 }
 
+import type { AdminJobReporter } from "./admin-jobs";
+
 async function inspectTarget(
   target: DiscoveryTarget,
   fetcher: SecureSourceFetch,
@@ -327,7 +329,7 @@ async function inspectTarget(
   try {
     const response = await fetcher(entry.href, {
       allowedHosts: [entry.hostname.toLowerCase()],
-      signal: new AbortController().signal,
+      signal: AbortSignal.timeout(15000),
       accept: ["text/html", "application/xhtml+xml"],
     });
     if (response.status < 200 || response.status >= 400)
@@ -370,11 +372,17 @@ export async function scanDiscoveryTargets(
   dependencies: {
     repository: DiscoveryRepository;
     fetcher: SecureSourceFetch;
+    onProgress?: AdminJobReporter;
   },
 ) {
   const targets = await dependencies.repository.listTargets(limit);
   const observations: DiscoveryObservation[] = [];
   for (let offset = 0; offset < targets.length; offset += 3) {
+    dependencies.onProgress?.({
+      phase: "安全检查招聘入口",
+      current: Math.min(offset + 3, targets.length),
+      total: targets.length,
+    });
     observations.push(
       ...(await Promise.all(
         targets

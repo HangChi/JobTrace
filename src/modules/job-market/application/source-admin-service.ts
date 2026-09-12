@@ -23,6 +23,7 @@ import {
   DEFAULT_COMPANY_DIRECTORY,
   publicDefaultCompanyDirectory,
 } from "./default-company-directory";
+import type { AdminJobReporter } from "./admin-jobs";
 
 const repository = () => new PostgresSyncRepository();
 export async function listSourceHealth() {
@@ -121,8 +122,17 @@ export async function listDefaultSourceCatalogPage(
 
 export async function initializeDefaultSources(requestId: string) {
   await requireAdmin();
+  return initializeDefaultSourceCatalog(requestId);
+}
+
+// 纯执行体（无鉴权、无请求上下文依赖），供后台任务使用。
+export async function initializeDefaultSourceCatalog(
+  requestId: string,
+  onProgress?: AdminJobReporter,
+) {
   for (const entry of DEFAULT_SOURCE_CATALOG)
     validateHttpsUrl(entry.baseUrl, entry.allowedHosts);
+  onProgress?.({ phase: "写入默认目录", current: 0, total: null });
 
   const initialized = await new PostgresSourceCatalogRepository().initialize(
     DEFAULT_SOURCE_CATALOG,
@@ -130,6 +140,8 @@ export async function initializeDefaultSources(requestId: string) {
   );
   const syncResults: Awaited<ReturnType<typeof synchronizeOneSource>>[] = [];
   const sourceIds = [...initialized.activeSourceIds];
+  const totalSources = sourceIds.length;
+  let completed = 0;
   while (sourceIds.length) {
     const batch = sourceIds.splice(0, 3);
     syncResults.push(
@@ -137,6 +149,12 @@ export async function initializeDefaultSources(requestId: string) {
         batch.map((sourceId) => synchronizeOneSource(sourceId, requestId)),
       )),
     );
+    completed += batch.length;
+    onProgress?.({
+      phase: "同步默认目录来源",
+      current: completed,
+      total: totalSources,
+    });
   }
 
   return {

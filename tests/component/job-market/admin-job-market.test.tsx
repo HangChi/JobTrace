@@ -7,24 +7,45 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 afterEach(() => vi.unstubAllGlobals());
 describe("job market admin health", () => {
   it("initializes the curated catalog and reports first-sync results", async () => {
-    const fetch = vi.fn().mockResolvedValue(
-      Response.json(
-        {
-          companyCount: 8,
-          sourceCount: 8,
-          createdCompanies: 8,
-          createdSources: 8,
-          sync: {
-            accepted: 8,
-            succeeded: 7,
-            partial: 1,
-            failed: 0,
-            skipped: 0,
-          },
-        },
-        { status: 201 },
-      ),
-    );
+    const bootstrapResult = {
+      companyCount: 8,
+      sourceCount: 8,
+      createdCompanies: 8,
+      createdSources: 8,
+      sync: {
+        accepted: 8,
+        succeeded: 7,
+        partial: 1,
+        failed: 0,
+        skipped: 0,
+      },
+    };
+    const fetch = vi.fn((input: unknown, init?: RequestInit) => {
+      if (init?.method === "POST")
+        return Promise.resolve(
+          Response.json({ jobId: "job-bootstrap" }, { status: 202 }),
+        );
+      const url = String(input);
+      const firstPoll = url.includes("jobId=job-bootstrap");
+      return Promise.resolve(
+        Response.json(
+          firstPoll
+            ? {
+                id: "job-bootstrap",
+                status: "succeeded",
+                progress: {
+                  phase: "同步默认目录来源",
+                  current: 8,
+                  total: 8,
+                  message: null,
+                },
+                result: bootstrapResult,
+                error: null,
+              }
+            : { items: [], page: 1, limit: 50, total: 0 },
+        ),
+      );
+    });
     vi.stubGlobal("fetch", fetch);
     render(
       <DefaultSourceBootstrap
@@ -40,9 +61,16 @@ describe("job market admin health", () => {
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith("/api/admin/job-market/bootstrap", {
         method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
       }),
     );
     expect(await screen.findByText(/首次同步成功 7 个/)).toBeVisible();
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        "/api/admin/job-market/bootstrap?jobId=job-bootstrap",
+      ),
+    );
   });
 
   it("loads the large default directory only after it is expanded", async () => {
@@ -118,12 +146,31 @@ describe("job market admin health", () => {
   it("scans directory entries and requires explicit approval for a candidate", async () => {
     const fetch = vi
       .fn()
-      .mockResolvedValueOnce(
-        Response.json({ scanned: 10, recognized: 2 }, { status: 202 }),
-      )
-      .mockResolvedValueOnce(
-        Response.json({ reviewStatus: "approved", sourceId: "source" }),
-      );
+      .mockImplementation((input: unknown, init?: RequestInit) => {
+        const url = String(input);
+        if (init?.method === "POST" && url.endsWith("/discovery"))
+          return Promise.resolve(
+            Response.json({ jobId: "job-scan" }, { status: 202 }),
+          );
+        if (url.includes("jobId=job-scan"))
+          return Promise.resolve(
+            Response.json({
+              id: "job-scan",
+              status: "succeeded",
+              progress: {
+                phase: "安全检查招聘入口",
+                current: 10,
+                total: 10,
+                message: null,
+              },
+              result: { scanned: 10, recognized: 2 },
+              error: null,
+            }),
+          );
+        return Promise.resolve(
+          Response.json({ reviewStatus: "approved", sourceId: "source" }),
+        );
+      });
     vi.stubGlobal("fetch", fetch);
     render(
       <SourceDiscoveryPanel
