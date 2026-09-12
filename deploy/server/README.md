@@ -104,6 +104,15 @@ sudo journalctl -u jobtrace-collect.service -n 50 --no-pager
 
 采集依赖公开搜索结果页（搜狗微信搜索为主、必应为备），被反爬拦截时当次跳过，不影响岗位同步。
 
+## 公众号公司官网研究
+
+`jobtrace-research.timer` 每天晚上对公众号渠道目录公司（含新收录的）跑一轮「公司名 → 招聘官网」研究：通过 360 网页搜索找到官方入口，用与来源发现一致的 ATS 判定，识别结果进入「发现与审核」面板等待批准。手动触发：
+
+```bash
+sudo systemctl start jobtrace-research.service
+sudo journalctl -u jobtrace-research.service -n 50 --no-pager
+```
+
 ## 日常运维
 
 ```bash

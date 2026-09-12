@@ -62,6 +62,35 @@ export function SourceDiscoveryPanel({
     }
   }
 
+  async function research() {
+    setBusy("research");
+    setMessage("正在通过公开搜索研究公众号公司的招聘官网…");
+    try {
+      const response = await fetch("/api/admin/job-market/company-research", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ limit: 5 }),
+      });
+      const body = (await response.json()) as {
+        researched?: number;
+        detected?: number;
+        unrecognized?: number;
+        pendingCandidates?: number;
+        message?: string;
+      };
+      if (!response.ok) throw new Error(body.message || "研究失败");
+      setMessage(
+        `已研究 ${body.researched ?? 0} 家，识别 ${body.detected ?? 0} 家 ATS，` +
+          `当前待审核来源 ${body.pendingCandidates ?? 0} 个。`,
+      );
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "研究失败");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function review(id: string, action: "approve" | "ignore") {
     setBusy(id);
     setMessage("");
@@ -94,9 +123,18 @@ export function SourceDiscoveryPanel({
             识别公开 ATS 或 JobPosting 数据；候选来源经批准后才会启用。
           </p>
         </div>
-        <button className="button" disabled={busy !== null} onClick={scan}>
-          {busy === "scan" ? "正在扫描…" : "扫描下一批 25 家"}
-        </button>
+        <div className="source-discovery-actions">
+          <button className="button" disabled={busy !== null} onClick={scan}>
+            {busy === "scan" ? "正在扫描…" : "扫描下一批 25 家"}
+          </button>
+          <button
+            className="button secondary"
+            disabled={busy !== null}
+            onClick={research}
+          >
+            {busy === "research" ? "正在研究…" : "研究公众号公司官网"}
+          </button>
+        </div>
       </div>
 
       <dl className="source-discovery-stats">

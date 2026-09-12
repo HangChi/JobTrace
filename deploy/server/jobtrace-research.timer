@@ -1,0 +1,11 @@
+[Unit]
+Description=Research JobTrace company career sites daily
+
+[Timer]
+OnCalendar=*-*-* 20:23:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=300
+Unit=jobtrace-research.service
+
+[Install]
+WantedBy=timers.target

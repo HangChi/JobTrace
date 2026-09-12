@@ -25,6 +25,25 @@ export class PostgresSourceDiscoveryRepository {
       limit ${limit}`;
   }
 
+  // B 方案研究目标：公众号渠道目录公司（含运行时收录的），尚未有来源、
+  // 也没有任何候选记录（避免对已识别/已忽略的公司反复研究）。
+  async listResearchTargets(limit: number) {
+    return this.sql<DiscoveryTarget[]>`
+      select company.id as "companyId",company.canonical_name as "companyName",
+        campaign.official_apply_url as "entryUrl"
+      from job_market_campaigns campaign
+      join job_market_companies company on company.id=campaign.company_id
+      where campaign.listing_kind='recruitment_directory'
+        and campaign.status='open'
+        and campaign.campaign_key='directory:wechat'
+        and not exists(select 1 from job_market_sources source where source.company_id=company.id)
+        and not exists(
+          select 1 from job_market_source_candidates candidate
+          where candidate.company_id=company.id)
+      order by company.canonical_name,company.id
+      limit ${limit}`;
+  }
+
   async record(observation: DiscoveryObservation) {
     const { target, detected } = observation;
     const reviewStatus = detected ? "pending" : "unrecognized";

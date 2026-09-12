@@ -912,6 +912,11 @@
   justify-content: space-between;
   gap: 20px;
 }
+.source-discovery-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
 .source-discovery-heading h2 {
   margin-top: 4px;
 }

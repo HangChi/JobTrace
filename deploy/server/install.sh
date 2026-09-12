@@ -158,6 +158,9 @@ install -m 0750 -o root -g "$app_group" \
 collect_bin="${JOBTRACE_COLLECT_BIN:-/usr/local/libexec/jobtrace-collect}"
 install -m 0750 -o root -g "$app_group" \
   "${source_dir}/deploy/server/jobtrace-collect.sh" "$collect_bin"
+research_bin="${JOBTRACE_RESEARCH_BIN:-/usr/local/libexec/jobtrace-research}"
+install -m 0750 -o root -g "$app_group" \
+  "${source_dir}/deploy/server/jobtrace-research.sh" "$research_bin"
 
 node_bin="$(command -v node)"
 sed \
@@ -191,6 +194,17 @@ sed \
 install -m 0644 -o root -g root \
   "${source_dir}/deploy/server/jobtrace-collect.timer" \
   /etc/systemd/system/jobtrace-collect.timer
+sed \
+  -e "s|@@APP_USER@@|${app_user}|g" \
+  -e "s|@@APP_GROUP@@|${app_group}|g" \
+  -e "s|@@ENV_FILE@@|${env_file}|g" \
+  -e "s|@@APP_PORT@@|${PORT:-3000}|g" \
+  -e "s|@@RESEARCH_BIN@@|${research_bin}|g" \
+  "${source_dir}/deploy/server/jobtrace-research.service.in" \
+  > /etc/systemd/system/jobtrace-research.service
+install -m 0644 -o root -g root \
+  "${source_dir}/deploy/server/jobtrace-research.timer" \
+  /etc/systemd/system/jobtrace-research.timer
 
 if command -v systemd-analyze >/dev/null 2>&1; then
   systemd-analyze verify \
@@ -198,14 +212,16 @@ if command -v systemd-analyze >/dev/null 2>&1; then
     /etc/systemd/system/jobtrace-sync.service \
     /etc/systemd/system/jobtrace-sync.timer \
     /etc/systemd/system/jobtrace-collect.service \
-    /etc/systemd/system/jobtrace-collect.timer
+    /etc/systemd/system/jobtrace-collect.timer \
+    /etc/systemd/system/jobtrace-research.service \
+    /etc/systemd/system/jobtrace-research.timer
 fi
 
 ln -sfn "$release_dir" "${app_root}/.current-new"
 mv -Tf "${app_root}/.current-new" "${app_current}"
 
 systemctl daemon-reload
-systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-collect.timer >/dev/null
+systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer >/dev/null
 systemctl restart jobtrace.service
 
 healthy=false
