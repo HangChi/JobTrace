@@ -4,6 +4,7 @@ import {
 } from "./default-source-catalog";
 import companyDirectoryAliases from "./company-directory-aliases.json";
 import recentWechatArticles from "./recent-wechat-articles.json";
+import researchedOfficialSites from "./researched-official-sites.json";
 
 export type RecruitmentDirectoryChannel = "official_site" | "wechat";
 
@@ -1039,7 +1040,27 @@ const automaticCompanyNames = new Set(
 );
 const curatedDirectory = [
   ...new Map(
-    CURATED_COMPANY_DIRECTORY.filter(isDirectoryEntry)
+    [
+      ...CURATED_COMPANY_DIRECTORY,
+      // 公众号来源检索出的官方招聘网站（scripts/generate-researched-additions.ts
+      // 生成）。复用原公众号条目的 identityKey，落地时原地替换渠道与链接。
+      ...(researchedOfficialSites as Array<{
+        identityKey: string;
+        companyName: string;
+        companyType: string;
+        industry: string;
+        entryUrl: string;
+      }>).map((site) =>
+        officialDirectory({
+          identityKey: site.identityKey,
+          companyName: site.companyName,
+          companyType: site.companyType,
+          industry: site.industry,
+          entryUrl: site.entryUrl,
+        }),
+      ),
+    ]
+      .filter(isDirectoryEntry)
       .map((entry) => ({
         ...entry,
         companyName: canonicalCompanyName(entry.companyName),

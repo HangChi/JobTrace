@@ -1,4 +1,9 @@
 import type { SourceAdapterKind } from "../domain/entities";
+import researchedSourceAdditions from "./researched-source-additions.json";
+
+// 公众号来源检索出的自动同步来源（scripts/generate-researched-additions.ts 生成）。
+export const RESEARCHED_SOURCE_ADDITIONS =
+  researchedSourceAdditions as readonly DefaultSourceCatalogEntry[];
 
 export type DefaultSourceCatalogEntry = {
   identityKey: string;
@@ -1777,6 +1782,7 @@ export const DEFAULT_SOURCE_CATALOG = [
         siteId,
       }),
   ),
+  ...RESEARCHED_SOURCE_ADDITIONS,
 ] as const satisfies readonly DefaultSourceCatalogEntry[];
 
 const CHANNEL_HINTS: Record<string, string> = {

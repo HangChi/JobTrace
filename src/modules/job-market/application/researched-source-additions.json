@@ -1,0 +1,4898 @@
+[
+ {
+  "identityKey": "default:researched-src-4b21aa8d04",
+  "companyIdentityKey": "default:wechat-article:埃夫特机器人",
+  "companyName": "埃夫特机器人",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://efort.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "efort.zhiye.com",
+  "baseUrl": "https://efort.zhiye.com/",
+  "allowedHosts": [
+   "efort.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-141dcd0144",
+  "companyIdentityKey": "default:wechat-article:埃斯顿",
+  "companyName": "埃斯顿",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://estun1.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "estun1.zhiye.com",
+  "baseUrl": "https://estun1.zhiye.com/",
+  "allowedHosts": [
+   "estun1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e6d22d7c18",
+  "companyIdentityKey": "default:wechat-article:艾诺仪器",
+  "companyName": "艾诺仪器",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://ainuo.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "ainuo.zhiye.com",
+  "baseUrl": "https://ainuo.zhiye.com/",
+  "allowedHosts": [
+   "ainuo.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0a0a4cbc72",
+  "companyIdentityKey": "default:wechat-article:爱科赛博",
+  "companyName": "爱科赛博",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://campus.51job.com/cnaction",
+  "adapter": "job51",
+  "externalKey": "cnaction",
+  "baseUrl": "https://campus.51job.com/cnaction",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5a43f60137",
+  "companyIdentityKey": "default:wechat-article:奥比中光",
+  "companyName": "奥比中光",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/orbbec/44936",
+  "adapter": "moka",
+  "externalKey": "orbbec|social|44936",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-158f90e5b3",
+  "companyIdentityKey": "default:wechat-article:奥马冰箱",
+  "companyName": "奥马冰箱",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://homa-hr.zhiye.com/campus",
+  "adapter": "beisen",
+  "externalKey": "homa-hr.zhiye.com",
+  "baseUrl": "https://homa-hr.zhiye.com/",
+  "allowedHosts": [
+   "homa-hr.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-05c6642680",
+  "companyIdentityKey": "default:wechat-article:澳鹏数据",
+  "companyName": "澳鹏数据",
+  "companyType": "外企",
+  "industry": "外企",
+  "websiteUrl": "https://jobs.lever.co/appen-2",
+  "adapter": "lever",
+  "externalKey": "appen-2",
+  "baseUrl": "https://api.lever.co/",
+  "allowedHosts": [
+   "api.lever.co"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-701a98ce9c",
+  "companyIdentityKey": "default:wechat-article:百草味",
+  "companyName": "百草味",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/vipbcw/140863",
+  "adapter": "moka",
+  "externalKey": "vipbcw|social|140863",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b3b755f5dc",
+  "companyIdentityKey": "default:wechat-article:半亩花田",
+  "companyName": "半亩花田",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://huawutang1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "huawutang1.zhiye.com",
+  "baseUrl": "https://huawutang1.zhiye.com/",
+  "allowedHosts": [
+   "huawutang1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-42e1454349",
+  "companyIdentityKey": "default:wechat-article:宝宝巴士",
+  "companyName": "宝宝巴士",
+  "companyType": "企业",
+  "industry": "互联网 / 教育",
+  "websiteUrl": "https://babybus.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "babybus.zhiye.com",
+  "baseUrl": "https://babybus.zhiye.com/",
+  "allowedHosts": [
+   "babybus.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-aa98c68c41",
+  "companyIdentityKey": "default:wechat-article:北京润科",
+  "companyName": "北京润科",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/runketongyong/170056",
+  "adapter": "moka",
+  "externalKey": "runketongyong|social|170056",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7023c64517",
+  "companyIdentityKey": "default:wechat-article:博瑞电力",
+  "companyName": "博瑞电力",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://nrec1.zhiye.com/campus",
+  "adapter": "beisen",
+  "externalKey": "nrec1.zhiye.com",
+  "baseUrl": "https://nrec1.zhiye.com/",
+  "allowedHosts": [
+   "nrec1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-77bac530d2",
+  "companyIdentityKey": "default:wechat-article:博众精工",
+  "companyName": "博众精工",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://bozhon.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "bozhon.zhiye.com",
+  "baseUrl": "https://bozhon.zhiye.com/",
+  "allowedHosts": [
+   "bozhon.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-426baa5a1a",
+  "companyIdentityKey": "default:wechat-article:灿芯半导体",
+  "companyName": "灿芯半导体",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://britesemi.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "britesemi.zhiye.com",
+  "baseUrl": "https://britesemi.zhiye.com/",
+  "allowedHosts": [
+   "britesemi.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d7fd3095dc",
+  "companyIdentityKey": "default:wechat-article:超参数科技",
+  "companyName": "超参数科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/chaocanshu/39460",
+  "adapter": "moka",
+  "externalKey": "chaocanshu|social|39460",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-332f51634c",
+  "companyIdentityKey": "default:wechat-article:潮宏基",
+  "companyName": "潮宏基",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://chjgroup.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "chjgroup.zhiye.com",
+  "baseUrl": "https://chjgroup.zhiye.com/",
+  "allowedHosts": [
+   "chjgroup.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a640dca789",
+  "companyIdentityKey": "default:wechat-article:传音控股-TAIG-AI顶尖人才招聘计划",
+  "companyName": "传音控股-TAIG-AI顶尖人才招聘计划",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://transsion.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "transsion.zhiye.com",
+  "baseUrl": "https://transsion.zhiye.com/",
+  "allowedHosts": [
+   "transsion.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bf2d6f9ce6",
+  "companyIdentityKey": "default:wechat-article:春风动力",
+  "companyName": "春风动力",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://cfmoto.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "cfmoto.zhiye.com",
+  "baseUrl": "https://cfmoto.zhiye.com/",
+  "allowedHosts": [
+   "cfmoto.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5935290fe7",
+  "companyIdentityKey": "default:wechat-article:大北农食品集团",
+  "companyName": "大北农食品集团",
+  "companyType": "企业",
+  "industry": "快消零焦",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/dbn/38287",
+  "adapter": "moka",
+  "externalKey": "dbn|social|38287",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e160116034",
+  "companyIdentityKey": "default:wechat-article:大族激光",
+  "companyName": "大族激光",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/hanslaser/46382",
+  "adapter": "moka",
+  "externalKey": "hanslaser|social|46382",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-42cb620210",
+  "companyIdentityKey": "default:wechat-article:得一微电子",
+  "companyName": "得一微电子",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://yeestor.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "yeestor.zhiye.com",
+  "baseUrl": "https://yeestor.zhiye.com/",
+  "allowedHosts": [
+   "yeestor.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-eaf782a7df",
+  "companyIdentityKey": "default:wechat-article:德邦快递",
+  "companyName": "德邦快递",
+  "companyType": "企业",
+  "industry": "交通运输",
+  "websiteUrl": "https://deppon.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "deppon.zhiye.com",
+  "baseUrl": "https://deppon.zhiye.com/",
+  "allowedHosts": [
+   "deppon.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6b8cc56dca",
+  "companyIdentityKey": "default:wechat-article:德佑",
+  "companyName": "德佑",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://campus.51job.com/ke/",
+  "adapter": "job51",
+  "externalKey": "ke",
+  "baseUrl": "https://campus.51job.com/ke/",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-afdfd4d8dc",
+  "companyIdentityKey": "default:wechat-article:帝奥微",
+  "companyName": "帝奥微",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://dioo.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "dioo.zhiye.com",
+  "baseUrl": "https://dioo.zhiye.com/",
+  "allowedHosts": [
+   "dioo.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f83c95954f",
+  "companyIdentityKey": "default:wechat-article:点点互动",
+  "companyName": "点点互动",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://centurygame.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "centurygame.zhiye.com",
+  "baseUrl": "https://centurygame.zhiye.com/",
+  "allowedHosts": [
+   "centurygame.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-19f23886e5",
+  "companyIdentityKey": "default:wechat-article:点众科技",
+  "companyName": "点众科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/campus_apply/dianzhong/28122",
+  "adapter": "moka",
+  "externalKey": "dianzhong|campus|28122",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0287b84e79",
+  "companyIdentityKey": "default:wechat-article:电科金仓",
+  "companyName": "电科金仓",
+  "companyType": "国有企业",
+  "industry": "国央企 / 科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/kingbase/47259",
+  "adapter": "moka",
+  "externalKey": "kingbase|campus|47259",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b3e9670bc7",
+  "companyIdentityKey": "default:wechat-article:电科蓝天",
+  "companyName": "电科蓝天",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://dklt.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "dklt.zhiye.com",
+  "baseUrl": "https://dklt.zhiye.com/",
+  "allowedHosts": [
+   "dklt.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1247e41a95",
+  "companyIdentityKey": "default:wechat-article:鼎阳科技",
+  "companyName": "鼎阳科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://siglent.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "siglent.zhiye.com",
+  "baseUrl": "https://siglent.zhiye.com/",
+  "allowedHosts": [
+   "siglent.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-36815a920b",
+  "companyIdentityKey": "default:wechat-article:东风商用车",
+  "companyName": "东风商用车",
+  "companyType": "国有企业",
+  "industry": "国央企 / 汽车新能源",
+  "websiteUrl": "https://www.dfmc.com.cn/zhaopin/zifengongsizhaopin.html",
+  "adapter": "moka",
+  "externalKey": "dfmc|social|168368",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b56d71d1bb",
+  "companyIdentityKey": "default:wechat-article:多比特信息",
+  "companyName": "多比特信息",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://web.wedobest.com.cn/join",
+  "adapter": "moka",
+  "externalKey": "wedobest|social|46166",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-62c2462857",
+  "companyIdentityKey": "default:wechat-article:多维联合集团",
+  "companyName": "多维联合集团",
+  "companyType": "企业",
+  "industry": "建筑",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/duowei/142739",
+  "adapter": "moka",
+  "externalKey": "duowei|social|142739",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1098640c80",
+  "companyIdentityKey": "default:wechat-article:飞博共创",
+  "companyName": "飞博共创",
+  "companyType": "企业",
+  "industry": "文化传媒",
+  "websiteUrl": "https://feibo.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "feibo.zhiye.com",
+  "baseUrl": "https://feibo.zhiye.com/",
+  "allowedHosts": [
+   "feibo.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8b527de6b7",
+  "companyIdentityKey": "default:wechat-article:飞步科技",
+  "companyName": "飞步科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/fabu/56113",
+  "adapter": "moka",
+  "externalKey": "fabu|social|56113",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-596d63d825",
+  "companyIdentityKey": "default:wechat-article:丰尚",
+  "companyName": "丰尚",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://famsun.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "famsun.zhiye.com",
+  "baseUrl": "https://famsun.zhiye.com/",
+  "allowedHosts": [
+   "famsun.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c2e1715b8e",
+  "companyIdentityKey": "default:wechat-article:富特科技",
+  "companyName": "富特科技",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/evtech/47502",
+  "adapter": "moka",
+  "externalKey": "evtech|social|47502",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6dee52885d",
+  "companyIdentityKey": "default:wechat-article:钢研纳克",
+  "companyName": "钢研纳克",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://gangyan.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "gangyan.zhiye.com",
+  "baseUrl": "https://gangyan.zhiye.com/",
+  "allowedHosts": [
+   "gangyan.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0f83c7a72b",
+  "companyIdentityKey": "default:wechat-article:谷雨",
+  "companyName": "谷雨",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://grainrain.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "grainrain.zhiye.com",
+  "baseUrl": "https://grainrain.zhiye.com/",
+  "allowedHosts": [
+   "grainrain.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-cb616a40f7",
+  "companyIdentityKey": "default:wechat-article:顾家家居",
+  "companyName": "顾家家居",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/kuka/98960",
+  "adapter": "moka",
+  "externalKey": "kuka|social|98960",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5cca26154d",
+  "companyIdentityKey": "default:wechat-article:冠宇集团",
+  "companyName": "冠宇集团",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://cosmx.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "cosmx.zhiye.com",
+  "baseUrl": "https://cosmx.zhiye.com/",
+  "allowedHosts": [
+   "cosmx.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-115507719a",
+  "companyIdentityKey": "default:wechat-article:光宝中国研发中心",
+  "companyName": "光宝中国研发中心",
+  "companyType": "外企",
+  "industry": "外企 / 科技",
+  "websiteUrl": "https://liteon.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "liteon.zhiye.com",
+  "baseUrl": "https://liteon.zhiye.com/",
+  "allowedHosts": [
+   "liteon.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-424f673300",
+  "companyIdentityKey": "default:wechat-article:光大证券",
+  "companyName": "光大证券",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://ebscn.zhiye.com/social",
+  "adapter": "beisen",
+  "externalKey": "ebscn.zhiye.com",
+  "baseUrl": "https://ebscn.zhiye.com/",
+  "allowedHosts": [
+   "ebscn.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d748b51581",
+  "companyIdentityKey": "default:fiberhome-info-cn",
+  "companyName": "光迅科技",
+  "companyType": "国有企业",
+  "industry": "光通信 / 半导体",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/accelink/139973",
+  "adapter": "moka",
+  "externalKey": "accelink|campus|139973",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a437cbb545",
+  "companyIdentityKey": "default:wechat-article:广电运通集团",
+  "companyName": "广电运通集团",
+  "companyType": "国有企业",
+  "industry": "国央企 / 互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/grgbanking/41731",
+  "adapter": "moka",
+  "externalKey": "grgbanking|social|41731",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-98cb0a4e71",
+  "companyIdentityKey": "default:wechat-article:国电南自",
+  "companyName": "国电南自",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://campus.51job.com/SAC/index1.html",
+  "adapter": "job51",
+  "externalKey": "SAC",
+  "baseUrl": "https://campus.51job.com/SAC/index1.html",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0046c95f99",
+  "companyIdentityKey": "default:wechat-article:国科微电子",
+  "companyName": "国科微电子",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://goke.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "goke.zhiye.com",
+  "baseUrl": "https://goke.zhiye.com/",
+  "allowedHosts": [
+   "goke.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a41058c87f",
+  "companyIdentityKey": "default:wechat-article:国微电子",
+  "companyName": "国微电子",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://szssmec1.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "szssmec1.zhiye.com",
+  "baseUrl": "https://szssmec1.zhiye.com/",
+  "allowedHosts": [
+   "szssmec1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-10a99cd9bf",
+  "companyIdentityKey": "default:wechat-article:国仪量子",
+  "companyName": "国仪量子",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://ciqtek.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "ciqtek.zhiye.com",
+  "baseUrl": "https://ciqtek.zhiye.com/",
+  "allowedHosts": [
+   "ciqtek.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-61240a5e55",
+  "companyIdentityKey": "default:hello-inc-cn",
+  "companyName": "哈啰",
+  "companyType": "民营企业",
+  "industry": "智慧出行 / 本地生活",
+  "websiteUrl": "https://hellobike.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "hellobike.zhiye.com",
+  "baseUrl": "https://hellobike.zhiye.com/",
+  "allowedHosts": [
+   "hellobike.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a6f48622eb",
+  "companyIdentityKey": "default:hygon-cn",
+  "companyName": "海光信息",
+  "companyType": "国有企业",
+  "industry": "半导体 / 处理器",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/hygon/169938",
+  "adapter": "moka",
+  "externalKey": "hygon|social|169938",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7202a2b096",
+  "companyIdentityKey": "default:wechat-article:海目星",
+  "companyName": "海目星",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://hymson.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "hymson.zhiye.com",
+  "baseUrl": "https://hymson.zhiye.com/",
+  "allowedHosts": [
+   "hymson.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d1410112a0",
+  "companyIdentityKey": "default:wechat-article:海能达",
+  "companyName": "海能达",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/apply/hytera/27049",
+  "adapter": "moka",
+  "externalKey": "hytera|social|27049",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-17fd83ee07",
+  "companyIdentityKey": "default:wechat-article:海天集团",
+  "companyName": "海天集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://haitian.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "haitian.zhiye.com",
+  "baseUrl": "https://haitian.zhiye.com/",
+  "allowedHosts": [
+   "haitian.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-829d981fcf",
+  "companyIdentityKey": "default:wechat-article:海艺科技",
+  "companyName": "海艺科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/haiyi/150698",
+  "adapter": "moka",
+  "externalKey": "haiyi|social|150698",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e9349478bf",
+  "companyIdentityKey": "default:wechat-article:邯郸制药-校园大使",
+  "companyName": "邯郸制药-校园大使",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://hanyao.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "hanyao.zhiye.com",
+  "baseUrl": "https://hanyao.zhiye.com/",
+  "allowedHosts": [
+   "hanyao.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-de48a0d7c9",
+  "companyIdentityKey": "default:wechat-article:瀚亚投资",
+  "companyName": "瀚亚投资",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://prudential.wd3.myworkdayjobs.com/zh-CN/prudential_eastspring",
+  "adapter": "workday",
+  "externalKey": "prudential|prudential_eastspring|zh-CN",
+  "baseUrl": "https://prudential.wd3.myworkdayjobs.com/",
+  "allowedHosts": [
+   "prudential.wd3.myworkdayjobs.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d02925b03d",
+  "companyIdentityKey": "default:wechat-article:豪威集团",
+  "companyName": "豪威集团",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://ovt-omnivision.zhiye.com/Campus",
+  "adapter": "beisen",
+  "externalKey": "ovt-omnivision.zhiye.com",
+  "baseUrl": "https://ovt-omnivision.zhiye.com/",
+  "allowedHosts": [
+   "ovt-omnivision.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0ac4ddce77",
+  "companyIdentityKey": "default:wechat-article:浩鲸科技-校园大使",
+  "companyName": "浩鲸科技-校园大使",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://iwhalecloud1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "iwhalecloud1.zhiye.com",
+  "baseUrl": "https://iwhalecloud1.zhiye.com/",
+  "allowedHosts": [
+   "iwhalecloud1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-101c922669",
+  "companyIdentityKey": "default:wechat-article:禾丰股份",
+  "companyName": "禾丰股份",
+  "companyType": "企业",
+  "industry": "农业",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/hfsp/37148",
+  "adapter": "moka",
+  "externalKey": "hfsp|social|37148",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c5bfd5ebe9",
+  "companyIdentityKey": "default:black-sesame-cn",
+  "companyName": "黑芝麻智能",
+  "companyType": "上市公司",
+  "industry": "智能驾驶 / AI芯片",
+  "websiteUrl": "https://bsthr.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "bsthr.zhiye.com",
+  "baseUrl": "https://bsthr.zhiye.com/",
+  "allowedHosts": [
+   "bsthr.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3df9949905",
+  "companyIdentityKey": "default:wechat-article:恒安集团",
+  "companyName": "恒安集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://hengan1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "hengan1.zhiye.com",
+  "baseUrl": "https://hengan1.zhiye.com/",
+  "allowedHosts": [
+   "hengan1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-297043b0f5",
+  "companyIdentityKey": "default:wechat-article:虹科",
+  "companyName": "虹科",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://hkaco.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "hkaco.zhiye.com",
+  "baseUrl": "https://hkaco.zhiye.com/",
+  "allowedHosts": [
+   "hkaco.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ce09763cbd",
+  "companyIdentityKey": "default:wechat-article:湖北绿色家园",
+  "companyName": "湖北绿色家园",
+  "companyType": "企业",
+  "industry": "化工",
+  "websiteUrl": "https://lsjyzp.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "lsjyzp.zhiye.com",
+  "baseUrl": "https://lsjyzp.zhiye.com/",
+  "allowedHosts": [
+   "lsjyzp.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6ebaf92564",
+  "companyIdentityKey": "default:wechat-article:花旗中国",
+  "companyName": "花旗中国",
+  "companyType": "外企",
+  "industry": "外企 / 金融",
+  "websiteUrl": "https://jobs.citi.com/",
+  "adapter": "workday",
+  "externalKey": "citi|2|en-US",
+  "baseUrl": "https://citi.wd5.myworkdayjobs.com/",
+  "allowedHosts": [
+   "citi.wd5.myworkdayjobs.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6189ca7e39",
+  "companyIdentityKey": "default:wechat-article:华测导航",
+  "companyName": "华测导航",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://huace.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "huace.zhiye.com",
+  "baseUrl": "https://huace.zhiye.com/",
+  "allowedHosts": [
+   "huace.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-25a1690a09",
+  "companyIdentityKey": "default:wechat-article:华丞电子",
+  "companyName": "华丞电子",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://bfhc1.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "bfhc1.zhiye.com",
+  "baseUrl": "https://bfhc1.zhiye.com/",
+  "allowedHosts": [
+   "bfhc1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-4f3d5e26dc",
+  "companyIdentityKey": "default:wechat-article:华峰测控",
+  "companyName": "华峰测控",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://accotest.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "accotest.zhiye.com",
+  "baseUrl": "https://accotest.zhiye.com/",
+  "allowedHosts": [
+   "accotest.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1dd416f575",
+  "companyIdentityKey": "default:wechat-article:华钧广汇",
+  "companyName": "华钧广汇",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/genwealth/142156",
+  "adapter": "moka",
+  "externalKey": "genwealth|campus|142156",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f5236b5d4a",
+  "companyIdentityKey": "default:wechat-article:华诺星空",
+  "companyName": "华诺星空",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/novasky/146872",
+  "adapter": "moka",
+  "externalKey": "novasky|social|146872",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c39888bcad",
+  "companyIdentityKey": "default:lalamove-cn",
+  "companyName": "货拉拉",
+  "companyType": "民营企业",
+  "industry": "物流 / 互联网",
+  "websiteUrl": "https://huolala.zhiye.com/social",
+  "adapter": "beisen",
+  "externalKey": "huolala.zhiye.com",
+  "baseUrl": "https://huolala.zhiye.com/",
+  "allowedHosts": [
+   "huolala.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-18541fa75d",
+  "companyIdentityKey": "default:wechat-article:基恩士",
+  "companyName": "基恩士",
+  "companyType": "外企",
+  "industry": "外企 / 制造业",
+  "websiteUrl": "https://www.keyence.com.cn/ss/careers/recruitment.jsp",
+  "adapter": "beisen",
+  "externalKey": "keyence.zhiye.com",
+  "baseUrl": "https://keyence.zhiye.com/",
+  "allowedHosts": [
+   "keyence.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ee3fe8ea6c",
+  "companyIdentityKey": "default:wechat-article:极智嘉",
+  "companyName": "极智嘉",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/geekplus/168533",
+  "adapter": "moka",
+  "externalKey": "geekplus|campus|168533",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ef3f0312a5",
+  "companyIdentityKey": "default:wechat-article:加多宝集团",
+  "companyName": "加多宝集团",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://jdbchina.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "jdbchina.zhiye.com",
+  "baseUrl": "https://jdbchina.zhiye.com/",
+  "allowedHosts": [
+   "jdbchina.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-29851f1762",
+  "companyIdentityKey": "default:wechat-article:加特兰微电子",
+  "companyName": "加特兰微电子",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://app.mokahr.com/apply/calterah/1110",
+  "adapter": "moka",
+  "externalKey": "calterah|social|1110",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-47f4752599",
+  "companyIdentityKey": "default:wechat-article:江波龙电子",
+  "companyName": "江波龙电子",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://longsys.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "longsys.zhiye.com",
+  "baseUrl": "https://longsys.zhiye.com/",
+  "allowedHosts": [
+   "longsys.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bce4f73a5a",
+  "companyIdentityKey": "default:wechat-article:江苏高科技投资集团",
+  "companyName": "江苏高科技投资集团",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://govtor.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "govtor.zhiye.com",
+  "baseUrl": "https://govtor.zhiye.com/",
+  "allowedHosts": [
+   "govtor.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-83d812abb5",
+  "companyIdentityKey": "default:wechat-article:节卡机器人",
+  "companyName": "节卡机器人",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://jaka.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "jaka.zhiye.com",
+  "baseUrl": "https://jaka.zhiye.com/",
+  "allowedHosts": [
+   "jaka.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0e0b93c317",
+  "companyIdentityKey": "default:wechat-article:金山云",
+  "companyName": "金山云",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://jssoft.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "jssoft.zhiye.com",
+  "baseUrl": "https://jssoft.zhiye.com/",
+  "allowedHosts": [
+   "jssoft.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9b2e3d82c8",
+  "companyIdentityKey": "default:wechat-article:金证科技",
+  "companyName": "金证科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://szkingdom.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "szkingdom.zhiye.com",
+  "baseUrl": "https://szkingdom.zhiye.com/",
+  "allowedHosts": [
+   "szkingdom.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-33515bd099",
+  "companyIdentityKey": "default:wechat-article:锦浪科技",
+  "companyName": "锦浪科技",
+  "companyType": "企业",
+  "industry": "能源",
+  "websiteUrl": "https://ginlong.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "ginlong.zhiye.com",
+  "baseUrl": "https://ginlong.zhiye.com/",
+  "allowedHosts": [
+   "ginlong.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-89c70bc5a5",
+  "companyIdentityKey": "default:wechat-article:劲牌有限公司",
+  "companyName": "劲牌有限公司",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://jingpai.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "jingpai.zhiye.com",
+  "baseUrl": "https://jingpai.zhiye.com/",
+  "allowedHosts": [
+   "jingpai.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-782d09f8e6",
+  "companyIdentityKey": "default:boe-cn",
+  "companyName": "京东方",
+  "companyType": "上市公司",
+  "industry": "显示技术 / 物联网 / 半导体",
+  "websiteUrl": "https://boe.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "boe.zhiye.com",
+  "baseUrl": "https://boe.zhiye.com/",
+  "allowedHosts": [
+   "boe.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d1d3dc1eae",
+  "companyIdentityKey": "default:hirain-cn",
+  "companyName": "经纬恒润",
+  "companyType": "上市公司",
+  "industry": "汽车电子 / 智能驾驶",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/jingweihengrun/168299",
+  "adapter": "moka",
+  "externalKey": "jingweihengrun|social|168299",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fed164a201",
+  "companyIdentityKey": "default:wechat-article:晶丰明源",
+  "companyName": "晶丰明源",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://bpsemi.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "bpsemi.zhiye.com",
+  "baseUrl": "https://bpsemi.zhiye.com/",
+  "allowedHosts": [
+   "bpsemi.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6239775828",
+  "companyIdentityKey": "default:wechat-article:晶合集成",
+  "companyName": "晶合集成",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://nexchip.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "nexchip.zhiye.com",
+  "baseUrl": "https://nexchip.zhiye.com/",
+  "allowedHosts": [
+   "nexchip.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3fda8b4a0e",
+  "companyIdentityKey": "default:wechat-article:晶盛机电",
+  "companyName": "晶盛机电",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/jsjd/54225",
+  "adapter": "moka",
+  "externalKey": "jsjd|social|54225",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-89fb5a78a0",
+  "companyIdentityKey": "default:wechat-article:鲸灵",
+  "companyName": "鲸灵",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/jingling/125950",
+  "adapter": "moka",
+  "externalKey": "jingling|social|125950",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1665cc098e",
+  "companyIdentityKey": "default:wechat-article:九坤投资-揽月计划",
+  "companyName": "九坤投资-揽月计划",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/ubiquantrecruit/37031",
+  "adapter": "moka",
+  "externalKey": "ubiquantrecruit|campus|37031",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7c45f0b380",
+  "companyIdentityKey": "default:wechat-article:九牧集团",
+  "companyName": "九牧集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/jomoo/170494",
+  "adapter": "moka",
+  "externalKey": "jomoo|social|170494",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-57123e4d15",
+  "companyIdentityKey": "default:wechat-article:九识智能",
+  "companyName": "九识智能",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/zelostech/44675",
+  "adapter": "moka",
+  "externalKey": "zelostech|social|44675",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1aed8e8940",
+  "companyIdentityKey": "default:wechat-article:巨鲨医疗",
+  "companyName": "巨鲨医疗",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://jusha.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "jusha.zhiye.com",
+  "baseUrl": "https://jusha.zhiye.com/",
+  "allowedHosts": [
+   "jusha.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5b534c52aa",
+  "companyIdentityKey": "default:wechat-article:巨一科技",
+  "companyName": "巨一科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/ahjy/168234",
+  "adapter": "moka",
+  "externalKey": "ahjy|social|168234",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-28bd316029",
+  "companyIdentityKey": "default:wechat-article:炬芯科技",
+  "companyName": "炬芯科技",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://actionstech.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "actionstech.zhiye.com",
+  "baseUrl": "https://actionstech.zhiye.com/",
+  "allowedHosts": [
+   "actionstech.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a92e0a71a4",
+  "companyIdentityKey": "default:wechat-article:开立医疗",
+  "companyName": "开立医疗",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://app.mokahr.com/apply/sonoscape/5987",
+  "adapter": "moka",
+  "externalKey": "sonoscape|social|5987",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a31b3785f1",
+  "companyIdentityKey": "default:wechat-article:开沃集团",
+  "companyName": "开沃集团",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://campus.51job.com/kwjt/index02.html",
+  "adapter": "job51",
+  "externalKey": "kwjt",
+  "baseUrl": "https://campus.51job.com/kwjt/index02.html",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-342a2e5a62",
+  "companyIdentityKey": "default:wechat-article:凯读投资",
+  "companyName": "凯读投资",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/kendallsquarecap/144869",
+  "adapter": "moka",
+  "externalKey": "kendallsquarecap|social|144869",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0ab0cfd3d9",
+  "companyIdentityKey": "default:wechat-article:凯莱英医药集团",
+  "companyName": "凯莱英医药集团",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://asymchem.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "asymchem.zhiye.com",
+  "baseUrl": "https://asymchem.zhiye.com/",
+  "allowedHosts": [
+   "asymchem.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-36009aa92f",
+  "companyIdentityKey": "default:wechat-article:康冠科技",
+  "companyName": "康冠科技",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://careerktc.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "careerktc.zhiye.com",
+  "baseUrl": "https://careerktc.zhiye.com/",
+  "allowedHosts": [
+   "careerktc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b6dd2b6687",
+  "companyIdentityKey": "default:wechat-article:康华股份",
+  "companyName": "康华股份",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://kangh.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "kangh.zhiye.com",
+  "baseUrl": "https://kangh.zhiye.com/",
+  "allowedHosts": [
+   "kangh.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-49287b8b79",
+  "companyIdentityKey": "default:wechat-article:康尼机电",
+  "companyName": "康尼机电",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://kangni.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "kangni.zhiye.com",
+  "baseUrl": "https://kangni.zhiye.com/",
+  "allowedHosts": [
+   "kangni.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5ccd0082a6",
+  "companyIdentityKey": "default:wechat-article:科华集团",
+  "companyName": "科华集团",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/kehua/92510",
+  "adapter": "moka",
+  "externalKey": "kehua|campus|92510",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-24cbb77138",
+  "companyIdentityKey": "default:wechat-article:酷哇科技",
+  "companyName": "酷哇科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/cowarobot/43487",
+  "adapter": "moka",
+  "externalKey": "cowarobot|campus|43487",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-102c0888aa",
+  "companyIdentityKey": "default:wechat-article:朗坤科技",
+  "companyName": "朗坤科技",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://leoking.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "leoking.zhiye.com",
+  "baseUrl": "https://leoking.zhiye.com/",
+  "allowedHosts": [
+   "leoking.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-67b6b05bd1",
+  "companyIdentityKey": "default:wechat-article:乐狗科技",
+  "companyName": "乐狗科技",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://app.mokahr.com/apply/legougames/6162",
+  "adapter": "moka",
+  "externalKey": "legougames|social|6162",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-46978c7d9b",
+  "companyIdentityKey": "default:wechat-article:李森智能",
+  "companyName": "李森智能",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://lisen.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "lisen.zhiye.com",
+  "baseUrl": "https://lisen.zhiye.com/",
+  "allowedHosts": [
+   "lisen.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d795cefb92",
+  "companyIdentityKey": "default:wechat-article:立信会计师事务所",
+  "companyName": "立信会计师事务所",
+  "companyType": "企业",
+  "industry": "咨询/专业/法律",
+  "websiteUrl": "https://bdochina.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "bdochina.zhiye.com",
+  "baseUrl": "https://bdochina.zhiye.com/",
+  "allowedHosts": [
+   "bdochina.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5cb8e846ba",
+  "companyIdentityKey": "default:wechat-article:砺星Leetx",
+  "companyName": "砺星Leetx",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://www.leetx.com/join.html",
+  "adapter": "beisen",
+  "externalKey": "leetx.zhiye.com",
+  "baseUrl": "https://leetx.zhiye.com/",
+  "allowedHosts": [
+   "leetx.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e1468cf3c1",
+  "companyIdentityKey": "default:wechat-article:联邦制药",
+  "companyName": "联邦制药",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://tulchina.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "tulchina.zhiye.com",
+  "baseUrl": "https://tulchina.zhiye.com/",
+  "allowedHosts": [
+   "tulchina.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f0e57087a9",
+  "companyIdentityKey": "default:wechat-article:联合光电科技",
+  "companyName": "联合光电科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://lianheguangdian.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "lianheguangdian.zhiye.com",
+  "baseUrl": "https://lianheguangdian.zhiye.com/",
+  "allowedHosts": [
+   "lianheguangdian.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0c7a7395ac",
+  "companyIdentityKey": "default:wechat-article:联影集团",
+  "companyName": "联影集团",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://united-imaging.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "united-imaging.zhiye.com",
+  "baseUrl": "https://united-imaging.zhiye.com/",
+  "allowedHosts": [
+   "united-imaging.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9bf1b447e9",
+  "companyIdentityKey": "default:leapmotor-cn",
+  "companyName": "零跑汽车",
+  "companyType": "上市公司",
+  "industry": "新能源汽车 / 智能驾驶",
+  "websiteUrl": "https://leapmotor.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "leapmotor.zhiye.com",
+  "baseUrl": "https://leapmotor.zhiye.com/",
+  "allowedHosts": [
+   "leapmotor.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0115da7bd2",
+  "companyIdentityKey": "default:wechat-article:龙蟠科技集团",
+  "companyName": "龙蟠科技集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://lopal.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "lopal.zhiye.com",
+  "baseUrl": "https://lopal.zhiye.com/",
+  "allowedHosts": [
+   "lopal.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8e58af2c1a",
+  "companyIdentityKey": "default:wechat-article:龙旗科技",
+  "companyName": "龙旗科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://longcheerzp1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "longcheerzp1.zhiye.com",
+  "baseUrl": "https://longcheerzp1.zhiye.com/",
+  "allowedHosts": [
+   "longcheerzp1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6073ef9f4f",
+  "companyIdentityKey": "default:wechat-article:迈安德集团",
+  "companyName": "迈安德集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/mad/142631",
+  "adapter": "moka",
+  "externalKey": "mad|social|142631",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b9a97b93ad",
+  "companyIdentityKey": "default:wechat-article:麦吉太文",
+  "companyName": "麦吉太文",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/apply/tavern/39917",
+  "adapter": "moka",
+  "externalKey": "tavern|social|39917",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bf58698d8e",
+  "companyIdentityKey": "default:wechat-article:麦科田医疗",
+  "companyName": "麦科田医疗",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://medcaptain.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "medcaptain.zhiye.com",
+  "baseUrl": "https://medcaptain.zhiye.com/",
+  "allowedHosts": [
+   "medcaptain.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-2a559734a8",
+  "companyIdentityKey": "default:wechat-article:麦田能源",
+  "companyName": "麦田能源",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://fox-ess.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "fox-ess.zhiye.com",
+  "baseUrl": "https://fox-ess.zhiye.com/",
+  "allowedHosts": [
+   "fox-ess.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-516f7d9b11",
+  "companyIdentityKey": "default:wechat-article:芒果（你好，星期六）",
+  "companyName": "芒果（你好，星期六）",
+  "companyType": "国有企业",
+  "industry": "国央企 / 文化传媒",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/mgtv/44505",
+  "adapter": "moka",
+  "externalKey": "mgtv|social|44505",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bb2ef23fb5",
+  "companyIdentityKey": "default:wechat-article:梅塞尔中国",
+  "companyName": "梅塞尔中国",
+  "companyType": "外企",
+  "industry": "外企 / 化工",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/messer/92848?locale=zh-CN",
+  "adapter": "moka",
+  "externalKey": "messer|social|92848",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f313c1f5e1",
+  "companyIdentityKey": "default:wechat-article:蜜雪集团",
+  "companyName": "蜜雪集团",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://mxbc1997.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "mxbc1997.zhiye.com",
+  "baseUrl": "https://mxbc1997.zhiye.com/",
+  "allowedHosts": [
+   "mxbc1997.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-655365d3a7",
+  "companyIdentityKey": "default:wechat-article:民泰银行",
+  "companyName": "民泰银行",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://mintai.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "mintai.zhiye.com",
+  "baseUrl": "https://mintai.zhiye.com/",
+  "allowedHosts": [
+   "mintai.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-eec20392a5",
+  "companyIdentityKey": "default:wechat-article:敏芯股份",
+  "companyName": "敏芯股份",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/memsensing/45045",
+  "adapter": "moka",
+  "externalKey": "memsensing|campus|45045",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7d9785389d",
+  "companyIdentityKey": "default:miniso-cn",
+  "companyName": "名创优品",
+  "companyType": "上市公司",
+  "industry": "零售 / 消费品",
+  "websiteUrl": "https://miniso.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "miniso.zhiye.com",
+  "baseUrl": "https://miniso.zhiye.com/",
+  "allowedHosts": [
+   "miniso.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e086729fe7",
+  "companyIdentityKey": "default:wechat-article:鸣石基金",
+  "companyName": "鸣石基金",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://mingshiim.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "mingshiim.zhiye.com",
+  "baseUrl": "https://mingshiim.zhiye.com/",
+  "allowedHosts": [
+   "mingshiim.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e33a3dd404",
+  "companyIdentityKey": "default:wechat-article:眸芯科技",
+  "companyName": "眸芯科技",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://molchip.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "molchip.zhiye.com",
+  "baseUrl": "https://molchip.zhiye.com/",
+  "allowedHosts": [
+   "molchip.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-165753d864",
+  "companyIdentityKey": "default:wechat-article:沐曦股份",
+  "companyName": "沐曦股份",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/metax-tech/58147",
+  "adapter": "moka",
+  "externalKey": "metax-tech|social|58147",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-2b53cbdcfd",
+  "companyIdentityKey": "default:wechat-article:南昌新东方",
+  "companyName": "南昌新东方",
+  "companyType": "企业",
+  "industry": "教育",
+  "websiteUrl": "https://xdf.zhiye.com/campusindex",
+  "adapter": "beisen",
+  "externalKey": "xdf.zhiye.com",
+  "baseUrl": "https://xdf.zhiye.com/",
+  "allowedHosts": [
+   "xdf.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ce6a99f36b",
+  "companyIdentityKey": "default:wechat-article:南瑞继保",
+  "companyName": "南瑞继保",
+  "companyType": "国有企业",
+  "industry": "国央企 / 科技",
+  "websiteUrl": "https://nrec.zhiye.com/campus",
+  "adapter": "beisen",
+  "externalKey": "nrec.zhiye.com",
+  "baseUrl": "https://nrec.zhiye.com/",
+  "allowedHosts": [
+   "nrec.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-4945476d06",
+  "companyIdentityKey": "default:wechat-article:诺瓦星云",
+  "companyName": "诺瓦星云",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://novastar.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "novastar.zhiye.com",
+  "baseUrl": "https://novastar.zhiye.com/",
+  "allowedHosts": [
+   "novastar.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-49fb1cbbf8",
+  "companyIdentityKey": "default:wechat-article:噢易云计算",
+  "companyName": "噢易云计算",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://oseasy.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "oseasy.zhiye.com",
+  "baseUrl": "https://oseasy.zhiye.com/",
+  "allowedHosts": [
+   "oseasy.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-87fbb32eeb",
+  "companyIdentityKey": "default:wechat-article:鹏芯微",
+  "companyName": "鹏芯微",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://www.pxwsemi.com/%E7%A4%BE%E4%BC%9A%E6%8B%9B%E8%81%98",
+  "adapter": "beisen",
+  "externalKey": "pxwsemi.zhiye.com",
+  "baseUrl": "https://pxwsemi.zhiye.com/",
+  "allowedHosts": [
+   "pxwsemi.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-79226564a4",
+  "companyIdentityKey": "default:wechat-article:鹏新旭",
+  "companyName": "鹏新旭",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://pensun.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "pensun.zhiye.com",
+  "baseUrl": "https://pensun.zhiye.com/",
+  "allowedHosts": [
+   "pensun.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-209a7fc002",
+  "companyIdentityKey": "default:wechat-article:普渡机器人",
+  "companyName": "普渡机器人",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://pudutech.zhiye.com/campus",
+  "adapter": "beisen",
+  "externalKey": "pudutech.zhiye.com",
+  "baseUrl": "https://pudutech.zhiye.com/",
+  "allowedHosts": [
+   "pudutech.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bce9d60834",
+  "companyIdentityKey": "default:wechat-article:普华永道",
+  "companyName": "普华永道",
+  "companyType": "外企",
+  "industry": "外企",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/pwc/140014?locale=zh-CN",
+  "adapter": "moka",
+  "externalKey": "pwc|social|140014",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-aa9f6435f4",
+  "companyIdentityKey": "default:wechat-article:普利特",
+  "companyName": "普利特",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://pret.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "pret.zhiye.com",
+  "baseUrl": "https://pret.zhiye.com/",
+  "allowedHosts": [
+   "pret.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3cd5a0668c",
+  "companyIdentityKey": "default:wechat-article:清微智能",
+  "companyName": "清微智能",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://tsingmicro.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "tsingmicro.zhiye.com",
+  "baseUrl": "https://tsingmicro.zhiye.com/",
+  "allowedHosts": [
+   "tsingmicro.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-67f803f028",
+  "companyIdentityKey": "default:wechat-article:渠梁电子",
+  "companyName": "渠梁电子",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://qleltd.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "qleltd.zhiye.com",
+  "baseUrl": "https://qleltd.zhiye.com/",
+  "allowedHosts": [
+   "qleltd.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8a0bcd002e",
+  "companyIdentityKey": "default:wechat-article:全志科技",
+  "companyName": "全志科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/allwinnertech/43436",
+  "adapter": "moka",
+  "externalKey": "allwinnertech|campus|43436",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-25e065d60b",
+  "companyIdentityKey": "default:wechat-article:锐捷智能",
+  "companyName": "锐捷智能",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/ruijie/26518",
+  "adapter": "moka",
+  "externalKey": "ruijie|social|26518",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bcc132df37",
+  "companyIdentityKey": "default:wechat-article:睿联技术",
+  "companyName": "睿联技术",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/reo/136005",
+  "adapter": "moka",
+  "externalKey": "reo|social|136005",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-07e857ab96",
+  "companyIdentityKey": "default:wechat-article:睿能科技",
+  "companyName": "睿能科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/raynen/115954",
+  "adapter": "moka",
+  "externalKey": "raynen|social|115954",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9d1540cb15",
+  "companyIdentityKey": "default:wechat-article:赛赋医药",
+  "companyName": "赛赋医药",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://safeglp.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "safeglp.zhiye.com",
+  "baseUrl": "https://safeglp.zhiye.com/",
+  "allowedHosts": [
+   "safeglp.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ab6da7ee30",
+  "companyIdentityKey": "default:wechat-article:赛乐医疗",
+  "companyName": "赛乐医疗",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://sifary.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "sifary.zhiye.com",
+  "baseUrl": "https://sifary.zhiye.com/",
+  "allowedHosts": [
+   "sifary.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-dd08723a3c",
+  "companyIdentityKey": "default:wechat-article:赛轮集团",
+  "companyName": "赛轮集团",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://sailuntire.zhiye.com",
+  "adapter": "beisen",
+  "externalKey": "sailuntire.zhiye.com",
+  "baseUrl": "https://sailuntire.zhiye.com/",
+  "allowedHosts": [
+   "sailuntire.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-187d534a2b",
+  "companyIdentityKey": "default:wechat-article:三七互娱",
+  "companyName": "三七互娱",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://zhaopin.37.com/index.php?m=Home&c=recruit&a=index",
+  "adapter": "moka",
+  "externalKey": "37|campus|58016",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b8b8b02b60",
+  "companyIdentityKey": "default:wechat-article:三未信安",
+  "companyName": "三未信安",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://sansec.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "sansec.zhiye.com",
+  "baseUrl": "https://sansec.zhiye.com/",
+  "allowedHosts": [
+   "sansec.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fc7e64adf9",
+  "companyIdentityKey": "default:wechat-article:厦门钨业",
+  "companyName": "厦门钨业",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://cxtc.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "cxtc.zhiye.com",
+  "baseUrl": "https://cxtc.zhiye.com/",
+  "allowedHosts": [
+   "cxtc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-20d2f38d7c",
+  "companyIdentityKey": "default:wechat-article:山石网科",
+  "companyName": "山石网科",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://hillstonenet.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "hillstonenet.zhiye.com",
+  "baseUrl": "https://hillstonenet.zhiye.com/",
+  "allowedHosts": [
+   "hillstonenet.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-994637e8e0",
+  "companyIdentityKey": "default:wechat-article:杉川集团",
+  "companyName": "杉川集团",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/3irobotics/78360",
+  "adapter": "moka",
+  "externalKey": "3irobotics|social|78360",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9c0f8e9ef5",
+  "companyIdentityKey": "default:wechat-article:上海光通信有限公司",
+  "companyName": "上海光通信有限公司",
+  "companyType": "国有企业",
+  "industry": "国央企 / 半导体",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/gtx/102188",
+  "adapter": "moka",
+  "externalKey": "gtx|campus|102188",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1011c8715b",
+  "companyIdentityKey": "default:wechat-article:上海精测半导体",
+  "companyName": "上海精测半导体",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://pmish-tech.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "pmish-tech.zhiye.com",
+  "baseUrl": "https://pmish-tech.zhiye.com/",
+  "allowedHosts": [
+   "pmish-tech.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-97cd077eb4",
+  "companyIdentityKey": "default:wechat-article:上海民用航空控制与导航系统有限公司",
+  "companyName": "上海民用航空控制与导航系统有限公司",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://h618.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "h618.zhiye.com",
+  "baseUrl": "https://h618.zhiye.com/",
+  "allowedHosts": [
+   "h618.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-747c3050c6",
+  "companyIdentityKey": "default:wechat-article:申通快递",
+  "companyName": "申通快递",
+  "companyType": "企业",
+  "industry": "物流",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/sto/42337",
+  "adapter": "moka",
+  "externalKey": "sto|social|42337",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8c89dc4dea",
+  "companyIdentityKey": "default:wechat-article:申万宏源集团及证券",
+  "companyName": "申万宏源集团及证券",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/swhysc/24503",
+  "adapter": "moka",
+  "externalKey": "swhysc|social|24503",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a5a4b99e9e",
+  "companyIdentityKey": "default:wechat-article:深蓝互动",
+  "companyName": "深蓝互动",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/apply/blueinteractive/38433",
+  "adapter": "moka",
+  "externalKey": "blueinteractive|social|38433",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-20661d3a59",
+  "companyIdentityKey": "default:wechat-article:深信服[X-STAR]2027届顶尖人才",
+  "companyName": "深信服[X-STAR]2027届顶尖人才",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/apply/sangfor/5367",
+  "adapter": "moka",
+  "externalKey": "sangfor|social|5367",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a42c490a1c",
+  "companyIdentityKey": "default:wechat-article:昇维旭",
+  "companyName": "昇维旭",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://swaysure.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "swaysure.zhiye.com",
+  "baseUrl": "https://swaysure.zhiye.com/",
+  "allowedHosts": [
+   "swaysure.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-aa2e732a7c",
+  "companyIdentityKey": "default:wechat-article:盛雄激光",
+  "companyName": "盛雄激光",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://stronglaser.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "stronglaser.zhiye.com",
+  "baseUrl": "https://stronglaser.zhiye.com/",
+  "allowedHosts": [
+   "stronglaser.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-73d8a6e325",
+  "companyIdentityKey": "default:wechat-article:世纪华通",
+  "companyName": "世纪华通",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/digiloong/126357",
+  "adapter": "moka",
+  "externalKey": "digiloong|social|126357",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fa8d8f1f14",
+  "companyIdentityKey": "default:wechat-article:世纪前沿",
+  "companyName": "世纪前沿",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://www.centuryfrontier.com/contact#career",
+  "adapter": "moka",
+  "externalKey": "centuryfrontier|social|24841",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e7168acda9",
+  "companyIdentityKey": "default:wechat-article:数坤科技",
+  "companyName": "数坤科技",
+  "companyType": "企业",
+  "industry": "半导体 / 科技 / 生物医药",
+  "websiteUrl": "https://shukun.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "shukun.zhiye.com",
+  "baseUrl": "https://shukun.zhiye.com/",
+  "allowedHosts": [
+   "shukun.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-66b463a2f6",
+  "companyIdentityKey": "default:wechat-article:数字绿土",
+  "companyName": "数字绿土",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://campus.51job.com/greenvalley/",
+  "adapter": "job51",
+  "externalKey": "greenvalley",
+  "baseUrl": "https://campus.51job.com/greenvalley/",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a00838bc9b",
+  "companyIdentityKey": "default:wechat-article:水晶光电",
+  "companyName": "水晶光电",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://crystal-optech1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "crystal-optech1.zhiye.com",
+  "baseUrl": "https://crystal-optech1.zhiye.com/",
+  "allowedHosts": [
+   "crystal-optech1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e44e68a6c6",
+  "companyIdentityKey": "default:wechat-article:顺络电子",
+  "companyName": "顺络电子",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/sunlord/40834",
+  "adapter": "moka",
+  "externalKey": "sunlord|social|40834",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b589abe126",
+  "companyIdentityKey": "default:wechat-article:思特威电子",
+  "companyName": "思特威电子",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://campus.smartsenstech.com/",
+  "adapter": "moka",
+  "externalKey": "smartsenstech1|campus|56088",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c56dd9ab55",
+  "companyIdentityKey": "default:wechat-article:崧盛股份",
+  "companyName": "崧盛股份",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://sosen.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "sosen.zhiye.com",
+  "baseUrl": "https://sosen.zhiye.com/",
+  "allowedHosts": [
+   "sosen.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-edd6036cc3",
+  "companyIdentityKey": "default:wechat-article:搜狐畅游",
+  "companyName": "搜狐畅游",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://campus.changyou.com/",
+  "adapter": "moka",
+  "externalKey": "cyou-inc|campus|42233",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c7515882f2",
+  "companyIdentityKey": "default:wechat-article:搜狐集团-AI人才专项",
+  "companyName": "搜狐集团-AI人才专项",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://campus.sohu.com/",
+  "adapter": "moka",
+  "externalKey": "sohu|campus|5682",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-124e19ee7b",
+  "companyIdentityKey": "default:wechat-article:苏纳",
+  "companyName": "苏纳",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://suna-opto.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "suna-opto.zhiye.com",
+  "baseUrl": "https://suna-opto.zhiye.com/",
+  "allowedHosts": [
+   "suna-opto.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-65d8248237",
+  "companyIdentityKey": "default:wechat-article:索尼",
+  "companyName": "索尼",
+  "companyType": "外企",
+  "industry": "外企 / 科技",
+  "websiteUrl": "https://www.sony.com.cn/content/sonyportal_hr/Social_recruitment.html",
+  "adapter": "workday",
+  "externalKey": "sonyglobal|SonyGlobalCareers|en-US",
+  "baseUrl": "https://sonyglobal.wd1.myworkdayjobs.com/",
+  "allowedHosts": [
+   "sonyglobal.wd1.myworkdayjobs.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7ad9114a6e",
+  "companyIdentityKey": "default:wechat-article:台积电",
+  "companyName": "台积电",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://www.hotjob.cn/wt/tsmcsh/mobweb/v8/position/list",
+  "adapter": "dayee",
+  "externalKey": "www.hotjob.cn|/wt/tsmcsh/mobweb/v8/position/list",
+  "baseUrl": "https://www.hotjob.cn/wt/tsmcsh/mobweb/v8/position/list",
+  "allowedHosts": [
+   "www.hotjob.cn"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ed39c4c7e9",
+  "companyIdentityKey": "default:wechat-article:泰德激光",
+  "companyName": "泰德激光",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://tetelaser.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "tetelaser.zhiye.com",
+  "baseUrl": "https://tetelaser.zhiye.com/",
+  "allowedHosts": [
+   "tetelaser.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-70a16d1470",
+  "companyIdentityKey": "default:wechat-article:泰康资产",
+  "companyName": "泰康资产",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://jobtaikang.zhiye.com/taikangamc/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "jobtaikang.zhiye.com",
+  "baseUrl": "https://jobtaikang.zhiye.com/",
+  "allowedHosts": [
+   "jobtaikang.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-2352777559",
+  "companyIdentityKey": "default:wechat-article:泰科电子 (TE Connectivity）",
+  "companyName": "泰科电子 (TE Connectivity）",
+  "companyType": "外企",
+  "industry": "外企 / 科技",
+  "websiteUrl": "https://campus.51job.com/te/p2.html",
+  "adapter": "job51",
+  "externalKey": "te",
+  "baseUrl": "https://campus.51job.com/te/p2.html",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-821af6b08b",
+  "companyIdentityKey": "default:wechat-article:泰隆银行",
+  "companyName": "泰隆银行",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://zjtlcb.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "zjtlcb.zhiye.com",
+  "baseUrl": "https://zjtlcb.zhiye.com/",
+  "allowedHosts": [
+   "zjtlcb.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-75faceaf20",
+  "companyIdentityKey": "default:wechat-article:淘宝闪购",
+  "companyName": "淘宝闪购",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://talent.alibaba.com/",
+  "adapter": "china_bigtech",
+  "externalKey": "alibaba",
+  "baseUrl": "https://talent.alibaba.com/",
+  "allowedHosts": [
+   "talent.alibaba.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-99b3643230",
+  "companyIdentityKey": "default:wechat-article:天马微电子",
+  "companyName": "天马微电子",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/tianma/143383",
+  "adapter": "moka",
+  "externalKey": "tianma|social|143383",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f1f7c19010",
+  "companyIdentityKey": "default:wechat-article:天岳先进",
+  "companyName": "天岳先进",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/sicc/140186",
+  "adapter": "moka",
+  "externalKey": "sicc|social|140186",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-54226d42fd",
+  "companyIdentityKey": "default:wechat-article:通威校招",
+  "companyName": "通威校招",
+  "companyType": "企业",
+  "industry": "农业",
+  "websiteUrl": "https://tongwei.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "tongwei.zhiye.com",
+  "baseUrl": "https://tongwei.zhiye.com/",
+  "allowedHosts": [
+   "tongwei.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-43b8545644",
+  "companyIdentityKey": "default:wechat-article:图达通",
+  "companyName": "图达通",
+  "companyType": "企业",
+  "industry": "通信",
+  "websiteUrl": "https://seyond.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "seyond.zhiye.com",
+  "baseUrl": "https://seyond.zhiye.com/",
+  "allowedHosts": [
+   "seyond.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6a504cbcf0",
+  "companyIdentityKey": "default:wechat-article:万辰集团",
+  "companyName": "万辰集团",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://vanchen1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "vanchen1.zhiye.com",
+  "baseUrl": "https://vanchen1.zhiye.com/",
+  "allowedHosts": [
+   "vanchen1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-60b8052a1a",
+  "companyIdentityKey": "default:wechat-article:万家基金",
+  "companyName": "万家基金",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://wjasset.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "wjasset.zhiye.com",
+  "baseUrl": "https://wjasset.zhiye.com/",
+  "allowedHosts": [
+   "wjasset.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-56130050ea",
+  "companyIdentityKey": "default:wechat-article:万兴科技",
+  "companyName": "万兴科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://wondershare.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "wondershare.zhiye.com",
+  "baseUrl": "https://wondershare.zhiye.com/",
+  "allowedHosts": [
+   "wondershare.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-2f8f829661",
+  "companyIdentityKey": "default:wechat-article:万有引力GravityXR",
+  "companyName": "万有引力GravityXR",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://gravityxr.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "gravityxr.zhiye.com",
+  "baseUrl": "https://gravityxr.zhiye.com/",
+  "allowedHosts": [
+   "gravityxr.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-dd8d4ab486",
+  "companyIdentityKey": "default:wechat-article:望尘科技",
+  "companyName": "望尘科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/galasports/98033",
+  "adapter": "moka",
+  "externalKey": "galasports|social|98033",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-656b9e4482",
+  "companyIdentityKey": "default:wechat-article:威迈斯",
+  "companyName": "威迈斯",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://www.vmaxpower.com.cn/job.php?class_id=106101",
+  "adapter": "beisen",
+  "externalKey": "vmax.zhiye.com",
+  "baseUrl": "https://vmax.zhiye.com/",
+  "allowedHosts": [
+   "vmax.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8d2be68965",
+  "companyIdentityKey": "default:vip-cn",
+  "companyName": "唯品会",
+  "companyType": "上市公司",
+  "industry": "电商 / 零售",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/vipshophr/41429",
+  "adapter": "moka",
+  "externalKey": "vipshophr|social|41429",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7f1f4feaf2",
+  "companyIdentityKey": "default:wechat-article:维泛智能",
+  "companyName": "维泛智能",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/weifan/182198",
+  "adapter": "moka",
+  "externalKey": "weifan|social|182198",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-dd76b7d0a8",
+  "companyIdentityKey": "default:wechat-article:维宏股份",
+  "companyName": "维宏股份",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/weihong/141030",
+  "adapter": "moka",
+  "externalKey": "weihong|social|141030",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-4e0d6ad634",
+  "companyIdentityKey": "default:wechat-article:卫星集团",
+  "companyName": "卫星集团",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://satlpec.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "satlpec.zhiye.com",
+  "baseUrl": "https://satlpec.zhiye.com/",
+  "allowedHosts": [
+   "satlpec.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e0e2311bf6",
+  "companyIdentityKey": "default:wechat-article:为旌科技",
+  "companyName": "为旌科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/visinextek/41635",
+  "adapter": "moka",
+  "externalKey": "visinextek|social|41635",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-079ce03536",
+  "companyIdentityKey": "default:wens-cn",
+  "companyName": "温氏股份",
+  "companyType": "上市公司",
+  "industry": "农牧 / 食品",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/wens/92365",
+  "adapter": "moka",
+  "externalKey": "wens|social|92365",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-12af6f2846",
+  "companyIdentityKey": "default:wechat-article:先导智能",
+  "companyName": "先导智能",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://leadchina.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "leadchina.zhiye.com",
+  "baseUrl": "https://leadchina.zhiye.com/",
+  "allowedHosts": [
+   "leadchina.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e4b4b2f3df",
+  "companyIdentityKey": "default:wechat-article:先临三维",
+  "companyName": "先临三维",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://shining3d.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "shining3d.zhiye.com",
+  "baseUrl": "https://shining3d.zhiye.com/",
+  "allowedHosts": [
+   "shining3d.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5332e11bf7",
+  "companyIdentityKey": "default:wechat-article:象屿集团",
+  "companyName": "象屿集团",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://xiangyu.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "xiangyu.zhiye.com",
+  "baseUrl": "https://xiangyu.zhiye.com/",
+  "allowedHosts": [
+   "xiangyu.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-273a0fc7cf",
+  "companyIdentityKey": "default:wechat-article:心田花开",
+  "companyName": "心田花开",
+  "companyType": "企业",
+  "industry": "教育",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/xintianhuakai1/166441",
+  "adapter": "moka",
+  "externalKey": "xintianhuakai1|social|166441",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3bbed3bff7",
+  "companyIdentityKey": "default:wechat-article:芯慧微",
+  "companyName": "芯慧微",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/cwisemicro/182010",
+  "adapter": "moka",
+  "externalKey": "cwisemicro|social|182010",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1f4647666c",
+  "companyIdentityKey": "default:wechat-article:芯源微",
+  "companyName": "芯源微",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://www.kingsemi.com/index.php/Join/join2",
+  "adapter": "moka",
+  "externalKey": "688037|campus|144533",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fddacd9acd",
+  "companyIdentityKey": "default:wechat-article:欣锐科技",
+  "companyName": "欣锐科技",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/shinry/47149",
+  "adapter": "moka",
+  "externalKey": "shinry|social|47149",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c7c35ee3a1",
+  "companyIdentityKey": "default:wechat-article:新和成",
+  "companyName": "新和成",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://www.cnhu.com/careers/zh-cn",
+  "adapter": "beisen",
+  "externalKey": "xinhecheng1.zhiye.com",
+  "baseUrl": "https://xinhecheng1.zhiye.com/",
+  "allowedHosts": [
+   "xinhecheng1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-e54da2e964",
+  "companyIdentityKey": "default:wechat-article:新能德",
+  "companyName": "新能德",
+  "companyType": "企业",
+  "industry": "新能源",
+  "websiteUrl": "https://nvtpower.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "nvtpower.zhiye.com",
+  "baseUrl": "https://nvtpower.zhiye.com/",
+  "allowedHosts": [
+   "nvtpower.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5cc0e6b13e",
+  "companyIdentityKey": "default:wechat-article:新芯股份",
+  "companyName": "新芯股份",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://whxmc.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "whxmc.zhiye.com",
+  "baseUrl": "https://whxmc.zhiye.com/",
+  "allowedHosts": [
+   "whxmc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8d31df01e1",
+  "companyIdentityKey": "default:wechat-article:新易盛",
+  "companyName": "新易盛",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://eoptolink.zhiye.com/campus",
+  "adapter": "beisen",
+  "externalKey": "eoptolink.zhiye.com",
+  "baseUrl": "https://eoptolink.zhiye.com/",
+  "allowedHosts": [
+   "eoptolink.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-494ace73c9",
+  "companyIdentityKey": "default:wechat-article:信捷电气",
+  "companyName": "信捷电气",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://xinje.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "xinje.zhiye.com",
+  "baseUrl": "https://xinje.zhiye.com/",
+  "allowedHosts": [
+   "xinje.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-638aa31943",
+  "companyIdentityKey": "default:wechat-article:信锐技术",
+  "companyName": "信锐技术",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/sangfor/37521",
+  "adapter": "moka",
+  "externalKey": "sangfor|campus|37521",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bfb8e6b2fe",
+  "companyIdentityKey": "default:wechat-article:星宸科技",
+  "companyName": "星宸科技",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://sigmastar.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "sigmastar.zhiye.com",
+  "baseUrl": "https://sigmastar.zhiye.com/",
+  "allowedHosts": [
+   "sigmastar.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a6e5382c05",
+  "companyIdentityKey": "default:wechat-article:星海图",
+  "companyName": "星海图",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://galaxea.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "galaxea.zhiye.com",
+  "baseUrl": "https://galaxea.zhiye.com/",
+  "allowedHosts": [
+   "galaxea.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-4d5304b044",
+  "companyIdentityKey": "default:wechat-article:星环科技",
+  "companyName": "星环科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/campus_apply/transwarp/3196",
+  "adapter": "moka",
+  "externalKey": "transwarp|campus|3196",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9982e070a3",
+  "companyIdentityKey": "default:wechat-article:行芯科技",
+  "companyName": "行芯科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/phlexing/100122",
+  "adapter": "moka",
+  "externalKey": "phlexing|social|100122",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-0dd34327c2",
+  "companyIdentityKey": "default:wechat-article:徐福记",
+  "companyName": "徐福记",
+  "companyType": "外企",
+  "industry": "外企",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/hfc-foods/102200",
+  "adapter": "moka",
+  "externalKey": "hfc-foods|social|102200",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ec463371c6",
+  "companyIdentityKey": "default:wechat-article:旭阳集团",
+  "companyName": "旭阳集团",
+  "companyType": "企业",
+  "industry": "其他",
+  "websiteUrl": "https://risun.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "risun.zhiye.com",
+  "baseUrl": "https://risun.zhiye.com/",
+  "allowedHosts": [
+   "risun.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-16938a0a66",
+  "companyIdentityKey": "default:wechat-article:旭之源科技",
+  "companyName": "旭之源科技",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://atazpower.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "atazpower.zhiye.com",
+  "baseUrl": "https://atazpower.zhiye.com/",
+  "allowedHosts": [
+   "atazpower.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-4305738287",
+  "companyIdentityKey": "default:wechat-article:学而思",
+  "companyName": "学而思",
+  "companyType": "企业",
+  "industry": "教育",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/tal/118640",
+  "adapter": "moka",
+  "externalKey": "tal|social|118640",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-51793a5eb1",
+  "companyIdentityKey": "default:wechat-article:雪川农业集团",
+  "companyName": "雪川农业集团",
+  "companyType": "企业",
+  "industry": "农业",
+  "websiteUrl": "https://snowvalleyfood.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "snowvalleyfood.zhiye.com",
+  "baseUrl": "https://snowvalleyfood.zhiye.com/",
+  "allowedHosts": [
+   "snowvalleyfood.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ae1f523475",
+  "companyIdentityKey": "default:wechat-article:雪人集团",
+  "companyName": "雪人集团",
+  "companyType": "企业",
+  "industry": "新能源",
+  "websiteUrl": "https://snowman.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "snowman.zhiye.com",
+  "baseUrl": "https://snowman.zhiye.com/",
+  "allowedHosts": [
+   "snowman.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-260e5d5c54",
+  "companyIdentityKey": "default:wechat-article:雅迪科技集团",
+  "companyName": "雅迪科技集团",
+  "companyType": "企业",
+  "industry": "新能源",
+  "websiteUrl": "https://app.mokahr.com/campus_apply/yadea/26985",
+  "adapter": "moka",
+  "externalKey": "yadea|campus|26985",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-baa5c8e2fb",
+  "companyIdentityKey": "default:wechat-article:雅砻江水电",
+  "companyName": "雅砻江水电",
+  "companyType": "企业",
+  "industry": "能源",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/ylhdc/95551",
+  "adapter": "moka",
+  "externalKey": "ylhdc|campus|95551",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-14b02ae4b0",
+  "companyIdentityKey": "default:wechat-article:姚记科技",
+  "companyName": "姚记科技",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/yaoji/145427",
+  "adapter": "moka",
+  "externalKey": "yaoji|social|145427",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-bf5ddf1f16",
+  "companyIdentityKey": "default:wechat-article:药明合联",
+  "companyName": "药明合联",
+  "companyType": "企业",
+  "industry": "生物医药",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/wuxixdc/164235",
+  "adapter": "moka",
+  "externalKey": "wuxixdc|social|164235",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8cca760963",
+  "companyIdentityKey": "default:wechat-article:一鸣食品",
+  "companyName": "一鸣食品",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://inm.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "inm.zhiye.com",
+  "baseUrl": "https://inm.zhiye.com/",
+  "allowedHosts": [
+   "inm.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c98f164f00",
+  "companyIdentityKey": "default:wechat-article:壹思唯国际教育",
+  "companyName": "壹思唯国际教育",
+  "companyType": "企业",
+  "industry": "教育",
+  "websiteUrl": "https://eisway.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "eisway.zhiye.com",
+  "baseUrl": "https://eisway.zhiye.com/",
+  "allowedHosts": [
+   "eisway.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-8fe07628e9",
+  "companyIdentityKey": "default:wechat-article:亿联网络",
+  "companyName": "亿联网络",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://yealink.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "yealink.zhiye.com",
+  "baseUrl": "https://yealink.zhiye.com/",
+  "allowedHosts": [
+   "yealink.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fa96ae4e0c",
+  "companyIdentityKey": "default:wechat-article:易控智驾",
+  "companyName": "易控智驾",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/eqhr/39785",
+  "adapter": "moka",
+  "externalKey": "eqhr|social|39785",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-965a860844",
+  "companyIdentityKey": "default:wechat-article:易思维",
+  "companyName": "易思维",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://isv-tech.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "isv-tech.zhiye.com",
+  "baseUrl": "https://isv-tech.zhiye.com/",
+  "allowedHosts": [
+   "isv-tech.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c3b2da5461",
+  "companyIdentityKey": "default:wechat-article:奕斯伟材料",
+  "companyName": "奕斯伟材料",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://eswin-si.zhiye.com/custom/social",
+  "adapter": "beisen",
+  "externalKey": "eswin-si.zhiye.com",
+  "baseUrl": "https://eswin-si.zhiye.com/",
+  "allowedHosts": [
+   "eswin-si.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a517b1e8d2",
+  "companyIdentityKey": "default:wechat-article:英特尔",
+  "companyName": "英特尔",
+  "companyType": "外企",
+  "industry": "外企",
+  "websiteUrl": "https://chinacampus.jobs.intel.cn/intel/position/index?recruitmentType=CAMPUSRECRUITMENT",
+  "adapter": "workday",
+  "externalKey": "intel|External|en-US",
+  "baseUrl": "https://intel.wd1.myworkdayjobs.com/",
+  "allowedHosts": [
+   "intel.wd1.myworkdayjobs.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-14107a82c4",
+  "companyIdentityKey": "default:wechat-article:英威腾",
+  "companyName": "英威腾",
+  "companyType": "企业",
+  "industry": "汽车新能源",
+  "websiteUrl": "https://invt.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "invt.zhiye.com",
+  "baseUrl": "https://invt.zhiye.com/",
+  "allowedHosts": [
+   "invt.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7b9aedca57",
+  "companyIdentityKey": "default:wechat-article:英维克",
+  "companyName": "英维克",
+  "companyType": "企业",
+  "industry": "能源",
+  "websiteUrl": "https://envicool.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "envicool.zhiye.com",
+  "baseUrl": "https://envicool.zhiye.com/",
+  "allowedHosts": [
+   "envicool.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-235d999f3a",
+  "companyIdentityKey": "default:wechat-article:用友",
+  "companyName": "用友",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://www.hotjob.cn/wt/yonyou/mobweb/v8/position/list",
+  "adapter": "dayee",
+  "externalKey": "www.hotjob.cn|/wt/yonyou/mobweb/v8/position/list",
+  "baseUrl": "https://www.hotjob.cn/wt/yonyou/mobweb/v8/position/list",
+  "allowedHosts": [
+   "www.hotjob.cn"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a5fd2cd80c",
+  "companyIdentityKey": "default:wechat-article:优必选科技",
+  "companyName": "优必选科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://ubtrobot.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "ubtrobot.zhiye.com",
+  "baseUrl": "https://ubtrobot.zhiye.com/",
+  "allowedHosts": [
+   "ubtrobot.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-336fb49ad7",
+  "companyIdentityKey": "default:wechat-article:优衣库",
+  "companyName": "优衣库",
+  "companyType": "外企",
+  "industry": "外企 / 快消零售",
+  "websiteUrl": "https://uniqlo.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "uniqlo.zhiye.com",
+  "baseUrl": "https://uniqlo.zhiye.com/",
+  "allowedHosts": [
+   "uniqlo.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1771cb870a",
+  "companyIdentityKey": "default:wechat-article:源氏木语",
+  "companyName": "源氏木语",
+  "companyType": "企业",
+  "industry": "快消零售",
+  "websiteUrl": "https://app.mokahr.com/apply/yeswood/142520",
+  "adapter": "moka",
+  "externalKey": "yeswood|social|142520",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-2035f450fa",
+  "companyIdentityKey": "default:wechat-article:远景动力",
+  "companyName": "远景动力",
+  "companyType": "企业",
+  "industry": "能源",
+  "websiteUrl": "https://aesc-group.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "aesc-group.zhiye.com",
+  "baseUrl": "https://aesc-group.zhiye.com/",
+  "allowedHosts": [
+   "aesc-group.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3a4e8fb9f1",
+  "companyIdentityKey": "default:wechat-article:长城证券",
+  "companyName": "长城证券",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://cgws1.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "cgws1.zhiye.com",
+  "baseUrl": "https://cgws1.zhiye.com/",
+  "allowedHosts": [
+   "cgws1.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b368e0cd5a",
+  "companyIdentityKey": "default:ymtc-cn",
+  "companyName": "长江存储",
+  "companyType": "国有企业",
+  "industry": "半导体 / 存储芯片",
+  "websiteUrl": "https://ymtc.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "ymtc.zhiye.com",
+  "baseUrl": "https://ymtc.zhiye.com/",
+  "allowedHosts": [
+   "ymtc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9f0c89f13a",
+  "companyIdentityKey": "default:wechat-article:长园深瑞",
+  "companyName": "长园深瑞",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://sznari.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "sznari.zhiye.com",
+  "baseUrl": "https://sznari.zhiye.com/",
+  "allowedHosts": [
+   "sznari.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3177f08860",
+  "companyIdentityKey": "default:wechat-article:掌趣科技",
+  "companyName": "掌趣科技",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/ourpalm/45614",
+  "adapter": "moka",
+  "externalKey": "ourpalm|social|45614",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-218708d730",
+  "companyIdentityKey": "default:wechat-article:招商车研",
+  "companyName": "招商车研",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://cmhk.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "cmhk.zhiye.com",
+  "baseUrl": "https://cmhk.zhiye.com/",
+  "allowedHosts": [
+   "cmhk.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-571a96dce4",
+  "companyIdentityKey": "default:wechat-article:正定私募",
+  "companyName": "正定私募",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/zding/117878",
+  "adapter": "moka",
+  "externalKey": "zding|social|117878",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-344c87312a",
+  "companyIdentityKey": "default:wechat-article:致同",
+  "companyName": "致同",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://grantthornton.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "grantthornton.zhiye.com",
+  "baseUrl": "https://grantthornton.zhiye.com/",
+  "allowedHosts": [
+   "grantthornton.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5bb04b73e1",
+  "companyIdentityKey": "default:wechat-article:中电二公司",
+  "companyName": "中电二公司",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://campus.51job.com/cese2/",
+  "adapter": "job51",
+  "externalKey": "cese2",
+  "baseUrl": "https://campus.51job.com/cese2/",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c287419440",
+  "companyIdentityKey": "default:wechat-article:中国电科29所",
+  "companyName": "中国电科29所",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://campus.51job.com/cetc29",
+  "adapter": "job51",
+  "externalKey": "cetc29",
+  "baseUrl": "https://campus.51job.com/cetc29",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-c66fd5df11",
+  "companyIdentityKey": "default:wechat-article:中国电科33所",
+  "companyName": "中国电科33所",
+  "companyType": "事业单位",
+  "industry": "事业单位",
+  "websiteUrl": "https://campus.51job.com/wangan/page1.html",
+  "adapter": "job51",
+  "externalKey": "wangan",
+  "baseUrl": "https://campus.51job.com/wangan/page1.html",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a4997d0a00",
+  "companyIdentityKey": "default:wechat-article:中国电科二所",
+  "companyName": "中国电科二所",
+  "companyType": "事业单位",
+  "industry": "事业单位 / 研究所",
+  "websiteUrl": "https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
+  "adapter": "dayee",
+  "externalKey": "wecruit.hotjob.cn|/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
+  "baseUrl": "https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
+  "allowedHosts": [
+   "wecruit.hotjob.cn"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-25a66a81b4",
+  "companyIdentityKey": "default:wechat-article:中国电子科技集团公司第五十研究所",
+  "companyName": "中国电子科技集团公司第五十研究所",
+  "companyType": "事业单位",
+  "industry": "事业单位",
+  "websiteUrl": "https://campus.51job.com/cetc50/company.html",
+  "adapter": "job51",
+  "externalKey": "cetc50",
+  "baseUrl": "https://campus.51job.com/cetc50/company.html",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a1fed6fd97",
+  "companyIdentityKey": "default:wechat-article:中国东方资产",
+  "companyName": "中国东方资产",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://coamc.zhiye.com/custom/campus",
+  "adapter": "beisen",
+  "externalKey": "coamc.zhiye.com",
+  "baseUrl": "https://coamc.zhiye.com/",
+  "allowedHosts": [
+   "coamc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-5cc200da5f",
+  "companyIdentityKey": "default:wechat-article:中国航发湖南动力机械研究所",
+  "companyName": "中国航发湖南动力机械研究所",
+  "companyType": "事业单位",
+  "industry": "事业单位",
+  "websiteUrl": "https://campus.51job.com/zghfdys2027",
+  "adapter": "job51",
+  "externalKey": "zghfdys2027",
+  "baseUrl": "https://campus.51job.com/zghfdys2027",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d799f1b220",
+  "companyIdentityKey": "default:wechat-article:中国人民保险集团",
+  "companyName": "中国人民保险集团",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://picc.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "picc.zhiye.com",
+  "baseUrl": "https://picc.zhiye.com/",
+  "allowedHosts": [
+   "picc.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-27079b9ab4",
+  "companyIdentityKey": "default:wechat-article:中国三星",
+  "companyName": "中国三星",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://www.samsung.com.cn/about-us/careers/",
+  "adapter": "beisen",
+  "externalKey": "dearsamsung.zhiye.com",
+  "baseUrl": "https://dearsamsung.zhiye.com/",
+  "allowedHosts": [
+   "dearsamsung.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-b6b23608f2",
+  "companyIdentityKey": "default:wechat-article:中国网安/三十所",
+  "companyName": "中国网安/三十所",
+  "companyType": "国有企业",
+  "industry": "国央企",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/cetc30/36269",
+  "adapter": "moka",
+  "externalKey": "cetc30|social|36269",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-be17e2f4d4",
+  "companyIdentityKey": "default:wechat-article:中国银河证券",
+  "companyName": "中国银河证券",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://chinastock.zhiye.com/Campus",
+  "adapter": "beisen",
+  "externalKey": "chinastock.zhiye.com",
+  "baseUrl": "https://chinastock.zhiye.com/",
+  "allowedHosts": [
+   "chinastock.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ef6157b90e",
+  "companyIdentityKey": "default:wechat-article:中汇会计师事务所",
+  "companyName": "中汇会计师事务所",
+  "companyType": "企业",
+  "industry": "咨询/专业/法律",
+  "websiteUrl": "https://zhcpa.zhiye.com/jobs",
+  "adapter": "beisen",
+  "externalKey": "zhcpa.zhiye.com",
+  "baseUrl": "https://zhcpa.zhiye.com/",
+  "allowedHosts": [
+   "zhcpa.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-fb4a70dbb2",
+  "companyIdentityKey": "default:wechat-article:中建阿尔及利亚公司",
+  "companyName": "中建阿尔及利亚公司",
+  "companyType": "国有企业",
+  "industry": "国央企 / 建筑",
+  "websiteUrl": "https://cscecdz.zhiye.com/Campus",
+  "adapter": "beisen",
+  "externalKey": "cscecdz.zhiye.com",
+  "baseUrl": "https://cscecdz.zhiye.com/",
+  "allowedHosts": [
+   "cscecdz.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ec697a3e11",
+  "companyIdentityKey": "default:wechat-article:中科光电",
+  "companyName": "中科光电",
+  "companyType": "企业",
+  "industry": "化工",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/hdzn/151324",
+  "adapter": "moka",
+  "externalKey": "hdzn|campus|151324",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-281e1336c3",
+  "companyIdentityKey": "default:wechat-article:中科曙光",
+  "companyName": "中科曙光",
+  "companyType": "国有企业",
+  "industry": "国央企 / 半导体",
+  "websiteUrl": "https://sugon.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "sugon.zhiye.com",
+  "baseUrl": "https://sugon.zhiye.com/",
+  "allowedHosts": [
+   "sugon.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-cbcb2dce0f",
+  "companyIdentityKey": "default:wechat-article:中科芯",
+  "companyName": "中科芯",
+  "companyType": "国有企业",
+  "industry": "国央企 / 科技",
+  "websiteUrl": "https://campus.51job.com/zkx2026/",
+  "adapter": "job51",
+  "externalKey": "zkx2026",
+  "baseUrl": "https://campus.51job.com/zkx2026/",
+  "allowedHosts": [
+   "campus.51job.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a72bbc4a99",
+  "companyIdentityKey": "default:wechat-article:中微公司-登峰计划",
+  "companyName": "中微公司-登峰计划",
+  "companyType": "企业",
+  "industry": "半导体",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/amec/28371",
+  "adapter": "moka",
+  "externalKey": "amec|social|28371",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-172389b52a",
+  "companyIdentityKey": "default:wechat-article:中信期货",
+  "companyName": "中信期货",
+  "companyType": "国有企业",
+  "industry": "国央企 / 金融",
+  "websiteUrl": "https://citicsfzp.zhiye.com/",
+  "adapter": "beisen",
+  "externalKey": "citicsfzp.zhiye.com",
+  "baseUrl": "https://citicsfzp.zhiye.com/",
+  "allowedHosts": [
+   "citicsfzp.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d7c821e256",
+  "companyIdentityKey": "default:wechat-article:洲明科技",
+  "companyName": "洲明科技",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://unilumin.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "unilumin.zhiye.com",
+  "baseUrl": "https://unilumin.zhiye.com/",
+  "allowedHosts": [
+   "unilumin.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-dbcccfcd22",
+  "companyIdentityKey": "default:wechat-article:转转",
+  "companyName": "转转",
+  "companyType": "企业",
+  "industry": "电商",
+  "websiteUrl": "https://zhuanzhuan.zhiye.com",
+  "adapter": "beisen",
+  "externalKey": "zhuanzhuan.zhiye.com",
+  "baseUrl": "https://zhuanzhuan.zhiye.com/",
+  "allowedHosts": [
+   "zhuanzhuan.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9b62600149",
+  "companyIdentityKey": "default:wechat-article:卓胜微电子",
+  "companyName": "卓胜微电子",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://maxscend.zhiye.com/campus/jobs",
+  "adapter": "beisen",
+  "externalKey": "maxscend.zhiye.com",
+  "baseUrl": "https://maxscend.zhiye.com/",
+  "allowedHosts": [
+   "maxscend.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-7648e619e9",
+  "companyIdentityKey": "default:wechat-article:卓识基金",
+  "companyName": "卓识基金",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/zsquant/150036",
+  "adapter": "moka",
+  "externalKey": "zsquant|campus|150036",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-62fe33b656",
+  "companyIdentityKey": "default:wechat-article:紫光同芯",
+  "companyName": "紫光同芯",
+  "companyType": "国有企业",
+  "industry": "国央企 / 科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/tsinghuaic/39655",
+  "adapter": "moka",
+  "externalKey": "tsinghuaic|social|39655",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-f746d6cf2b",
+  "companyIdentityKey": "default:wechat-article:纵横股份",
+  "companyName": "纵横股份",
+  "companyType": "企业",
+  "industry": "机电",
+  "websiteUrl": "https://jouav.zhiye.com/social/jobs",
+  "adapter": "beisen",
+  "externalKey": "jouav.zhiye.com",
+  "baseUrl": "https://jouav.zhiye.com/",
+  "allowedHosts": [
+   "jouav.zhiye.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3d3da3331e",
+  "companyIdentityKey": "default:wechat-article:DapuStor大普微",
+  "companyName": "DapuStor大普微",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/dapustor/54045",
+  "adapter": "moka",
+  "externalKey": "dapustor|social|54045",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-d0e53de262",
+  "companyIdentityKey": "default:wechat-article:FunPlus",
+  "companyName": "FunPlus",
+  "companyType": "企业",
+  "industry": "互联网",
+  "websiteUrl": "https://campus.funplus.com.cn/careers/",
+  "adapter": "moka",
+  "externalKey": "funplus01|campus|147931",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-6cd468ee45",
+  "companyIdentityKey": "default:wechat-article:ICRD上海集成电路研发中心",
+  "companyName": "ICRD上海集成电路研发中心",
+  "companyType": "国有企业",
+  "industry": "国央企 / 半导体",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/icrd/126586",
+  "adapter": "moka",
+  "externalKey": "icrd|social|126586",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-1182ac618d",
+  "companyIdentityKey": "default:wechat-article:RoboSense",
+  "companyName": "RoboSense",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/robosense/77883",
+  "adapter": "moka",
+  "externalKey": "robosense|social|77883",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-3a068a2656",
+  "companyIdentityKey": "default:wechat-article:tap4fun",
+  "companyName": "tap4fun",
+  "companyType": "企业",
+  "industry": "游戏",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/tap4fun/292",
+  "adapter": "moka",
+  "externalKey": "tap4fun|social|292",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-9fe4282cf5",
+  "companyIdentityKey": "default:wechat-article:TCL实业大显示制造管理平台",
+  "companyName": "TCL实业大显示制造管理平台",
+  "companyType": "企业",
+  "industry": "制造业",
+  "websiteUrl": "https://zhaopin.tcl.com/social/",
+  "adapter": "dayee",
+  "externalKey": "wecruit.hotjob.cn|/SU64893571bef57c16d356b99e/pb/transfer.html",
+  "baseUrl": "https://wecruit.hotjob.cn/SU64893571bef57c16d356b99e/pb/transfer.html?jumpType=login&request_locale=zh_CN",
+  "allowedHosts": [
+   "wecruit.hotjob.cn"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-a5be5048fb",
+  "companyIdentityKey": "default:wechat-article:Uranus Research天王星量化",
+  "companyName": "Uranus Research天王星量化",
+  "companyType": "企业",
+  "industry": "金融",
+  "websiteUrl": "https://app.mokahr.com/social-recruitment/uranus-research/54174",
+  "adapter": "moka",
+  "externalKey": "uranus-research|social|54174",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ },
+ {
+  "identityKey": "default:researched-src-ec1dce1b31",
+  "companyIdentityKey": "default:wechat-article:Willand未岚大陆",
+  "companyName": "Willand未岚大陆",
+  "companyType": "企业",
+  "industry": "科技",
+  "websiteUrl": "https://app.mokahr.com/campus-recruitment/weilandalu/98096",
+  "adapter": "moka",
+  "externalKey": "weilandalu|campus|98096",
+  "baseUrl": "https://api.mokahr.com/",
+  "allowedHosts": [
+   "api.mokahr.com"
+  ],
+  "countryCodes": [
+   "cn"
+  ],
+  "syncIntervalMinutes": 360
+ }
+]
