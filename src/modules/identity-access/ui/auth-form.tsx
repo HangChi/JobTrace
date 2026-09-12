@@ -98,6 +98,69 @@ function PasswordToggle({
   );
 }
 
+// 表单字段的原语：标签行 + 图标输入容器 + 提示/错误/尾部动作的统一脚手架。
+// children 是渲染函数，拿组装好的 aria-describedby。
+function AuthField({
+  id,
+  label,
+  optional = false,
+  icon,
+  fieldClassName = "",
+  wrapClassName = "",
+  hintId,
+  hint,
+  errorId,
+  errorText,
+  extraDescribedBy = [],
+  trailing,
+  footer,
+  children,
+}: {
+  id: string;
+  label: string;
+  optional?: boolean;
+  icon?: IconName;
+  fieldClassName?: string;
+  wrapClassName?: string;
+  hintId?: string;
+  hint?: string;
+  errorId?: string;
+  errorText?: string;
+  extraDescribedBy?: Array<string | false>;
+  trailing?: React.ReactNode;
+  footer?: React.ReactNode;
+  children: (ariaDescribedBy: string | undefined) => React.ReactNode;
+}) {
+  const ariaDescribedBy =
+    [hint ? hintId : false, errorText ? errorId : false, ...extraDescribedBy]
+      .filter(Boolean)
+      .join(" ") || undefined;
+  return (
+    <div className={`auth-field ${fieldClassName}`.trim()}>
+      <div className="auth-field-label">
+        <label htmlFor={id}>{label}</label>
+        <small>{optional ? "选填" : "必填"}</small>
+      </div>
+      <div className={`auth-input-wrap ${wrapClassName}`.trim()}>
+        {icon ? <AuthIcon name={icon} /> : null}
+        {children(ariaDescribedBy)}
+        {trailing}
+      </div>
+      {hint ? (
+        <small className="auth-field-hint" id={hintId}>
+          {hint}
+        </small>
+      ) : null}
+      {errorText ? (
+        <small className="auth-field-error" id={errorId}>
+          {errorText}
+        </small>
+      ) : null}
+      {footer}
+    </div>
+  );
+}
+
 export function AuthForm({
   mode,
   action,
@@ -153,9 +216,6 @@ export function AuthForm({
     if (state.error) errorSummaryRef.current?.focus();
   }, [state]);
 
-  const describedBy = (...ids: Array<string | false>) =>
-    ids.filter(Boolean).join(" ") || undefined;
-
   return (
     <form
       action={formAction}
@@ -189,13 +249,14 @@ export function AuthForm({
       )}
 
       {mode === "login" && (
-        <div className="auth-field">
-          <div className="auth-field-label">
-            <label htmlFor="identifier">邮箱或用户名</label>
-            <small>必填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="user" />
+        <AuthField
+          id="identifier"
+          label="邮箱或用户名"
+          icon="user"
+          errorId="identifier-error"
+          errorText={fieldErrors.identifier}
+        >
+          {(ariaDescribedBy) => (
             <input
               id="identifier"
               name="identifier"
@@ -206,28 +267,25 @@ export function AuthForm({
               placeholder="邮箱或用户名"
               defaultValue={defaultIdentifier}
               aria-invalid={Boolean(fieldErrors.identifier)}
-              aria-describedby={
-                fieldErrors.identifier ? "identifier-error" : undefined
-              }
+              aria-describedby={ariaDescribedBy}
               required
             />
-          </div>
-          {fieldErrors.identifier && (
-            <small className="auth-field-error" id="identifier-error">
-              {fieldErrors.identifier}
-            </small>
           )}
-        </div>
+        </AuthField>
       )}
 
       {mode === "register" && (
-        <div className="auth-field auth-register-username">
-          <div className="auth-field-label">
-            <label htmlFor="username">用户名</label>
-            <small>必填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="user" />
+        <AuthField
+          id="username"
+          label="用户名"
+          icon="user"
+          fieldClassName="auth-register-username"
+          hintId="username-hint"
+          hint="3–30 位字母、数字或下划线"
+          errorId="username-error"
+          errorText={fieldErrors.username}
+        >
+          {(ariaDescribedBy) => (
             <input
               id="username"
               name="username"
@@ -239,34 +297,24 @@ export function AuthForm({
               pattern="[A-Za-z0-9_]+"
               placeholder="例如：lin_2026"
               aria-invalid={Boolean(fieldErrors.username)}
-              aria-describedby={describedBy(
-                mode === "register" && "username-hint",
-                Boolean(fieldErrors.username) && "username-error",
-              )}
+              aria-describedby={ariaDescribedBy}
               required
             />
-          </div>
-          {mode === "register" && (
-            <small className="auth-field-hint" id="username-hint">
-              3–30 位字母、数字或下划线
-            </small>
           )}
-          {fieldErrors.username && (
-            <small className="auth-field-error" id="username-error">
-              {fieldErrors.username}
-            </small>
-          )}
-        </div>
+        </AuthField>
       )}
 
       {mode === "register" && (
-        <div className="auth-field auth-register-display-name">
-          <div className="auth-field-label">
-            <label htmlFor="displayName">昵称</label>
-            <small>选填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="profile" />
+        <AuthField
+          id="displayName"
+          label="昵称"
+          optional
+          icon="profile"
+          fieldClassName="auth-register-display-name"
+          errorId="displayName-error"
+          errorText={fieldErrors.displayName}
+        >
+          {(ariaDescribedBy) => (
             <input
               id="displayName"
               name="displayName"
@@ -274,31 +322,60 @@ export function AuthForm({
               maxLength={100}
               placeholder="希望我们怎么称呼你"
               aria-invalid={Boolean(fieldErrors.displayName)}
-              aria-describedby={
-                fieldErrors.displayName ? "displayName-error" : undefined
-              }
+              aria-describedby={ariaDescribedBy}
             />
-          </div>
-          {fieldErrors.displayName && (
-            <small className="auth-field-error" id="displayName-error">
-              {fieldErrors.displayName}
-            </small>
           )}
-        </div>
+        </AuthField>
       )}
 
       {email && (
-        <div
-          className={`auth-field ${mode === "register" ? "auth-register-email" : ""}`}
+        <AuthField
+          id="email"
+          label="邮箱"
+          icon="mail"
+          fieldClassName={
+            mode === "register" ? "auth-register-email" : undefined
+          }
+          wrapClassName={
+            mode === "register" ? "auth-input-with-action" : undefined
+          }
+          errorId="email-error"
+          errorText={fieldErrors.email}
+          extraDescribedBy={[Boolean(codeError) && "email-code-error"]}
+          trailing={
+            mode === "register" ? (
+              <button
+                className="button secondary auth-code-button"
+                type="button"
+                disabled={codeSender.sending || codeSender.cooldown > 0}
+                onClick={() => void codeSender.run()}
+              >
+                {codeSender.sending
+                  ? "发送中…"
+                  : codeSender.cooldown > 0
+                    ? `${codeSender.cooldown} 秒`
+                    : "发送验证码"}
+              </button>
+            ) : undefined
+          }
+          footer={
+            <>
+              {codeMessage && (
+                <small className="auth-code-success">{codeMessage}</small>
+              )}
+              {codeError && (
+                <small
+                  className="auth-field-error"
+                  id="email-code-error"
+                  role="alert"
+                >
+                  {codeError}
+                </small>
+              )}
+            </>
+          }
         >
-          <div className="auth-field-label">
-            <label htmlFor="email">邮箱</label>
-            <small>必填</small>
-          </div>
-          <div
-            className={`auth-input-wrap ${mode === "register" ? "auth-input-with-action" : ""}`}
-          >
-            <AuthIcon name="mail" />
+          {(ariaDescribedBy) => (
             <input
               id="email"
               name="email"
@@ -318,55 +395,23 @@ export function AuthForm({
                   : undefined
               }
               aria-invalid={Boolean(fieldErrors.email || codeError)}
-              aria-describedby={describedBy(
-                Boolean(fieldErrors.email) && "email-error",
-                Boolean(codeError) && "email-code-error",
-              )}
+              aria-describedby={ariaDescribedBy}
               required
             />
-            {mode === "register" && (
-              <button
-                className="button secondary auth-code-button"
-                type="button"
-                disabled={codeSender.sending || codeSender.cooldown > 0}
-                onClick={() => void codeSender.run()}
-              >
-                {codeSender.sending
-                  ? "发送中…"
-                  : codeSender.cooldown > 0
-                    ? `${codeSender.cooldown} 秒`
-                    : "发送验证码"}
-              </button>
-            )}
-          </div>
-          {fieldErrors.email && (
-            <small className="auth-field-error" id="email-error">
-              {fieldErrors.email}
-            </small>
           )}
-          {codeMessage && (
-            <small className="auth-code-success">{codeMessage}</small>
-          )}
-          {codeError && (
-            <small
-              className="auth-field-error"
-              id="email-code-error"
-              role="alert"
-            >
-              {codeError}
-            </small>
-          )}
-        </div>
+        </AuthField>
       )}
 
       {mode === "register" && (
-        <div className="auth-field auth-register-code">
-          <div className="auth-field-label">
-            <label htmlFor="verificationCode">邮箱验证码</label>
-            <small>必填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="mail" />
+        <AuthField
+          id="verificationCode"
+          label="邮箱验证码"
+          icon="mail"
+          fieldClassName="auth-register-code"
+          errorId="verification-code-error"
+          errorText={fieldErrors.verificationCode}
+        >
+          {(ariaDescribedBy) => (
             <input
               id="verificationCode"
               name="verificationCode"
@@ -377,34 +422,33 @@ export function AuthForm({
               pattern="[0-9]{6}"
               placeholder="6 位验证码"
               aria-invalid={Boolean(fieldErrors.verificationCode)}
-              aria-describedby={
-                fieldErrors.verificationCode
-                  ? "verification-code-error"
-                  : undefined
-              }
+              aria-describedby={ariaDescribedBy}
               required
             />
-          </div>
-          {fieldErrors.verificationCode && (
-            <small className="auth-field-error" id="verification-code-error">
-              {fieldErrors.verificationCode}
-            </small>
           )}
-        </div>
+        </AuthField>
       )}
 
       {password && (
-        <div
-          className={`auth-field ${mode === "register" ? "auth-register-password" : ""}`}
+        <AuthField
+          id="password"
+          label={mode === "reset" ? "新密码" : "密码"}
+          icon="lock"
+          fieldClassName={
+            mode === "register" ? "auth-register-password" : undefined
+          }
+          hintId="password-hint"
+          hint={mode !== "login" ? "8–16 位字符" : undefined}
+          errorId="password-error"
+          errorText={fieldErrors.password}
+          trailing={
+            <PasswordToggle
+              visible={showPassword}
+              onClick={() => setShowPassword((visible) => !visible)}
+            />
+          }
         >
-          <div className="auth-field-label">
-            <label htmlFor="password">
-              {mode === "reset" ? "新密码" : "密码"}
-            </label>
-            <small>必填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="lock" />
+          {(ariaDescribedBy) => (
             <input
               id="password"
               name="password"
@@ -416,38 +460,29 @@ export function AuthForm({
               maxLength={mode === "login" ? 128 : 16}
               placeholder={mode === "login" ? "输入你的密码" : "8–16 位密码"}
               aria-invalid={Boolean(fieldErrors.password)}
-              aria-describedby={describedBy(
-                mode !== "login" && "password-hint",
-                Boolean(fieldErrors.password) && "password-error",
-              )}
+              aria-describedby={ariaDescribedBy}
               required
             />
+          )}
+        </AuthField>
+      )}
+
+      {mode === "register" && (
+        <AuthField
+          id="confirmPassword"
+          label="确认密码"
+          icon="lock"
+          fieldClassName="auth-register-confirm-password"
+          errorId="confirmPassword-error"
+          errorText={fieldErrors.confirmPassword}
+          trailing={
             <PasswordToggle
               visible={showPassword}
               onClick={() => setShowPassword((visible) => !visible)}
             />
-          </div>
-          {mode !== "login" && (
-            <small className="auth-field-hint" id="password-hint">
-              8–16 位字符
-            </small>
-          )}
-          {fieldErrors.password && (
-            <small className="auth-field-error" id="password-error">
-              {fieldErrors.password}
-            </small>
-          )}
-        </div>
-      )}
-
-      {mode === "register" && (
-        <div className="auth-field auth-register-confirm-password">
-          <div className="auth-field-label">
-            <label htmlFor="confirmPassword">确认密码</label>
-            <small>必填</small>
-          </div>
-          <div className="auth-input-wrap">
-            <AuthIcon name="lock" />
+          }
+        >
+          {(ariaDescribedBy) => (
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -457,24 +492,11 @@ export function AuthForm({
               maxLength={16}
               placeholder="再次输入密码"
               aria-invalid={Boolean(fieldErrors.confirmPassword)}
-              aria-describedby={
-                fieldErrors.confirmPassword
-                  ? "confirmPassword-error"
-                  : undefined
-              }
+              aria-describedby={ariaDescribedBy}
               required
             />
-            <PasswordToggle
-              visible={showPassword}
-              onClick={() => setShowPassword((visible) => !visible)}
-            />
-          </div>
-          {fieldErrors.confirmPassword && (
-            <small className="auth-field-error" id="confirmPassword-error">
-              {fieldErrors.confirmPassword}
-            </small>
           )}
-        </div>
+        </AuthField>
       )}
 
       {state.message && (
