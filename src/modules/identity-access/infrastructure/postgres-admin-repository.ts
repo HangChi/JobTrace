@@ -15,6 +15,24 @@ import type {
   AdminUserQuery,
 } from "../application/admin-query-schema";
 
+const db = createServerDatabase();
+
+// 账号投影与过滤条件的唯一来源：列表计数、列表页与单账号查询共用，
+// 避免三个相关子查询的列清单四处漂移。
+const MANAGED_USER_FIELDS = db`
+  u.id,u.username,u.display_username,u.email,u.recovery_email,u.role,u.disabled,u.access_version,u.created_at,
+  (select max(s.created_at) from sessions s where s.user_id=u.id) last_sign_in_at,
+  (select count(*)::int from applications a where a.owner_id=u.id) application_count,
+  (select count(*)::int from interview_reviews i where i.owner_id=u.id) interview_count`;
+
+function managedUserConditions(filter: ReturnType<typeof userFilter>) {
+  return db`(${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email || ' ' || coalesce(u.recovery_email,'')) like lower(${filter.pattern}))
+    and (${filter.role}::text is null or u.role=${filter.role})
+    and (${filter.disabled}::boolean is null or u.disabled=${filter.disabled})
+    and (${filter.from}::date is null or u.created_at >= (${filter.from}::date::timestamp at time zone 'Asia/Shanghai'))
+    and (${filter.to}::date is null or u.created_at < ((${filter.to}::date+1)::timestamp at time zone 'Asia/Shanghai'))`;
+}
+
 export async function readAdminCounts() {
   const sql = createServerDatabase();
   const [counts] = await sql<
@@ -122,28 +140,14 @@ function userFilter(query: AdminUserQuery) {
 export async function readManagedUsers(
   query: AdminUserQuery,
 ): Promise<PageResult<ManagedUserSummary>> {
-  const sql = createServerDatabase();
-  const filter = userFilter(query);
+  const conditions = managedUserConditions(userFilter(query));
   const offset = (query.page - 1) * query.limit;
   const [countRows, rows] = await Promise.all([
-    sql<Array<{ total: number }>>`select count(*)::int total from users u
-      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email || ' ' || coalesce(u.recovery_email,'')) like lower(${filter.pattern}))
-        and (${filter.role}::text is null or u.role=${filter.role})
-        and (${filter.disabled}::boolean is null or u.disabled=${filter.disabled})
-        and (${filter.from}::date is null or u.created_at >= (${filter.from}::date::timestamp at time zone 'Asia/Shanghai'))
-        and (${filter.to}::date is null or u.created_at < ((${filter.to}::date+1)::timestamp at time zone 'Asia/Shanghai'))`,
-    sql<
-      UserRow[]
-    >`select u.id,u.username,u.display_username,u.email,u.recovery_email,u.role,u.disabled,u.access_version,u.created_at,
-        (select max(s.created_at) from sessions s where s.user_id=u.id) last_sign_in_at,
-        (select count(*)::int from applications a where a.owner_id=u.id) application_count,
-        (select count(*)::int from interview_reviews i where i.owner_id=u.id) interview_count
+    db<Array<{ total: number }>>`select count(*)::int total from users u
+      where ${conditions}`,
+    db<UserRow[]>`select ${MANAGED_USER_FIELDS}
       from users u
-      where (${filter.pattern}::text is null or lower(coalesce(u.username,'') || ' ' || u.email || ' ' || coalesce(u.recovery_email,'')) like lower(${filter.pattern}))
-        and (${filter.role}::text is null or u.role=${filter.role})
-        and (${filter.disabled}::boolean is null or u.disabled=${filter.disabled})
-        and (${filter.from}::date is null or u.created_at >= (${filter.from}::date::timestamp at time zone 'Asia/Shanghai'))
-        and (${filter.to}::date is null or u.created_at < ((${filter.to}::date+1)::timestamp at time zone 'Asia/Shanghai'))
+      where ${conditions}
       order by u.created_at desc,u.id desc limit ${query.limit} offset ${offset}`,
   ]);
   const total = Number(countRows[0]?.total ?? 0);
@@ -157,14 +161,9 @@ export async function readManagedUsers(
 }
 
 export async function readManagedUser(userId: string) {
-  const sql = createServerDatabase();
-  const [row] = await sql<
+  const [row] = await db<
     UserRow[]
-  >`select u.id,u.username,u.display_username,u.email,u.recovery_email,u.role,u.disabled,u.access_version,u.created_at,
-      (select max(s.created_at) from sessions s where s.user_id=u.id) last_sign_in_at,
-      (select count(*)::int from applications a where a.owner_id=u.id) application_count,
-      (select count(*)::int from interview_reviews i where i.owner_id=u.id) interview_count
-    from users u where u.id=${userId}`;
+  >`select ${MANAGED_USER_FIELDS} from users u where u.id=${userId}`;
   return row ? userDto(row) : null;
 }
 

@@ -28,6 +28,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm directory:check
       - run: pnpm catalog:check
+      - run: pnpm company-directory:check
       - run: pnpm format
       - run: pnpm lint
       - run: pnpm typecheck

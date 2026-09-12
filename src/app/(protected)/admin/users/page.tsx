@@ -3,15 +3,7 @@ import { listUsers, requirePageAdmin } from "@/modules/identity-access";
 import { adminUserQuerySchema } from "@/modules/identity-access/application/admin-query-schema";
 import { AdminUserFilters } from "@/modules/identity-access/ui/admin-user-filters";
 import { UserAdminTable } from "@/modules/identity-access/ui/user-admin-table";
-
-function firstValues(values: Record<string, string | string[] | undefined>) {
-  return Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      Array.isArray(value) ? value[0] : value,
-    ]),
-  );
-}
+import { firstSearchValues } from "@/shared/url/search-params";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -19,7 +11,9 @@ export default async function AdminUsersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requirePageAdmin();
-  const query = adminUserQuerySchema.parse(firstValues(await searchParams));
+  const query = adminUserQuerySchema.parse(
+    firstSearchValues(await searchParams),
+  );
   const result = await listUsers(query);
   const params = new URLSearchParams();
   if (query.q) params.set("q", query.q);

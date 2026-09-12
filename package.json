@@ -11,6 +11,8 @@
     "directory:check": "jiti scripts/generate-company-directory.ts --check",
     "catalog:generate": "jiti scripts/generate-default-catalog.ts",
     "catalog:check": "jiti scripts/generate-default-catalog.ts --check",
+    "company-directory:generate": "jiti scripts/generate-default-directory.ts",
+    "company-directory:check": "jiti scripts/generate-default-directory.ts --check",
     "format": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{ts,mjs,json}\" .github README.md docs",
     "format:write": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{ts,mjs,json}\" .github README.md docs",
     "lint": "eslint .",

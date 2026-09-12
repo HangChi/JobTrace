@@ -6,15 +6,7 @@ import {
 import { adminAuditQuerySchema } from "@/modules/identity-access/application/admin-query-schema";
 import { AdminAuditFilters } from "@/modules/identity-access/ui/admin-audit-filters";
 import { AdminAuditTable } from "@/modules/identity-access/ui/admin-audit-table";
-
-function firstValues(values: Record<string, string | string[] | undefined>) {
-  return Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      Array.isArray(value) ? value[0] : value,
-    ]),
-  );
-}
+import { firstSearchValues } from "@/shared/url/search-params";
 
 export default async function AdminAuditPage({
   searchParams,
@@ -22,7 +14,9 @@ export default async function AdminAuditPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requirePageAdmin();
-  const query = adminAuditQuerySchema.parse(firstValues(await searchParams));
+  const query = adminAuditQuerySchema.parse(
+    firstSearchValues(await searchParams),
+  );
   const result = await listAdminAuditEvents(query);
   const params = new URLSearchParams();
   if (query.actor) params.set("actor", query.actor);

@@ -391,8 +391,11 @@ export async function scanDiscoveryTargets(
       )),
     );
   }
-  for (const observation of observations)
-    await dependencies.repository.record(observation);
+  await Promise.all(
+    observations.map((observation) =>
+      dependencies.repository.record(observation),
+    ),
+  );
   return {
     scanned: observations.length,
     recognized: observations.filter((item) => item.detected).length,

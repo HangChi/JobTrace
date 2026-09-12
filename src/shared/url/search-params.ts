@@ -11,3 +11,15 @@ export function toSearchParams(
   }
   return params;
 }
+
+// Next.js searchParams 的同键多值（重复查询参数）在表单解析场景只需要首个值。
+export function firstSearchValues(
+  values: Record<string, string | string[] | undefined>,
+) {
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value[0] : value,
+    ]),
+  );
+}
