@@ -32,6 +32,37 @@ export const DEFAULT_COLLECT_QUERIES = [
 const RECRUITMENT_KEYWORDS =
   /招聘|校招|社招|秋招|春招|实习|内推|网申|宣讲会|join\s*us|hiring/i;
 
+// 合集/汇总/地域岗位包类标题：不指向单一公司，直接拒绝。
+const COLLECTION_TITLE =
+  /合集|汇总|大全|清单|盘点|速递|日报|周报|信息更新|持续更新|每日更新|有岗|急转|转需|宣讲会安排/;
+
+// 候选名中出现这些词说明提取到的是残句/组合描述而非公司名。
+const FRAGMENT_MARKERS =
+  /旗下|下属|一大波|正在|面向|需求信息|直属|岗位|工作人员|招募令|诚聘精英|\d+人/;
+
+// 行业标签词（【信息科技】金融类等前缀）与宣讲会站点不是公司名。
+const INDUSTRY_LABELS = new Set([
+  "信息科技",
+  "现代服务",
+  "智能制造",
+  "数字经济",
+  "金融服务",
+  "金融类",
+  "新能源",
+  "新材料",
+  "生物医药",
+  "人工智能",
+  "高端装备",
+  "先进制造",
+  "文化传媒",
+  "现代农业",
+  "大健康",
+  "云计算",
+  "大数据",
+  "集成电路",
+  "节能环保",
+]);
+
 const GENERIC_NAMES = new Set([
   "招聘",
   "校园招聘",
@@ -64,6 +95,13 @@ const GENERIC_NAMES = new Set([
   "官网",
   "官网汇总",
   "官方",
+  "北美",
+  "咨询",
+  "银行",
+  "日常",
+  "四大",
+  "都有",
+  "数字化解决方案",
 ]);
 
 // 常见省市区域词整词出现时几乎一定是地域标签而非公司名
@@ -77,7 +115,7 @@ const REGION_NAMES = new Set(
 );
 
 const NOISE_PREFIX =
-  /^(信息|公告|启事|启动|开启|全面|正式|首发|直招|直聘|急聘|热招|诚聘|重磅|速递|汇总|合集|精选|最新|官方|权威|大厂|名企|国企|央企|年度|专场)+/;
+  /^(信息|公告|启事|启动|开启|全面|正式|首发|直招|直聘|急聘|热招|诚聘|重磅|速递|汇总|合集|精选|最新|官方|权威|大厂|名企|国企|央企|年度|专场|官宣|刚刚|急|爆了|出了|重磅回归)+/;
 
 const COMPANY_SUFFIX =
   /(集团|公司|有限公司|责任公司|控股|科技|技术|银行|证券|基金|保险|人寿|财险|资管|期货|信托|医院|研究所|研究院|设计院|大学|学院|学校|重工|电气|汽车|电子|半导体|芯片|生物|医药|医疗|能源|电力|通信|网络|软件|数字|智能|航空|航天|船舶|轨道交通|地产|置业|建筑|传媒|文化|教育|咨询|投资|资本|实业|股份|工厂|矿业|化工|材料|环境|食品|服饰|商贸|物流)/;
@@ -87,7 +125,11 @@ const TITLE_KEYWORDS =
 
 function stripDecorations(value: string) {
   return value
-    .replace(/[【】\[\]「」『』《》<>（）()｜|·•—\-_/\\,，。:：!！?？~～*"'\s]+/g, " ")
+    // 注意 丨(U+4E28)、〡(U+3031) 是 CJK 字符，不等同于 ASCII/全角竖线。
+    .replace(
+      /[【】\[\]「」『』《》<>（）()｜|丨〡∣■&＆&·•—\-_/\\,，、。:：!！?？~～*"'\s]+/g,
+      " ",
+    )
     .trim();
 }
 
@@ -95,6 +137,7 @@ function cleanSegment(segment: string): string {
   return stripDecorations(
     segment
       .replace(/(19|20)\d{2}\s*[-~至]?\s*(届|年)?/g, " ")
+      .replace(/\d{1,2}\s*届/g, " ")
       .replace(/第\s*\d+\s*届/g, " ")
       .replace(/\b(19|20)\d{2}\b/g, " ")
       .replace(/^[年届期度]+\s*/, ""),
@@ -107,6 +150,7 @@ function cleanSegment(segment: string): string {
 export function extractCompanyFromTitle(title: string): string | null {
   const normalized = stripDecorations(title);
   if (!normalized || normalized.length > 120) return null;
+  if (COLLECTION_TITLE.test(normalized)) return null;
   if (!RECRUITMENT_KEYWORDS.test(normalized)) return null;
 
   const matches = [...normalized.matchAll(TITLE_KEYWORDS)];
@@ -137,6 +181,9 @@ export function extractCompanyFromTitle(title: string): string | null {
           (token) =>
             !REGION_NAMES.has(token) &&
             !GENERIC_NAMES.has(token) &&
+            !INDUSTRY_LABELS.has(token) &&
+            // 「XX大学站」「XX专场」是宣讲会场地不是公司。
+            !/(站|专场|分场|大会)$/.test(token) &&
             !/^\d+人?$/.test(token),
         );
       if (!meaningful.length) return [];
@@ -152,6 +199,9 @@ export function extractCompanyFromTitle(title: string): string | null {
     .filter(({ candidate }) => {
       if (candidate.length < 2 || candidate.length > 30) return false;
       if (GENERIC_NAMES.has(candidate) || /^\d+$/.test(candidate)) return false;
+      // 纯日期（9月12日）不是公司。
+      if (/^\d{1,2}月\d{1,2}日?$/.test(candidate)) return false;
+      if (FRAGMENT_MARKERS.test(candidate)) return false;
       if (!/[\p{Script=Han}a-zA-Z]/u.test(candidate)) return false;
       return true;
     })
@@ -174,6 +224,10 @@ export function extractCompanyFromTitle(title: string): string | null {
   return (
     best.candidate
       .replace(NOISE_PREFIX, "")
+      // 剥掉「面向社会公开」「社会用工」等标题尾巴残句与部门/地区后缀。
+      .replace(/(面向社会公开(招聘)?|社会用工|多语种)$/, "")
+      .replace(/总部.*$/, "")
+      .replace(/(等|热招|下半年|专场|急招)$/, "")
       .replace(/(官方|官网|专门|专属)$/, "")
       .trim() || null
   );

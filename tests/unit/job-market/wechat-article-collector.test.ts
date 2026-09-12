@@ -23,9 +23,9 @@ describe("extractCompanyFromTitle", () => {
     expect(extractCompanyFromTitle("招聘信息 |泰康人寿2027届校园招聘")).toBe(
       "泰康人寿",
     );
-    expect(extractCompanyFromTitle("招聘丨120人!庆铃集团2027届校园招聘公告")).toBe(
-      "庆铃集团",
-    );
+    expect(
+      extractCompanyFromTitle("招聘丨120人!庆铃集团2027届校园招聘公告"),
+    ).toBe("庆铃集团");
     expect(
       extractCompanyFromTitle("央企直招|哈尔滨电气集团2027校园招聘正式开启!"),
     ).toBe("哈尔滨电气集团");
@@ -35,6 +35,38 @@ describe("extractCompanyFromTitle", () => {
     expect(
       extractCompanyFromTitle("广州地铁集团有限公司2027届校园招聘公告"),
     ).toBe("广州地铁集团有限公司");
+  });
+
+  it("rejects collection and city-aggregate titles", () => {
+    expect(extractCompanyFromTitle("校园招聘 | 金融类合集")).toBeNull();
+    expect(extractCompanyFromTitle("校园招聘！乌海有岗！")).toBeNull();
+    expect(extractCompanyFromTitle("国企秋招信息汇总（9月12日）")).toBeNull();
+    expect(extractCompanyFromTitle("秋招日报 9月12日")).toBeNull();
+  });
+
+  it("extracts companies from real collected titles", () => {
+    expect(
+      extractCompanyFromTitle("【校园招聘】金徽酒股份有限公司2027届校园招聘"),
+    ).toBe("金徽酒股份有限公司");
+    expect(
+      extractCompanyFromTitle("【校园招聘】中国电信甘肃公司2027届校园招聘"),
+    ).toBe("中国电信甘肃公司");
+    expect(extractCompanyFromTitle("招聘 | 中金公司2027届校园招聘正式启动")).toBe(
+      "中金公司",
+    );
+    expect(extractCompanyFromTitle("中铁工业2027届全球校园招聘")).toBe(
+      "中铁工业",
+    );
+    // 行业标签与短届数剥离。
+    expect(extractCompanyFromTitle("【现代服务】金山世游27届校园招聘")).toBe(
+      "金山世游",
+    );
+    // 行业标签前缀 + 宣讲会站点后缀都应剔除，公司是美团。
+    expect(
+      extractCompanyFromTitle(
+        "【信息科技、现代服务】美团2027届校园招聘——武汉大学站",
+      ),
+    ).toBe("美团");
   });
 
   it("keeps decorations out and handles keyword-only noise", () => {
