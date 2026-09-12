@@ -139,6 +139,13 @@ export type AtsSiteScanResult = {
   existingSources: number;
   queued: number;
   pendingCandidates: number;
+  autoApproval?: {
+    enabled: boolean;
+    approvedCompanies: number;
+    approvedSources: number;
+    synced: number;
+    skipped: number;
+  };
   details: Array<{ company: string; boardUrl: string; adapter: string }>;
 };
 
@@ -165,6 +172,23 @@ export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult>
   );
   const { summary } = await repository.list();
 
+  // 高置信自动转正（JOB_MARKET_AUTO_APPROVE=true 时启用）：
+  // 冒烟抓到岗位的 site_scan 候选直接收录并立即同步岗位。
+  let autoApproval: AtsSiteScanResult["autoApproval"];
+  try {
+    const { autoApproveHighConfidence } = await import("./auto-approval");
+    const report = await autoApproveHighConfidence();
+    autoApproval = {
+      enabled: report.enabled,
+      approvedCompanies: report.approvedCompanies,
+      approvedSources: report.approvedSources,
+      synced: report.synced,
+      skipped: report.skipped,
+    };
+  } catch {
+    autoApproval = { enabled: false, approvedCompanies: 0, approvedSources: 0, synced: 0, skipped: 0 };
+  }
+
   return {
     queries: queries.length,
     hits: scan.hits.length,
@@ -173,6 +197,7 @@ export async function runAtsSiteScan(value: unknown): Promise<AtsSiteScanResult>
     existingSources,
     queued,
     pendingCandidates: summary.pending,
+    autoApproval,
     details: scan.hits
       .slice(0, 10)
       .map((hit) => ({

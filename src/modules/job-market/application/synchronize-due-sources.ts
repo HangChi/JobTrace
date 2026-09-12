@@ -22,27 +22,34 @@ import { PostgresJobMarketRepository } from "../infrastructure/postgres-job-mark
 import { invalidateCampaignLists } from "./campaign-service";
 import { synchronizeSource } from "./synchronize-source";
 
+// 适配器注册表的标准装配：同步、研究与自动转正共用同一套实现。
+export function createAdapterRegistry(
+  fetcher: ReturnType<typeof createSecureSourceClient>,
+) {
+  return new SourceAdapterRegistry([
+    new GreenhouseAdapter(fetcher),
+    new LeverAdapter(fetcher),
+    new AshbyAdapter(fetcher),
+    new SmartRecruitersAdapter(fetcher),
+    new MokaAdapter(fetcher),
+    new SchemaOrgAdapter(fetcher),
+    new XiaomiAdapter(fetcher),
+    new FeishuAdapter(fetcher),
+    new BeisenAdapter(fetcher),
+    new DayeeAdapter(fetcher),
+    new WorkdayAdapter(fetcher),
+    new Job51Adapter(fetcher),
+    new ChinaBigTechAdapter(fetcher),
+    new HtmlListAdapter(fetcher),
+  ]);
+}
+
 function productionDependencies() {
   const fetcher = createSecureSourceClient();
   return {
     syncRepository: new PostgresSyncRepository(),
     jobRepository: new PostgresJobMarketRepository(),
-    adapters: new SourceAdapterRegistry([
-      new GreenhouseAdapter(fetcher),
-      new LeverAdapter(fetcher),
-      new AshbyAdapter(fetcher),
-      new SmartRecruitersAdapter(fetcher),
-      new MokaAdapter(fetcher),
-      new SchemaOrgAdapter(fetcher),
-      new XiaomiAdapter(fetcher),
-      new FeishuAdapter(fetcher),
-      new BeisenAdapter(fetcher),
-      new DayeeAdapter(fetcher),
-      new WorkdayAdapter(fetcher),
-      new Job51Adapter(fetcher),
-      new ChinaBigTechAdapter(fetcher),
-      new HtmlListAdapter(fetcher),
-    ]),
+    adapters: createAdapterRegistry(fetcher),
   };
 }
 

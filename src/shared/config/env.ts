@@ -51,6 +51,11 @@ const jobMarketEnvSchema = z.object({
     .default("false")
     .transform((value) => value === "true"),
   JOB_MARKET_SYNC_SECRET: z.string().min(32).optional(),
+  // 高置信自动转正：site: 枚举产出 + 冒烟抓到岗位的来源跳过人工审批。
+  JOB_MARKET_AUTO_APPROVE: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   JOB_MARKET_SYNC_BATCH_SIZE: z.coerce
     .number()
     .int()
@@ -148,6 +153,7 @@ export function getJobMarketEnv() {
   const value = jobMarketEnvSchema.parse({
     JOB_MARKET_ENABLED: process.env.JOB_MARKET_ENABLED || undefined,
     JOB_MARKET_SYNC_SECRET: process.env.JOB_MARKET_SYNC_SECRET || undefined,
+    JOB_MARKET_AUTO_APPROVE: process.env.JOB_MARKET_AUTO_APPROVE || undefined,
     JOB_MARKET_SYNC_BATCH_SIZE:
       process.env.JOB_MARKET_SYNC_BATCH_SIZE || undefined,
     JOB_MARKET_FETCH_TIMEOUT_MS:
@@ -166,6 +172,7 @@ export function getJobMarketEnv() {
   return {
     enabled: value.JOB_MARKET_ENABLED,
     syncSecret: value.JOB_MARKET_SYNC_SECRET,
+    autoApprove: value.JOB_MARKET_AUTO_APPROVE,
     syncBatchSize: value.JOB_MARKET_SYNC_BATCH_SIZE,
     fetchTimeoutMs: value.JOB_MARKET_FETCH_TIMEOUT_MS,
     maxResponseBytes: value.JOB_MARKET_MAX_RESPONSE_BYTES,
