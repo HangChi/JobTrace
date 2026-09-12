@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1440px; overflow: hidden;
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    position: relative; width: 1080px; height: 1440px;
+    background: #FFE58F;
+    background-image: radial-gradient(rgba(0,0,0,.05) 2.4px, transparent 2.4px);
+    background-size: 42px 42px;
+    display: flex; flex-direction: column;
+    padding: 88px 84px 96px;
+  }
+  /* 顶部胶带装饰 */
+  .tape { position: absolute; width: 220px; height: 54px; background: rgba(255,255,255,.55); box-shadow: 0 4px 10px rgba(0,0,0,.06); }
+  .tape.tl { top: -18px; left: 120px; transform: rotate(-8deg); }
+  .tape.br { bottom: -16px; right: 90px; transform: rotate(6deg); }
+
+  .topbar { display: flex; align-items: center; gap: 24px; }
+  .pill {
+    background: #1A1A1A; color: #FFF7E0; border-radius: 999px;
+    padding: 16px 34px; font-size: 34px; font-weight: 600; letter-spacing: 2px;
+  }
+  .topbar .sub { font-size: 30px; font-weight: 600; color: rgba(0,0,0,.55); letter-spacing: 6px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .l1 { font-size: 92px; font-weight: 600; color: #1A1A1A; letter-spacing: 4px; }
+  .l2 { display: flex; align-items: baseline; gap: 18px; margin: 6px 0 10px -10px; }
+  .num {
+    font-family: 'Arial Black', 'Arial', sans-serif;
+    font-size: 260px; line-height: 1; color: #FF2442; letter-spacing: -8px;
+  }
+  .unit { font-size: 122px; font-weight: 600; color: #1A1A1A; letter-spacing: 6px; }
+  .l3 { font-size: 104px; font-weight: 600; color: #1A1A1A; letter-spacing: 6px; margin-top: 26px; }
+  .l3 .stick {
+    display: inline-block; background: #FFF; padding: 4px 30px 10px;
+    transform: rotate(-1.5deg); box-shadow: 6px 8px 0 rgba(0,0,0,.16);
+    color: #FF2442;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 26px 24px; }
+  .chip {
+    background: #FFF; border: 4px solid #1A1A1A; border-radius: 999px;
+    padding: 20px 36px; font-size: 38px; font-weight: 600; color: #1A1A1A;
+    box-shadow: 5px 6px 0 rgba(0,0,0,.85); letter-spacing: 2px;
+  }
+  .chip b { color: #07877A; }
+
+  /* 圆形印章 */
+  .stamp {
+    position: absolute; top: 210px; right: 74px; width: 212px; height: 212px;
+    border: 8px solid #FF2442; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transform: rotate(14deg); color: #F5163D;
+    font-size: 46px; font-weight: 600; letter-spacing: 6px;
+    box-shadow: inset 0 0 0 5px rgba(255,36,66,.28);
+    background: rgba(255,255,255,.42);
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="tape tl"></div>
+  <div class="tape br"></div>
+
+  <div class="topbar">
+    <div class="pill">27 届秋招</div>
+    <div class="sub">投递管理干货</div>
+  </div>
+
+  <div class="main">
+    <div class="l1">秋招投了</div>
+    <div class="l2"><span class="num">100+</span><span class="unit">家</span></div>
+    <div class="l3"><span class="stick">不乱套</span> 的追踪法</div>
+  </div>
+
+  <div class="chips">
+    <div class="chip"><b>✓</b> 投递不漏</div>
+    <div class="chip"><b>✓</b> 阶段不乱</div>
+    <div class="chip"><b>✓</b> 面经不忘</div>
+  </div>
+
+  <div class="stamp">亲测<br>有效</div>
+</div>
+</body>
+</html>

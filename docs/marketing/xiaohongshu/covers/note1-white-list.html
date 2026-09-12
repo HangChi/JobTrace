@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1440px; overflow: hidden;
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    position: relative; width: 1080px; height: 1440px;
+    background: #FAF9F4;
+    background-image:
+      linear-gradient(rgba(7,135,122,.05) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(7,135,122,.05) 2px, transparent 2px);
+    background-size: 72px 72px;
+    display: flex; flex-direction: column;
+    padding: 96px 90px 100px;
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 4px solid #1A1A1A; padding-bottom: 26px;
+  }
+  .topbar .label { font-size: 34px; font-weight: 600; letter-spacing: 10px; color: #1A1A1A; }
+  .topbar .label i { font-style: normal; color: #FF2442; }
+  .topbar .vol { font-family: 'Arial', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: 4px; color: rgba(0,0,0,.45); }
+
+  .main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .l1 { font-size: 62px; font-weight: 500; color: rgba(0,0,0,.62); letter-spacing: 6px; }
+  .l2 { font-size: 118px; font-weight: 700; color: #1A1A1A; letter-spacing: 8px; }
+  .l3 { display: flex; align-items: center; gap: 30px; margin-top: 12px; }
+  .l3 .n {
+    font-family: 'Arial Black', 'Arial', sans-serif; font-size: 330px; line-height: .95;
+    color: #FF2442; letter-spacing: -6px;
+    border: 9px solid #FF2442; border-radius: 50%;
+    width: 360px; height: 360px; display: flex; align-items: center; justify-content: center;
+    transform: rotate(-6deg);
+  }
+  .l3 .rest { font-size: 128px; font-weight: 700; color: #1A1A1A; letter-spacing: 8px; line-height: 1.28; }
+  .l3 .rest em { font-style: normal; border-bottom: 12px solid #9EE7D8; padding-bottom: 6px; }
+
+  .card {
+    background: #FFF; border: 5px solid #1A1A1A; border-radius: 26px;
+    box-shadow: 10px 12px 0 #1A1A1A; padding: 44px 52px;
+    display: flex; flex-direction: column; gap: 26px;
+  }
+  .row { display: flex; align-items: center; gap: 28px; font-size: 44px; font-weight: 600; color: #1A1A1A; letter-spacing: 3px; }
+  .row .no {
+    font-family: 'Arial', sans-serif; font-size: 38px; font-weight: 800; color: #FFF;
+    background: #07877A; width: 60px; height: 60px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="topbar">
+    <div class="label">求职干货 <i>·</i> 投递管理</div>
+    <div class="vol">VOL.01</div>
+  </div>
+
+  <div class="main">
+    <div class="l1">秋招投到 100+ 家才发现</div>
+    <div class="l2">投递管理</div>
+    <div class="l3">
+      <div class="n">3</div>
+      <div class="rest">只做<br><em>件事</em> 就够了</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span class="no">1</span>一条投递，一条主线</div>
+    <div class="row"><span class="no">2</span>阶段变动，随手记</div>
+    <div class="row"><span class="no">3</span>面完当天，写复盘</div>
+  </div>
+</div>
+</body>
+</html>

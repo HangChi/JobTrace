@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1440px; overflow: hidden;
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .canvas {
+    position: relative; width: 1080px; height: 1440px;
+    background: linear-gradient(165deg, #F6FCF0 0%, #DFF7AA 58%, #C7EFE0 100%);
+    display: flex; flex-direction: column;
+    padding: 96px 90px 92px; color: #06655B;
+  }
+  /* 求职轨迹装饰线 */
+  .trace { position: absolute; inset: 0; }
+
+  .badge {
+    align-self: flex-start; background: rgba(255,255,255,.8);
+    border: 3px solid rgba(7,135,122,.4); border-radius: 999px;
+    padding: 14px 32px; font-size: 32px; font-weight: 600; letter-spacing: 4px;
+    color: #06655B;
+  }
+
+  .main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; position: relative; }
+  .l1 { font-size: 84px; font-weight: 600; color: rgba(6,101,91,.88); letter-spacing: 4px; }
+  .l1 s { text-decoration: line-through; text-decoration-color: #FF2442; text-decoration-thickness: 7px; }
+  .l2 { font-size: 84px; font-weight: 600; color: rgba(6,101,91,.88); letter-spacing: 4px; }
+  .l3 {
+    margin-top: 40px; align-self: flex-start;
+    background: #07877A; color: #FFF; border-radius: 28px;
+    padding: 30px 52px 30px 46px; font-size: 104px; font-weight: 700; letter-spacing: 5px;
+    transform: rotate(-2deg); box-shadow: 14px 16px 0 rgba(6,101,91,.22);
+  }
+  .l3 em { font-style: normal; color: #DFF7AA; }
+
+  .footer { display: flex; align-items: center; gap: 22px; position: relative; }
+  .logo {
+    width: 78px; height: 78px; border-radius: 20px; background: #07877A;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(7,135,122,.35);
+  }
+  .footer .name { font-size: 36px; font-weight: 700; letter-spacing: 3px; color: #06655B; }
+  .footer .free {
+    margin-left: auto; background: #FF2442; color: #FFF; border-radius: 999px;
+    padding: 12px 28px; font-size: 30px; font-weight: 600; letter-spacing: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <svg class="trace" width="1080" height="1440" viewBox="0 0 1080 1440" fill="none">
+    <path d="M-40 1270 C 230 1180, 150 1010, 350 940 C 560 866, 810 910, 905 790 C 1000 670, 860 520, 900 400 C 930 310, 985 250, 985 155"
+          stroke="rgba(7,135,122,.3)" stroke-width="7" stroke-dasharray="2 26" stroke-linecap="round"/>
+    <circle cx="350" cy="940" r="15" fill="#07877A" opacity=".55"/>
+    <circle cx="905" cy="790" r="15" fill="#07877A" opacity=".55"/>
+    <circle cx="900" cy="400" r="15" fill="#07877A" opacity=".55"/>
+    <circle cx="985" cy="155" r="22" fill="#FF2442"/>
+    <circle cx="985" cy="155" r="34" stroke="#FF2442" stroke-width="4" opacity=".4"/>
+    <text x="985" y="235" text-anchor="middle" fill="#FF2442" font-size="36" font-weight="600" font-family="PingFang SC, sans-serif">offer</text>
+  </svg>
+
+  <div class="badge">一个求职者的独立开发</div>
+
+  <div class="main">
+    <div class="l1">市面上的记录工具</div>
+    <div class="l2"><s>Excel</s> <s>模板</s> <s>待办 App</s></div>
+    <div class="l3">都不顺手？<em>自己写！</em></div>
+  </div>
+
+  <div class="footer">
+    <div class="logo">
+      <svg width="48" height="48" viewBox="0 0 64 64">
+        <path d="M18 17h28v17c0 11-7 18-18 18-7 0-12-3-15-9" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="18" cy="17" r="4" fill="#dff7aa"/>
+        <circle cx="13" cy="43" r="4" fill="#9ee7d8"/>
+      </svg>
+    </div>
+    <div class="name">JobTrace 职迹</div>
+    <div class="free">网页版 · 免费</div>
+  </div>
+</div>
+</body>
+</html>
