@@ -36,7 +36,7 @@ Thumbs.db
 *.tmp
 *.swp
 *.swo
-memory/
+/memory/
 tmp/
 temp/
 
