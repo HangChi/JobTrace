@@ -9,6 +9,7 @@ import type {
 import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
 import { QUESTION_CATEGORY_LABELS } from "../domain/catalog";
 import { MarkdownPreview } from "./markdown-preview";
+import { PublicInterviewEngagement } from "./public-interview-engagement";
 
 const publishedDate = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
@@ -124,7 +125,10 @@ export function PublicInterviewList({
                       {item.companyName} · {item.positionName}
                     </h2>
                   </Link>
-                  <span>面试于 {item.interviewedOn}</span>
+                  <span>
+                    {item.city ? `${item.city} · ` : ""}面试于{" "}
+                    {item.interviewedOn}
+                  </span>
                 </div>
                 <InterviewPreview interview={item} />
               </div>
@@ -139,6 +143,11 @@ export function PublicInterviewList({
                   </svg>
                 </Link>
               </footer>
+              <PublicInterviewEngagement
+                interviewId={item.id}
+                initialEngagement={item.engagement}
+                initialComments={item.recentComments}
+              />
             </article>
           </li>
         ))}

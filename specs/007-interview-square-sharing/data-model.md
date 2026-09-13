@@ -43,6 +43,42 @@ Extends the summary with highlights, gaps and public questions. A public questio
 
 ## Query model
 
-- Public filters: `q`, `stage[]`, `interviewedFrom`, `interviewedTo`, `cursor`, `limit`.
+- Public filters: `q`, `city`, `position`, `sort=latest|hot`, `cursor`, `limit`.
 - Owner filters extend the existing query with `publication=private|anonymous|attributed`.
-- Public ordering cursor uses `(publishedAt, id)` descending.
+- Latest cursor uses `(publishedAt, id)` descending; hot cursor uses `(hotScore, publishedAt, id)` descending.
+
+## Public engagement counters
+
+`interview_reviews` stores non-negative `likeCount`, `commentCount`, and `viewCount` counters plus a generated `hotScore = likeCount × 3 + commentCount × 2 + viewCount`. Relationship-table triggers keep counters synchronized for inserts, deletes, user deletion, and review deletion.
+
+## Interview Like
+
+| Field | Type | Rules |
+|-------|------|-------|
+| interviewReviewId | uuid | References interview review; cascade delete |
+| userId | text | References user; cascade delete |
+| createdAt | timestamp | Server generated |
+
+The composite `(interviewReviewId,userId)` key permits at most one like per user and review.
+
+## Interview Comment
+
+| Field | Type | Rules |
+|-------|------|-------|
+| id | uuid | Server generated primary key |
+| interviewReviewId | uuid | References interview review; cascade delete |
+| userId | text | References user; cascade delete |
+| content | text | Trimmed, 1–1000 characters |
+| createdAt | timestamp | Server generated |
+
+Public comment output contains only id, content, createdAt, username and optional avatar.
+
+## Interview View
+
+| Field | Type | Rules |
+|-------|------|-------|
+| interviewReviewId | uuid | References interview review; cascade delete |
+| userId | text | References user; cascade delete |
+| viewedAt | timestamp | First detail view time |
+
+The composite key means repeated detail opens by one user do not increase the public view count.

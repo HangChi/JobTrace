@@ -121,3 +121,35 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Chromium journey: passed with zero axe violations, company-only search, detail navigation, and no horizontal overflow at 375px.
 - Visual inspection: confirmed the author-first card hierarchy, contained first-question preview, and multi-question disclosure against the supplied reference.
 - `pnpm typecheck` and `pnpm build`: passed; lint completed with six pre-existing warnings outside this feature.
+
+## Phase 10: 搜索排序与社区互动增量
+
+**Goal**: Users can combine company, city, and position discovery, switch between latest and hot ordering, and use persistent likes, comments, and unique views.
+
+**Independent Test**: With multiple users and public/private reviews, verify combined filters, stable cursors, hot ranking, like toggling, attributed comment validation, unique detail views, cascades, and uniform 404 behavior after unpublishing.
+
+- [x] T032 [P] [US2] Add query parsing, filtering, facet, sorting, and cursor tests in `tests/unit/interviews/public-list-query.test.ts` and `tests/contract/interview-public-square.contract.test.ts`
+- [x] T033 [P] [US4] Add interaction contract and integration coverage in `tests/contract/interview-public-square.contract.test.ts` and `tests/integration/interviews/interview-engagement.test.ts`
+- [x] T034 [US4] Add engagement tables, counter triggers, public-state guards, and hot index in `supabase/migrations/20260913000200_interview_square_engagement.sql`
+- [x] T035 [US2] Extend public DTOs, query parsing, repository filtering, facets, hot ordering, and viewer state in `src/modules/interviews/application/` and `src/modules/interviews/infrastructure/postgres-interview-repository.ts`
+- [x] T036 [US4] Implement authenticated like, comment, and unique-view services and route handlers in `src/modules/interviews/` and `src/app/api/interviews/public/[id]/`
+- [x] T037 [P] [US2] Build the compact company/city/position toolbar and accessible latest/hot segmented control in `src/modules/interviews/ui/public-interview-filters.tsx` and `src/app/(protected)/interviews/page.tsx`
+- [x] T038 [US4] Add interactive engagement counts, optimistic like state, attributed comment form/list, loading, and error feedback in `src/modules/interviews/ui/public-interview-engagement.tsx`, feed cards, and public detail
+- [x] T039 [P] [US4] Add component and E2E coverage for keyboard interaction, feedback, 375px reflow, and WCAG 2.2 AA in `tests/component/interviews/` and `tests/e2e/interview-review-isolation.spec.ts`
+- [x] T040 Regenerate database schema snapshot, run focused and full validation, measure representative hot-feed performance, and record results in `specs/007-interview-square-sharing/tasks.md`
+
+### Increment dependencies
+
+- T032 and T033 define failing behavior before implementation.
+- T034 blocks repository and interaction writes in T035–T036.
+- T035 enables T037; T036 enables T038.
+- T039 follows the UI behavior; T040 is the final release gate.
+
+### Discovery and engagement validation
+
+- Query/filter/engagement component suites: 10 tests passed, including clipboard share fallback.
+- Public contract and engagement integration suites: passed, including field isolation, like toggling, comment attribution, unique views, counters, cascades, and post-unpublish 404 behavior.
+- Chromium journey: passed with combined company/city/position filtering, hot sorting, live like/comment UI, zero axe violations, and no horizontal overflow at 375px.
+- Clean migration replay and generated database schema snapshot: passed; migration was also applied to the configured development database.
+- 10,000-row benchmark: public list p95 33.98ms, hot list p95 28.23ms, interaction p95 29.74ms, public detail p95 24.79ms.
+- `pnpm typecheck`, production build, and lint passed; lint retains six pre-existing warnings. Full Vitest completed 338/339 tests with the known unrelated job-market architecture count mismatch remaining.

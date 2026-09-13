@@ -72,6 +72,20 @@ export type PublicAuthor = {
   image: string | null;
 };
 
+export type PublicInterviewEngagement = {
+  likeCount: number;
+  commentCount: number;
+  viewCount: number;
+  likedByViewer: boolean;
+};
+
+export type PublicInterviewComment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: PublicAuthor;
+};
+
 export type PublicInterviewQuestion = {
   category: QuestionCategory;
   question: string;
@@ -84,17 +98,20 @@ export type PublicInterviewSummary = {
   id: string;
   companyName: string;
   positionName: string;
+  city: string | null;
   stage: InterviewStage;
   interviewedOn: string;
   publishedAt: string;
   questionCount: number;
   author: PublicAuthor | null;
+  engagement: PublicInterviewEngagement;
 };
 
 export type PublicInterviewContent = {
   highlights: string | null;
   gaps: string | null;
   questions: PublicInterviewQuestion[];
+  recentComments: PublicInterviewComment[];
 };
 
 export type PublicInterviewFeedItem = PublicInterviewSummary &
@@ -107,4 +124,8 @@ export type PublicInterviewPage = {
   nextCursor: string | null;
   total: number;
   limit: number;
+  facets: {
+    cities: string[];
+    positions: string[];
+  };
 };

@@ -35,3 +35,21 @@
 - **Decision**: 广场和详情页面使用 async Server Components 直接调用应用服务，API Route Handlers作为显式 HTTP 契约且默认动态执行。
 - **Rationale**: 与当前仓库一致，减少客户端 JavaScript；本地 Next.js 16 文档确认数据库和会话读取适合 Server Components，Route Handlers 默认不缓存动态请求。
 - **Alternatives considered**: 客户端 `useEffect` 拉取；增加加载瀑布与泄漏面，拒绝。
+
+## Decision 7: 互动关系与聚合计数
+
+- **Decision**: 点赞、评论和浏览分别使用带外键的关系表；面经保存由数据库触发器维护的非负聚合计数和生成热度分数。
+- **Rationale**: 唯一键可原子保证点赞与浏览去重，关系表支持级联清理，聚合列避免热度列表逐行统计造成性能退化。
+- **Alternatives considered**: 列表实时聚合会随互动量线性变慢；仅保存计数无法验证用户是否已点赞或浏览，因此拒绝。
+
+## Decision 8: 热度与游标
+
+- **Decision**: 热度分数为 `点赞×3 + 评论×2 + 去重浏览`，按分数、发布时间、面经标识降序；最新排序继续按发布时间、面经标识降序。
+- **Rationale**: 点赞表达更强意图，评论次之，浏览提供基础发现信号；完整排序元组能确保游标分页稳定。
+- **Alternatives considered**: 只按浏览容易放大曝光偏差；引入时间衰减需要产品校准和后台重算，本期不采用。
+
+## Decision 9: 浏览与评论身份
+
+- **Decision**: 仅进入公开详情记录一次去重浏览；评论始终署名展示当前用户名与头像，最长 1000 字。
+- **Rationale**: 列表曝光不等于阅读，详情访问更能代表有效浏览；署名评论便于理解对话来源，也避免匿名互动滥用范围扩张。
+- **Alternatives considered**: 每次请求累加易受刷新和预取污染；匿名评论需要额外审核和风控，本期不采用。

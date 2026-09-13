@@ -37,6 +37,7 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
       data: {
         companyName: "仅 B 可见",
         positionName: "隐私工程师",
+        city: "上海",
         appliedDate: "2026-08-01",
         status: "submitted",
       },
@@ -111,12 +112,31 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
       0,
     );
     await expect(pageA.getByRole("searchbox")).toHaveCount(1);
-    await pageA.getByLabel("公司").fill("仅 B 可见");
-    await pageA.getByRole("button", { name: "搜索" }).click();
+    await pageA.getByRole("searchbox", { name: "搜索公司" }).fill("仅 B 可见");
+    await pageA.getByRole("combobox", { name: "城市" }).selectOption("上海");
+    await pageA
+      .getByRole("combobox", { name: "岗位" })
+      .selectOption("隐私工程师");
+    await pageA.getByRole("searchbox", { name: "搜索公司" }).press("Enter");
     await expect(pageA).toHaveURL(/q=/);
+    await expect(pageA).toHaveURL(/city=/);
+    await pageA.getByRole("link", { name: "按热度" }).click();
+    await expect(pageA).toHaveURL(/sort=hot/);
     const feedCard = pageA.getByRole("article");
     await expect(feedCard.getByText("公开但匿名的面经")).toBeVisible();
     await expect(feedCard.getByText("私人行动项")).toHaveCount(0);
+    const likeButton = feedCard.getByRole("button", {
+      name: /点赞，当前 0 个赞/,
+    });
+    await likeButton.click();
+    await expect(
+      feedCard.getByRole("button", { name: /取消点赞，当前 1 个赞/ }),
+    ).toBeVisible();
+    await feedCard
+      .getByRole("textbox", { name: "写下你的评论" })
+      .fill("感谢分享");
+    await feedCard.getByRole("button", { name: "发送" }).click();
+    await expect(feedCard.getByText("感谢分享")).toBeVisible();
     expect(
       (await new AxeBuilder({ page: pageA }).analyze()).violations,
     ).toEqual([]);
@@ -132,6 +152,7 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
     await expect(pageA.getByText("匿名用户")).toBeVisible();
     await expect(pageA.getByText("公开但匿名的面经")).toBeVisible();
     await expect(pageA.getByText("私人行动项")).toHaveCount(0);
+    await expect(pageA.getByLabel("1 次浏览")).toBeVisible();
     await contextA.close();
 
     expect(

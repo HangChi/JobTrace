@@ -3,6 +3,7 @@ import type { PublicInterviewDetail as Detail } from "../application/contracts";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
 import { PublicInterviewContent } from "./public-interview-content";
+import { PublicInterviewEngagement } from "./public-interview-engagement";
 
 export function PublicInterviewDetail({ interview }: { interview: Detail }) {
   return (
@@ -39,6 +40,11 @@ export function PublicInterviewDetail({ interview }: { interview: Detail }) {
         <h2 className="sr-only">面经正文</h2>
         <PublicInterviewContent interview={interview} />
       </section>
+      <PublicInterviewEngagement
+        interviewId={interview.id}
+        initialEngagement={interview.engagement}
+        initialComments={interview.recentComments}
+      />
       <footer className="interview-editor-footer">
         <Link className="button secondary" href="/interviews">
           返回面经广场

@@ -6,6 +6,7 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
       data: {
         companyName: "Public Contract",
         positionName: "Privacy Engineer",
+        city: "上海",
         appliedDate: "2026-08-01",
         status: "submitted",
       },
@@ -59,8 +60,15 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
       id: review.id,
       companyName: "Public Contract",
       positionName: "Privacy Engineer",
+      city: "上海",
       author: null,
       questions: [{ question: "公开问题", originalAnswer: "公开回答" }],
+      engagement: {
+        likeCount: 0,
+        commentCount: 0,
+        viewCount: 1,
+        likedByViewer: false,
+      },
     });
     for (const forbidden of [
       "ownerId",
@@ -84,7 +92,18 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
       highlights: "公开亮点",
       gaps: "公开不足",
       questions: [{ question: "公开问题", originalAnswer: "公开回答" }],
+      city: "上海",
     });
+    expect(list.facets).toMatchObject({
+      cities: expect.arrayContaining(["上海"]),
+      positions: expect.arrayContaining(["Privacy Engineer"]),
+    });
+    const filtered = await (
+      await request.get(
+        "/api/interviews/public?city=%E4%B8%8A%E6%B5%B7&position=Privacy%20Engineer&sort=hot",
+      )
+    ).json();
+    expect(filtered.items).toHaveLength(1);
     expect(list.items[0]).not.toHaveProperty("applicationId");
     expect(list.items[0].questions[0]).not.toHaveProperty("selfRating");
 
@@ -113,6 +132,60 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
       "image",
       "username",
     ]);
+
+    const liked = await (
+      await request.post(`/api/interviews/public/${review.id}/like`)
+    ).json();
+    expect(liked).toMatchObject({ likeCount: 1, likedByViewer: true });
+    const unliked = await (
+      await request.post(`/api/interviews/public/${review.id}/like`)
+    ).json();
+    expect(unliked).toMatchObject({ likeCount: 0, likedByViewer: false });
+
+    const commentResponse = await request.post(
+      `/api/interviews/public/${review.id}/comments`,
+      { data: { content: "  很有帮助  " } },
+    );
+    expect(commentResponse.status()).toBe(201);
+    expect(await commentResponse.json()).toMatchObject({
+      comment: {
+        content: "很有帮助",
+        author: { username: expect.any(String) },
+      },
+      engagement: { commentCount: 1 },
+    });
+    expect(
+      await (
+        await request.get(`/api/interviews/public/${review.id}/comments`)
+      ).json(),
+    ).toEqual([
+      expect.objectContaining({
+        content: "很有帮助",
+        author: expect.objectContaining({ username: expect.any(String) }),
+      }),
+    ]);
+
+    const privateReview = await request.patch(`/api/interviews/${review.id}`, {
+      data: {
+        version: attributed.version,
+        status: "completed",
+        visibility: "private",
+        authorMode: "anonymous",
+        questions: [{ category: "technical", question: "公开问题" }],
+        actionItems: [],
+      },
+    });
+    expect(privateReview.status()).toBe(200);
+    expect(
+      (await request.post(`/api/interviews/public/${review.id}/like`)).status(),
+    ).toBe(404);
+    expect(
+      (
+        await request.post(`/api/interviews/public/${review.id}/comments`, {
+          data: { content: "不可评论" },
+        })
+      ).status(),
+    ).toBe(404);
   } finally {
     await request.delete(`/api/applications/${application.id}`);
   }

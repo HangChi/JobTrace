@@ -21,11 +21,15 @@ export default async function InterviewSquarePage({
   const next = new URLSearchParams();
   const companyQuery = params.get("q");
   if (companyQuery) next.set("q", companyQuery);
+  for (const key of ["city", "position", "sort"] as const) {
+    const value = params.get(key);
+    if (value) next.set(key, value);
+  }
   if (page.nextCursor) next.set("cursor", page.nextCursor);
   return (
     <section className="interview-square-page">
       <div className="public-feed-toolbar">
-        <PublicInterviewFilters query={search} />
+        <PublicInterviewFilters query={search} facets={page.facets} />
         <Link className="public-mine-link" href={"/interviews/mine" as Route}>
           我的面经
           <svg aria-hidden="true" viewBox="0 0 16 16">

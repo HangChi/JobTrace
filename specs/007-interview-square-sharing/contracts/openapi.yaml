@@ -11,6 +11,9 @@ paths:
           in: query
           description: Case-insensitive partial company-name search
           schema: { type: string, maxLength: 200 }
+        - { name: city, in: query, schema: { type: string, maxLength: 100 } }
+        - { name: position, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: sort, in: query, schema: { type: string, enum: [latest, hot], default: latest } }
         - { name: cursor, in: query, schema: { type: string } }
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
       responses:
@@ -34,6 +37,49 @@ paths:
           description: Authentication required
         "404":
           description: Missing, private, incomplete, or unpublished
+  /api/interviews/public/{id}/like:
+    post:
+      summary: Toggle the authenticated viewer's like on a public interview
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Updated engagement counts and viewer like state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicInterviewEngagement" }
+        "401": { description: Authentication required }
+        "404": { description: Missing or no longer public }
+  /api/interviews/public/{id}/comments:
+    get:
+      summary: List newest comments for a public interview
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Sanitized attributed comments
+        "401": { description: Authentication required }
+        "404": { description: Missing or no longer public }
+    post:
+      summary: Add an attributed comment to a public interview
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, minLength: 1, maxLength: 1000 }
+              additionalProperties: false
+      responses:
+        "201":
+          description: Created comment and updated engagement counts
+        "400": { description: Invalid comment }
+        "401": { description: Authentication required }
+        "404": { description: Missing or no longer public }
   /api/interviews/{id}:
     patch:
       summary: Update an owned interview review and its publication state
@@ -74,11 +120,12 @@ components:
       additionalProperties: false
     PublicInterviewSummary:
       type: object
-      required: [id, companyName, positionName, stage, interviewedOn, publishedAt, questionCount, author]
+      required: [id, companyName, positionName, city, stage, interviewedOn, publishedAt, questionCount, author, engagement]
       properties:
         id: { type: string, format: uuid }
         companyName: { type: string }
         positionName: { type: string }
+        city: { type: [string, "null"] }
         stage: { type: string }
         interviewedOn: { type: string, format: date }
         publishedAt: { type: string, format: date-time }
@@ -87,6 +134,25 @@ components:
           oneOf:
             - { $ref: "#/components/schemas/PublicAuthor" }
             - { type: "null" }
+        engagement: { $ref: "#/components/schemas/PublicInterviewEngagement" }
+      additionalProperties: false
+    PublicInterviewEngagement:
+      type: object
+      required: [likeCount, commentCount, viewCount, likedByViewer]
+      properties:
+        likeCount: { type: integer, minimum: 0 }
+        commentCount: { type: integer, minimum: 0 }
+        viewCount: { type: integer, minimum: 0 }
+        likedByViewer: { type: boolean }
+      additionalProperties: false
+    PublicInterviewComment:
+      type: object
+      required: [id, content, createdAt, author]
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string, minLength: 1, maxLength: 1000 }
+        createdAt: { type: string, format: date-time }
+        author: { $ref: "#/components/schemas/PublicAuthor" }
       additionalProperties: false
     PublicInterviewDetail:
       allOf:
@@ -113,7 +179,7 @@ components:
         - { $ref: "#/components/schemas/PublicInterviewDetail" }
     PublicInterviewFeedPage:
       type: object
-      required: [items, total, limit, nextCursor]
+      required: [items, total, limit, nextCursor, facets]
       properties:
         items:
           type: array
@@ -121,4 +187,11 @@ components:
         total: { type: integer, minimum: 0 }
         limit: { type: integer, minimum: 1, maximum: 50 }
         nextCursor: { type: [string, "null"] }
+        facets:
+          type: object
+          required: [cities, positions]
+          properties:
+            cities: { type: array, items: { type: string } }
+            positions: { type: array, items: { type: string } }
+          additionalProperties: false
       additionalProperties: false

@@ -8,6 +8,7 @@ import {
 import { PostgresInterviewRepository } from "../infrastructure/postgres-interview-repository";
 import { parseInterviewListQuery } from "./list-query";
 import { parsePublicInterviewListQuery } from "./public-list-query";
+import { z } from "zod";
 
 const repository = () => new PostgresInterviewRepository();
 
@@ -44,13 +45,40 @@ export async function listApplicationInterviews(applicationId: string) {
 }
 
 export async function listPublicInterviews(params: URLSearchParams) {
-  await requireUser();
-  return repository().listPublic(parsePublicInterviewListQuery(params));
+  const actor = await requireUser();
+  return repository().listPublic(
+    actor.id,
+    parsePublicInterviewListQuery(params),
+  );
 }
 
 export async function getPublicInterview(id: string) {
-  await requireUser();
-  const value = await repository().getPublic(id);
+  const actor = await requireUser();
+  const value = await repository().getPublic(actor.id, id);
+  if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
+  return value;
+}
+
+export async function togglePublicInterviewLike(id: string) {
+  const actor = await requireUser();
+  const value = await repository().togglePublicLike(actor.id, id);
+  if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
+  return value;
+}
+
+const commentSchema = z.object({ content: z.string().trim().min(1).max(1000) });
+
+export async function addPublicInterviewComment(id: string, input: unknown) {
+  const actor = await requireUser();
+  const { content } = commentSchema.parse(input);
+  const value = await repository().addPublicComment(actor.id, id, content);
+  if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
+  return value;
+}
+
+export async function listPublicInterviewComments(id: string) {
+  const actor = await requireUser();
+  const value = await repository().listPublicComments(actor.id, id);
   if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
   return value;
 }

@@ -14,7 +14,7 @@
 
 **Primary Dependencies**: Next.js 16.3 App Router、React 19、Better Auth、`postgres`/`pg`、Zod 4
 
-**Storage**: 现有 PostgreSQL `interview_reviews`、`interview_questions` 和 `users`；新增枚举、列、约束与部分索引
+**Storage**: 现有 PostgreSQL `interview_reviews`、`interview_questions`、`applications` 和 `users`；新增点赞、评论、浏览关系、计数器与热度索引
 
 **Testing**: Vitest、Testing Library、临时 PostgreSQL integration/contract、Playwright E2E、axe、现有 Python 性能套件
 
@@ -24,9 +24,9 @@
 
 **Performance Goals**: 广场读取 p95 ≤500ms；发布写入 p95 ≤1s；LCP p75 ≤2.5s、INP p75 ≤200ms、CLS ≤0.1
 
-**Constraints**: 默认私有；公开必须已完成；所有写操作 owner 隔离；匿名响应不得包含作者对象；公开 DTO 不得由完整 DTO 运行时删字段生成；复用版本冲突控制
+**Constraints**: 默认私有；公开必须已完成；互动写入必须登录并二次校验公开状态；匿名响应不得包含作者对象；公开 DTO 不得由完整 DTO 运行时删字段生成；评论最长 1000 字
 
-**Scale/Scope**: 每用户最多 10,000 篇个人面经；代表性场景 1,000 篇公开面经；不新增社交互动或审核系统
+**Scale/Scope**: 每用户最多 10,000 篇个人面经；代表性场景 10,000 篇公开面经；包含点赞、评论和去重浏览，不包含收藏、关注、举报或审核系统
 
 ## Constitution Check
 
@@ -50,6 +50,8 @@
 3. 广场页面 Server Component 调用公开查询服务；服务仍要求当前登录用户，但查询不按 viewer owner 过滤，只读取 `visibility='public' AND status='completed'`。
 4. 公开仓储直接构造 `PublicInterviewSummary`/`PublicInterviewDetail`，匿名记录不 join/映射作者对象；署名记录只映射用户名和头像。
 5. 所有者列表、投递详情、分析和导出继续使用现有 owner 查询，不受分享状态过滤。
+6. 互动 Client Component 仅包裹计数与评论表单；正文和列表主体仍由 Server Component 输出。点赞、评论、浏览分别通过认证服务写入，并返回新的聚合计数。
+7. 列表从公开面经关联投递的城市、公司和岗位构造筛选项；默认按 `(publishedAt,id)`，热度按 `(hotScore,publishedAt,id)` 使用独立游标。
 
 ## Project Structure
 
@@ -84,7 +86,10 @@ src/app/(protected)/interviews/
 └── [id]/page.tsx
 src/app/api/interviews/public/
 ├── route.ts
-└── [id]/route.ts
+└── [id]/
+    ├── route.ts
+    ├── like/route.ts
+    └── comments/route.ts
 tests/{unit,component,integration,contract,e2e}/
 ```
 
@@ -96,4 +101,5 @@ tests/{unit,component,integration,contract,e2e}/
 - 增加检查约束：公开记录必须已完成且具有发布时间；私有记录不得具有发布时间。
 - 替换 owner 更新函数：非 completed 状态强制 private/anonymous/null published timestamp；首次或重新发布设置 `published_at=now()`；公开模式间切换保留当前发布时间。
 - 增加 `(published_at DESC, id DESC) WHERE visibility='public' AND status='completed'` 部分索引，并补充公开搜索所需索引。
+- 新增点赞、评论、浏览关系表；使用唯一键保证点赞与浏览去重，触发器维护非负计数，生成热度分数并建立公开热度部分索引。
 - 回滚应用时可保留新增列；紧急缓解可批量将 visibility 设为 private，使广场立即为空。

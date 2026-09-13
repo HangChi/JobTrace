@@ -2,13 +2,18 @@ import { describe, expect, it } from "vitest";
 import { parsePublicInterviewListQuery } from "@/modules/interviews/application/public-list-query";
 
 describe("public interview list query", () => {
-  it("accepts company search and pagination only", () => {
+  it("accepts company, city, position, sorting, and pagination", () => {
     expect(
       parsePublicInterviewListQuery(
-        new URLSearchParams("q=%20JobTrace%20&cursor=next&limit=20"),
+        new URLSearchParams(
+          "q=%20JobTrace%20&city=Shanghai&position=Engineer&sort=hot&cursor=next&limit=20",
+        ),
       ),
     ).toMatchObject({
       q: "JobTrace",
+      city: "Shanghai",
+      position: "Engineer",
+      sort: "hot",
       cursor: "next",
       limit: 20,
     });
@@ -20,13 +25,25 @@ describe("public interview list query", () => {
     ).toThrow();
   });
 
-  it("ignores retired advanced filters", () => {
+  it("defaults to latest ordering", () => {
     expect(
       parsePublicInterviewListQuery(
         new URLSearchParams(
           "stage=interview_1&interviewedFrom=2026-08-01&interviewedTo=2026-08-02",
         ),
       ),
-    ).toEqual({ q: "", limit: 20 });
+    ).toEqual({
+      q: "",
+      city: "",
+      position: "",
+      sort: "latest",
+      limit: 20,
+    });
+  });
+
+  it("rejects unsupported sorting", () => {
+    expect(() =>
+      parsePublicInterviewListQuery(new URLSearchParams("sort=popular")),
+    ).toThrow();
   });
 });

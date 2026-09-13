@@ -117,7 +117,10 @@ def main() -> None:
             cursor.execute(
                 """
                 update interview_reviews
-                set visibility='public',author_mode='anonymous',published_at=now()
+                set visibility='public',author_mode='anonymous',published_at=now(),
+                    like_count=mod(abs(hashtext(id::text)),80),
+                    comment_count=mod(abs(hashtext(id::text)),30),
+                    view_count=mod(abs(hashtext(id::text)),500)
                 where owner_id=%s and status='completed'
                   and mod(abs(hashtext(id::text)),2)=0
                 """,
@@ -172,11 +175,39 @@ def main() -> None:
                 (),
                 threshold_ms=500,
             )
+            measure(
+                cursor,
+                "public hot list",
+                """select r.id,a.company_name,a.position_name,a.city,
+                         r.hot_score,r.like_count,r.comment_count,r.view_count
+                   from interview_reviews r join applications a on a.id=r.application_id
+                   where r.visibility='public' and r.status='completed'
+                     and r.published_at is not null
+                   order by r.hot_score desc,r.published_at desc,r.id desc limit 21""",
+                (),
+                threshold_ms=500,
+            )
             cursor.execute(
                 """select id from interview_reviews
                    where visibility='public' and status='completed' limit 1"""
             )
             public_review_id = cursor.fetchone()[0]
+            interaction_timings: list[float] = []
+            for _ in range(25):
+                started = time.perf_counter()
+                cursor.execute(
+                    "select * from toggle_public_interview_like(%s,%s)",
+                    (owner_id, public_review_id),
+                )
+                cursor.fetchall()
+                interaction_timings.append((time.perf_counter() - started) * 1000)
+            interaction_p95 = percentile(interaction_timings)
+            print(
+                f"interview interaction: p95={interaction_p95:.2f}ms "
+                f"median={statistics.median(interaction_timings):.2f}ms"
+            )
+            if interaction_p95 > 1000:
+                raise SystemExit("interview interaction exceeds 1000ms")
             measure(
                 cursor,
                 "public detail",

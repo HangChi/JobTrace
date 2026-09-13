@@ -6,6 +6,8 @@ import type {
   InterviewDetail,
   InterviewPage,
   PublicInterviewDetail,
+  PublicInterviewComment,
+  PublicInterviewEngagement,
   PublicInterviewPage,
   StageInterviewSummary,
 } from "./contracts";
@@ -29,6 +31,28 @@ export interface InterviewRepository {
     ownerId: string,
     applicationId: string,
   ): Promise<StageInterviewSummary[]>;
-  listPublic(query: PublicInterviewListQuery): Promise<PublicInterviewPage>;
-  getPublic(id: string): Promise<PublicInterviewDetail | null>;
+  listPublic(
+    viewerId: string,
+    query: PublicInterviewListQuery,
+  ): Promise<PublicInterviewPage>;
+  getPublic(
+    viewerId: string,
+    id: string,
+  ): Promise<PublicInterviewDetail | null>;
+  togglePublicLike(
+    viewerId: string,
+    id: string,
+  ): Promise<PublicInterviewEngagement | null>;
+  addPublicComment(
+    viewerId: string,
+    id: string,
+    content: string,
+  ): Promise<{
+    comment: PublicInterviewComment;
+    engagement: PublicInterviewEngagement;
+  } | null>;
+  listPublicComments(
+    viewerId: string,
+    id: string,
+  ): Promise<PublicInterviewComment[] | null>;
 }

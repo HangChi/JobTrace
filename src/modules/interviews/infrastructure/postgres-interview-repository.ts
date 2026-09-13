@@ -10,6 +10,8 @@ import type {
   InterviewPage,
   InterviewSummary,
   PublicInterviewDetail,
+  PublicInterviewComment,
+  PublicInterviewEngagement,
   PublicInterviewFeedItem,
   PublicInterviewPage,
   PublicInterviewQuestion,
@@ -49,6 +51,7 @@ function mapPublicSummary(row: Row): PublicInterviewSummary {
     id: String(row.id),
     companyName: String(row.companyName),
     positionName: String(row.positionName),
+    city: row.city ? String(row.city) : null,
     stage: (row.displayStage ?? row.stageSnapshot) as never,
     interviewedOn: dateOnly(row.interviewedOn),
     publishedAt: String(row.publishedAt),
@@ -60,6 +63,31 @@ function mapPublicSummary(row: Row): PublicInterviewSummary {
             image: row.authorImage ? String(row.authorImage) : null,
           }
         : null,
+    engagement: mapPublicEngagement(row),
+  };
+}
+
+function mapPublicEngagement(row: Row): PublicInterviewEngagement {
+  return {
+    likeCount: Number(row.likeCount ?? 0),
+    commentCount: Number(row.commentCount ?? 0),
+    viewCount: Number(row.viewCount ?? 0),
+    likedByViewer: Boolean(row.likedByViewer ?? row.liked),
+  };
+}
+
+function mapPublicComment(row: Row): PublicInterviewComment {
+  const author = (row.author as Row | undefined) ?? row;
+  return {
+    id: String(row.id),
+    content: String(row.content),
+    createdAt: String(row.createdAt ?? row.created_at),
+    author: {
+      username: String(
+        author.username ?? author.displayUsername ?? author.displayName,
+      ),
+      image: author.image ? String(author.image) : null,
+    },
   };
 }
 
@@ -88,6 +116,9 @@ function mapPublicFeedItem(row: Row): PublicInterviewFeedItem {
     highlights: (row.highlights as string | null | undefined) ?? null,
     gaps: (row.gaps as string | null | undefined) ?? null,
     questions,
+    recentComments: Array.isArray(row.recentComments)
+      ? (row.recentComments as Row[]).map(mapPublicComment)
+      : [],
   };
 }
 
@@ -298,9 +329,21 @@ export class PostgresInterviewRepository implements InterviewRepository {
   }
 
   async listPublic(
+    viewerId: string,
     query: PublicInterviewListQuery,
   ): Promise<PublicInterviewPage> {
     const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
+    const hotCursor =
+      query.sort === "hot" && cursor
+        ? (() => {
+            const separator = cursor.value.indexOf("|");
+            const score = Number(cursor.value.slice(0, separator));
+            const publishedAt = cursor.value.slice(separator + 1);
+            if (separator < 1 || !Number.isFinite(score) || !publishedAt)
+              throw new Problem("validation", "分页参数无效。", 400);
+            return { score, publishedAt, id: cursor.id };
+          })()
+        : null;
     const filters = this.sql`
       r.visibility='public' and r.status='completed' and r.published_at is not null
       ${
@@ -309,6 +352,16 @@ export class PostgresInterviewRepository implements InterviewRepository {
               .sql`and lower(a.company_name) like ${`%${query.q.toLowerCase()}%`}`
           : this.sql``
       }
+      ${query.city ? this.sql`and a.city=${query.city}` : this.sql``}
+      ${query.position ? this.sql`and a.position_name=${query.position}` : this.sql``}
+    `;
+    const [facets] = await this.sql<Row[]>`
+      select
+        coalesce(array_agg(distinct a.city order by a.city)
+          filter(where nullif(trim(a.city),'') is not null),'{}') cities,
+        coalesce(array_agg(distinct a.position_name order by a.position_name),'{}') positions
+      from interview_reviews r join applications a on a.id=r.application_id
+      where r.visibility='public' and r.status='completed' and r.published_at is not null
     `;
     const rows = await this.sql<Row[]>`
       select selected.*,totals.total_count,
@@ -324,7 +377,22 @@ export class PostgresInterviewRepository implements InterviewRepository {
             ) order by q.sort_order
           )
           from interview_questions q where q.interview_review_id=selected.id
-        ),'[]'::jsonb) questions
+        ),'[]'::jsonb) questions,
+        coalesce((
+          select jsonb_agg(jsonb_build_object(
+            'id',recent.id,'content',recent.content,'createdAt',recent.created_at,
+            'author',jsonb_build_object(
+              'username',coalesce(recent.display_username,recent.username,recent.display_name),
+              'image',recent.image
+            )
+          ) order by recent.created_at,recent.id)
+          from (
+            select c.id,c.content,c.created_at,u.username,u.display_username,u.display_name,u.image
+            from interview_review_comments c join users u on u.id=c.user_id
+            where c.interview_review_id=selected.id
+            order by c.created_at desc,c.id desc limit 2
+          ) recent
+        ),'[]'::jsonb) recent_comments
       from (
         select count(*)::int total_count
         from interview_reviews r
@@ -334,19 +402,26 @@ export class PostgresInterviewRepository implements InterviewRepository {
       ) totals
       left join lateral (
         select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,r.author_mode,
-          r.highlights,r.gaps,
-          a.company_name,a.position_name,coalesce(s.stage,r.stage_snapshot) display_stage,
-          u.username author_username,u.image author_image
+          r.highlights,r.gaps,r.like_count,r.comment_count,r.view_count,r.hot_score,
+          a.company_name,a.position_name,a.city,coalesce(s.stage,r.stage_snapshot) display_stage,
+          u.username author_username,u.image author_image,
+          exists(select 1 from interview_review_likes viewer_like
+            where viewer_like.interview_review_id=r.id and viewer_like.user_id=${viewerId}) liked_by_viewer
         from interview_reviews r
         join applications a on a.id=r.application_id
         left join application_stage_occurrences s on s.id=r.stage_occurrence_id
         left join users u on u.id=r.owner_id and r.author_mode='attributed'
         where ${filters}
-          ${cursor ? this.sql`and (r.published_at,r.id)<(${cursor.value}::timestamptz,${cursor.id}::uuid)` : this.sql``}
-        order by r.published_at desc,r.id desc
+          ${query.sort === "latest" && cursor ? this.sql`and (r.published_at,r.id)<(${cursor.value}::timestamptz,${cursor.id}::uuid)` : this.sql``}
+          ${hotCursor ? this.sql`and (r.hot_score,r.published_at,r.id)<(${hotCursor.score}::bigint,${hotCursor.publishedAt}::timestamptz,${hotCursor.id}::uuid)` : this.sql``}
+        order by
+          ${query.sort === "hot" ? this.sql`r.hot_score desc,` : this.sql``}
+          r.published_at desc,r.id desc
         limit ${query.limit + 1}
       ) selected on true
-      order by selected.published_at desc,selected.id desc
+      order by
+        ${query.sort === "hot" ? this.sql`selected.hot_score desc,` : this.sql``}
+        selected.published_at desc,selected.id desc
     `;
     const dataRows = rows.filter((row) => row.id);
     const items = dataRows.slice(0, query.limit).map(mapPublicFeedItem);
@@ -358,19 +433,41 @@ export class PostgresInterviewRepository implements InterviewRepository {
       nextCursor:
         dataRows.length > query.limit && last
           ? encodeCursor({
-              value: String(last.publishedAt),
+              value:
+                query.sort === "hot"
+                  ? `${Number(last.hotScore)}|${String(last.publishedAt)}`
+                  : String(last.publishedAt),
               id: String(last.id),
             })
           : null,
+      facets: {
+        cities: Array.isArray(facets?.cities) ? facets.cities.map(String) : [],
+        positions: Array.isArray(facets?.positions)
+          ? facets.positions.map(String)
+          : [],
+      },
     };
   }
 
-  async getPublic(id: string): Promise<PublicInterviewDetail | null> {
+  async getPublic(
+    viewerId: string,
+    id: string,
+  ): Promise<PublicInterviewDetail | null> {
+    try {
+      await this
+        .sql`select * from public.record_public_interview_view(${viewerId},${id})`;
+    } catch (error) {
+      if ((error as { code?: string }).code === "P0002") return null;
+      throw error;
+    }
     const [row] = await this.sql<Row[]>`
       select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,r.author_mode,
-        r.highlights,r.gaps,a.company_name,a.position_name,
+        r.highlights,r.gaps,r.like_count,r.comment_count,r.view_count,
+        a.company_name,a.position_name,a.city,
         coalesce(s.stage,r.stage_snapshot) display_stage,
         u.username author_username,u.image author_image,
+        exists(select 1 from interview_review_likes viewer_like
+          where viewer_like.interview_review_id=r.id and viewer_like.user_id=${viewerId}) liked_by_viewer,
         (select count(*)::int from interview_questions q where q.interview_review_id=r.id) question_count
       from interview_reviews r
       join applications a on a.id=r.application_id
@@ -380,15 +477,82 @@ export class PostgresInterviewRepository implements InterviewRepository {
         and r.published_at is not null
     `;
     if (!row) return null;
-    const questions = await this.sql<Row[]>`
-      select category,question,original_answer,follow_up_notes,improved_answer
-      from interview_questions where interview_review_id=${id} order by sort_order
-    `;
+    const [questions, comments] = await Promise.all([
+      this.sql<Row[]>`
+        select category,question,original_answer,follow_up_notes,improved_answer
+        from interview_questions where interview_review_id=${id} order by sort_order
+      `,
+      this.sql<Row[]>`
+        select c.id,c.content,c.created_at,
+          coalesce(u.display_username,u.username,u.display_name) username,u.image
+        from interview_review_comments c join users u on u.id=c.user_id
+        where c.interview_review_id=${id}
+        order by c.created_at desc,c.id desc limit 20
+      `,
+    ]);
     return {
       ...mapPublicSummary(row),
       highlights: row.highlights as string | null,
       gaps: row.gaps as string | null,
       questions: questions.map(mapPublicQuestion),
+      recentComments: comments.map(mapPublicComment),
     };
+  }
+
+  async togglePublicLike(viewerId: string, id: string) {
+    try {
+      const [row] = await this.sql<Row[]>`
+        select * from public.toggle_public_interview_like(${viewerId},${id})
+      `;
+      return row ? mapPublicEngagement(row) : null;
+    } catch (error) {
+      if ((error as { code?: string }).code === "P0002") return null;
+      throw error;
+    }
+  }
+
+  async addPublicComment(viewerId: string, id: string, content: string) {
+    try {
+      const [comment] = await this.sql<Row[]>`
+        select created.id,created.content,created.created_at,
+          coalesce(u.display_username,u.username,u.display_name) username,u.image
+        from public.add_public_interview_comment(${viewerId},${id},${content}) created
+        join users u on u.id=created.user_id
+      `;
+      const [counts] = await this.sql<Row[]>`
+        select r.like_count,r.comment_count,r.view_count,
+          exists(select 1 from interview_review_likes viewer_like
+            where viewer_like.interview_review_id=r.id and viewer_like.user_id=${viewerId}) liked_by_viewer
+        from interview_reviews r where r.id=${id}
+      `;
+      if (!comment || !counts) return null;
+      return {
+        comment: mapPublicComment(comment),
+        engagement: mapPublicEngagement(counts),
+      };
+    } catch (error) {
+      if ((error as { code?: string }).code === "P0002") return null;
+      throw error;
+    }
+  }
+
+  async listPublicComments(viewerId: string, id: string) {
+    const rows = await this.sql<Row[]>`
+      select r.id review_id,c.id,c.content,c.created_at,
+        coalesce(u.display_username,u.username,u.display_name) username,u.image
+      from interview_reviews r
+      left join lateral (
+        select * from interview_review_comments
+        where interview_review_id=r.id
+        order by created_at desc,id desc limit 50
+      ) c on true
+      left join users u on u.id=c.user_id
+      where r.id=${id} and r.visibility='public' and r.status='completed'
+        and r.published_at is not null
+      order by c.created_at desc,c.id desc
+    `;
+    void viewerId;
+    if (!rows.length) return null;
+    return rows.filter((row) => row.id).map(mapPublicComment);
   }
 }

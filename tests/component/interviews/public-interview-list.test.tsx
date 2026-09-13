@@ -10,16 +10,24 @@ describe("面经广场动态流", () => {
           total: 1,
           limit: 20,
           nextCursor: null,
+          facets: { cities: ["上海"], positions: ["前端工程师"] },
           items: [
             {
               id: "11111111-1111-4111-8111-111111111111",
               companyName: "轨迹科技",
               positionName: "前端工程师",
+              city: "上海",
               stage: "interview_1",
               interviewedOn: "2026-09-10",
               publishedAt: "2026-09-13T08:00:00.000Z",
               questionCount: 2,
               author: null,
+              engagement: {
+                likeCount: 3,
+                commentCount: 1,
+                viewCount: 12,
+                likedByViewer: false,
+              },
               highlights: "表达清晰",
               gaps: null,
               questions: [
@@ -38,6 +46,7 @@ describe("面经广场动态流", () => {
                   improvedAnswer: null,
                 },
               ],
+              recentComments: [],
             },
           ],
         }}
@@ -51,6 +60,7 @@ describe("面经广场动态流", () => {
     expect(article).toHaveTextContent("2026年9月13日");
     expect(article).toHaveTextContent("使用布隆过滤器和空值缓存");
     expect(article).toHaveTextContent("补充限流和监控");
+    expect(article).toHaveTextContent("12");
     expect(article).not.toHaveTextContent("不会在动态中直接展开的第二个问题");
     expect(article).not.toHaveTextContent("表达清晰");
     expect(screen.getByRole("link", { name: /轨迹科技/ })).toHaveAttribute(

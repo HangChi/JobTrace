@@ -694,6 +694,26 @@ export const databaseSchema = {
       "name": "published_at",
       "type": "timestamp with time zone",
       "nullable": true
+    },
+    {
+      "name": "like_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "comment_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "view_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "hot_score",
+      "type": "bigint",
+      "nullable": true
     }
   ],
   "job_market_campaign_favorites": [
