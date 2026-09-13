@@ -422,6 +422,12 @@
   background: color-mix(in srgb, var(--sky) 52%, var(--surface));
 }
 
+.interview-filters.personal-interview-filters {
+  grid-template-columns:
+    minmax(220px, 1.65fr) repeat(4, minmax(112px, 0.8fr))
+    max-content;
+}
+
 .analytics-report-filters {
   border-color: #ddd6e5;
   background: color-mix(in srgb, var(--lavender) 42%, var(--surface));
@@ -1144,6 +1150,10 @@ input[type="file"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .interview-filters.personal-interview-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .filter-bar label:first-child,
   .application-filter-actions {
     grid-column: 1 / -1;
@@ -1278,6 +1288,10 @@ input[type="file"] {
   .filter-bar,
   .interview-filters,
   .analytics-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .interview-filters.personal-interview-filters {
     grid-template-columns: 1fr;
   }
 

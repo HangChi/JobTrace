@@ -20,7 +20,7 @@ export function InterviewFilters({
     Array.isArray(value) ? value[0] : value;
   return (
     <form
-      className="panel interview-filters"
+      className="panel interview-filters personal-interview-filters"
       method="get"
       action="/interviews/mine"
     >
