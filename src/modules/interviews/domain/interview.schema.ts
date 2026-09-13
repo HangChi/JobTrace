@@ -1,7 +1,9 @@
 import { z } from "zod";
 import {
   INTERVIEW_FORMATS,
+  INTERVIEW_AUTHOR_MODES,
   INTERVIEW_STAGES,
+  INTERVIEW_VISIBILITIES,
   QUESTION_CATEGORIES,
   REVIEW_STATUSES,
   ROUND_RESULTS,
@@ -67,6 +69,8 @@ export const updateInterviewSchema = z.object({
   highlights: optionalText(10000),
   gaps: optionalText(10000),
   status: z.enum(REVIEW_STATUSES).default("draft"),
+  visibility: z.enum(INTERVIEW_VISIBILITIES).optional(),
+  authorMode: z.enum(INTERVIEW_AUTHOR_MODES).optional(),
   questions: z.array(questionInputSchema).max(200).default([]),
   actionItems: z.array(actionItemInputSchema).max(100).default([]),
 });

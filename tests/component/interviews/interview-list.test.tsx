@@ -44,6 +44,9 @@ describe("面经列表", () => {
               linked: true,
               questionCount: 1,
               actionCount: 1,
+              visibility: "private",
+              authorMode: "anonymous",
+              publishedAt: null,
             },
           ],
         }}
@@ -51,6 +54,9 @@ describe("面经列表", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "删除" }));
+    expect(
+      screen.getByText("私有", { selector: ".publication-status" }),
+    ).toBeVisible();
     expect(screen.getByRole("dialog")).toHaveTextContent(
       "闭环科技 · 前端工程师 · 一面",
     );
@@ -72,6 +78,9 @@ describe("面经列表", () => {
       linked: true,
       questionCount: 1,
       actionCount: 1,
+      visibility: "public" as const,
+      authorMode: "anonymous" as const,
+      publishedAt: "2026-08-19T00:00:00.000Z",
     };
     const second = {
       ...first,

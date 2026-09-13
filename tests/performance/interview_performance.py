@@ -17,7 +17,13 @@ def percentile(values: list[float], percent: float = 0.95) -> float:
     return ordered[min(len(ordered) - 1, int(len(ordered) * percent))]
 
 
-def measure(cursor: psycopg.Cursor, name: str, query: str, parameters: tuple[object, ...]) -> None:
+def measure(
+    cursor: psycopg.Cursor,
+    name: str,
+    query: str,
+    parameters: tuple[object, ...],
+    threshold_ms: float = 1000,
+) -> None:
     timings: list[float] = []
     for _ in range(25):
         started = time.perf_counter()
@@ -26,8 +32,8 @@ def measure(cursor: psycopg.Cursor, name: str, query: str, parameters: tuple[obj
         timings.append((time.perf_counter() - started) * 1000)
     p95 = percentile(timings)
     print(f"interview {name}: p95={p95:.2f}ms median={statistics.median(timings):.2f}ms")
-    if p95 > 1000:
-        raise SystemExit(f"interview {name} exceeds 1000ms")
+    if p95 > threshold_ms:
+        raise SystemExit(f"interview {name} exceeds {threshold_ms:.0f}ms")
 
 
 def main() -> None:
@@ -108,6 +114,15 @@ def main() -> None:
                 """,
                 (owner_id,),
             )
+            cursor.execute(
+                """
+                update interview_reviews
+                set visibility='public',author_mode='anonymous',published_at=now()
+                where owner_id=%s and status='completed'
+                  and mod(abs(hashtext(id::text)),2)=0
+                """,
+                (owner_id,),
+            )
             measure(
                 cursor,
                 "list",
@@ -134,6 +149,79 @@ def main() -> None:
                    ) order by r.interviewed_on desc,r.id desc limit 50""",
                 (owner_id,),
             )
+            measure(
+                cursor,
+                "public list",
+                """select r.id,a.company_name,a.position_name,r.published_at,
+                         (select count(*) from interview_questions q
+                          where q.interview_review_id=r.id) question_count
+                   from interview_reviews r
+                   join applications a on a.id=r.application_id
+                   where r.visibility='public' and r.status='completed'
+                     and r.published_at is not null
+                   order by r.published_at desc,r.id desc limit 51""",
+                (),
+                threshold_ms=500,
+            )
+            cursor.execute(
+                """select id from interview_reviews
+                   where visibility='public' and status='completed' limit 1"""
+            )
+            public_review_id = cursor.fetchone()[0]
+            measure(
+                cursor,
+                "public detail",
+                """select r.id,r.highlights,r.gaps,a.company_name,a.position_name,
+                         q.category,q.question,q.original_answer,q.follow_up_notes,
+                         q.improved_answer
+                   from interview_reviews r
+                   join applications a on a.id=r.application_id
+                   join interview_questions q on q.interview_review_id=r.id
+                   where r.id=%s and r.visibility='public' and r.status='completed'
+                     and r.published_at is not null
+                   order by q.sort_order""",
+                (public_review_id,),
+                threshold_ms=500,
+            )
+
+            cursor.execute(
+                """select id,version from interview_reviews
+                   where owner_id=%s and status='completed' and visibility='private'
+                   limit 1""",
+                (owner_id,),
+            )
+            publish_review_id, publish_version = cursor.fetchone()
+            publish_timings: list[float] = []
+            publish_payload = (
+                '{"status":"completed","visibility":"public",'
+                '"authorMode":"anonymous",'
+                '"questions":[{"category":"technical",'
+                '"question":"Performance publish"}],'
+                '"actionItems":[{"content":"Performance action",'
+                '"completed":false}]}'
+            )
+            for _ in range(25):
+                started = time.perf_counter()
+                cursor.execute(
+                    "select update_interview_review_for_owner(%s,%s,%s,%s::jsonb)",
+                    (owner_id, publish_review_id, publish_version, publish_payload),
+                )
+                cursor.fetchone()
+                publish_timings.append((time.perf_counter() - started) * 1000)
+                publish_version += 1
+                cursor.execute(
+                    """update interview_reviews
+                       set visibility='private',author_mode='anonymous',published_at=null
+                       where id=%s""",
+                    (publish_review_id,),
+                )
+            publish_p95 = percentile(publish_timings)
+            print(
+                f"interview publish: p95={publish_p95:.2f}ms "
+                f"median={statistics.median(publish_timings):.2f}ms"
+            )
+            if publish_p95 > 1000:
+                raise SystemExit("interview publish exceeds 1000ms")
 
             cursor.execute(
                 "select id,version from interview_reviews where owner_id=%s limit 1",

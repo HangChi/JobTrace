@@ -20,8 +20,20 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
   const [markdown, setMarkdown] = useState(() => interviewToMarkdown(initial));
   const [revision, setRevision] = useState(0);
   const [completionError, setCompletionError] = useState("");
+  const [publicationNotice, setPublicationNotice] = useState("");
   const change = useCallback((patch: Partial<InterviewDetail>) => {
-    setDraft((current) => ({ ...current, ...patch }));
+    setDraft((current) => {
+      const next = { ...current, ...patch };
+      if (next.status !== "completed") {
+        next.visibility = "private";
+        next.authorMode = "anonymous";
+        next.publishedAt = null;
+      } else if (next.visibility === "private") {
+        next.authorMode = "anonymous";
+        next.publishedAt = null;
+      }
+      return next;
+    });
     setRevision((value) => value + 1);
   }, []);
   const payload = useMemo(
@@ -35,6 +47,8 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
       highlights: draft.highlights,
       gaps: draft.gaps,
       status: draft.status,
+      visibility: draft.visibility,
+      authorMode: draft.authorMode,
       questions: draft.questions.filter((item) => item.question.trim()),
       actionItems: draft.actionItems.filter((item) => item.content.trim()),
     }),
@@ -43,7 +57,14 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
   const onSaved = useCallback((value: InterviewDetail) => {
     // Keep the locally edited fields and caret position; autosave only returns
     // the server version needed for the next optimistic-concurrency update.
-    setDraft((current) => ({ ...current, version: value.version }));
+    setDraft((current) => ({
+      ...current,
+      version: value.version,
+      status: value.status,
+      visibility: value.visibility,
+      authorMode: value.authorMode,
+      publishedAt: value.publishedAt,
+    }));
   }, []);
   const autosave = useInterviewAutosave({
     id: draft.id,
@@ -177,6 +198,11 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
       <InterviewQuestionList
         value={markdown}
         onChange={(value) => {
+          if (draft.visibility === "public") {
+            setPublicationNotice(
+              "内容已进入待复盘状态，这篇面经将自动从面经广场下架。",
+            );
+          }
           setMarkdown(value);
           change({
             questions: value.trim()
@@ -204,14 +230,112 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           });
         }}
       />
+      <section className="panel stack interview-publication-settings">
+        <div className="section-heading">
+          <div>
+            <h2>分享设置</h2>
+            <p className="section-description" id="publication-help">
+              默认仅自己可见。公开后仅分享公司、岗位、轮次、日期和面经正文；投递关联、面试官备注、行动项与个人评分不会公开。
+            </p>
+          </div>
+          <span
+            className={`publication-status publication-${draft.visibility}-${draft.authorMode}`}
+          >
+            {draft.visibility === "private"
+              ? "私有"
+              : draft.authorMode === "anonymous"
+                ? "匿名公开"
+                : "署名公开"}
+          </span>
+        </div>
+        <fieldset aria-describedby="publication-help">
+          <legend>谁可以看到这篇面经</legend>
+          <label className="publication-option">
+            <input
+              type="radio"
+              name="visibility"
+              checked={draft.visibility === "private"}
+              onChange={() =>
+                change({ visibility: "private", authorMode: "anonymous" })
+              }
+            />
+            <span>
+              <strong>仅自己可见</strong>
+              <small>不会出现在面经广场。</small>
+            </span>
+          </label>
+          <label className="publication-option">
+            <input
+              type="radio"
+              name="visibility"
+              checked={draft.visibility === "public"}
+              disabled={draft.status !== "completed"}
+              onChange={() => {
+                setPublicationNotice("");
+                change({ visibility: "public", authorMode: "anonymous" });
+              }}
+            />
+            <span>
+              <strong>公开到面经广场</strong>
+              <small>
+                {draft.status === "completed"
+                  ? "所有已登录用户可阅读脱敏内容。"
+                  : "完成复盘后才能公开。"}
+              </small>
+            </span>
+          </label>
+        </fieldset>
+        {draft.visibility === "public" && (
+          <fieldset>
+            <legend>作者展示</legend>
+            <label className="publication-option">
+              <input
+                type="radio"
+                name="authorMode"
+                checked={draft.authorMode === "anonymous"}
+                onChange={() => change({ authorMode: "anonymous" })}
+              />
+              <span>
+                <strong>匿名发布</strong>
+                <small>广场不会返回或展示你的账号信息。</small>
+              </span>
+            </label>
+            <label className="publication-option">
+              <input
+                type="radio"
+                name="authorMode"
+                checked={draft.authorMode === "attributed"}
+                onChange={() => change({ authorMode: "attributed" })}
+              />
+              <span>
+                <strong>署名发布</strong>
+                <small>只展示头像和用户名。</small>
+              </span>
+            </label>
+          </fieldset>
+        )}
+        {draft.publishedAt && (
+          <p className="muted">
+            当前版本已发布：
+            <time dateTime={draft.publishedAt}>
+              {new Date(draft.publishedAt).toLocaleString("zh-CN")}
+            </time>
+          </p>
+        )}
+        {publicationNotice && (
+          <p className="field-help" role="status">
+            {publicationNotice}
+          </p>
+        )}
+      </section>
       <footer className="interview-editor-footer">
         <nav className="interview-editor-nav" aria-label="离开面经编辑">
           <Link
             className="button secondary"
-            href="/interviews"
+            href="/interviews/mine"
             onClick={() => void autosave.flush()}
           >
-            返回面经列表
+            返回个人面经
           </Link>
           <Link
             className="button secondary"

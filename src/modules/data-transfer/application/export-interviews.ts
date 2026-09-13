@@ -61,6 +61,10 @@ function mapDetail(row: Row): InterviewDetail {
     linked: Boolean(row.stageOccurrenceId),
     questionCount: questions.length,
     actionCount: actionItems.length,
+    visibility: (row.visibility ?? "private") as InterviewDetail["visibility"],
+    authorMode: (row.authorMode ??
+      "anonymous") as InterviewDetail["authorMode"],
+    publishedAt: row.publishedAt ? String(row.publishedAt) : null,
     format: row.format as InterviewDetail["format"],
     durationMinutes:
       row.durationMinutes == null ? null : Number(row.durationMinutes),

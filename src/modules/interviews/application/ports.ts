@@ -5,9 +5,12 @@ import type {
 import type {
   InterviewDetail,
   InterviewPage,
+  PublicInterviewDetail,
+  PublicInterviewPage,
   StageInterviewSummary,
 } from "./contracts";
 import type { InterviewListQuery } from "./list-query";
+import type { PublicInterviewListQuery } from "./public-list-query";
 
 export interface InterviewRepository {
   create(
@@ -26,4 +29,6 @@ export interface InterviewRepository {
     ownerId: string,
     applicationId: string,
   ): Promise<StageInterviewSummary[]>;
+  listPublic(query: PublicInterviewListQuery): Promise<PublicInterviewPage>;
+  getPublic(id: string): Promise<PublicInterviewDetail | null>;
 }

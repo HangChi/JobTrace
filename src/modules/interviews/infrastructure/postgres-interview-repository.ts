@@ -4,10 +4,14 @@ import { dateOnly } from "@/shared/date/date-only";
 import { decodeCursor, encodeCursor } from "@/shared/pagination/cursor";
 import type { InterviewRepository } from "../application/ports";
 import type { InterviewListQuery } from "../application/list-query";
+import type { PublicInterviewListQuery } from "../application/public-list-query";
 import type {
   InterviewDetail,
   InterviewPage,
   InterviewSummary,
+  PublicInterviewDetail,
+  PublicInterviewPage,
+  PublicInterviewSummary,
 } from "../application/contracts";
 import type {
   CreateInterviewInput,
@@ -32,6 +36,28 @@ function mapSummary(row: Row): InterviewSummary {
     linked: Boolean(row.stageOccurrenceId),
     questionCount: Number(row.questionCount ?? 0),
     actionCount: Number(row.actionCount ?? 0),
+    visibility: (row.visibility ?? "private") as never,
+    authorMode: (row.authorMode ?? "anonymous") as never,
+    publishedAt: row.publishedAt ? String(row.publishedAt) : null,
+  };
+}
+
+function mapPublicSummary(row: Row): PublicInterviewSummary {
+  return {
+    id: String(row.id),
+    companyName: String(row.companyName),
+    positionName: String(row.positionName),
+    stage: (row.displayStage ?? row.stageSnapshot) as never,
+    interviewedOn: dateOnly(row.interviewedOn),
+    publishedAt: String(row.publishedAt),
+    questionCount: Number(row.questionCount ?? 0),
+    author:
+      row.authorMode === "attributed"
+        ? {
+            username: String(row.authorUsername),
+            image: row.authorImage ? String(row.authorImage) : null,
+          }
+        : null,
   };
 }
 
@@ -130,7 +156,14 @@ export class PostgresInterviewRepository implements InterviewRepository {
       if (code === "P0002")
         throw new Problem("not_found", "没有找到这篇面经。", 404);
       if (code === "23514")
-        throw new Problem("validation", "请先填写面经内容，再完成复盘。", 400);
+        throw new Problem(
+          "validation",
+          (error as { message?: string }).message ===
+            "review_publish_incomplete"
+            ? "请先完成复盘，再公开面经。"
+            : "请先填写面经内容，再完成复盘。",
+          400,
+        );
       if (code === "22023")
         throw new Problem("validation", "面试 / 测评日期无效。", 400);
       throw new Problem("storage", "保存面经失败，请稍后重试。", 500);
@@ -157,6 +190,15 @@ export class PostgresInterviewRepository implements InterviewRepository {
         ${query.result.length ? this.sql`and r.round_result=any(${query.result}::round_result[])` : this.sql``}
         ${query.interviewedFrom ? this.sql`and r.interviewed_on>=${query.interviewedFrom}::date` : this.sql``}
         ${query.interviewedTo ? this.sql`and r.interviewed_on<=${query.interviewedTo}::date` : this.sql``}
+        ${
+          query.publication.length
+            ? this.sql`and (
+          (${query.publication.includes("private")} and r.visibility='private')
+          or (${query.publication.includes("anonymous")} and r.visibility='public' and r.author_mode='anonymous')
+          or (${query.publication.includes("attributed")} and r.visibility='public' and r.author_mode='attributed')
+        )`
+            : this.sql``
+        }
     `;
     const rows = await this.sql<Row[]>`
       select selected.*, totals.total_count,
@@ -223,5 +265,98 @@ export class PostgresInterviewRepository implements InterviewRepository {
         ? String(item.stageOccurrenceId)
         : null,
     }));
+  }
+
+  async listPublic(
+    query: PublicInterviewListQuery,
+  ): Promise<PublicInterviewPage> {
+    const cursor = query.cursor ? decodeCursor(query.cursor) : undefined;
+    const filters = this.sql`
+      r.visibility='public' and r.status='completed' and r.published_at is not null
+      ${
+        query.q
+          ? this.sql`and (
+        lower(a.company_name||' '||a.position_name) like ${`%${query.q.toLowerCase()}%`}
+        or exists(select 1 from interview_questions q where q.interview_review_id=r.id and lower(q.question) like ${`%${query.q.toLowerCase()}%`})
+      )`
+          : this.sql``
+      }
+      ${query.stage.length ? this.sql`and coalesce(s.stage,r.stage_snapshot)=any(${query.stage}::recruitment_stage[])` : this.sql``}
+      ${query.interviewedFrom ? this.sql`and r.interviewed_on>=${query.interviewedFrom}::date` : this.sql``}
+      ${query.interviewedTo ? this.sql`and r.interviewed_on<=${query.interviewedTo}::date` : this.sql``}
+    `;
+    const rows = await this.sql<Row[]>`
+      select selected.*,totals.total_count,
+        (select count(*)::int from interview_questions q where q.interview_review_id=selected.id) question_count
+      from (
+        select count(*)::int total_count
+        from interview_reviews r
+        join applications a on a.id=r.application_id
+        left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+        where ${filters}
+      ) totals
+      left join lateral (
+        select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,r.author_mode,
+          a.company_name,a.position_name,coalesce(s.stage,r.stage_snapshot) display_stage,
+          u.username author_username,u.image author_image
+        from interview_reviews r
+        join applications a on a.id=r.application_id
+        left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+        left join users u on u.id=r.owner_id and r.author_mode='attributed'
+        where ${filters}
+          ${cursor ? this.sql`and (r.published_at,r.id)<(${cursor.value}::timestamptz,${cursor.id}::uuid)` : this.sql``}
+        order by r.published_at desc,r.id desc
+        limit ${query.limit + 1}
+      ) selected on true
+      order by selected.published_at desc,selected.id desc
+    `;
+    const dataRows = rows.filter((row) => row.id);
+    const items = dataRows.slice(0, query.limit).map(mapPublicSummary);
+    const last = dataRows[query.limit - 1];
+    return {
+      items,
+      total: Number(rows[0]?.totalCount ?? 0),
+      limit: query.limit,
+      nextCursor:
+        dataRows.length > query.limit && last
+          ? encodeCursor({
+              value: String(last.publishedAt),
+              id: String(last.id),
+            })
+          : null,
+    };
+  }
+
+  async getPublic(id: string): Promise<PublicInterviewDetail | null> {
+    const [row] = await this.sql<Row[]>`
+      select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,r.author_mode,
+        r.highlights,r.gaps,a.company_name,a.position_name,
+        coalesce(s.stage,r.stage_snapshot) display_stage,
+        u.username author_username,u.image author_image,
+        (select count(*)::int from interview_questions q where q.interview_review_id=r.id) question_count
+      from interview_reviews r
+      join applications a on a.id=r.application_id
+      left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+      left join users u on u.id=r.owner_id and r.author_mode='attributed'
+      where r.id=${id} and r.visibility='public' and r.status='completed'
+        and r.published_at is not null
+    `;
+    if (!row) return null;
+    const questions = await this.sql<Row[]>`
+      select category,question,original_answer,follow_up_notes,improved_answer
+      from interview_questions where interview_review_id=${id} order by sort_order
+    `;
+    return {
+      ...mapPublicSummary(row),
+      highlights: row.highlights as string | null,
+      gaps: row.gaps as string | null,
+      questions: questions.map((question) => ({
+        category: question.category as never,
+        question: String(question.question),
+        originalAnswer: question.originalAnswer as string | null,
+        followUpNotes: question.followUpNotes as string | null,
+        improvedAnswer: question.improvedAnswer as string | null,
+      })),
+    };
   }
 }

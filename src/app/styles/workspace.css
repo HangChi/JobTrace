@@ -474,6 +474,7 @@
 .stage-badge,
 .review-status,
 .round-result,
+.publication-status,
 .status-menu-trigger {
   border-color: var(--line);
   color: var(--ink);

@@ -1,0 +1,106 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Interview Square API
+  version: 1.0.0
+paths:
+  /api/interviews/public:
+    get:
+      summary: List completed public interview reviews for an authenticated viewer
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: stage, in: query, schema: { type: array, items: { type: string } }, explode: true }
+        - { name: interviewedFrom, in: query, schema: { type: string, format: date } }
+        - { name: interviewedTo, in: query, schema: { type: string, format: date } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        "200":
+          description: Public interview page
+        "401":
+          description: Authentication required
+  /api/interviews/public/{id}:
+    get:
+      summary: Read one completed public interview review
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Minimal public interview detail
+        "401":
+          description: Authentication required
+        "404":
+          description: Missing, private, incomplete, or unpublished
+  /api/interviews/{id}:
+    patch:
+      summary: Update an owned interview review and its publication state
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, status, questions, actionItems]
+              properties:
+                version: { type: integer, minimum: 1 }
+                status: { type: string, enum: [draft, pending_review, completed] }
+                visibility: { type: string, enum: [private, public] }
+                authorMode: { type: string, enum: [anonymous, attributed] }
+      responses:
+        "200":
+          description: Updated owner detail including sharing fields
+        "400":
+          description: Invalid publication state
+        "401":
+          description: Authentication required
+        "404":
+          description: Owned interview not found
+        "409":
+          description: Version conflict
+
+components:
+  schemas:
+    PublicAuthor:
+      type: object
+      required: [username, image]
+      properties:
+        username: { type: string }
+        image: { type: [string, "null"] }
+      additionalProperties: false
+    PublicInterviewSummary:
+      type: object
+      required: [id, companyName, positionName, stage, interviewedOn, publishedAt, questionCount, author]
+      properties:
+        id: { type: string, format: uuid }
+        companyName: { type: string }
+        positionName: { type: string }
+        stage: { type: string }
+        interviewedOn: { type: string, format: date }
+        publishedAt: { type: string, format: date-time }
+        questionCount: { type: integer, minimum: 0 }
+        author:
+          oneOf:
+            - { $ref: "#/components/schemas/PublicAuthor" }
+            - { type: "null" }
+      additionalProperties: false
+    PublicInterviewDetail:
+      allOf:
+        - { $ref: "#/components/schemas/PublicInterviewSummary" }
+        - type: object
+          required: [highlights, gaps, questions]
+          properties:
+            highlights: { type: [string, "null"] }
+            gaps: { type: [string, "null"] }
+            questions:
+              type: array
+              items:
+                type: object
+                required: [category, question, originalAnswer, followUpNotes, improvedAnswer]
+                properties:
+                  category: { type: string }
+                  question: { type: string }
+                  originalAnswer: { type: [string, "null"] }
+                  followUpNotes: { type: [string, "null"] }
+                  improvedAnswer: { type: [string, "null"] }
+                additionalProperties: false

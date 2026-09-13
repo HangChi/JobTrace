@@ -63,6 +63,7 @@ export function AccountMenu({ actor }: { actor: Actor }) {
             </span>
           </div>
           <Link href={"/profile" as Route}>个人中心</Link>
+          <Link href={"/interviews/mine" as Route}>个人面经</Link>
           <Link href="/import">导入投递记录</Link>
           {actor.role === "admin" && <Link href="/admin">管理后台</Link>}
           <form action={logoutAction}>

@@ -679,6 +679,21 @@ export const databaseSchema = {
       "name": "updated_at",
       "type": "timestamp with time zone",
       "nullable": false
+    },
+    {
+      "name": "visibility",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "author_mode",
+      "type": "USER-DEFINED",
+      "nullable": false
+    },
+    {
+      "name": "published_at",
+      "type": "timestamp with time zone",
+      "nullable": true
     }
   ],
   "job_market_campaign_favorites": [

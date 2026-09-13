@@ -3,13 +3,16 @@ import { parseInterviewListQuery } from "@/modules/interviews/application/list-q
 
 describe("interview list query", () => {
   it("uses stable defaults and trims free-text search", () => {
-    const query = parseInterviewListQuery(new URLSearchParams("q=%20Acme%20"));
+    const query = parseInterviewListQuery(
+      new URLSearchParams("q=%20Acme%20&status=&stage=&result=&publication="),
+    );
 
     expect(query).toMatchObject({
       q: "Acme",
       status: [],
       stage: [],
       result: [],
+      publication: [],
       limit: 50,
     });
   });
@@ -22,6 +25,7 @@ describe("interview list query", () => {
           "status=completed",
           "stage=interview_1",
           "result=passed",
+          "publication=anonymous",
           "limit=100",
           "cursor=2026-08-18T10%3A00%3A00.000Z%3Aabc",
         ].join("&"),
@@ -31,6 +35,7 @@ describe("interview list query", () => {
     expect(query.status).toEqual(["draft", "completed"]);
     expect(query.stage).toEqual(["interview_1"]);
     expect(query.result).toEqual(["passed"]);
+    expect(query.publication).toEqual(["anonymous"]);
     expect(query.limit).toBe(100);
     expect(query.cursor).toContain("abc");
   });
@@ -38,6 +43,9 @@ describe("interview list query", () => {
   it("rejects invalid enum and date filters", () => {
     expect(() =>
       parseInterviewListQuery(new URLSearchParams("status=unknown")),
+    ).toThrow();
+    expect(() =>
+      parseInterviewListQuery(new URLSearchParams("publication=unknown")),
     ).toThrow();
     expect(() =>
       parseInterviewListQuery(

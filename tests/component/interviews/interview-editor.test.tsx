@@ -24,6 +24,9 @@ const initial: InterviewDetail = {
   linked: true,
   questionCount: 0,
   actionCount: 0,
+  visibility: "private",
+  authorMode: "anonymous",
+  publishedAt: null,
   stageOccurrenceId: "33333333-3333-4333-8333-333333333333",
   format: null,
   durationMinutes: null,
@@ -74,6 +77,46 @@ describe("面经编辑器", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "完成复盘" }));
     expect(screen.getByRole("button", { name: "复盘已完成" })).toBeVisible();
+  });
+
+  it("仅完成后允许公开，并在继续编辑时自动回到私有", () => {
+    render(
+      <InterviewEditor
+        initial={{
+          ...initial,
+          status: "completed",
+          visibility: "public",
+          authorMode: "attributed",
+          publishedAt: "2026-09-13T08:00:00.000Z",
+          questionCount: 1,
+          questions: [
+            {
+              id: "44444444-4444-4444-8444-444444444444",
+              category: "other",
+              question: "# 已公开内容",
+              originalAnswer: null,
+              followUpNotes: null,
+              improvedAnswer: null,
+              selfRating: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("radio", { name: /公开到面经广场/ })).toBeChecked();
+    expect(screen.getByRole("radio", { name: /署名发布/ })).toBeChecked();
+    fireEvent.change(screen.getByLabelText("编辑 Markdown"), {
+      target: { value: "# 修改后的内容" },
+    });
+    expect(screen.getByRole("radio", { name: /仅自己可见/ })).toBeChecked();
+    expect(
+      screen.getByRole("radio", { name: /公开到面经广场/ }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("私有", { selector: ".publication-status" }),
+    ).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent("自动从面经广场下架");
   });
 
   it("把旧的逐题记录和行动项整理到同一 Markdown 文稿", () => {

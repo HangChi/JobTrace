@@ -1,5 +1,7 @@
 import {
   INTERVIEW_STAGES,
+  INTERVIEW_PUBLICATION_FILTERS,
+  INTERVIEW_PUBLICATION_LABELS,
   REVIEW_STATUSES,
   REVIEW_STATUS_LABELS,
   ROUND_RESULTS,
@@ -17,7 +19,11 @@ export function InterviewFilters({
   const first = (value: string | string[] | undefined) =>
     Array.isArray(value) ? value[0] : value;
   return (
-    <form className="panel interview-filters" method="get" action="/interviews">
+    <form
+      className="panel interview-filters"
+      method="get"
+      action="/interviews/mine"
+    >
       <label className="filter-search">
         搜索
         <input
@@ -75,11 +81,30 @@ export function InterviewFilters({
           </svg>
         </span>
       </label>
+      <label>
+        分享状态
+        <span className="select-wrap">
+          <select
+            name="publication"
+            defaultValue={first(query.publication) ?? ""}
+          >
+            <option value="">全部</option>
+            {INTERVIEW_PUBLICATION_FILTERS.map((value) => (
+              <option key={value} value={value}>
+                {INTERVIEW_PUBLICATION_LABELS[value]}
+              </option>
+            ))}
+          </select>
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m4.5 6.25 3.5 3.5 3.5-3.5" />
+          </svg>
+        </span>
+      </label>
       <div className="filter-actions">
         <button className="button" type="submit">
           筛选
         </button>
-        <Link className="button secondary" href={"/interviews" as Route}>
+        <Link className="button secondary" href={"/interviews/mine" as Route}>
           清除
         </Link>
       </div>

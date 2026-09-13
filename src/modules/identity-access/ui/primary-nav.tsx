@@ -17,8 +17,9 @@ const ITEMS = [
   },
   {
     href: "/interviews",
-    label: "面经",
-    matches: (path: string) => path.startsWith("/interviews"),
+    label: "面经广场",
+    matches: (path: string) =>
+      path === "/interviews" || path.startsWith("/interviews/shared/"),
   },
   {
     href: "/analytics",

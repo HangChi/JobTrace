@@ -5,7 +5,9 @@ export {
   createInterview,
   deleteInterview,
   getInterview,
+  getPublicInterview,
   listApplicationInterviews,
   listInterviews,
+  listPublicInterviews,
   updateInterview,
 } from "./application/interview-service";

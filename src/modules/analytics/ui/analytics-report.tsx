@@ -104,7 +104,7 @@ function InterviewReviewPanel({ report }: { report: AnalyticsReportData }) {
         <div>
           <h2 id="interview-analysis-title">面试复盘</h2>
         </div>
-        <Link href="/interviews">查看面经</Link>
+        <Link href="/interviews/mine">查看个人面经</Link>
       </div>
       {interviews.total ? (
         <>

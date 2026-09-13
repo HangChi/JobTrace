@@ -4,7 +4,11 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useState } from "react";
 import type { InterviewPage } from "../application/contracts";
-import { REVIEW_STATUS_LABELS, ROUND_RESULT_LABELS } from "../domain/catalog";
+import {
+  INTERVIEW_PUBLICATION_LABELS,
+  REVIEW_STATUS_LABELS,
+  ROUND_RESULT_LABELS,
+} from "../domain/catalog";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import { DownloadIcon } from "@/shared/ui/action-icons";
 import { SelectionCheckbox } from "@/shared/ui/selection-checkbox";
@@ -124,6 +128,15 @@ export function InterviewList({
             </span>
             <span className={`round-result result-${item.roundResult}`}>
               {ROUND_RESULT_LABELS[item.roundResult]}
+            </span>
+            <span
+              className={`publication-status publication-${item.visibility}-${item.authorMode}`}
+            >
+              {
+                INTERVIEW_PUBLICATION_LABELS[
+                  item.visibility === "private" ? "private" : item.authorMode
+                ]
+              }
             </span>
             <div className="interview-list-actions">
               <a

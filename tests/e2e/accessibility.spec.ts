@@ -6,6 +6,7 @@ for (const route of [
   "/applications/new",
   "/import",
   "/interviews",
+  "/interviews/mine",
   "/interviews/new",
   "/analytics",
   "/login",

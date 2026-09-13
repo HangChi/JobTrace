@@ -7,6 +7,7 @@ import {
 } from "../domain/interview.schema";
 import { PostgresInterviewRepository } from "../infrastructure/postgres-interview-repository";
 import { parseInterviewListQuery } from "./list-query";
+import { parsePublicInterviewListQuery } from "./public-list-query";
 
 const repository = () => new PostgresInterviewRepository();
 
@@ -40,4 +41,16 @@ export async function listInterviews(params: URLSearchParams) {
 export async function listApplicationInterviews(applicationId: string) {
   const actor = await requireUser();
   return repository().listForApplication(actor.id, applicationId);
+}
+
+export async function listPublicInterviews(params: URLSearchParams) {
+  await requireUser();
+  return repository().listPublic(parsePublicInterviewListQuery(params));
+}
+
+export async function getPublicInterview(id: string) {
+  await requireUser();
+  const value = await repository().getPublic(id);
+  if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
+  return value;
 }

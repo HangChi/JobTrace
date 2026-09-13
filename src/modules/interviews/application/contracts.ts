@@ -1,6 +1,8 @@
 import type {
   InterviewFormat,
+  InterviewAuthorMode,
   InterviewStage,
+  InterviewVisibility,
   QuestionCategory,
   ReviewStatus,
   RoundResult,
@@ -33,6 +35,9 @@ export type InterviewSummary = {
   linked: boolean;
   questionCount: number;
   actionCount: number;
+  visibility: InterviewVisibility;
+  authorMode: InterviewAuthorMode;
+  publishedAt: string | null;
 };
 export type StageInterviewSummary = Pick<
   InterviewSummary,
@@ -57,6 +62,43 @@ export type InterviewDetail = InterviewSummary & {
 };
 export type InterviewPage = {
   items: InterviewSummary[];
+  nextCursor: string | null;
+  total: number;
+  limit: number;
+};
+
+export type PublicAuthor = {
+  username: string;
+  image: string | null;
+};
+
+export type PublicInterviewQuestion = {
+  category: QuestionCategory;
+  question: string;
+  originalAnswer: string | null;
+  followUpNotes: string | null;
+  improvedAnswer: string | null;
+};
+
+export type PublicInterviewSummary = {
+  id: string;
+  companyName: string;
+  positionName: string;
+  stage: InterviewStage;
+  interviewedOn: string;
+  publishedAt: string;
+  questionCount: number;
+  author: PublicAuthor | null;
+};
+
+export type PublicInterviewDetail = PublicInterviewSummary & {
+  highlights: string | null;
+  gaps: string | null;
+  questions: PublicInterviewQuestion[];
+};
+
+export type PublicInterviewPage = {
+  items: PublicInterviewSummary[];
   nextCursor: string | null;
   total: number;
   limit: number;

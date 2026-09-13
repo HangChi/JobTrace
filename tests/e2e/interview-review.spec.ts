@@ -57,7 +57,7 @@ test("阶段创建、Markdown 复盘、筛选回顾并删除面经", async ({
     ).toBeVisible();
     await expect(page.getByText(/已保存/)).toBeVisible({ timeout: 10_000 });
 
-    await page.getByRole("link", { name: "返回面经列表" }).click();
+    await page.getByRole("link", { name: "返回个人面经" }).click();
     await page.getByLabel("搜索").fill("缓存穿透");
     await Promise.all([
       page.waitForURL((url) => url.searchParams.get("q") === "缓存穿透"),

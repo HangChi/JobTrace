@@ -3816,7 +3816,7 @@ dialog::backdrop {
 .interview-list > li {
   min-height: 82px;
   display: grid;
-  grid-template-columns: 44px 100px minmax(220px, 1fr) auto auto auto;
+  grid-template-columns: 44px 100px minmax(220px, 1fr) auto auto auto auto;
   align-items: center;
   gap: 18px;
   padding: 16px 24px;
@@ -3860,7 +3860,8 @@ dialog::backdrop {
   text-decoration: none;
 }
 .review-status,
-.round-result {
+.round-result,
+.publication-status {
   display: inline-flex;
   align-items: center;
   padding: 5px 9px;
@@ -3868,6 +3869,108 @@ dialog::backdrop {
   font-size: 0.72rem;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.publication-status {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--surface-soft);
+  font-size: 0.72rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.publication-public-anonymous,
+.publication-public-attributed {
+  color: var(--brand-dark);
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+  background: var(--brand-soft);
+}
+
+.public-interview-list > li {
+  grid-template-columns: 100px minmax(220px, 1fr) auto;
+}
+
+.public-interview-author {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.public-answer-section {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+
+.public-answer-section h3,
+.public-interview-detail h3 {
+  font-size: 0.9rem;
+}
+
+.public-author-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 0.68rem;
+}
+
+.interview-publication-settings fieldset {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.interview-publication-settings legend {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.publication-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.publication-option:has(input:checked) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.publication-option:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.publication-option input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.publication-option span {
+  display: grid;
+  gap: 3px;
+}
+
+.publication-option small {
+  color: var(--muted);
+  line-height: 1.5;
 }
 .status-draft {
   color: #5d6774;
@@ -4554,9 +4657,30 @@ dialog::backdrop {
     grid-row: 3;
     justify-self: start;
   }
-  .interview-list-actions {
+  .interview-list .publication-status {
     grid-column: 3;
     grid-row: 3;
+    justify-self: end;
+  }
+  .public-interview-list > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .public-interview-list > li > time {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .public-interview-list .interview-list-main {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .public-interview-list .public-interview-author {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
+  }
+  .interview-list-actions {
+    grid-column: 3;
+    grid-row: 4;
   }
   .interview-list .table-action {
     justify-self: end;

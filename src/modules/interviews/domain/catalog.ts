@@ -15,6 +15,20 @@ export const REVIEW_STATUSES = [
 ] as const;
 export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
 
+export const INTERVIEW_VISIBILITIES = ["private", "public"] as const;
+export type InterviewVisibility = (typeof INTERVIEW_VISIBILITIES)[number];
+
+export const INTERVIEW_AUTHOR_MODES = ["anonymous", "attributed"] as const;
+export type InterviewAuthorMode = (typeof INTERVIEW_AUTHOR_MODES)[number];
+
+export const INTERVIEW_PUBLICATION_FILTERS = [
+  "private",
+  "anonymous",
+  "attributed",
+] as const;
+export type InterviewPublicationFilter =
+  (typeof INTERVIEW_PUBLICATION_FILTERS)[number];
+
 export const ROUND_RESULTS = ["pending", "passed", "failed"] as const;
 export type RoundResult = (typeof ROUND_RESULTS)[number];
 
@@ -34,6 +48,14 @@ export const REVIEW_STATUS_LABELS: Record<ReviewStatus, string> = {
   draft: "草稿",
   pending_review: "待复盘",
   completed: "已完成",
+};
+export const INTERVIEW_PUBLICATION_LABELS: Record<
+  InterviewPublicationFilter,
+  string
+> = {
+  private: "私有",
+  anonymous: "匿名公开",
+  attributed: "署名公开",
 };
 export const ROUND_RESULT_LABELS: Record<RoundResult, string> = {
   pending: "待反馈",
