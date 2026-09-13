@@ -3,10 +3,12 @@ import type { Route } from "next";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import type {
   PublicAuthor,
+  PublicInterviewFeedItem,
   PublicInterviewPage,
 } from "../application/contracts";
 import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
-import { PublicInterviewContent } from "./public-interview-content";
+import { QUESTION_CATEGORY_LABELS } from "../domain/catalog";
+import { MarkdownPreview } from "./markdown-preview";
 
 const publishedDate = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
@@ -40,6 +42,44 @@ function FeedAuthor({ author }: { author: PublicAuthor | null }) {
   );
 }
 
+function InterviewPreview({
+  interview,
+}: {
+  interview: PublicInterviewFeedItem;
+}) {
+  const question = interview.questions[0];
+  if (!question) return null;
+  const answer =
+    question.improvedAnswer ??
+    question.originalAnswer ??
+    question.followUpNotes;
+  const answerLabel = question.improvedAnswer
+    ? "改进回答"
+    : question.originalAnswer
+      ? "当时回答"
+      : "追问记录";
+
+  return (
+    <section className="public-feed-preview" aria-label="面经预览">
+      <div className="public-feed-preview-heading">
+        <span className="public-feed-status-dot" aria-hidden="true" />
+        <strong>{STAGE_LABELS[interview.stage]}</strong>
+        <span>{QUESTION_CATEGORY_LABELS[question.category]}</span>
+        <small>{interview.questionCount} 个问题</small>
+      </div>
+      <div className="public-feed-preview-question">
+        <MarkdownPreview value={question.question} headingOffset={2} />
+      </div>
+      {answer ? (
+        <div className="public-feed-preview-answer">
+          <strong>{answerLabel}</strong>
+          <MarkdownPreview value={answer} headingOffset={3} />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export function PublicInterviewList({
   page,
   nextHref,
@@ -60,10 +100,9 @@ export function PublicInterviewList({
 
   return (
     <section className="public-feed" aria-labelledby="public-feed-title">
-      <header className="public-feed-heading">
-        <h1 id="public-feed-title">最新面经</h1>
-        <span>共 {page.total} 篇</span>
-      </header>
+      <h1 className="sr-only" id="public-feed-title">
+        最新面经，共 {page.total} 篇
+      </h1>
       <ol className="public-feed-list">
         {page.items.map((item) => (
           <li key={item.id}>
@@ -76,25 +115,25 @@ export function PublicInterviewList({
               </header>
 
               <div className="public-feed-card-body">
-                <Link
-                  className="public-feed-title-link"
-                  href={`/interviews/shared/${item.id}` as Route}
-                >
-                  <h2>
-                    {item.companyName} · {item.positionName}
-                  </h2>
-                </Link>
-                <p className="public-feed-meta">
-                  <span>{STAGE_LABELS[item.stage]}</span>
+                <div className="public-feed-company">
+                  <Link
+                    className="public-feed-title-link"
+                    href={`/interviews/shared/${item.id}` as Route}
+                  >
+                    <h2>
+                      {item.companyName} · {item.positionName}
+                    </h2>
+                  </Link>
                   <span>面试于 {item.interviewedOn}</span>
-                </p>
-                <PublicInterviewContent interview={item} />
+                </div>
+                <InterviewPreview interview={item} />
               </div>
 
               <footer className="public-feed-card-footer">
-                <span>{item.questionCount} 段面经内容</span>
                 <Link href={`/interviews/shared/${item.id}` as Route}>
-                  查看详情
+                  {item.questionCount > 1
+                    ? `查看全部 ${item.questionCount} 个问题`
+                    : "查看完整面经"}
                   <svg aria-hidden="true" viewBox="0 0 16 16">
                     <path d="m6 3.5 4.5 4.5L6 12.5" />
                   </svg>

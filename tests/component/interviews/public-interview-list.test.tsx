@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PublicInterviewList } from "@/modules/interviews/ui/public-interview-list";
 
 describe("面经广场动态流", () => {
-  it("在动态卡片中直接展示匿名作者和脱敏正文", () => {
+  it("在动态卡片中展示作者、首个问题预览和完整面经入口", () => {
     render(
       <PublicInterviewList
         page={{
@@ -18,7 +18,7 @@ describe("面经广场动态流", () => {
               stage: "interview_1",
               interviewedOn: "2026-09-10",
               publishedAt: "2026-09-13T08:00:00.000Z",
-              questionCount: 1,
+              questionCount: 2,
               author: null,
               highlights: "表达清晰",
               gaps: null,
@@ -29,6 +29,13 @@ describe("面经广场动态流", () => {
                   originalAnswer: null,
                   followUpNotes: null,
                   improvedAnswer: "补充限流和监控。",
+                },
+                {
+                  category: "behavioral",
+                  question: "不会在动态中直接展开的第二个问题",
+                  originalAnswer: null,
+                  followUpNotes: null,
+                  improvedAnswer: null,
                 },
               ],
             },
@@ -44,8 +51,15 @@ describe("面经广场动态流", () => {
     expect(article).toHaveTextContent("2026年9月13日");
     expect(article).toHaveTextContent("使用布隆过滤器和空值缓存");
     expect(article).toHaveTextContent("补充限流和监控");
-    expect(article).toHaveTextContent("表达清晰");
+    expect(article).not.toHaveTextContent("不会在动态中直接展开的第二个问题");
+    expect(article).not.toHaveTextContent("表达清晰");
     expect(screen.getByRole("link", { name: /轨迹科技/ })).toHaveAttribute(
+      "href",
+      "/interviews/shared/11111111-1111-4111-8111-111111111111",
+    );
+    expect(
+      screen.getByRole("link", { name: "查看全部 2 个问题" }),
+    ).toHaveAttribute(
       "href",
       "/interviews/shared/11111111-1111-4111-8111-111111111111",
     );

@@ -108,3 +108,16 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Public API contract: passed, including rejection of question-body search matches.
 - Chromium journey: passed with no oversized square heading, one searchbox, zero axe violations, and no horizontal overflow at 375px.
 - `pnpm typecheck` and `pnpm build`: passed; lint completed with six pre-existing warnings outside this feature.
+
+## Phase 9: 参考社区卡片视觉
+
+- [x] T029 Restructure feed cards around author metadata, company identity, and a contained interview preview.
+- [x] T030 Add progressive disclosure for multi-question reviews without introducing unsupported social metrics or comments.
+- [x] T031 Verify card semantics, visual fidelity, responsive behavior, and regression coverage.
+
+### Community-card validation
+
+- Focused public-list query, filter, and feed component suites: 5 tests passed.
+- Chromium journey: passed with zero axe violations, company-only search, detail navigation, and no horizontal overflow at 375px.
+- Visual inspection: confirmed the author-first card hierarchy, contained first-question preview, and multi-question disclosure against the supplied reference.
+- `pnpm typecheck` and `pnpm build`: passed; lint completed with six pre-existing warnings outside this feature.
