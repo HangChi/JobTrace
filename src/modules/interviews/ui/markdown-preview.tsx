@@ -31,7 +31,13 @@ function inline(text: string): ReactNode[] {
   });
 }
 
-export function MarkdownPreview({ value }: { value: string }) {
+export function MarkdownPreview({
+  value,
+  headingOffset = 0,
+}: {
+  value: string;
+  headingOffset?: number;
+}) {
   const lines = value.replaceAll("\r\n", "\n").split("\n");
   const blocks: ReactNode[] = [];
   let list: { ordered: boolean; items: string[] } | null = null;
@@ -94,7 +100,8 @@ export function MarkdownPreview({ value }: { value: string }) {
     if (heading) {
       flushList();
       flushParagraph();
-      const Tag = `h${heading[1].length}` as "h1" | "h2" | "h3";
+      const level = Math.min(6, heading[1].length + headingOffset);
+      const Tag = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
       blocks.push(<Tag key={`heading-${index}`}>{inline(heading[2])}</Tag>);
       return;
     }

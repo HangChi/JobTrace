@@ -91,14 +91,19 @@ export type PublicInterviewSummary = {
   author: PublicAuthor | null;
 };
 
-export type PublicInterviewDetail = PublicInterviewSummary & {
+export type PublicInterviewContent = {
   highlights: string | null;
   gaps: string | null;
   questions: PublicInterviewQuestion[];
 };
 
+export type PublicInterviewFeedItem = PublicInterviewSummary &
+  PublicInterviewContent;
+
+export type PublicInterviewDetail = PublicInterviewFeedItem;
+
 export type PublicInterviewPage = {
-  items: PublicInterviewSummary[];
+  items: PublicInterviewFeedItem[];
   nextCursor: string | null;
   total: number;
   limit: number;

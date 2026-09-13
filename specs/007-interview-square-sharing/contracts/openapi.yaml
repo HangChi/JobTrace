@@ -12,10 +12,14 @@ paths:
         - { name: interviewedFrom, in: query, schema: { type: string, format: date } }
         - { name: interviewedTo, in: query, schema: { type: string, format: date } }
         - { name: cursor, in: query, schema: { type: string } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
       responses:
         "200":
-          description: Public interview page
+          description: Public interview feed page containing sanitized post bodies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicInterviewFeedPage"
         "401":
           description: Authentication required
   /api/interviews/public/{id}:
@@ -104,3 +108,17 @@ components:
                   followUpNotes: { type: [string, "null"] }
                   improvedAnswer: { type: [string, "null"] }
                 additionalProperties: false
+    PublicInterviewFeedItem:
+      allOf:
+        - { $ref: "#/components/schemas/PublicInterviewDetail" }
+    PublicInterviewFeedPage:
+      type: object
+      required: [items, total, limit, nextCursor]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/PublicInterviewFeedItem" }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 50 }
+        nextCursor: { type: [string, "null"] }
+      additionalProperties: false

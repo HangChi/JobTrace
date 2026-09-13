@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联", async ({
   browser,
@@ -109,6 +110,19 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
     await pageA.getByLabel("搜索").fill("公开但匿名");
     await pageA.getByRole("button", { name: "筛选" }).click();
     await expect(pageA).toHaveURL(/q=/);
+    const feedCard = pageA.getByRole("article");
+    await expect(feedCard.getByText("公开但匿名的面经")).toBeVisible();
+    await expect(feedCard.getByText("私人行动项")).toHaveCount(0);
+    expect(
+      (await new AxeBuilder({ page: pageA }).analyze()).violations,
+    ).toEqual([]);
+    await pageA.setViewportSize({ width: 375, height: 812 });
+    await expect(feedCard).toBeVisible();
+    expect(
+      await pageA.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
     await pageA.getByRole("link", { name: "仅 B 可见 · 隐私工程师" }).click();
     await expect(pageA).toHaveURL(`/interviews/shared/${review.id}`);
     await expect(pageA.getByText("匿名用户")).toBeVisible();

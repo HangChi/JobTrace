@@ -3893,10 +3893,6 @@ dialog::backdrop {
   background: var(--brand-soft);
 }
 
-.public-interview-list > li {
-  grid-template-columns: 100px minmax(220px, 1fr) auto;
-}
-
 .public-interview-author {
   display: inline-flex;
   align-items: center;
@@ -3908,11 +3904,11 @@ dialog::backdrop {
 }
 
 .public-answer-section {
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
 }
 
-.public-answer-section h3,
+.public-answer-section h4,
 .public-interview-detail h3 {
   font-size: 0.9rem;
 }

@@ -153,13 +153,22 @@ def main() -> None:
                 cursor,
                 "public list",
                 """select r.id,a.company_name,a.position_name,r.published_at,
-                         (select count(*) from interview_questions q
-                          where q.interview_review_id=r.id) question_count
+                         r.highlights,r.gaps,
+                         coalesce((
+                           select jsonb_agg(jsonb_build_object(
+                             'category',q.category,'question',q.question,
+                             'originalAnswer',q.original_answer,
+                             'followUpNotes',q.follow_up_notes,
+                             'improvedAnswer',q.improved_answer
+                           ) order by q.sort_order)
+                           from interview_questions q
+                           where q.interview_review_id=r.id
+                         ),'[]'::jsonb) questions
                    from interview_reviews r
                    join applications a on a.id=r.application_id
                    where r.visibility='public' and r.status='completed'
                      and r.published_at is not null
-                   order by r.published_at desc,r.id desc limit 51""",
+                   order by r.published_at desc,r.id desc limit 21""",
                 (),
                 threshold_ms=500,
             )

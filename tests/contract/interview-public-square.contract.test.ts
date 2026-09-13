@@ -35,6 +35,8 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
           status: "completed",
           visibility: "public",
           authorMode: "anonymous",
+          highlights: "公开亮点",
+          gaps: "公开不足",
           questions: [
             {
               category: "technical",
@@ -78,7 +80,13 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
       await request.get("/api/interviews/public?q=Public%20Contract")
     ).json();
     expect(list.items).toHaveLength(1);
+    expect(list.items[0]).toMatchObject({
+      highlights: "公开亮点",
+      gaps: "公开不足",
+      questions: [{ question: "公开问题", originalAnswer: "公开回答" }],
+    });
     expect(list.items[0]).not.toHaveProperty("applicationId");
+    expect(list.items[0].questions[0]).not.toHaveProperty("selfRating");
 
     const attributed = await (
       await request.patch(`/api/interviews/${review.id}`, {

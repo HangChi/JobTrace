@@ -7,7 +7,7 @@ const publicListSchema = z.object({
   interviewedFrom: z.iso.date().optional(),
   interviewedTo: z.iso.date().optional(),
   cursor: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(100).default(50),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
 export type PublicInterviewListQuery = z.infer<typeof publicListSchema>;
@@ -19,6 +19,6 @@ export function parsePublicInterviewListQuery(params: URLSearchParams) {
     interviewedFrom: params.get("interviewedFrom") || undefined,
     interviewedTo: params.get("interviewedTo") || undefined,
     cursor: params.get("cursor") || undefined,
-    limit: params.get("limit") ?? 50,
+    limit: params.get("limit") ?? 20,
   });
 }

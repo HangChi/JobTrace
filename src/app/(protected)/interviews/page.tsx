@@ -1,3 +1,5 @@
+import Link from "next/link";
+import type { Route } from "next";
 import { listPublicInterviews } from "@/modules/interviews";
 import { PublicInterviewFilters } from "@/modules/interviews/ui/public-interview-filters";
 import { PublicInterviewList } from "@/modules/interviews/ui/public-interview-list";
@@ -25,7 +27,12 @@ export default async function InterviewSquarePage({
         tone="interviews"
         kicker="经验共享"
         title="面经广场"
-        description="浏览求职者主动公开的脱敏面试复盘。"
+        description="像浏览动态一样，直接阅读求职者主动公开的脱敏面试复盘。"
+        actions={
+          <Link className="button secondary" href={"/interviews/mine" as Route}>
+            管理我的面经
+          </Link>
+        }
       />
       <PublicInterviewFilters query={search} />
       <PublicInterviewList

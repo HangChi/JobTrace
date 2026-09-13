@@ -22,7 +22,7 @@ describe("public interview list query", () => {
       parsePublicInterviewListQuery(new URLSearchParams("stage=offer")),
     ).toThrow();
     expect(() =>
-      parsePublicInterviewListQuery(new URLSearchParams("limit=101")),
+      parsePublicInterviewListQuery(new URLSearchParams("limit=51")),
     ).toThrow();
   });
 
@@ -31,6 +31,6 @@ describe("public interview list query", () => {
       parsePublicInterviewListQuery(
         new URLSearchParams("stage=&interviewedFrom=&interviewedTo="),
       ),
-    ).toMatchObject({ stage: [], interviewedFrom: undefined });
+    ).toMatchObject({ stage: [], interviewedFrom: undefined, limit: 20 });
   });
 });

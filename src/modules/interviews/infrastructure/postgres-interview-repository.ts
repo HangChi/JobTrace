@@ -10,7 +10,9 @@ import type {
   InterviewPage,
   InterviewSummary,
   PublicInterviewDetail,
+  PublicInterviewFeedItem,
   PublicInterviewPage,
+  PublicInterviewQuestion,
   PublicInterviewSummary,
 } from "../application/contracts";
 import type {
@@ -58,6 +60,34 @@ function mapPublicSummary(row: Row): PublicInterviewSummary {
             image: row.authorImage ? String(row.authorImage) : null,
           }
         : null,
+  };
+}
+
+function mapPublicQuestion(row: Row): PublicInterviewQuestion {
+  return {
+    category: row.category as never,
+    question: String(row.question),
+    originalAnswer:
+      ((row.originalAnswer ?? row.original_answer) as
+        string | null | undefined) ?? null,
+    followUpNotes:
+      ((row.followUpNotes ?? row.follow_up_notes) as
+        string | null | undefined) ?? null,
+    improvedAnswer:
+      ((row.improvedAnswer ?? row.improved_answer) as
+        string | null | undefined) ?? null,
+  };
+}
+
+function mapPublicFeedItem(row: Row): PublicInterviewFeedItem {
+  const questions = Array.isArray(row.questions)
+    ? (row.questions as Row[]).map(mapPublicQuestion)
+    : [];
+  return {
+    ...mapPublicSummary(row),
+    highlights: (row.highlights as string | null | undefined) ?? null,
+    gaps: (row.gaps as string | null | undefined) ?? null,
+    questions,
   };
 }
 
@@ -287,7 +317,19 @@ export class PostgresInterviewRepository implements InterviewRepository {
     `;
     const rows = await this.sql<Row[]>`
       select selected.*,totals.total_count,
-        (select count(*)::int from interview_questions q where q.interview_review_id=selected.id) question_count
+        (select count(*)::int from interview_questions q where q.interview_review_id=selected.id) question_count,
+        coalesce((
+          select jsonb_agg(
+            jsonb_build_object(
+              'category',q.category,
+              'question',q.question,
+              'originalAnswer',q.original_answer,
+              'followUpNotes',q.follow_up_notes,
+              'improvedAnswer',q.improved_answer
+            ) order by q.sort_order
+          )
+          from interview_questions q where q.interview_review_id=selected.id
+        ),'[]'::jsonb) questions
       from (
         select count(*)::int total_count
         from interview_reviews r
@@ -297,6 +339,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
       ) totals
       left join lateral (
         select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,r.author_mode,
+          r.highlights,r.gaps,
           a.company_name,a.position_name,coalesce(s.stage,r.stage_snapshot) display_stage,
           u.username author_username,u.image author_image
         from interview_reviews r
@@ -311,7 +354,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
       order by selected.published_at desc,selected.id desc
     `;
     const dataRows = rows.filter((row) => row.id);
-    const items = dataRows.slice(0, query.limit).map(mapPublicSummary);
+    const items = dataRows.slice(0, query.limit).map(mapPublicFeedItem);
     const last = dataRows[query.limit - 1];
     return {
       items,
@@ -350,13 +393,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
       ...mapPublicSummary(row),
       highlights: row.highlights as string | null,
       gaps: row.gaps as string | null,
-      questions: questions.map((question) => ({
-        category: question.category as never,
-        question: String(question.question),
-        originalAnswer: question.originalAnswer as string | null,
-        followUpNotes: question.followUpNotes as string | null,
-        improvedAnswer: question.improvedAnswer as string | null,
-      })),
+      questions: questions.map(mapPublicQuestion),
     };
   }
 }

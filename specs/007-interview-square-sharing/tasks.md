@@ -80,3 +80,18 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Interview E2E journeys: 2 passed, including owner isolation and anonymous publication; the full E2E suite had one unrelated recruitment-marketplace filter failure.
 - `pnpm build`: passed.
 - 10,000-row interview benchmark: public list p95 29.01 ms, public detail p95 25.20 ms, publication p95 28.79 ms.
+
+## Phase 7: 面经动态流增量
+
+- [x] T021 Update the square specification and public feed contract for direct in-feed reading.
+- [x] T022 Extend the sanitized public list projection with question and reflection content without exposing owner-only fields.
+- [x] T023 Replace the summary-row list with a responsive, single-column social feed and retain the independent detail route.
+- [x] T024 Add contract, component, responsive, accessibility, and performance regression coverage for the feed.
+- [x] T025 Run final validation and record the dynamic-feed benchmark.
+
+### Dynamic-feed validation
+
+- Public feed contract: passed; list responses include sanitized review bodies without owner-only fields.
+- Feed component suite: passed; cards render questions, answers, reflections, attribution, and detail navigation directly in the stream.
+- Browser regression: passed in Chromium with zero axe violations, no private action-item disclosure, and no horizontal overflow at 375px.
+- 10,000-row benchmark: public feed list p95 27.59 ms, public detail p95 25.81 ms, publication p95 28.93 ms.

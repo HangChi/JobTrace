@@ -1,8 +1,37 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
-import type { PublicInterviewPage } from "../application/contracts";
+import type {
+  PublicAuthor,
+  PublicInterviewPage,
+} from "../application/contracts";
 import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
+import { PublicInterviewContent } from "./public-interview-content";
+
+function FeedAuthor({ author }: { author: PublicAuthor | null }) {
+  return (
+    <div className="public-feed-author">
+      {author ? (
+        <UserAvatar
+          className="public-feed-avatar"
+          image={author.image}
+          name={author.username}
+        />
+      ) : (
+        <span
+          className="public-feed-avatar public-feed-anonymous"
+          aria-hidden="true"
+        >
+          匿
+        </span>
+      )}
+      <div>
+        <strong>{author ? `@${author.username}` : "匿名用户"}</strong>
+        <span>{author ? "署名分享" : "匿名分享"}</span>
+      </div>
+    </div>
+  );
+}
 
 export function PublicInterviewList({
   page,
@@ -23,55 +52,58 @@ export function PublicInterviewList({
     );
 
   return (
-    <section className="panel interview-list-panel public-interview-panel">
-      <div className="section-heading">
+    <section className="public-feed" aria-labelledby="public-feed-title">
+      <header className="public-feed-heading">
         <div>
-          <h2>最新面经</h2>
-          <p className="section-description">仅展示作者主动公开的脱敏内容。</p>
+          <p className="eyebrow">公开动态</p>
+          <h2 id="public-feed-title">最新面经</h2>
         </div>
-        <span className="muted">共 {page.total} 篇</span>
-      </div>
-      <ol className="interview-list public-interview-list">
+        <span>共 {page.total} 篇</span>
+      </header>
+      <ol className="public-feed-list">
         {page.items.map((item) => (
           <li key={item.id}>
-            <time dateTime={item.interviewedOn}>{item.interviewedOn}</time>
-            <div className="interview-list-main">
-              <Link href={`/interviews/shared/${item.id}` as Route}>
-                <strong>
-                  {item.companyName} · {item.positionName}
-                </strong>
-              </Link>
-              <p>
-                {STAGE_LABELS[item.stage]} · {item.questionCount} 段面经内容
-              </p>
-              <p className="muted">
-                发布于{" "}
+            <article className="public-feed-card">
+              <header className="public-feed-card-header">
+                <FeedAuthor author={item.author} />
                 <time dateTime={item.publishedAt}>
-                  {item.publishedAt.slice(0, 10)}
+                  {item.publishedAt.slice(0, 10)} 发布
                 </time>
-              </p>
-            </div>
-            <div className="public-interview-author">
-              {item.author ? (
-                <>
-                  <UserAvatar
-                    className="public-author-avatar"
-                    image={item.author.image}
-                    name={item.author.username}
-                  />
-                  <span>@{item.author.username}</span>
-                </>
-              ) : (
-                <span>匿名用户</span>
-              )}
-            </div>
+              </header>
+
+              <div className="public-feed-card-body">
+                <Link
+                  className="public-feed-title-link"
+                  href={`/interviews/shared/${item.id}` as Route}
+                >
+                  <h3>
+                    {item.companyName} · {item.positionName}
+                  </h3>
+                </Link>
+                <p className="public-feed-meta">
+                  <span>{STAGE_LABELS[item.stage]}</span>
+                  <span>面试于 {item.interviewedOn}</span>
+                </p>
+                <PublicInterviewContent interview={item} />
+              </div>
+
+              <footer className="public-feed-card-footer">
+                <span>{item.questionCount} 段面经内容</span>
+                <Link href={`/interviews/shared/${item.id}` as Route}>
+                  查看详情
+                  <svg aria-hidden="true" viewBox="0 0 16 16">
+                    <path d="m6 3.5 4.5 4.5L6 12.5" />
+                  </svg>
+                </Link>
+              </footer>
+            </article>
           </li>
         ))}
       </ol>
       {nextHref && (
-        <div className="pagination">
+        <div className="public-feed-pagination">
           <Link className="button secondary" href={nextHref as Route}>
-            下一页
+            查看更多面经
           </Link>
         </div>
       )}
