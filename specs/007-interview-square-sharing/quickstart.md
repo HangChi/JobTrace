@@ -32,4 +32,4 @@ pnpm performance
 - Requirements checklist complete。
 - 所有自动化测试通过；变更代码行/分支覆盖率均不低于 80%。
 - 公开响应严格符合 [OpenAPI contract](./contracts/openapi.yaml)，不含禁止字段。
-- 375px 与桌面视口无横向溢出，键盘可完成菜单、筛选和发布流程。
+- 375px 与桌面视口无横向溢出，键盘可完成菜单、公司搜索和发布流程。

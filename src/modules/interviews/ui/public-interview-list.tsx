@@ -8,6 +8,13 @@ import type {
 import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
 import { PublicInterviewContent } from "./public-interview-content";
 
+const publishedDate = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "Asia/Shanghai",
+});
+
 function FeedAuthor({ author }: { author: PublicAuthor | null }) {
   return (
     <div className="public-feed-author">
@@ -43,7 +50,7 @@ export function PublicInterviewList({
   if (!page.items.length)
     return (
       <section className="panel interview-empty-state">
-        <h2>暂时没有公开面经</h2>
+        <h1>暂时没有公开面经</h1>
         <p>换个筛选条件，或者先完成并分享你的第一篇面经。</p>
         <Link className="button" href={"/interviews/mine" as Route}>
           查看个人面经
@@ -54,10 +61,7 @@ export function PublicInterviewList({
   return (
     <section className="public-feed" aria-labelledby="public-feed-title">
       <header className="public-feed-heading">
-        <div>
-          <p className="eyebrow">公开动态</p>
-          <h2 id="public-feed-title">最新面经</h2>
-        </div>
+        <h1 id="public-feed-title">最新面经</h1>
         <span>共 {page.total} 篇</span>
       </header>
       <ol className="public-feed-list">
@@ -67,7 +71,7 @@ export function PublicInterviewList({
               <header className="public-feed-card-header">
                 <FeedAuthor author={item.author} />
                 <time dateTime={item.publishedAt}>
-                  {item.publishedAt.slice(0, 10)} 发布
+                  {publishedDate.format(new Date(item.publishedAt))}
                 </time>
               </header>
 
@@ -76,9 +80,9 @@ export function PublicInterviewList({
                   className="public-feed-title-link"
                   href={`/interviews/shared/${item.id}` as Route}
                 >
-                  <h3>
+                  <h2>
                     {item.companyName} · {item.positionName}
-                  </h3>
+                  </h2>
                 </Link>
                 <p className="public-feed-meta">
                   <span>{STAGE_LABELS[item.stage]}</span>

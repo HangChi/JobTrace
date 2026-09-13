@@ -653,10 +653,133 @@
   color: var(--muted);
 }
 
+.interview-square-page {
+  display: grid;
+  gap: 18px;
+}
+
+.public-feed-toolbar {
+  width: min(100%, 820px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 12px;
+  margin-inline: auto;
+}
+
+.public-company-search {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: max-content minmax(160px, 1fr) max-content max-content;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid #cbdeda;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(30, 83, 80, 0.05);
+}
+
+.public-company-search > label {
+  padding-left: 8px;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.public-company-search-field {
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 12px;
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.public-company-search-field svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: var(--muted);
+  stroke-linecap: round;
+  stroke-width: 1.7;
+}
+
+.public-company-search-field input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--ink-strong);
+  background: transparent;
+}
+
+.public-company-search-field:focus-within {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent);
+}
+
+.public-search-submit,
+.public-search-clear,
+.public-mine-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.public-search-submit {
+  padding-inline: 17px;
+  border: 1px solid var(--brand);
+  color: white;
+  background: var(--brand);
+  cursor: pointer;
+}
+
+.public-search-submit:hover {
+  background: var(--brand-dark);
+}
+
+.public-search-clear {
+  padding-inline: 8px;
+  color: var(--muted);
+}
+
+.public-search-clear:hover,
+.public-mine-link:hover {
+  color: var(--brand-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.public-mine-link {
+  gap: 4px;
+  padding-inline: 12px;
+  color: var(--brand-dark);
+}
+
+.public-mine-link svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .public-feed {
   width: min(100%, 820px);
   display: grid;
-  gap: 14px;
+  gap: 12px;
   margin-inline: auto;
 }
 
@@ -676,12 +799,13 @@
 }
 
 .public-feed-heading {
-  padding: 4px 2px;
+  padding: 8px 2px 2px;
 }
 
-.public-feed-heading h2,
-.public-feed-heading p {
+.public-feed-heading h1 {
   margin: 0;
+  font-size: 1.28rem;
+  letter-spacing: -0.02em;
 }
 
 .public-feed-heading > span {
@@ -691,7 +815,7 @@
 
 .public-feed-list {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -699,17 +823,16 @@
 
 .public-feed-card {
   overflow: hidden;
-  border: 1px solid #cbdce2;
-  border-radius: var(--radius);
+  border: 1px solid #d2e1df;
+  border-radius: 14px;
   background: var(--surface);
-  box-shadow: 0 10px 30px rgba(30, 83, 105, 0.06);
+  box-shadow: 0 8px 28px rgba(30, 83, 80, 0.045);
 }
 
 .public-feed-card-header {
-  min-height: 76px;
+  min-height: 70px;
   gap: 16px;
-  padding: 16px 22px;
-  border-bottom: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+  padding: 16px 20px 10px;
 }
 
 .public-feed-card-header > time {
@@ -759,7 +882,7 @@
 }
 
 .public-feed-card-body {
-  padding: 22px 24px 24px 78px;
+  padding: 8px 20px 22px;
 }
 
 .public-feed-title-link {
@@ -773,7 +896,7 @@
   text-underline-offset: 4px;
 }
 
-.public-feed-title-link h3 {
+.public-feed-title-link h2 {
   margin: 0;
   font-size: 1.12rem;
   line-height: 1.45;
@@ -782,7 +905,7 @@
 .public-feed-meta {
   flex-wrap: wrap;
   gap: 8px;
-  margin: 9px 0 20px;
+  margin: 8px 0 18px;
   color: var(--muted);
   font-size: 0.78rem;
 }
@@ -881,7 +1004,7 @@
 .public-feed-card-footer {
   min-height: 52px;
   gap: 16px;
-  padding: 10px 22px 10px 78px;
+  padding: 10px 20px;
   border-top: 1px solid var(--line);
   color: var(--muted);
   background: #fbfdfd;
@@ -1581,9 +1704,43 @@ input[type="file"] {
     padding: 16px;
   }
 
+  .public-feed-toolbar {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .public-mine-link {
+    justify-self: end;
+  }
+
+  .public-company-search {
+    grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
+    gap: 4px;
+  }
+
+  .public-company-search > label {
+    padding-left: 5px;
+  }
+
+  .public-company-search-field {
+    padding-inline: 9px;
+  }
+
+  .public-company-search-field svg {
+    display: none;
+  }
+
+  .public-search-submit {
+    padding-inline: 13px;
+  }
+
+  .public-search-clear {
+    padding-inline: 5px;
+  }
+
   .public-feed-card-header {
     align-items: flex-start;
-    padding: 16px 18px;
+    padding: 16px 16px 10px;
   }
 
   .public-feed-card-header > time {
@@ -1593,7 +1750,7 @@ input[type="file"] {
 
   .public-feed-card-body,
   .public-feed-card-footer {
-    padding-inline: 18px;
+    padding-inline: 16px;
   }
 
   .public-post-reflection {

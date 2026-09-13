@@ -305,15 +305,10 @@ export class PostgresInterviewRepository implements InterviewRepository {
       r.visibility='public' and r.status='completed' and r.published_at is not null
       ${
         query.q
-          ? this.sql`and (
-        lower(a.company_name||' '||a.position_name) like ${`%${query.q.toLowerCase()}%`}
-        or exists(select 1 from interview_questions q where q.interview_review_id=r.id and lower(q.question) like ${`%${query.q.toLowerCase()}%`})
-      )`
+          ? this
+              .sql`and lower(a.company_name) like ${`%${query.q.toLowerCase()}%`}`
           : this.sql``
       }
-      ${query.stage.length ? this.sql`and coalesce(s.stage,r.stage_snapshot)=any(${query.stage}::recruitment_stage[])` : this.sql``}
-      ${query.interviewedFrom ? this.sql`and r.interviewed_on>=${query.interviewedFrom}::date` : this.sql``}
-      ${query.interviewedTo ? this.sql`and r.interviewed_on<=${query.interviewedTo}::date` : this.sql``}
     `;
     const rows = await this.sql<Row[]>`
       select selected.*,totals.total_count,

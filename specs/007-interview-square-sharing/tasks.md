@@ -95,3 +95,16 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Feed component suite: passed; cards render questions, answers, reflections, attribution, and detail navigation directly in the stream.
 - Browser regression: passed in Chromium with zero axe violations, no private action-item disclosure, and no horizontal overflow at 375px.
 - 10,000-row benchmark: public feed list p95 27.59 ms, public detail p95 25.81 ms, publication p95 28.93 ms.
+
+## Phase 8: 广场视觉收敛
+
+- [x] T026 Remove the oversized square hero and replace it with a compact feed toolbar.
+- [x] T027 Reduce public discovery controls to company-name search only in the UI, query contract, and repository.
+- [x] T028 Verify the simplified search, responsive feed layout, accessibility, and production build.
+
+### Simplified-square validation
+
+- Company-search unit and component coverage: 5 tests passed.
+- Public API contract: passed, including rejection of question-body search matches.
+- Chromium journey: passed with no oversized square heading, one searchbox, zero axe violations, and no horizontal overflow at 375px.
+- `pnpm typecheck` and `pnpm build`: passed; lint completed with six pre-existing warnings outside this feature.

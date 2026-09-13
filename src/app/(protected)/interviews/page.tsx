@@ -5,7 +5,6 @@ import { PublicInterviewFilters } from "@/modules/interviews/ui/public-interview
 import { PublicInterviewList } from "@/modules/interviews/ui/public-interview-list";
 import { requirePageUser } from "@/modules/identity-access";
 import { toSearchParams } from "@/shared/url/search-params";
-import { PageHeader } from "@/shared/ui/page-header";
 
 export const dynamic = "force-dynamic";
 type Search = Record<string, string | string[] | undefined>;
@@ -19,22 +18,21 @@ export default async function InterviewSquarePage({
   const search = await searchParams;
   const params = toSearchParams(search);
   const page = await listPublicInterviews(params);
-  const next = new URLSearchParams(params);
+  const next = new URLSearchParams();
+  const companyQuery = params.get("q");
+  if (companyQuery) next.set("q", companyQuery);
   if (page.nextCursor) next.set("cursor", page.nextCursor);
   return (
-    <section className="stack page-gap interviews-page">
-      <PageHeader
-        tone="interviews"
-        kicker="经验共享"
-        title="面经广场"
-        description="像浏览动态一样，直接阅读求职者主动公开的脱敏面试复盘。"
-        actions={
-          <Link className="button secondary" href={"/interviews/mine" as Route}>
-            管理我的面经
-          </Link>
-        }
-      />
-      <PublicInterviewFilters query={search} />
+    <section className="interview-square-page">
+      <div className="public-feed-toolbar">
+        <PublicInterviewFilters query={search} />
+        <Link className="public-mine-link" href={"/interviews/mine" as Route}>
+          我的面经
+          <svg aria-hidden="true" viewBox="0 0 16 16">
+            <path d="m6 3.5 4.5 4.5L6 12.5" />
+          </svg>
+        </Link>
+      </div>
       <PublicInterviewList
         page={page}
         nextHref={page.nextCursor ? `/interviews?${next.toString()}` : null}

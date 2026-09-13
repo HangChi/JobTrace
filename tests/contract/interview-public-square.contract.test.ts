@@ -88,6 +88,11 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
     expect(list.items[0]).not.toHaveProperty("applicationId");
     expect(list.items[0].questions[0]).not.toHaveProperty("selfRating");
 
+    const bodySearch = await (
+      await request.get("/api/interviews/public?q=公开问题")
+    ).json();
+    expect(bodySearch.items).toEqual([]);
+
     const attributed = await (
       await request.patch(`/api/interviews/${review.id}`, {
         data: {

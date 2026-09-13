@@ -107,8 +107,12 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
     });
     const pageA = await contextA.newPage();
     await pageA.goto("/interviews");
-    await pageA.getByLabel("搜索").fill("公开但匿名");
-    await pageA.getByRole("button", { name: "筛选" }).click();
+    await expect(pageA.getByRole("heading", { name: "面经广场" })).toHaveCount(
+      0,
+    );
+    await expect(pageA.getByRole("searchbox")).toHaveCount(1);
+    await pageA.getByLabel("公司").fill("仅 B 可见");
+    await pageA.getByRole("button", { name: "搜索" }).click();
     await expect(pageA).toHaveURL(/q=/);
     const feedCard = pageA.getByRole("article");
     await expect(feedCard.getByText("公开但匿名的面经")).toBeVisible();

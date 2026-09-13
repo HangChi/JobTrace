@@ -41,6 +41,7 @@ describe("面经广场动态流", () => {
     const article = screen.getByRole("article");
     expect(article).toHaveTextContent("匿名用户");
     expect(article).toHaveTextContent("轨迹科技 · 前端工程师");
+    expect(article).toHaveTextContent("2026年9月13日");
     expect(article).toHaveTextContent("使用布隆过滤器和空值缓存");
     expect(article).toHaveTextContent("补充限流和监控");
     expect(article).toHaveTextContent("表达清晰");

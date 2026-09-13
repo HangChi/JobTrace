@@ -88,7 +88,7 @@ src/app/api/interviews/public/
 tests/{unit,component,integration,contract,e2e}/
 ```
 
-**Structure Decision**: 沿用当前模块化单体和 `app → application → domain` 依赖方向；页面保持 Server Component，只有筛选与编辑交互使用现有或新增 Client Component。
+**Structure Decision**: 沿用当前模块化单体和 `app → application → domain` 依赖方向；广场页面保持 Server Component，公司搜索使用原生 GET 表单，只有编辑交互使用现有 Client Component。
 
 ## Migration and Rollback
 
