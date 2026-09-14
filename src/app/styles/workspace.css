@@ -654,12 +654,13 @@
 }
 
 .interview-square-page {
+  --public-feed-width: 1040px;
   display: grid;
-  gap: 18px;
+  gap: 24px;
 }
 
 .public-feed-toolbar {
-  width: min(100%, 1040px);
+  width: min(100%, var(--public-feed-width));
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   align-items: center;
@@ -829,7 +830,7 @@
 }
 
 .public-feed {
-  width: min(100%, 920px);
+  width: min(100%, var(--public-feed-width));
   display: grid;
   margin-inline: auto;
 }
@@ -850,7 +851,7 @@
 
 .public-feed-list {
   display: grid;
-  gap: 22px;
+  gap: 20px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -858,10 +859,10 @@
 
 .public-feed-card {
   overflow: hidden;
-  border: 1px solid #d8e4e7;
-  border-radius: 22px;
+  border: 1px solid #dce7e9;
+  border-radius: 20px;
   background: var(--surface);
-  box-shadow: 0 14px 38px rgba(35, 83, 100, 0.07);
+  box-shadow: 0 12px 32px rgba(35, 83, 100, 0.06);
 }
 
 .public-feed-card-header {

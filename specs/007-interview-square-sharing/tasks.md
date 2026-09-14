@@ -153,3 +153,14 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Clean migration replay and generated database schema snapshot: passed; migration was also applied to the configured development database.
 - 10,000-row benchmark: public list p95 33.98ms, hot list p95 28.23ms, interaction p95 29.74ms, public detail p95 24.79ms.
 - `pnpm typecheck`, production build, and lint passed; lint retains six pre-existing warnings. Full Vitest completed 338/339 tests with the known unrelated job-market architecture count mismatch remaining.
+
+## Phase 11: 广场布局宽度一致性
+
+- [x] T041 Use one responsive content-width token for the discovery toolbar and public feed, then normalize card spacing, radius, border, and elevation in `src/app/styles/workspace.css`.
+- [x] T042 Verify the aligned desktop layout, 375px reflow, focused component coverage, and TypeScript validation.
+
+### Layout-alignment validation
+
+- Chromium DOM measurement at 1230px confirmed the toolbar, feed, and first card share identical 1040px widths and left/right baselines.
+- Public filter, feed, and engagement component suites: 6 tests passed; `pnpm typecheck` passed.
+- Full Chromium E2E: 61/62 passed, including the interview-square accessibility checks at 375px/768px/1280px and the public sharing journey; the remaining failure is the known unrelated recruitment-marketplace combined-filter test.
