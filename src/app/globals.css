@@ -3921,52 +3921,174 @@ dialog::backdrop {
 
 .interview-publication-settings fieldset {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
 .interview-publication-settings legend {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  color: var(--ink);
+  font-size: 0.82rem;
   font-weight: 800;
 }
 
-.publication-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-height: 52px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  cursor: pointer;
+.interview-publication-settings {
+  gap: 16px;
 }
 
-.publication-option:has(input:checked) {
-  border-color: var(--brand);
+.interview-publication-settings .section-heading {
+  align-items: center;
+}
+
+.publication-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.interview-publication-settings .publication-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 72px;
+  padding: 13px 44px 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.interview-publication-settings .publication-option::after {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.interview-publication-settings .publication-option:has(input:checked) {
+  border-color: color-mix(in srgb, var(--brand) 70%, var(--line));
+  background: color-mix(in srgb, var(--brand-soft) 48%, var(--surface));
+}
+
+.interview-publication-settings .publication-option:has(input:checked)::after {
+  border: 5px solid var(--brand);
+  background: var(--surface);
+}
+
+.interview-publication-settings .publication-option:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--brand) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.interview-publication-settings
+  .publication-option:hover:not(:has(input:disabled)) {
+  border-color: var(--line-strong);
+  background: var(--surface-soft);
+}
+
+.interview-publication-settings .publication-option:has(input:disabled) {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--surface-soft) 62%, var(--surface));
+  opacity: 0.62;
+}
+
+.interview-publication-settings .publication-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  opacity: 0;
+}
+
+.interview-publication-settings .publication-option span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.interview-publication-settings .publication-option strong {
+  color: var(--ink-strong);
+  font-size: 0.86rem;
+}
+
+.interview-publication-settings .publication-option small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.publication-option-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  padding: 3px;
+  border-radius: 7px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.interview-publication-settings
+  .publication-option:has(input:checked)
+  .publication-option-icon {
+  color: var(--brand-dark);
   background: var(--brand-soft);
 }
 
-.publication-option:has(input:disabled) {
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
-.publication-option input {
-  width: 20px;
-  height: 20px;
-  margin-top: 2px;
-}
-
-.publication-option span {
-  display: grid;
-  gap: 3px;
-}
-
-.publication-option small {
+.publication-privacy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 10px;
   color: var(--muted);
-  line-height: 1.5;
+  background: var(--surface-soft);
+}
+
+.publication-privacy-note svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--brand);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.publication-privacy-note p,
+.publication-time {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.publication-time {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  color: var(--muted);
 }
 .status-draft {
   color: #5d6774;
@@ -4610,6 +4732,9 @@ dialog::backdrop {
     flex: 1;
   }
   .markdown-workspace {
+    grid-template-columns: 1fr;
+  }
+  .publication-choice-grid {
     grid-template-columns: 1fr;
   }
   .profile-hero {

@@ -117,6 +117,35 @@ describe("面经编辑器", () => {
       screen.getByText("私有", { selector: ".publication-status" }),
     ).toBeVisible();
     expect(screen.getByRole("status")).toHaveTextContent("自动从面经广场下架");
+    expect(screen.queryByRole("group", { name: "发布身份" })).toBeNull();
+  });
+
+  it("仅在公开时展开紧凑的发布身份选择", () => {
+    render(
+      <InterviewEditor
+        initial={{
+          ...initial,
+          status: "completed",
+          questionCount: 1,
+          questions: [
+            {
+              id: "55555555-5555-4555-8555-555555555555",
+              category: "other",
+              question: "# 已完成内容",
+              originalAnswer: null,
+              followUpNotes: null,
+              improvedAnswer: null,
+              selfRating: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole("group", { name: "发布身份" })).toBeNull();
+    fireEvent.click(screen.getByRole("radio", { name: /公开到面经广场/ }));
+    expect(screen.getByRole("group", { name: "发布身份" })).toBeVisible();
+    expect(screen.getByRole("radio", { name: /匿名发布/ })).toBeChecked();
   });
 
   it("把旧的逐题记录和行动项整理到同一 Markdown 文稿", () => {

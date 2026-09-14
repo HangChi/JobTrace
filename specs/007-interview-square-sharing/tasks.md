@@ -178,3 +178,16 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Comment disclosure exposes `aria-expanded`/`aria-controls`, focuses the textarea on open, and leaves no empty composer space when closed.
 - Public filter, feed, and engagement component suites: 6 tests passed; focused interview E2E including axe and 375px checks: passed.
 - `pnpm typecheck`, `pnpm build`, and lint: passed; lint retains six pre-existing warnings outside this feature.
+
+## Phase 13: 分享设置视觉收敛
+
+- [x] T047 Replace the tall stacked sharing cards with a compact two-column visibility selector and progressive author disclosure in `src/modules/interviews/ui/interview-editor.tsx`.
+- [x] T048 Add clear selected, disabled, hover, and keyboard-focus states plus a concise privacy note in `src/app/globals.css`.
+- [x] T049 Verify focused component behavior, 375px reflow, accessibility, and production validation.
+
+### Sharing-settings validation
+
+- Desktop browser measurement confirmed four 72px option cards in two-column groups; the complete public sharing section is 410px high with no horizontal overflow.
+- At 375px, each choice group reflows to one column and the document remains free of horizontal overflow.
+- Editor, autosave, and lifecycle component suites: 10 tests passed; the focused Chromium journey passed with zero axe violations on the editor and its narrow viewport.
+- `pnpm typecheck`, `pnpm build`, formatting, and lint passed; lint retains six pre-existing warnings outside this feature.

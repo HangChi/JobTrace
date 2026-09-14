@@ -15,6 +15,45 @@ import { InterviewQuestionList } from "./interview-question-list";
 import { useInterviewAutosave } from "./interview-autosave";
 import { interviewToMarkdown } from "../application/interview-markdown";
 
+function PublicationIcon({
+  name,
+}: {
+  name: "private" | "public" | "anonymous" | "attributed";
+}) {
+  return (
+    <svg
+      className="publication-option-icon"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+    >
+      {name === "private" && (
+        <>
+          <rect x="5" y="10" width="14" height="10" rx="2.5" />
+          <path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10M12 14v2" />
+        </>
+      )}
+      {name === "public" && (
+        <>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3.5 9h17M3.5 15h17M12 3c2.2 2.4 3.3 5.4 3.3 9S14.2 18.6 12 21M12 3C9.8 5.4 8.7 8.4 8.7 12s1.1 6.6 3.3 9" />
+        </>
+      )}
+      {name === "anonymous" && (
+        <>
+          <path d="M4 8.5c2.3-1.2 5-1.8 8-1.8s5.7.6 8 1.8l-1.2 6.1a3 3 0 0 1-2.9 2.4h-.5a3 3 0 0 1-2.6-1.5L12 14l-.8 1.5A3 3 0 0 1 8.6 17h-.5a3 3 0 0 1-2.9-2.4L4 8.5Z" />
+          <path d="M7.8 11.3h2.1M14.1 11.3h2.1" />
+        </>
+      )}
+      {name === "attributed" && (
+        <>
+          <circle cx="12" cy="8" r="3.5" />
+          <path d="M5 20a7 7 0 0 1 14 0" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
   const [draft, setDraft] = useState(initial);
   const [markdown, setMarkdown] = useState(() => interviewToMarkdown(initial));
@@ -235,7 +274,7 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           <div>
             <h2>分享设置</h2>
             <p className="section-description" id="publication-help">
-              默认仅自己可见。公开后仅分享公司、岗位、轮次、日期和面经正文；投递关联、面试官备注、行动项与个人评分不会公开。
+              决定这篇面经是否出现在面经广场。
             </p>
           </div>
           <span
@@ -249,74 +288,91 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           </span>
         </div>
         <fieldset aria-describedby="publication-help">
-          <legend>谁可以看到这篇面经</legend>
-          <label className="publication-option">
-            <input
-              type="radio"
-              name="visibility"
-              checked={draft.visibility === "private"}
-              onChange={() =>
-                change({ visibility: "private", authorMode: "anonymous" })
-              }
-            />
-            <span>
-              <strong>仅自己可见</strong>
-              <small>不会出现在面经广场。</small>
-            </span>
-          </label>
-          <label className="publication-option">
-            <input
-              type="radio"
-              name="visibility"
-              checked={draft.visibility === "public"}
-              disabled={draft.status !== "completed"}
-              onChange={() => {
-                setPublicationNotice("");
-                change({ visibility: "public", authorMode: "anonymous" });
-              }}
-            />
-            <span>
-              <strong>公开到面经广场</strong>
-              <small>
-                {draft.status === "completed"
-                  ? "所有已登录用户可阅读脱敏内容。"
-                  : "完成复盘后才能公开。"}
-              </small>
-            </span>
-          </label>
+          <legend>可见范围</legend>
+          <div className="publication-choice-grid">
+            <label className="publication-option">
+              <input
+                type="radio"
+                name="visibility"
+                checked={draft.visibility === "private"}
+                onChange={() =>
+                  change({ visibility: "private", authorMode: "anonymous" })
+                }
+              />
+              <PublicationIcon name="private" />
+              <span>
+                <strong>仅自己可见</strong>
+                <small>保留在个人面经中</small>
+              </span>
+            </label>
+            <label className="publication-option">
+              <input
+                type="radio"
+                name="visibility"
+                checked={draft.visibility === "public"}
+                disabled={draft.status !== "completed"}
+                onChange={() => {
+                  setPublicationNotice("");
+                  change({ visibility: "public", authorMode: "anonymous" });
+                }}
+              />
+              <PublicationIcon name="public" />
+              <span>
+                <strong>公开到面经广场</strong>
+                <small>
+                  {draft.status === "completed"
+                    ? "登录用户可阅读脱敏内容"
+                    : "完成复盘后才能选择"}
+                </small>
+              </span>
+            </label>
+          </div>
         </fieldset>
         {draft.visibility === "public" && (
           <fieldset>
-            <legend>作者展示</legend>
-            <label className="publication-option">
-              <input
-                type="radio"
-                name="authorMode"
-                checked={draft.authorMode === "anonymous"}
-                onChange={() => change({ authorMode: "anonymous" })}
-              />
-              <span>
-                <strong>匿名发布</strong>
-                <small>广场不会返回或展示你的账号信息。</small>
-              </span>
-            </label>
-            <label className="publication-option">
-              <input
-                type="radio"
-                name="authorMode"
-                checked={draft.authorMode === "attributed"}
-                onChange={() => change({ authorMode: "attributed" })}
-              />
-              <span>
-                <strong>署名发布</strong>
-                <small>只展示头像和用户名。</small>
-              </span>
-            </label>
+            <legend>发布身份</legend>
+            <div className="publication-choice-grid">
+              <label className="publication-option">
+                <input
+                  type="radio"
+                  name="authorMode"
+                  checked={draft.authorMode === "anonymous"}
+                  onChange={() => change({ authorMode: "anonymous" })}
+                />
+                <PublicationIcon name="anonymous" />
+                <span>
+                  <strong>匿名发布</strong>
+                  <small>不展示任何账号信息</small>
+                </span>
+              </label>
+              <label className="publication-option">
+                <input
+                  type="radio"
+                  name="authorMode"
+                  checked={draft.authorMode === "attributed"}
+                  onChange={() => change({ authorMode: "attributed" })}
+                />
+                <PublicationIcon name="attributed" />
+                <span>
+                  <strong>署名发布</strong>
+                  <small>仅展示头像和用户名</small>
+                </span>
+              </label>
+            </div>
           </fieldset>
         )}
+        <div className="publication-privacy-note">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 3 5 6v5c0 4.5 2.7 8.3 7 10 4.3-1.7 7-5.5 7-10V6l-7-3Z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          <p>
+            仅公开公司、岗位、轮次、日期和面经正文；投递关联、面试官备注、行动项与个人评分始终私密。
+          </p>
+        </div>
         {draft.publishedAt && (
-          <p className="muted">
-            当前版本已发布：
+          <p className="publication-time">
+            已发布于
             <time dateTime={draft.publishedAt}>
               {new Date(draft.publishedAt).toLocaleString("zh-CN")}
             </time>

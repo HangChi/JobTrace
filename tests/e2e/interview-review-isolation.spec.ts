@@ -170,6 +170,17 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
     const pageB = await contextB.newPage();
     await pageB.goto(`/interviews/${review.id}`);
     await expect(pageB.getByText("阶段已解除关联")).toBeVisible();
+    await expect(pageB.getByRole("group", { name: "可见范围" })).toBeVisible();
+    await expect(pageB.getByRole("group", { name: "发布身份" })).toBeVisible();
+    expect(
+      (await new AxeBuilder({ page: pageB }).analyze()).violations,
+    ).toEqual([]);
+    await pageB.setViewportSize({ width: 375, height: 812 });
+    expect(
+      await pageB.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
     await contextB.close();
 
     expect(
