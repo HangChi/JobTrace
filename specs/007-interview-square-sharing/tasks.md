@@ -164,3 +164,17 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - Chromium DOM measurement at 1230px confirmed the toolbar, feed, and first card share identical 1040px widths and left/right baselines.
 - Public filter, feed, and engagement component suites: 6 tests passed; `pnpm typecheck` passed.
 - Full Chromium E2E: 61/62 passed, including the interview-square accessibility checks at 375px/768px/1280px and the public sharing journey; the remaining failure is the known unrelated recruitment-marketplace combined-filter test.
+
+## Phase 12: 双栏社区动态流
+
+- [x] T043 Replace the oversized single-column desktop feed with a 784px reading column and 280px sticky utility rail while preserving a single-row discovery toolbar.
+- [x] T044 Move the personal-interview entry and public-sharing guidance into the utility rail, with a compact toolbar fallback when the rail collapses.
+- [x] T045 Reduce nested card chrome and make the comment composer an accessible, focus-managed disclosure.
+- [x] T046 Verify component behavior, WCAG contrast, 375px overflow safety, the public sharing journey, and the production build.
+
+### Two-column feed validation
+
+- Chromium visual inspection at 1230px confirmed a 1088px shell split into a 784px feed and 280px sidebar with a 24px gutter and no horizontal overflow.
+- Comment disclosure exposes `aria-expanded`/`aria-controls`, focuses the textarea on open, and leaves no empty composer space when closed.
+- Public filter, feed, and engagement component suites: 6 tests passed; focused interview E2E including axe and 375px checks: passed.
+- `pnpm typecheck`, `pnpm build`, and lint: passed; lint retains six pre-existing warnings outside this feature.

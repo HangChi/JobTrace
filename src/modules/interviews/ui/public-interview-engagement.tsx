@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type {
   PublicInterviewComment,
   PublicInterviewEngagement as Engagement,
@@ -28,8 +28,15 @@ export function PublicInterviewEngagement({
   const [comments, setComments] = useState(initialComments);
   const [likePending, setLikePending] = useState(false);
   const [commentPending, setCommentPending] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const commentInput = useRef<HTMLTextAreaElement>(null);
+  const composerId = `comment-composer-${interviewId}`;
+
+  useEffect(() => {
+    if (composerOpen) commentInput.current?.focus();
+  }, [composerOpen]);
 
   async function toggleLike() {
     if (likePending) return;
@@ -130,12 +137,19 @@ export function PublicInterviewEngagement({
           </svg>
           <span>{engagement.likeCount}</span>
         </button>
-        <span aria-label={`${engagement.commentCount} 条评论`}>
+        <button
+          className="public-comment-toggle"
+          type="button"
+          onClick={() => setComposerOpen((current) => !current)}
+          aria-expanded={composerOpen}
+          aria-controls={composerId}
+          aria-label={`评论，当前 ${engagement.commentCount} 条评论`}
+        >
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M21 12a8 8 0 0 1-8 8H6l-4 2 1.4-4.2A9 9 0 1 1 21 12Z" />
           </svg>
           {engagement.commentCount}
-        </span>
+        </button>
         <span aria-label={`${engagement.viewCount} 次浏览`}>
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
@@ -176,29 +190,38 @@ export function PublicInterviewEngagement({
         </ol>
       ) : null}
 
-      <form className="public-comment-form" onSubmit={submitComment}>
-        <label className="sr-only" htmlFor={`comment-${interviewId}`}>
-          写下你的评论
-        </label>
-        <textarea
-          id={`comment-${interviewId}`}
-          name="content"
-          rows={1}
-          maxLength={1000}
-          placeholder="写下你的评论…"
-          disabled={commentPending}
-        />
-        <button type="submit" disabled={commentPending}>
-          {commentPending ? "发送中…" : "发送"}
-        </button>
-      </form>
-      <p
-        className={`public-engagement-feedback${error ? " is-error" : ""}`}
-        role="status"
-        aria-live="polite"
-      >
-        {error || notice}
-      </p>
+      {composerOpen ? (
+        <form
+          id={composerId}
+          className="public-comment-form"
+          onSubmit={submitComment}
+        >
+          <label className="sr-only" htmlFor={`comment-${interviewId}`}>
+            写下你的评论
+          </label>
+          <textarea
+            ref={commentInput}
+            id={`comment-${interviewId}`}
+            name="content"
+            rows={1}
+            maxLength={1000}
+            placeholder="写下你的评论…"
+            disabled={commentPending}
+          />
+          <button type="submit" disabled={commentPending}>
+            {commentPending ? "发送中…" : "发送"}
+          </button>
+        </form>
+      ) : null}
+      {error || notice ? (
+        <p
+          className={`public-engagement-feedback${error ? " is-error" : ""}`}
+          role="status"
+          aria-live="polite"
+        >
+          {error || notice}
+        </p>
+      ) : null}
     </section>
   );
 }

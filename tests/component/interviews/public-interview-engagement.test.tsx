@@ -66,6 +66,12 @@ describe("公开面经互动", () => {
       />,
     );
 
+    expect(
+      screen.queryByRole("textbox", { name: "写下你的评论" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /评论，当前 0 条评论/ }),
+    );
     const input = screen.getByRole("textbox", { name: "写下你的评论" });
     fireEvent.change(input, { target: { value: "很有帮助" } });
     fireEvent.click(screen.getByRole("button", { name: "发送" }));
@@ -81,6 +87,9 @@ describe("公开面经互动", () => {
         initialEngagement={initial}
         initialComments={[]}
       />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /评论，当前 0 条评论/ }),
     );
     fireEvent.click(screen.getByRole("button", { name: "发送" }));
     expect(screen.getByRole("status")).toHaveTextContent(

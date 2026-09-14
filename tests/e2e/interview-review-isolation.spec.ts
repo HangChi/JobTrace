@@ -132,6 +132,7 @@ test("跨用户访问被拒绝，阶段解除保留面经，投递删除级联",
     await expect(
       feedCard.getByRole("button", { name: /取消点赞，当前 1 个赞/ }),
     ).toBeVisible();
+    await feedCard.getByRole("button", { name: /评论，当前 0 条评论/ }).click();
     await feedCard
       .getByRole("textbox", { name: "写下你的评论" })
       .fill("感谢分享");
