@@ -5,7 +5,7 @@ import type {
   PublicInterviewComment,
   PublicInterviewEngagement as Engagement,
 } from "../application/contracts";
-import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
+import { UserAvatar } from "@/modules/identity-access/ui";
 
 type Props = {
   interviewId: string;

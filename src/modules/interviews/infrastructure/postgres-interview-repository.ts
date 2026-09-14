@@ -5,6 +5,7 @@ import { decodeCursor, encodeCursor } from "@/shared/pagination/cursor";
 import type { InterviewRepository } from "../application/ports";
 import type { InterviewListQuery } from "../application/list-query";
 import type { PublicInterviewListQuery } from "../application/public-list-query";
+import { sanitizePublicInterviewMarkdown } from "../application/public-content";
 import type {
   InterviewDetail,
   InterviewPage,
@@ -94,7 +95,7 @@ function mapPublicComment(row: Row): PublicInterviewComment {
 function mapPublicQuestion(row: Row): PublicInterviewQuestion {
   return {
     category: row.category as never,
-    question: String(row.question),
+    question: sanitizePublicInterviewMarkdown(String(row.question)),
     originalAnswer:
       ((row.originalAnswer ?? row.original_answer) as
         string | null | undefined) ?? null,
@@ -124,6 +125,13 @@ function mapPublicFeedItem(row: Row): PublicInterviewFeedItem {
 
 export class PostgresInterviewRepository implements InterviewRepository {
   private sql = createServerDatabase();
+
+  private publicAvailability() {
+    return this.sql`
+      r.visibility='public' and r.status='completed'
+        and r.published_at is not null
+    `;
+  }
 
   async create(ownerId: string, input: CreateInterviewInput) {
     try {
@@ -345,7 +353,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
           })()
         : null;
     const filters = this.sql`
-      r.visibility='public' and r.status='completed' and r.published_at is not null
+      ${this.publicAvailability()}
       ${
         query.q
           ? this
@@ -361,7 +369,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
           filter(where nullif(trim(a.city),'') is not null),'{}') cities,
         coalesce(array_agg(distinct a.position_name order by a.position_name),'{}') positions
       from interview_reviews r join applications a on a.id=r.application_id
-      where r.visibility='public' and r.status='completed' and r.published_at is not null
+      where ${this.publicAvailability()}
     `;
     const rows = await this.sql<Row[]>`
       select selected.*,totals.total_count,
@@ -473,8 +481,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
       join applications a on a.id=r.application_id
       left join application_stage_occurrences s on s.id=r.stage_occurrence_id
       left join users u on u.id=r.owner_id and r.author_mode='attributed'
-      where r.id=${id} and r.visibility='public' and r.status='completed'
-        and r.published_at is not null
+      where r.id=${id} and ${this.publicAvailability()}
     `;
     if (!row) return null;
     const [questions, comments] = await Promise.all([
@@ -536,7 +543,7 @@ export class PostgresInterviewRepository implements InterviewRepository {
     }
   }
 
-  async listPublicComments(viewerId: string, id: string) {
+  async listPublicComments(id: string) {
     const rows = await this.sql<Row[]>`
       select r.id review_id,c.id,c.content,c.created_at,
         coalesce(u.display_username,u.username,u.display_name) username,u.image
@@ -547,11 +554,9 @@ export class PostgresInterviewRepository implements InterviewRepository {
         order by created_at desc,id desc limit 50
       ) c on true
       left join users u on u.id=c.user_id
-      where r.id=${id} and r.visibility='public' and r.status='completed'
-        and r.published_at is not null
+      where r.id=${id} and ${this.publicAvailability()}
       order by c.created_at desc,c.id desc
     `;
-    void viewerId;
     if (!rows.length) return null;
     return rows.filter((row) => row.id).map(mapPublicComment);
   }

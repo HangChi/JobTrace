@@ -191,3 +191,26 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - At 375px, each choice group reflows to one column and the document remains free of horizontal overflow.
 - Editor, autosave, and lifecycle component suites: 10 tests passed; the focused Chromium journey passed with zero axe violations on the editor and its narrow viewport.
 - `pnpm typecheck`, `pnpm build`, formatting, and lint passed; lint retains six pre-existing warnings outside this feature.
+
+## Phase 14: Convergence
+
+- [x] T050 CRITICAL prevent legacy self-ratings and action items from being re-encoded into public Markdown, with a regression covering edit-then-publish, per FR-013 and SC-003 (contradicts)
+- [x] T051 CRITICAL enable RLS and revoke client-role access for likes, comments, and views, with direct-permission regression coverage, per FR-033 and Constitution I (contradicts)
+- [x] T052 CRITICAL preserve storage and programming failures on the shared detail page while mapping only explicit missing-publication errors to 404 per Constitution I (contradicts)
+- [x] T053 make autosave queue edits made during an in-flight request without letting an older response overwrite newer publication choices per FR-006 and the in-flight edit edge case (partial)
+- [x] T054 complete OpenAPI response schemas for public detail and comment endpoints per plan: public interface documentation and Constitution I (partial)
+- [x] T055 benchmark the production-equivalent public list workload and add `/interviews` plus `/interviews/mine` Web Vitals coverage per FR-026, FR-027, SC-008, and SC-012 (partial)
+- [x] T056 centralize Asia/Shanghai publication-date formatting across feed, detail, and editor surfaces per Constitution III (contradicts)
+- [x] T057 replace public-square hard-coded semantic colors with shared design tokens and remove unused public search styles per Constitution III and Constitution I (partial)
+- [x] T058 expose `UserAvatar` through the identity-access public module surface and remove cross-module internal UI imports per plan: module boundaries (contradicts)
+- [x] T059 show a compact visible “最新面经” feed heading without restoring the removed oversized hero per FR-012B (partial)
+- [x] T060 remove the unused comments viewer parameter and centralize the repeated public-availability SQL predicate per Constitution I (partial)
+- [x] T061 align the stale job-market catalog assertion with the generated company directory as the documented source of truth so the full regression suite is green
+
+### Phase 14 validation
+
+- Full Vitest suite: 85 files and 346 tests passed; line coverage 92.4% and branch coverage 82.6%.
+- Focused public API contract and database permission integration suites passed, including legacy-body sanitization and direct client-role denial.
+- Production build, TypeScript, generated database types, diff whitespace, and lint passed; lint retains six pre-existing warnings outside this feature.
+- 10,000-row production-equivalent public feed: latest p95 88.29ms, hot p95 80.97ms; publication p95 35.30ms.
+- Chromium Web Vitals checks passed for the recruitment marketplace, interview square, and personal interview pages.

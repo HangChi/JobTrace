@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { PublicInterviewDetail as Detail } from "../application/contracts";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
-import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
+import { UserAvatar } from "@/modules/identity-access/ui";
 import { PublicInterviewContent } from "./public-interview-content";
 import { PublicInterviewEngagement } from "./public-interview-engagement";
+import { formatPublicationDate } from "./format-publication-date";
 
 export function PublicInterviewDetail({ interview }: { interview: Detail }) {
   return (
@@ -17,7 +18,7 @@ export function PublicInterviewDetail({ interview }: { interview: Detail }) {
           <p className="lead">
             面试日期 {interview.interviewedOn} · 发布于{" "}
             <time dateTime={interview.publishedAt}>
-              {interview.publishedAt.slice(0, 10)}
+              {formatPublicationDate(interview.publishedAt)}
             </time>
           </p>
         </div>

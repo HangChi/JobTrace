@@ -77,8 +77,8 @@ export async function addPublicInterviewComment(id: string, input: unknown) {
 }
 
 export async function listPublicInterviewComments(id: string) {
-  const actor = await requireUser();
-  const value = await repository().listPublicComments(actor.id, id);
+  await requireUser();
+  const value = await repository().listPublicComments(id);
   if (!value) throw new Problem("not_found", "没有找到这篇公开面经。", 404);
   return value;
 }

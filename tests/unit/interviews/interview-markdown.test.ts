@@ -45,22 +45,25 @@ describe("面经 Markdown", () => {
     expect(interviewToMarkdown(review)).toBe("# 原始 Markdown\n\n内容");
   });
 
-  it("将结构化问题、回答和行动项组成 Markdown", () => {
-    expect(
-      interviewToMarkdown({
-        ...review,
-        highlights: "表达清楚",
-        questions: [
-          {
-            ...review.questions[0],
-            question: "缓存穿透是什么？",
-            originalAnswer: "空值缓存",
-            improvedAnswer: "布隆过滤器与限流",
-            selfRating: 4,
-          },
-        ],
-        actionItems: [{ id: "action-1", content: "补充案例", completed: true }],
-      }),
-    ).toContain("### 复盘后的回答\n\n布隆过滤器与限流");
+  it("将可公开的结构化复盘组成 Markdown，但不混入自评分和行动项", () => {
+    const markdown = interviewToMarkdown({
+      ...review,
+      highlights: "表达清楚",
+      questions: [
+        {
+          ...review.questions[0],
+          question: "缓存穿透是什么？",
+          originalAnswer: "空值缓存",
+          improvedAnswer: "布隆过滤器与限流",
+          selfRating: 4,
+        },
+      ],
+      actionItems: [{ id: "action-1", content: "补充案例", completed: true }],
+    });
+
+    expect(markdown).toContain("### 复盘后的回答\n\n布隆过滤器与限流");
+    expect(markdown).not.toContain("自评分");
+    expect(markdown).not.toContain("补充案例");
+    expect(markdown).not.toContain("下一步行动");
   });
 });

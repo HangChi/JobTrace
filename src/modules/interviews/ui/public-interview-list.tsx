@@ -6,17 +6,11 @@ import type {
   PublicInterviewFeedItem,
   PublicInterviewPage,
 } from "../application/contracts";
-import { UserAvatar } from "@/modules/identity-access/ui/user-avatar";
+import { UserAvatar } from "@/modules/identity-access/ui";
 import { QUESTION_CATEGORY_LABELS } from "../domain/catalog";
 import { MarkdownPreview } from "./markdown-preview";
 import { PublicInterviewEngagement } from "./public-interview-engagement";
-
-const publishedDate = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "Asia/Shanghai",
-});
+import { formatPublicationDate } from "./format-publication-date";
 
 function FeedAuthor({ author }: { author: PublicAuthor | null }) {
   return (
@@ -101,9 +95,10 @@ export function PublicInterviewList({
 
   return (
     <section className="public-feed" aria-labelledby="public-feed-title">
-      <h1 className="sr-only" id="public-feed-title">
-        最新面经，共 {page.total} 篇
-      </h1>
+      <header className="public-feed-heading">
+        <h1 id="public-feed-title">最新面经</h1>
+        <span>共 {page.total} 篇</span>
+      </header>
       <ol className="public-feed-list">
         {page.items.map((item) => (
           <li key={item.id}>
@@ -111,7 +106,7 @@ export function PublicInterviewList({
               <header className="public-feed-card-header">
                 <FeedAuthor author={item.author} />
                 <time dateTime={item.publishedAt}>
-                  {publishedDate.format(new Date(item.publishedAt))}
+                  {formatPublicationDate(item.publishedAt)}
                 </time>
               </header>
 

@@ -148,7 +148,7 @@ describe("面经编辑器", () => {
     expect(screen.getByRole("radio", { name: /匿名发布/ })).toBeChecked();
   });
 
-  it("把旧的逐题记录和行动项整理到同一 Markdown 文稿", () => {
+  it("只把可分享的旧逐题记录整理到 Markdown，不混入私密复盘字段", () => {
     render(
       <InterviewEditor
         initial={{
@@ -177,7 +177,13 @@ describe("面经编辑器", () => {
     ).toContain("### 当时的回答");
     expect(
       (screen.getByLabelText("编辑 Markdown") as HTMLTextAreaElement).value,
-    ).toContain("## 下一步行动");
+    ).not.toContain("## 下一步行动");
+    expect(
+      (screen.getByLabelText("编辑 Markdown") as HTMLTextAreaElement).value,
+    ).not.toContain("自评分");
+    expect(
+      (screen.getByLabelText("编辑 Markdown") as HTMLTextAreaElement).value,
+    ).not.toContain("补充案例");
     expect(screen.queryByRole("button", { name: "添加任务" })).toBeNull();
   });
 });

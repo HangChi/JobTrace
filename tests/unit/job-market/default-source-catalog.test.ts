@@ -138,7 +138,7 @@ describe("default job-market source catalog", () => {
     });
   });
 
-  it("keeps documented directory counts synchronized with the source data", async () => {
+  it("keeps the generated directory and architecture source-of-truth synchronized", async () => {
     const automaticCompanies = new Set(
       DEFAULT_SOURCE_CATALOG.map((entry) => entry.companyName),
     );
@@ -147,9 +147,7 @@ describe("default job-market source catalog", () => {
       readFile("docs/company-directory.md", "utf8"),
     ]);
 
-    expect(architecture).toContain(
-      `${automaticCompanies.size} 家可自动同步企业、${DEFAULT_SOURCE_CATALOG.length} 个来源`,
-    );
+    expect(architecture).toContain("[公司招聘入口总览](company-directory.md)");
     expect(directory).toContain(
       `## 自动同步公司（${automaticCompanies.size} 家）`,
     );

@@ -55,6 +55,8 @@ describe("面经广场动态流", () => {
     );
 
     const article = screen.getByRole("article");
+    expect(screen.getByRole("heading", { name: "最新面经" })).toBeVisible();
+    expect(screen.getByText("共 1 篇")).toBeVisible();
     expect(article).toHaveTextContent("匿名用户");
     expect(article).toHaveTextContent("轨迹科技 · 前端工程师");
     expect(article).toHaveTextContent("2026年9月13日");

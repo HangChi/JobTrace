@@ -19,6 +19,15 @@
   --warm: #fff3dc;
   --warning: #a55b0a;
   --danger: #b4233a;
+  --social-line: #d6dfe5;
+  --social-line-soft: #dce7e9;
+  --social-ink: #294947;
+  --social-muted: #577086;
+  --social-accent-muted: #466a82;
+  --social-success: #16a779;
+  --social-danger: #e44855;
+  --social-surface-muted: #f7f9fa;
+  --social-shadow: 0 8px 24px rgba(35, 83, 100, 0.045);
   --radius-sm: 10px;
   --radius: 16px;
   --radius-lg: 24px;

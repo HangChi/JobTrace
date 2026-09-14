@@ -14,7 +14,7 @@ export function useInterviewAutosave({
   id: string;
   revision: number;
   payload: object;
-  onSaved: (value: InterviewDetail) => void;
+  onSaved: (value: InterviewDetail, context: { isLatest: boolean }) => void;
 }) {
   const [state, setState] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
@@ -68,7 +68,9 @@ export function useInterviewAutosave({
           throw new Error(result.message || "保存失败，请重试。");
         }
         lastSavedRevision.current = targetRevision;
-        onSaved(result as InterviewDetail);
+        onSaved(result as InterviewDetail, {
+          isLatest: latestRevision.current === targetRevision,
+        });
         transition("saved", "已保存");
       } catch (reason) {
         transition(

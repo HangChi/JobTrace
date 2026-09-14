@@ -688,7 +688,7 @@
   align-items: center;
   gap: 8px;
   padding-inline: 12px;
-  border: 1px solid #d6dfe5;
+  border: 1px solid var(--social-line);
   border-radius: 8px;
   background: var(--surface);
 }
@@ -726,7 +726,7 @@
   width: 100%;
   min-height: 46px;
   padding: 0 38px 0 14px;
-  border: 1px solid #d6dfe5;
+  border: 1px solid var(--social-line);
   border-radius: 8px;
   color: var(--ink);
   background-color: var(--surface);
@@ -743,7 +743,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(104px, 1fr));
   overflow: hidden;
-  border: 1px solid #d6dfe5;
+  border: 1px solid var(--social-line);
   border-radius: 8px;
   background: var(--surface);
 }
@@ -761,7 +761,7 @@
 }
 
 .public-sort-control a + a {
-  border-left: 1px solid #d6dfe5;
+  border-left: 1px solid var(--social-line);
 }
 
 .public-sort-control a[aria-current="page"] {
@@ -776,8 +776,6 @@
   outline-offset: -3px;
 }
 
-.public-search-submit,
-.public-search-clear,
 .public-mine-link {
   min-height: 44px;
   display: inline-flex;
@@ -787,29 +785,6 @@
   font-size: 0.82rem;
   font-weight: 750;
   text-decoration: none;
-}
-
-.public-search-submit {
-  padding-inline: 17px;
-  border: 1px solid var(--brand);
-  color: white;
-  background: var(--brand);
-  cursor: pointer;
-}
-
-.public-search-submit:hover {
-  background: var(--brand-dark);
-}
-
-.public-search-clear {
-  padding-inline: 8px;
-  color: var(--muted);
-}
-
-.public-search-clear:hover {
-  color: var(--brand-dark);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 .public-mine-link {
@@ -875,6 +850,25 @@
   display: grid;
 }
 
+.public-feed-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 2px 12px;
+}
+
+.public-feed-heading h1 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: 1.05rem;
+}
+
+.public-feed-heading span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
 .public-feed-sidebar {
   position: sticky;
   top: 24px;
@@ -884,7 +878,7 @@
 
 .public-sidebar-card {
   padding: 18px;
-  border: 1px solid #dce7e9;
+  border: 1px solid var(--social-line-soft);
   border-radius: 16px;
   background: color-mix(in srgb, var(--surface) 94%, var(--brand-soft));
 }
@@ -970,10 +964,10 @@
 
 .public-feed-card {
   overflow: hidden;
-  border: 1px solid #dce7e9;
+  border: 1px solid var(--social-line-soft);
   border-radius: 16px;
   background: var(--surface);
-  box-shadow: 0 8px 24px rgba(35, 83, 100, 0.045);
+  box-shadow: var(--social-shadow);
 }
 
 .public-feed-card-header {
@@ -1001,9 +995,9 @@
   place-items: center;
   flex: none;
   overflow: hidden;
-  border: 1px solid #cbd9de;
+  border: 1px solid var(--social-line);
   border-radius: 11px;
-  color: #315b70;
+  color: var(--social-muted);
   background: color-mix(in srgb, var(--sky) 70%, var(--surface));
   font-size: 0.78rem;
   font-weight: 800;
@@ -1018,9 +1012,9 @@
 .public-feed-anonymous {
   display: grid;
   place-items: center;
-  border: 1px solid #c8dce4;
+  border: 1px solid var(--social-line);
   border-radius: 13px;
-  color: #466a82;
+  color: var(--social-accent-muted);
   background: color-mix(in srgb, var(--sky) 70%, var(--surface));
   font-weight: 800;
 }
@@ -1082,7 +1076,7 @@
   margin-top: 18px;
   padding: 4px 0 4px 18px;
   border: 0;
-  border-left: 3px solid #b9d9df;
+  border-left: 3px solid var(--line-strong);
   border-radius: 0;
   background: transparent;
 }
@@ -1097,8 +1091,9 @@
   height: 10px;
   flex: none;
   border-radius: 50%;
-  background: #16a779;
-  box-shadow: 0 0 0 4px rgba(22, 167, 121, 0.1);
+  background: var(--social-success);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--social-success) 10%, transparent);
 }
 
 .public-feed-preview-heading > strong {
@@ -1120,7 +1115,7 @@
 
 .public-feed-preview-heading > small {
   color: var(--muted);
-  background: #edf2f4;
+  background: var(--surface-soft);
 }
 
 .public-feed-preview-question {
@@ -1129,7 +1124,7 @@
 
 .public-feed-preview-question .markdown-rendered,
 .public-feed-preview-answer .markdown-rendered {
-  color: #3a535e;
+  color: var(--social-muted);
   font-size: 0.96rem;
   line-height: 1.75;
 }
@@ -1150,7 +1145,7 @@
   gap: 12px;
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid #e2eaed;
+  border-top: 1px solid var(--social-line-soft);
 }
 
 .public-feed-preview-answer > strong {
@@ -1178,14 +1173,14 @@
   min-height: 28px;
   padding: 3px 9px;
   border-radius: 6px;
-  color: #315b70;
+  color: var(--social-muted);
   background: color-mix(in srgb, var(--sky) 72%, var(--surface));
   font-size: 0.74rem;
   font-weight: 750;
 }
 
 .public-post-content .markdown-rendered {
-  color: #294947;
+  color: var(--social-ink);
   font-size: 1rem;
   line-height: 1.78;
 }
@@ -1203,14 +1198,14 @@
   gap: 8px;
   padding: 14px 16px;
   border: 0;
-  border-left: 3px solid #9acbd5;
+  border-left: 3px solid var(--line-strong);
   border-radius: 0 8px 8px 0;
   background: color-mix(in srgb, var(--sky) 30%, var(--surface));
 }
 
 .public-post-content .public-answer-section h4 {
   margin: 0;
-  color: #466a82;
+  color: var(--social-accent-muted);
   font-size: 0.78rem;
 }
 
@@ -1297,7 +1292,7 @@
   justify-content: center;
   gap: 7px;
   border: 0;
-  color: #577086;
+  color: var(--social-muted);
   background: transparent;
   font: inherit;
   font-variant-numeric: tabular-nums;
@@ -1314,7 +1309,7 @@
 }
 
 .public-engagement-metrics > button.is-liked {
-  color: #e44855;
+  color: var(--social-danger);
 }
 
 .public-engagement-metrics > .public-share-button {
@@ -1337,7 +1332,7 @@
 }
 
 .public-engagement-metrics .is-liked svg {
-  fill: color-mix(in srgb, #e44855 18%, transparent);
+  fill: color-mix(in srgb, var(--social-danger) 18%, transparent);
 }
 
 .public-comment-list {
@@ -1394,9 +1389,9 @@
   gap: 10px;
   margin-top: 4px;
   padding: 10px;
-  border: 1px solid #e1e8eb;
+  border: 1px solid var(--social-line-soft);
   border-radius: 12px;
-  background: #f7f9fa;
+  background: var(--social-surface-muted);
 }
 
 .public-comment-form textarea {
@@ -1404,7 +1399,7 @@
   max-height: 130px;
   resize: vertical;
   padding: 10px 12px;
-  border-color: #d6dfe5;
+  border-color: var(--social-line);
   background: var(--surface);
   line-height: 1.45;
 }
@@ -1439,7 +1434,7 @@
 }
 
 .public-engagement-feedback.is-error {
-  color: var(--danger, #b42318);
+  color: var(--danger);
 }
 
 .public-feed-pagination {

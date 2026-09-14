@@ -51,8 +51,5 @@ export interface InterviewRepository {
     comment: PublicInterviewComment;
     engagement: PublicInterviewEngagement;
   } | null>;
-  listPublicComments(
-    viewerId: string,
-    id: string,
-  ): Promise<PublicInterviewComment[] | null>;
+  listPublicComments(id: string): Promise<PublicInterviewComment[] | null>;
 }

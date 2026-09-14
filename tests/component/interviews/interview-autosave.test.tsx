@@ -1,14 +1,21 @@
 import { act, render, screen } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { InterviewDetail } from "@/modules/interviews";
 import { useInterviewAutosave } from "@/modules/interviews/ui/interview-autosave";
 
-function Harness({ revision = 1 }: { revision?: number }) {
+function Harness({
+  revision = 1,
+  onSaved = vi.fn(),
+}: {
+  revision?: number;
+  onSaved?: (value: InterviewDetail, context: { isLatest: boolean }) => void;
+}) {
   const autosave = useInterviewAutosave({
     id: "11111111-1111-4111-8111-111111111111",
     revision,
-    payload: { version: 1, questions: [], actionItems: [] },
-    onSaved: vi.fn(),
+    payload: { version: revision, questions: [], actionItems: [] },
+    onSaved,
   });
   useEffect(() => {
     window.__testFlush = autosave.flush;
@@ -86,5 +93,49 @@ describe("面经自动保存", () => {
       document.dispatchEvent(new Event("visibilitychange")),
     );
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("旧请求返回时标记为过期，并继续保存请求期间的新修改", async () => {
+    vi.useFakeTimers();
+    let resolveFirst!: (value: object) => void;
+    const firstResponse = new Promise((resolve) => {
+      resolveFirst = resolve;
+    });
+    const fetchMock = vi
+      .fn()
+      .mockReturnValueOnce(firstResponse)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ version: 3 }),
+      });
+    const onSaved = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const { rerender } = render(<Harness revision={1} onSaved={onSaved} />);
+
+    await act(async () => vi.advanceTimersByTimeAsync(800));
+    rerender(<Harness revision={2} onSaved={onSaved} />);
+    await act(async () => vi.advanceTimersByTimeAsync(800));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveFirst({
+        ok: true,
+        json: async () => ({ version: 2 }),
+      });
+      await firstResponse;
+    });
+
+    expect(onSaved).toHaveBeenNthCalledWith(
+      1,
+      { version: 2 },
+      { isLatest: false },
+    );
+    await act(async () => vi.advanceTimersByTimeAsync(800));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(onSaved).toHaveBeenNthCalledWith(
+      2,
+      { version: 3 },
+      { isLatest: true },
+    );
   });
 });

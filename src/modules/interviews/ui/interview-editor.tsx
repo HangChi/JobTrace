@@ -14,6 +14,7 @@ import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import { InterviewQuestionList } from "./interview-question-list";
 import { useInterviewAutosave } from "./interview-autosave";
 import { interviewToMarkdown } from "../application/interview-markdown";
+import { formatPublicationDate } from "./format-publication-date";
 
 function PublicationIcon({
   name,
@@ -93,18 +94,25 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
     }),
     [draft],
   );
-  const onSaved = useCallback((value: InterviewDetail) => {
-    // Keep the locally edited fields and caret position; autosave only returns
-    // the server version needed for the next optimistic-concurrency update.
-    setDraft((current) => ({
-      ...current,
-      version: value.version,
-      status: value.status,
-      visibility: value.visibility,
-      authorMode: value.authorMode,
-      publishedAt: value.publishedAt,
-    }));
-  }, []);
+  const onSaved = useCallback(
+    (value: InterviewDetail, { isLatest }: { isLatest: boolean }) => {
+      // Keep the locally edited fields and caret position; autosave only returns
+      // the server version needed for the next optimistic-concurrency update.
+      setDraft((current) => ({
+        ...current,
+        version: value.version,
+        ...(isLatest
+          ? {
+              status: value.status,
+              visibility: value.visibility,
+              authorMode: value.authorMode,
+              publishedAt: value.publishedAt,
+            }
+          : {}),
+      }));
+    },
+    [],
+  );
   const autosave = useInterviewAutosave({
     id: draft.id,
     revision,
@@ -253,13 +261,12 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
                     originalAnswer: null,
                     followUpNotes: null,
                     improvedAnswer: null,
-                    selfRating: null,
+                    selfRating: draft.questions[0]?.selfRating ?? null,
                   },
                 ]
               : [],
             highlights: null,
             gaps: null,
-            actionItems: [],
             status:
               draft.status === "completed"
                 ? "pending_review"
@@ -374,7 +381,7 @@ export function InterviewEditor({ initial }: { initial: InterviewDetail }) {
           <p className="publication-time">
             已发布于
             <time dateTime={draft.publishedAt}>
-              {new Date(draft.publishedAt).toLocaleString("zh-CN")}
+              {formatPublicationDate(draft.publishedAt)}
             </time>
           </p>
         )}

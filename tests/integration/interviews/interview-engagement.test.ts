@@ -6,6 +6,35 @@ import {
   testId,
 } from "../../setup/database";
 
+test("互动明细表启用 RLS，且浏览器数据库角色没有直连权限", async () => {
+  const sql = testDatabase();
+  const tables = [
+    "interview_review_likes",
+    "interview_review_comments",
+    "interview_review_views",
+  ];
+  const policies = await sql<{ relname: string; relrowsecurity: boolean }[]>`
+    select relname,relrowsecurity
+    from pg_class
+    where relnamespace='public'::regnamespace and relname=any(${tables})
+    order by relname
+  `;
+  expect(policies).toHaveLength(3);
+  expect(policies.every((table) => table.relrowsecurity)).toBe(true);
+
+  const privileges = await sql<
+    { role_name: string; table_name: string; can_access: boolean }[]
+  >`
+    select roles.rolname role_name,tables.table_name,
+      has_table_privilege(roles.rolname,'public.'||tables.table_name,
+        'SELECT,INSERT,UPDATE,DELETE') can_access
+    from pg_roles roles
+    cross join unnest(${tables}::text[]) tables(table_name)
+    where roles.rolname=any(array['anon','authenticated'])
+  `;
+  expect(privileges.every((privilege) => !privilege.can_access)).toBe(true);
+});
+
 test("点赞切换、浏览去重、评论和级联计数保持一致", async () => {
   const sql = testDatabase();
   const owner = testId("engagement-owner");

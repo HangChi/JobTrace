@@ -36,6 +36,89 @@ def measure(
         raise SystemExit(f"interview {name} exceeds {threshold_ms:.0f}ms")
 
 
+def measure_public_feed(
+    cursor: psycopg.Cursor, viewer_id: str, sort: str
+) -> None:
+    order = (
+        "r.hot_score desc,r.published_at desc,r.id desc"
+        if sort == "hot"
+        else "r.published_at desc,r.id desc"
+    )
+    timings: list[float] = []
+    for _ in range(25):
+        started = time.perf_counter()
+        cursor.execute(
+            """
+            select
+              coalesce(array_agg(distinct a.city order by a.city)
+                filter(where nullif(trim(a.city),'') is not null),'{}') cities,
+              coalesce(array_agg(distinct a.position_name order by a.position_name),'{}') positions
+            from interview_reviews r join applications a on a.id=r.application_id
+            where r.visibility='public' and r.status='completed'
+              and r.published_at is not null
+            """
+        )
+        cursor.fetchall()
+        cursor.execute(
+            f"""
+            select selected.*,totals.total_count,
+              (select count(*)::int from interview_questions q
+                where q.interview_review_id=selected.id) question_count,
+              coalesce((select jsonb_agg(jsonb_build_object(
+                'category',q.category,'question',q.question,
+                'originalAnswer',q.original_answer,
+                'followUpNotes',q.follow_up_notes,
+                'improvedAnswer',q.improved_answer
+              ) order by q.sort_order) from interview_questions q
+                where q.interview_review_id=selected.id),'[]'::jsonb) questions,
+              coalesce((select jsonb_agg(jsonb_build_object(
+                'id',recent.id,'content',recent.content,'createdAt',recent.created_at,
+                'author',jsonb_build_object(
+                  'username',coalesce(recent.display_username,recent.username,recent.display_name),
+                  'image',recent.image
+                )) order by recent.created_at,recent.id)
+                from (select c.id,c.content,c.created_at,u.username,
+                    u.display_username,u.display_name,u.image
+                  from interview_review_comments c join users u on u.id=c.user_id
+                  where c.interview_review_id=selected.id
+                  order by c.created_at desc,c.id desc limit 2) recent
+              ),'[]'::jsonb) recent_comments
+            from (select count(*)::int total_count
+              from interview_reviews r join applications a on a.id=r.application_id
+              left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+              where r.visibility='public' and r.status='completed'
+                and r.published_at is not null) totals
+            left join lateral (
+              select r.id,r.stage_snapshot,r.interviewed_on,r.published_at,
+                r.author_mode,r.highlights,r.gaps,r.like_count,r.comment_count,
+                r.view_count,r.hot_score,a.company_name,a.position_name,a.city,
+                coalesce(s.stage,r.stage_snapshot) display_stage,
+                u.username author_username,u.image author_image,
+                exists(select 1 from interview_review_likes viewer_like
+                  where viewer_like.interview_review_id=r.id
+                    and viewer_like.user_id=%s) liked_by_viewer
+              from interview_reviews r join applications a on a.id=r.application_id
+              left join application_stage_occurrences s on s.id=r.stage_occurrence_id
+              left join users u on u.id=r.owner_id and r.author_mode='attributed'
+              where r.visibility='public' and r.status='completed'
+                and r.published_at is not null
+              order by {order} limit 21
+            ) selected on true
+            order by {order.replace('r.', 'selected.')}
+            """,
+            (viewer_id,),
+        )
+        cursor.fetchall()
+        timings.append((time.perf_counter() - started) * 1000)
+    p95 = percentile(timings)
+    print(
+        f"interview public {sort} feed: p95={p95:.2f}ms "
+        f"median={statistics.median(timings):.2f}ms"
+    )
+    if p95 > 500:
+        raise SystemExit(f"interview public {sort} feed exceeds 500ms")
+
+
 def main() -> None:
     load_local_env()
     url = os.environ.get("DATABASE_URL")
@@ -152,41 +235,8 @@ def main() -> None:
                    ) order by r.interviewed_on desc,r.id desc limit 50""",
                 (owner_id,),
             )
-            measure(
-                cursor,
-                "public list",
-                """select r.id,a.company_name,a.position_name,r.published_at,
-                         r.highlights,r.gaps,
-                         coalesce((
-                           select jsonb_agg(jsonb_build_object(
-                             'category',q.category,'question',q.question,
-                             'originalAnswer',q.original_answer,
-                             'followUpNotes',q.follow_up_notes,
-                             'improvedAnswer',q.improved_answer
-                           ) order by q.sort_order)
-                           from interview_questions q
-                           where q.interview_review_id=r.id
-                         ),'[]'::jsonb) questions
-                   from interview_reviews r
-                   join applications a on a.id=r.application_id
-                   where r.visibility='public' and r.status='completed'
-                     and r.published_at is not null
-                   order by r.published_at desc,r.id desc limit 21""",
-                (),
-                threshold_ms=500,
-            )
-            measure(
-                cursor,
-                "public hot list",
-                """select r.id,a.company_name,a.position_name,a.city,
-                         r.hot_score,r.like_count,r.comment_count,r.view_count
-                   from interview_reviews r join applications a on a.id=r.application_id
-                   where r.visibility='public' and r.status='completed'
-                     and r.published_at is not null
-                   order by r.hot_score desc,r.published_at desc,r.id desc limit 21""",
-                (),
-                threshold_ms=500,
-            )
+            measure_public_feed(cursor, owner_id, "latest")
+            measure_public_feed(cursor, owner_id, "hot")
             cursor.execute(
                 """select id from interview_reviews
                    where visibility='public' and status='completed' limit 1"""

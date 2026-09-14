@@ -41,7 +41,8 @@ test("公开面经接口只返回脱敏 DTO", async ({ request }) => {
           questions: [
             {
               category: "technical",
-              question: "公开问题",
+              question:
+                "公开问题\n\n**自评分：5/5**\n\n## 下一步行动\n\n- [ ] 不得公开的旧行动项",
               originalAnswer: "公开回答",
               selfRating: 5,
             },

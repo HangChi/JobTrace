@@ -33,6 +33,9 @@ paths:
       responses:
         "200":
           description: Minimal public interview detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicInterviewDetail" }
         "401":
           description: Authentication required
         "404":
@@ -58,6 +61,11 @@ paths:
       responses:
         "200":
           description: Sanitized attributed comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PublicInterviewComment" }
         "401": { description: Authentication required }
         "404": { description: Missing or no longer public }
     post:
@@ -77,6 +85,9 @@ paths:
       responses:
         "201":
           description: Created comment and updated engagement counts
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicInterviewCommentCreation" }
         "400": { description: Invalid comment }
         "401": { description: Authentication required }
         "404": { description: Missing or no longer public }
@@ -158,7 +169,7 @@ components:
       allOf:
         - { $ref: "#/components/schemas/PublicInterviewSummary" }
         - type: object
-          required: [highlights, gaps, questions]
+          required: [highlights, gaps, questions, recentComments]
           properties:
             highlights: { type: [string, "null"] }
             gaps: { type: [string, "null"] }
@@ -174,6 +185,16 @@ components:
                   followUpNotes: { type: [string, "null"] }
                   improvedAnswer: { type: [string, "null"] }
                 additionalProperties: false
+            recentComments:
+              type: array
+              items: { $ref: "#/components/schemas/PublicInterviewComment" }
+    PublicInterviewCommentCreation:
+      type: object
+      required: [comment, engagement]
+      properties:
+        comment: { $ref: "#/components/schemas/PublicInterviewComment" }
+        engagement: { $ref: "#/components/schemas/PublicInterviewEngagement" }
+      additionalProperties: false
     PublicInterviewFeedItem:
       allOf:
         - { $ref: "#/components/schemas/PublicInterviewDetail" }

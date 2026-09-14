@@ -28,23 +28,12 @@ export function interviewToMarkdown(review: InterviewDetail) {
     if (question.improvedAnswer) {
       sections.push("### 复盘后的回答", question.improvedAnswer);
     }
-    if (question.selfRating !== null) {
-      sections.push(`**自评分：${question.selfRating}/5**`);
-    }
   });
   if (review.highlights) {
     sections.push("## 做得好的地方", review.highlights);
   }
   if (review.gaps) {
     sections.push("## 可以改进的地方", review.gaps);
-  }
-  if (review.actionItems.length) {
-    sections.push(
-      "## 下一步行动",
-      review.actionItems
-        .map((item) => `- [${item.completed ? "x" : " "}] ${item.content}`)
-        .join("\n"),
-    );
   }
   return sections.join("\n\n");
 }
