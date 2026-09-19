@@ -137,3 +137,27 @@ curl --fail http://127.0.0.1:3000/api/health/ready
 ```
 
 旧版本保存在 `/opt/jobtrace/releases`，安装失败或新版本未通过就绪检查时会自动切回部署前的版本。
+
+## 轻量部署（推荐用于小内存服务器）
+
+完整部署会在服务器安装依赖并执行 Next.js 构建，建议至少预留 4 GB 可用内存。对于 2 GB 等小内存服务器，使用本地 Docker 构建 Linux amd64 standalone 产物，服务器只负责数据库迁移、解压、原子切换和健康检查：
+
+```bash
+JOBTRACE_SSH_PORT=2002 \
+  ./deploy/server/push-artifact.sh ubuntu@your-server
+```
+
+本机需要 Docker，Apple Silicon 会通过 `linux/amd64` 模拟构建与服务器兼容的产物。构建过程读取 `.env.server`，但环境文件不会写入产物；服务端仍从 `/etc/jobtrace/app.env` 在运行时注入配置。
+
+轻量包只包含 standalone 运行文件、静态资源、数据库迁移脚本和迁移 SQL，不上传开发依赖。首次安装服务器依赖或没有本地 Docker 时，仍可使用 `push.sh` 完整部署。
+
+自定义 SSH 端口、环境文件或产物路径：
+
+```bash
+JOBTRACE_SSH_PORT=2002 \
+JOBTRACE_ENV_FILE=/secure/path/jobtrace.env \
+JOBTRACE_ARTIFACT_FILE=/tmp/jobtrace-release.tar.gz \
+  ./deploy/server/push-artifact.sh ubuntu@your-server
+```
+
+应用代码发布与招聘内容更新彼此独立。`jobtrace-sync.timer`、`jobtrace-collect.timer`、`jobtrace-research.timer` 和 `jobtrace-sitescan.timer` 均直接在服务器运行；它们调用本机应用接口抓取和更新内容，不依赖 GitHub Actions 或其他 CI/CD。

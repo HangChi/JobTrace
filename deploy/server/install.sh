@@ -16,15 +16,23 @@ env_dir="${JOBTRACE_ENV_DIR:-/etc/jobtrace}"
 env_file="${env_dir}/app.env"
 sync_bin="${JOBTRACE_SYNC_BIN:-/usr/local/libexec/jobtrace-sync}"
 env_source="${JOBTRACE_ENV_SOURCE:-}"
+release_artifact="${JOBTRACE_RELEASE_ARTIFACT:-}"
 
 if [[ ! -f "${source_dir}/package.json" || ! -d "${source_dir}/deploy/server" ]]; then
   echo "JOBTRACE_SOURCE_DIR must point to the JobTrace repository root." >&2
   exit 1
 fi
 
-for command_name in \
-  node pnpm uv rsync curl jq flock logger systemctl runuser \
-  getent groupadd useradd usermod journalctl; do
+required_commands=(
+  node uv rsync curl jq flock logger systemctl runuser
+  getent groupadd useradd usermod journalctl
+)
+if [[ -n "$release_artifact" ]]; then
+  required_commands+=(tar)
+else
+  required_commands+=(pnpm)
+fi
+for command_name in "${required_commands[@]}"; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "Required command is missing: ${command_name}" >&2
     exit 1
@@ -32,13 +40,18 @@ for command_name in \
 done
 
 node_major="$(node --version | sed -E 's/^v([0-9]+).*/\1/')"
-pnpm_major="$(pnpm --version | sed -E 's/^([0-9]+).*/\1/')"
 if ((node_major < 24)); then
   echo "Node.js 24 or newer is required." >&2
   exit 1
 fi
-if ((pnpm_major < 10)); then
-  echo "pnpm 10 or newer is required." >&2
+if [[ -z "$release_artifact" ]]; then
+  pnpm_major="$(pnpm --version | sed -E 's/^([0-9]+).*/\1/')"
+  if ((pnpm_major < 10)); then
+    echo "pnpm 10 or newer is required." >&2
+    exit 1
+  fi
+elif [[ ! -f "$release_artifact" ]]; then
+  echo "JOBTRACE_RELEASE_ARTIFACT does not exist: ${release_artifact}" >&2
   exit 1
 fi
 
@@ -125,33 +138,60 @@ if [[ -L "$app_current" ]]; then
 fi
 
 install -d -m 0750 -o "$app_user" -g "$app_group" "$release_dir"
-rsync \
-  --archive \
-  --delete \
-  --exclude '.git/' \
-  --exclude '.env*' \
-  --exclude '.next*/' \
-  --exclude 'node_modules/' \
-  --exclude 'coverage/' \
-  --exclude 'test-results/' \
-  "${source_dir}/" \
-  "${release_dir}/"
-chown -R "$app_user:$app_group" "$release_dir"
+if [[ -n "$release_artifact" ]]; then
+  if ! tar -tzf "$release_artifact" | awk '
+    $0 == ".next/standalone/server.js" { found = 1 }
+    END { exit !found }
+  '; then
+    echo "Release artifact is missing .next/standalone/server.js." >&2
+    exit 1
+  fi
+  tar -xzf "$release_artifact" -C "$release_dir"
+  chown -R "$app_user:$app_group" "$release_dir"
 
-runuser -u "$app_user" -- \
-  env PATH="$PATH" HOME="/var/lib/${app_user}" \
-  bash -c '
-    set -Eeuo pipefail
-    set -a
-    source "$1"
-    set +a
-    cd "$2"
-    pnpm install --frozen-lockfile
-    pnpm db
-    pnpm build
-    mkdir -p .next/standalone/.next
-    cp -R .next/static .next/standalone/.next/static
-  ' _ "$env_file" "$release_dir"
+  runuser -u "$app_user" -- \
+    env PATH="$PATH" HOME="/var/lib/${app_user}" \
+    bash -c '
+      set -Eeuo pipefail
+      set -a
+      source "$1"
+      set +a
+      cd "$2"
+      uv run \
+        --python 3.12 \
+        --cache-dir ".uv-cache" \
+        --with "psycopg[binary]==3.2.9" \
+        python scripts/db_migrate.py
+    ' _ "$env_file" "$release_dir"
+else
+  rsync \
+    --archive \
+    --delete \
+    --exclude '.git/' \
+    --exclude '.env*' \
+    --exclude '.next*/' \
+    --exclude 'node_modules/' \
+    --exclude 'coverage/' \
+    --exclude 'test-results/' \
+    "${source_dir}/" \
+    "${release_dir}/"
+  chown -R "$app_user:$app_group" "$release_dir"
+
+  runuser -u "$app_user" -- \
+    env PATH="$PATH" HOME="/var/lib/${app_user}" \
+    bash -c '
+      set -Eeuo pipefail
+      set -a
+      source "$1"
+      set +a
+      cd "$2"
+      pnpm install --frozen-lockfile
+      pnpm db
+      pnpm build
+      mkdir -p .next/standalone/.next
+      cp -R .next/static .next/standalone/.next/static
+    ' _ "$env_file" "$release_dir"
+fi
 
 install -m 0750 -o root -g "$app_group" \
   "${source_dir}/deploy/server/jobtrace-sync.sh" "$sync_bin"
