@@ -159,7 +159,7 @@ if [[ -n "$release_artifact" ]]; then
       cd "$2"
       uv run \
         --python 3.12 \
-        --cache-dir ".uv-cache" \
+        --cache-dir "$HOME/.cache/uv" \
         --with "psycopg[binary]==3.2.9" \
         python scripts/db_migrate.py
     ' _ "$env_file" "$release_dir"

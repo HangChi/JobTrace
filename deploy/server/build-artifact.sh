@@ -42,11 +42,14 @@ echo "Building the Linux amd64 standalone release locally"
 docker run --rm \
   --platform linux/amd64 \
   --env-file "$env_file" \
+  --mount type=volume,source=jobtrace-npm-cache,target=/root/.npm \
+  --mount type=volume,source=jobtrace-pnpm-store,target=/pnpm-store \
   --volume "${build_dir}/source:/workspace" \
   --workdir /workspace \
   node:24-bookworm \
   bash -c "
     set -Eeuo pipefail
+    npx --yes pnpm@${pnpm_version} config set store-dir /pnpm-store
     npx --yes pnpm@${pnpm_version} install --frozen-lockfile
     npx --yes pnpm@${pnpm_version} build
     mkdir -p .next/standalone/.next
@@ -54,7 +57,7 @@ docker run --rm \
   "
 
 rm -f -- "$output_file"
-tar -C "${build_dir}/source" \
+COPYFILE_DISABLE=1 tar -C "${build_dir}/source" \
   -czf "$output_file" \
   .next/standalone \
   scripts/db_migrate.py \
