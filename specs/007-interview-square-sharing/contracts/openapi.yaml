@@ -12,10 +12,22 @@ paths:
           description: Case-insensitive partial company-name search
           schema: { type: string, maxLength: 200 }
         - { name: city, in: query, schema: { type: string, maxLength: 100 } }
-        - { name: position, in: query, schema: { type: string, maxLength: 200 } }
-        - { name: sort, in: query, schema: { type: string, enum: [latest, hot], default: latest } }
+        - {
+            name: position,
+            in: query,
+            schema: { type: string, maxLength: 200 },
+          }
+        - {
+            name: sort,
+            in: query,
+            schema: { type: string, enum: [latest, hot], default: latest },
+          }
         - { name: cursor, in: query, schema: { type: string } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+        - {
+            name: limit,
+            in: query,
+            schema: { type: integer, minimum: 1, maximum: 50, default: 20 },
+          }
       responses:
         "200":
           description: Public interview feed page containing sanitized post bodies
@@ -29,7 +41,12 @@ paths:
     get:
       summary: Read one completed public interview review
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: id,
+            in: path,
+            required: true,
+            schema: { type: string, format: uuid },
+          }
       responses:
         "200":
           description: Minimal public interview detail
@@ -44,7 +61,12 @@ paths:
     post:
       summary: Toggle the authenticated viewer's like on a public interview
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: id,
+            in: path,
+            required: true,
+            schema: { type: string, format: uuid },
+          }
       responses:
         "200":
           description: Updated engagement counts and viewer like state
@@ -57,7 +79,12 @@ paths:
     get:
       summary: List newest comments for a public interview
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: id,
+            in: path,
+            required: true,
+            schema: { type: string, format: uuid },
+          }
       responses:
         "200":
           description: Sanitized attributed comments
@@ -71,7 +98,12 @@ paths:
     post:
       summary: Add an attributed comment to a public interview
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: id,
+            in: path,
+            required: true,
+            schema: { type: string, format: uuid },
+          }
       requestBody:
         required: true
         content:
@@ -87,7 +119,8 @@ paths:
           description: Created comment and updated engagement counts
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/PublicInterviewCommentCreation" }
+              schema:
+                { $ref: "#/components/schemas/PublicInterviewCommentCreation" }
         "400": { description: Invalid comment }
         "401": { description: Authentication required }
         "404": { description: Missing or no longer public }
@@ -95,22 +128,23 @@ paths:
     patch:
       summary: Update an owned interview review and its publication state
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: id,
+            in: path,
+            required: true,
+            schema: { type: string, format: uuid },
+          }
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              required: [version, status, questions, actionItems]
-              properties:
-                version: { type: integer, minimum: 1 }
-                status: { type: string, enum: [draft, pending_review, completed] }
-                visibility: { type: string, enum: [private, public] }
-                authorMode: { type: string, enum: [anonymous, attributed] }
+            schema: { $ref: "#/components/schemas/UpdateInterviewReview" }
       responses:
         "200":
           description: Updated owner detail including sharing fields
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OwnerInterviewDetail" }
         "400":
           description: Invalid publication state
         "401":
@@ -122,6 +156,148 @@ paths:
 
 components:
   schemas:
+    OwnerQuestion:
+      type: object
+      required:
+        [
+          id,
+          category,
+          question,
+          originalAnswer,
+          followUpNotes,
+          improvedAnswer,
+          selfRating,
+        ]
+      properties:
+        id: { type: string, format: uuid }
+        category:
+          {
+            type: string,
+            enum: [technical, project, behavioral, system_design, other],
+          }
+        question: { type: string, minLength: 1, maxLength: 4000 }
+        originalAnswer: { type: [string, "null"], maxLength: 10000 }
+        followUpNotes: { type: [string, "null"], maxLength: 10000 }
+        improvedAnswer: { type: [string, "null"], maxLength: 10000 }
+        selfRating: { type: [integer, "null"], minimum: 1, maximum: 5 }
+      additionalProperties: false
+    OwnerActionItem:
+      type: object
+      required: [id, content, completed]
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string, minLength: 1, maxLength: 1000 }
+        completed: { type: boolean }
+      additionalProperties: false
+    QuestionInput:
+      type: object
+      required: [question]
+      properties:
+        id: { type: [string, "null"], format: uuid }
+        category:
+          {
+            type: string,
+            enum: [technical, project, behavioral, system_design, other],
+          }
+        question: { type: string, minLength: 1, maxLength: 4000 }
+        originalAnswer: { type: [string, "null"], maxLength: 10000 }
+        followUpNotes: { type: [string, "null"], maxLength: 10000 }
+        improvedAnswer: { type: [string, "null"], maxLength: 10000 }
+        selfRating: { type: [integer, "null"], minimum: 1, maximum: 5 }
+      additionalProperties: false
+    ActionItemInput:
+      type: object
+      required: [content]
+      properties:
+        id: { type: [string, "null"], format: uuid }
+        content: { type: string, minLength: 1, maxLength: 1000 }
+        completed: { type: boolean }
+      additionalProperties: false
+    UpdateInterviewReview:
+      type: object
+      required: [version]
+      properties:
+        version: { type: integer, minimum: 1 }
+        interviewedOn: { type: string, format: date }
+        format: { type: [string, "null"], enum: [online, offline, phone, null] }
+        durationMinutes: { type: [integer, "null"], minimum: 1, maximum: 600 }
+        interviewerNotes: { type: [string, "null"], maxLength: 2000 }
+        roundResult: { type: string, enum: [pending, passed, failed] }
+        highlights: { type: [string, "null"], maxLength: 10000 }
+        gaps: { type: [string, "null"], maxLength: 10000 }
+        status: { type: string, enum: [draft, pending_review, completed] }
+        visibility: { type: string, enum: [private, public] }
+        authorMode: { type: string, enum: [anonymous, attributed] }
+        questions:
+          type: array
+          maxItems: 200
+          items: { $ref: "#/components/schemas/QuestionInput" }
+        actionItems:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/ActionItemInput" }
+      additionalProperties: false
+    OwnerInterviewDetail:
+      type: object
+      required:
+        [
+          id,
+          applicationId,
+          stageOccurrenceId,
+          companyName,
+          positionName,
+          stage,
+          interviewedOn,
+          status,
+          roundResult,
+          linked,
+          questionCount,
+          actionCount,
+          visibility,
+          authorMode,
+          publishedAt,
+          format,
+          durationMinutes,
+          interviewerNotes,
+          highlights,
+          gaps,
+          version,
+          questions,
+          actionItems,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id: { type: string, format: uuid }
+        applicationId: { type: string, format: uuid }
+        stageOccurrenceId: { type: [string, "null"], format: uuid }
+        companyName: { type: string }
+        positionName: { type: string }
+        stage: { type: string }
+        interviewedOn: { type: string, format: date }
+        status: { type: string, enum: [draft, pending_review, completed] }
+        roundResult: { type: string, enum: [pending, passed, failed] }
+        linked: { type: boolean }
+        questionCount: { type: integer, minimum: 0 }
+        actionCount: { type: integer, minimum: 0 }
+        visibility: { type: string, enum: [private, public] }
+        authorMode: { type: string, enum: [anonymous, attributed] }
+        publishedAt: { type: [string, "null"], format: date-time }
+        format: { type: [string, "null"] }
+        durationMinutes: { type: [integer, "null"] }
+        interviewerNotes: { type: [string, "null"] }
+        highlights: { type: [string, "null"] }
+        gaps: { type: [string, "null"] }
+        version: { type: integer, minimum: 1 }
+        questions:
+          type: array
+          items: { $ref: "#/components/schemas/OwnerQuestion" }
+        actionItems:
+          type: array
+          items: { $ref: "#/components/schemas/OwnerActionItem" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      additionalProperties: false
     PublicAuthor:
       type: object
       required: [username, image]
@@ -131,7 +307,19 @@ components:
       additionalProperties: false
     PublicInterviewSummary:
       type: object
-      required: [id, companyName, positionName, city, stage, interviewedOn, publishedAt, questionCount, author, engagement]
+      required:
+        [
+          id,
+          companyName,
+          positionName,
+          city,
+          stage,
+          interviewedOn,
+          publishedAt,
+          questionCount,
+          author,
+          engagement,
+        ]
       properties:
         id: { type: string, format: uuid }
         companyName: { type: string }
@@ -146,7 +334,6 @@ components:
             - { $ref: "#/components/schemas/PublicAuthor" }
             - { type: "null" }
         engagement: { $ref: "#/components/schemas/PublicInterviewEngagement" }
-      additionalProperties: false
     PublicInterviewEngagement:
       type: object
       required: [likeCount, commentCount, viewCount, likedByViewer]
@@ -166,6 +353,7 @@ components:
         author: { $ref: "#/components/schemas/PublicAuthor" }
       additionalProperties: false
     PublicInterviewDetail:
+      unevaluatedProperties: false
       allOf:
         - { $ref: "#/components/schemas/PublicInterviewSummary" }
         - type: object
@@ -177,7 +365,14 @@ components:
               type: array
               items:
                 type: object
-                required: [category, question, originalAnswer, followUpNotes, improvedAnswer]
+                required:
+                  [
+                    category,
+                    question,
+                    originalAnswer,
+                    followUpNotes,
+                    improvedAnswer,
+                  ]
                 properties:
                   category: { type: string }
                   question: { type: string }
@@ -196,8 +391,7 @@ components:
         engagement: { $ref: "#/components/schemas/PublicInterviewEngagement" }
       additionalProperties: false
     PublicInterviewFeedItem:
-      allOf:
-        - { $ref: "#/components/schemas/PublicInterviewDetail" }
+      $ref: "#/components/schemas/PublicInterviewDetail"
     PublicInterviewFeedPage:
       type: object
       required: [items, total, limit, nextCursor, facets]

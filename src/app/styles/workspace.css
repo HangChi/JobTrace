@@ -777,24 +777,19 @@
 }
 
 .public-mine-link {
-  min-height: 44px;
+  min-height: 64px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  font-size: 0.82rem;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.public-mine-link {
-  min-height: 64px;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
   border: 1px solid var(--brand);
+  border-radius: 9px;
   color: white;
   background: var(--brand);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
   transition:
     background 180ms ease,
     border-color 180ms ease;

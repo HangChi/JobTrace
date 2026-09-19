@@ -35,7 +35,7 @@ No display name, email, role, user ID or profile URL is exposed.
 
 ## Public Interview Summary
 
-Contains `id`, company name, position name, stage, interview date, published time, question count, and optional Public Author. It never contains owner/application/stage-occurrence identifiers, review workflow state, round result or action counts.
+Contains `id`, company name, position name, city, stage, interview date, published time, question count, and optional Public Author. It never contains owner/application/stage-occurrence identifiers, review workflow state, round result or action counts.
 
 ## Public Interview Detail
 

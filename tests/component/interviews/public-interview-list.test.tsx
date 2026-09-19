@@ -76,4 +76,24 @@ describe("面经广场动态流", () => {
       "/interviews/shared/11111111-1111-4111-8111-111111111111",
     );
   });
+
+  it("空状态仍保留内容流标题", () => {
+    render(
+      <PublicInterviewList
+        page={{
+          total: 0,
+          limit: 20,
+          nextCursor: null,
+          facets: { cities: [], positions: [] },
+          items: [],
+        }}
+        nextHref={null}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "最新面经" })).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "暂时没有公开面经" }),
+    ).toBeVisible();
+  });
 });

@@ -205,12 +205,27 @@ Deliver US1 publication safety first, then US2 public reading boundary, then US3
 - [x] T058 expose `UserAvatar` through the identity-access public module surface and remove cross-module internal UI imports per plan: module boundaries (contradicts)
 - [x] T059 show a compact visible “最新面经” feed heading without restoring the removed oversized hero per FR-012B (partial)
 - [x] T060 remove the unused comments viewer parameter and centralize the repeated public-availability SQL predicate per Constitution I (partial)
-- [x] T061 align the stale job-market catalog assertion with the generated company directory as the documented source of truth so the full regression suite is green
 
 ### Phase 14 validation
 
-- Full Vitest suite: 85 files and 346 tests passed; line coverage 92.4% and branch coverage 82.6%.
+- Full feature-relevant Vitest suites passed; the pre-existing job-market architecture count mismatch remains outside this feature.
 - Focused public API contract and database permission integration suites passed, including legacy-body sanitization and direct client-role denial.
 - Production build, TypeScript, generated database types, diff whitespace, and lint passed; lint retains six pre-existing warnings outside this feature.
 - 10,000-row production-equivalent public feed: latest p95 88.29ms, hot p95 80.97ms; publication p95 35.30ms.
 - Chromium Web Vitals checks passed for the recruitment marketplace, interview square, and personal interview pages.
+
+## Phase 15: Final Review Closure
+
+- [x] T061 fix the OpenAPI 3.1 public summary/detail composition so the closed detail schema accepts exactly its declared extension fields
+- [x] T062 document the complete owner PATCH request and 200 response schemas in the incremental public contract
+- [x] T063 measure four non-zero LCP/INP/CLS samples per covered route under 4x CPU throttling and enforce the p75 budgets
+- [x] T064 merge the duplicated `.public-mine-link` rules without changing the responsive layout
+- [x] T065 align FR-012 and the data model with the user-requested public city filter and display field
+- [x] T066 keep “最新面经” visible when the public feed is empty, with component regression coverage
+- [x] T067 remove the unrelated job-market test change from this feature branch
+
+### Phase 15 validation
+
+- OpenAPI YAML parses successfully and declares complete public-detail, comment, and owner-update bodies without conflicting closed-schema composition.
+- Chromium collected four non-zero LCP/INP samples per route under 4x CPU throttling; recruitment marketplace, interview square, and personal interview p75 budgets all passed.
+- Empty and populated interview feeds both expose the compact visible “最新面经” heading.
