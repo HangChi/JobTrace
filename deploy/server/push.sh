@@ -40,6 +40,7 @@ rsync \
   --exclude '.env*' \
   --exclude '.next*/' \
   --exclude 'node_modules/' \
+  --exclude 'jobtrace-release-*.tar.gz' \
   --exclude 'coverage/' \
   --exclude 'test-results/' \
   "${repo_root}/" \

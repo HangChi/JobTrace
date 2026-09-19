@@ -50,6 +50,7 @@ rsync \
   --exclude '.env*' \
   --exclude '.next*/' \
   --exclude 'node_modules/' \
+  --exclude 'jobtrace-release-*.tar.gz' \
   --exclude 'coverage/' \
   --exclude 'test-results/' \
   --rsh "ssh -p ${ssh_port}" \
