@@ -305,9 +305,13 @@ if [[ "$healthy" != "true" ]]; then
   exit 1
 fi
 
-systemctl restart jobtrace-sync.timer
+systemctl restart \
+  jobtrace-sync.timer \
+  jobtrace-collect.timer \
+  jobtrace-research.timer \
+  jobtrace-sitescan.timer
 
 echo "JobTrace release ${release_id} is healthy."
 echo "Application: http://127.0.0.1:${PORT:-3000}"
-echo "Timer: $(systemctl is-active jobtrace-sync.timer)"
+echo "Timers: $(systemctl is-active jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer | paste -sd ',' -)"
 echo "Run the first catalog initialization from /admin/job-market."

@@ -57,7 +57,7 @@ docker run --rm \
   "
 
 rm -f -- "$output_file"
-COPYFILE_DISABLE=1 tar -C "${build_dir}/source" \
+COPYFILE_DISABLE=1 tar --no-xattrs -C "${build_dir}/source" \
   -czf "$output_file" \
   .next/standalone \
   scripts/db_migrate.py \
