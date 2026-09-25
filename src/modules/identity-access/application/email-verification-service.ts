@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
+import { createHmac, randomInt } from "node:crypto";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 import { z } from "zod";
@@ -15,7 +15,6 @@ import { checkAuthRateLimit } from "../infrastructure/auth-rate-limit";
 
 type Purpose = "registration" | "email_binding";
 const CODE_TTL_SECONDS = 600;
-const MAX_ATTEMPTS = 5;
 
 function codeHash(
   email: string,
@@ -108,29 +107,16 @@ export async function verifyEmailCode(
 ) {
   const email = emailSchema.parse(rawEmail);
   const code = verificationCodeSchema.parse(rawCode);
-  if (testCode() === code) return { id: null, email };
+  if (testCode() === code) return { email };
   const sql = createServerDatabase();
-  const [row] = await sql<
-    Array<{ id: string; codeHash: string; attemptCount: number }>
-  >`
-    select id,code_hash,attempt_count
-    from public.email_verification_codes
-    where lower(email)=lower(${email}) and purpose=${purpose}
-      and user_id is not distinct from ${userId ?? null}
-      and consumed_at is null and expires_at>now()
-      and attempt_count<${MAX_ATTEMPTS}
-    order by created_at desc limit 1
+  const [attempt] = await sql<Array<{ codeId: string; matched: boolean }>>`
+    select code_id,matched
+    from public.verify_email_code_attempt(
+      ${email},${purpose},${userId ?? null},
+      ${codeHash(email, code, purpose, userId)}
+    )
   `;
-  const expected = row?.codeHash ?? "0".repeat(64);
-  const actual = codeHash(email, code, purpose, userId);
-  const matches = timingSafeEqual(Buffer.from(expected), Buffer.from(actual));
-  if (!row || !matches) {
-    if (row) {
-      await sql`
-        update public.email_verification_codes
-        set attempt_count=attempt_count+1 where id=${row.id}
-      `;
-    }
+  if (!attempt?.matched) {
     throw new Problem("invalid_email_code", "邮箱验证码无效或已过期。", 400, [
       {
         field: "verificationCode",
@@ -139,7 +125,7 @@ export async function verifyEmailCode(
       },
     ]);
   }
-  return { id: row.id as string | null, email };
+  return { email };
 }
 
 async function verifyCurrentPassword(password: unknown) {
@@ -191,22 +177,14 @@ export async function bindEmail(input: unknown) {
   );
   const sql = createServerDatabase();
   try {
-    await sql.begin(async (transaction) => {
-      await transaction`
-        update public.users set
-          recovery_email=${verification.email},
-          recovery_email_verified_at=now(),
-          email_verified=true,
-          updated_at=now()
-        where id=${actor.id}
-      `;
-      if (verification.id) {
-        await transaction`
-          update public.email_verification_codes
-          set consumed_at=now() where id=${verification.id}
-        `;
-      }
-    });
+    await sql`
+      update public.users set
+        recovery_email=${verification.email},
+        recovery_email_verified_at=now(),
+        email_verified=true,
+        updated_at=now()
+      where id=${actor.id}
+    `;
   } catch (error) {
     if ((error as { code?: string }).code === "23505") {
       throw new Problem("email_conflict", "该邮箱已绑定其他账号。", 409);

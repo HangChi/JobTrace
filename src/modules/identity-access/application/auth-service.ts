@@ -79,22 +79,14 @@ export async function register(input: unknown) {
       },
     });
     try {
-      await sql.begin(async (transaction) => {
-        await transaction`
-          update public.users set
-            recovery_email=${verification.email},
-            recovery_email_verified_at=now(),
-            email_verified=true,
-            updated_at=now()
-          where id=${result.user.id}
-        `;
-        if (verification.id) {
-          await transaction`
-            update public.email_verification_codes
-            set consumed_at=now() where id=${verification.id}
-          `;
-        }
-      });
+      await sql`
+        update public.users set
+          recovery_email=${verification.email},
+          recovery_email_verified_at=now(),
+          email_verified=true,
+          updated_at=now()
+        where id=${result.user.id}
+      `;
     } catch (error) {
       // 补偿删除失败时账号会成为孤儿（用户名被占用但未绑定邮箱），
       // 只能尽力删除并留下可观测的错误，绝不掩盖原始失败原因。

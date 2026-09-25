@@ -448,6 +448,14 @@ T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T
 - [X] T138 Keep search, status, type, sorting, apply, and clear controls on one desktop row while retaining responsive stacking and keyboard access
 - [X] T139 Remove the separate direction field; apply a newly selected sort field ascending and toggle the active field's direction on each subsequent application
 
+## Phase 18: Email verification concurrency hardening
+
+**Purpose**: 验证码校验必须在数据库中串行化失败计数，并在成功匹配时原子消费，禁止并发猜测绕过五次上限或重复使用已验证验证码。
+
+- [X] T140 [US0] 为并发错误猜测上限和成功验证码单次消费编写失败优先的数据库集成回归测试到 tests/integration/identity-access/email-verification-concurrency.test.ts
+- [X] T141 [US0] 添加原子验证码尝试数据库函数并切换注册/邮箱绑定服务到 supabase/migrations/20260925000100_atomic_email_verification_attempts.sql、src/modules/identity-access/application/email-verification-service.ts、src/modules/identity-access/application/auth-service.ts
+- [X] T142 [US0] 执行验证码并发集成测试、identity-access 回归、格式、lint 和类型门禁并记录完成状态
+
 ## Implementation Strategy
 
 ### MVP First
