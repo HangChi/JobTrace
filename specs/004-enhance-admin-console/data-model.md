@@ -83,6 +83,7 @@
 **Constraints**:
 
 - `(request_id)` 唯一。同一请求 ID 与相同指纹重试读取原事件；不同指纹产生 `idempotency_conflict`，不得覆盖原事件。
+- 原子函数在查询已有事件前取得基于 `request_id` 的事务级锁；相同 ID 的并发请求按提交顺序重放，不同 ID 仍可并行。
 - `succeeded` 必须有 `after_data` 且访问版本恰好增加 1；非成功结果不得改变用户或 Session。
 - `before_data`/`after_data` 只允许访问状态白名单，不得存储密码、Cookie、token、IP、user-agent、简历、备注或面经正文。
 - UPDATE 和 DELETE 继续由数据库触发器拒绝；后台接口只公开 GET。
@@ -136,16 +137,17 @@
 received
   ├─ invalid/unauthorized ──> HTTP error（不进入受信管理命令）
   └─ accepted
-       ├─ existing request_id + same fingerprint ──> replay prior outcome
-       ├─ existing request_id + different fingerprint ──> conflict
-       └─ lock actor + target
-            ├─ stale version/action mismatch ──> audit conflict, no state change
-            ├─ self confirmation missing ──────> audit denied, no state change
-            ├─ last active admin risk ─────────> audit denied, no state change
-            └─ allowed
-                 ├─ update role/disabled + access_version
-                 ├─ delete target sessions when disabling
-                 └─ append succeeded audit
+       └─ lock request_id
+            ├─ existing request_id + same fingerprint ──> replay prior outcome
+            ├─ existing request_id + different fingerprint ──> conflict
+            └─ lock actor + target
+                 ├─ stale version/action mismatch ──> audit conflict, no state change
+                 ├─ self confirmation missing ──────> audit denied, no state change
+                 ├─ last active admin risk ─────────> audit denied, no state change
+                 └─ allowed
+                      ├─ update role/disabled + access_version
+                      ├─ delete target sessions when disabling
+                      └─ append succeeded audit
 ```
 
 自我禁用/降级成功后，目标即当前 actor，其所有 Session 在事务内删除；当前响应可以完成，但下一次受保护请求必须为未登录状态。由其他管理员执行的降级保留目标的普通用户 Session。

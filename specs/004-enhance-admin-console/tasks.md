@@ -317,3 +317,7 @@ Task T048: tests/component/identity-access/admin-audit-directory.test.tsx
 - 数据库迁移是 schema 唯一事实来源；`src/generated/database.types.ts` 只能由生成流程更新。
 - 不要删除、弱化或跳过现有授权、owner 隔离、审计不可变和覆盖率测试来使门禁通过。
 - 任何范围外能力（用户删除、批量变更、自定义角色、密码重置、通知、审计导出）应另建规格，不在本任务列表中顺带实现。
+
+## Phase 10: Concurrent idempotency hardening
+
+- [X] T069 Serialize identical administrator access-change request IDs before the idempotency lookup, and cover concurrent same-payload replay with one state transition and one audit event
