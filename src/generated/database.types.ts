@@ -714,6 +714,16 @@ export const databaseSchema = {
       "name": "hot_score",
       "type": "bigint",
       "nullable": true
+    },
+    {
+      "name": "autosave_session_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "autosave_revision",
+      "type": "bigint",
+      "nullable": true
     }
   ],
   "job_market_campaign_favorites": [

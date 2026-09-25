@@ -255,6 +255,14 @@ T046 lifecycle integration | T047 owner isolation | T048 component test | T049 E
 
 - [X] T062 [US1] 为新阶段面经增加可选 `stageOccurredOn` 契约，省略时沿用面试日期，已有阶段模式拒绝该字段，并补齐领域、契约与集成回归
 
+## Phase 8: Autosave page-exit concurrency hardening
+
+**Purpose**: 页面隐藏或离开时即使已有保存请求进行中，也必须立即提交最新快照；同一编辑会话的乱序请求必须以最高修订号为准，同时继续拒绝其他标签页的陈旧版本。
+
+- [X] T063 [US2] 为保存中触发 pagehide 的即时 keepalive 请求和同会话乱序更新补充失败优先的组件/集成回归到 `tests/component/interviews/interview-autosave.test.tsx`、`tests/integration/interviews/interview-update.test.ts`
+- [X] T064 [US2] 增加自动保存会话修订字段与数据库乱序保护，扩展更新契约并让离页 flush 并发发送最新快照到 `supabase/migrations/20260925000200_interview_autosave_revisions.sql`、`src/modules/interviews/domain/interview.schema.ts`、`src/modules/interviews/ui/interview-autosave.ts`、相关 OpenAPI 与生成类型
+- [X] T065 [US2] 运行面经自动保存组件/集成回归、格式、lint、类型和数据库类型漂移门禁并记录完成状态
+
 - `[P]` 仅表示文件和前置依赖允许并行，不要求使用子智能体。
 - 不新增第三方运行时依赖；优先复用现有模块模式和共享 UI。
 - 数据库迁移必须从空库和包含现有投递数据的数据库重放。

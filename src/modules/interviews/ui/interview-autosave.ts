@@ -1,9 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type { InterviewDetail } from "../application/contracts";
 
 export type SaveState = "idle" | "saving" | "saved" | "error" | "conflict";
+
+function stopsAutosave(state: SaveState) {
+  return state === "conflict" || state === "error";
+}
 
 export function useInterviewAutosave({
   id,
@@ -22,7 +32,8 @@ export function useInterviewAutosave({
   const latestRevision = useRef(revision);
   const lastSavedRevision = useRef(0);
   const stateRef = useRef<SaveState>("idle");
-  const saving = useRef(false);
+  const inFlightRevisions = useRef(new Set<number>());
+  const [autosaveSessionId] = useState(() => crypto.randomUUID());
 
   const transition = useCallback((next: SaveState, nextMessage = "") => {
     stateRef.current = next;
@@ -30,7 +41,7 @@ export function useInterviewAutosave({
     setMessage(nextMessage);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     latestPayload.current = payload;
     latestRevision.current = revision;
   }, [payload, revision]);
@@ -45,43 +56,61 @@ export function useInterviewAutosave({
       ) {
         return;
       }
-      if (saving.current) {
-        return;
-      }
+      if (inFlightRevisions.current.has(targetRevision)) return;
+      if (inFlightRevisions.current.size > 0 && !force) return;
       if (!force && stateRef.current === "error") return;
 
-      saving.current = true;
+      const targetPayload = latestPayload.current;
+      inFlightRevisions.current.add(targetRevision);
       transition("saving", "正在保存…");
       try {
         const response = await fetch(`/api/interviews/${id}`, {
           method: "PATCH",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(latestPayload.current),
+          body: JSON.stringify({
+            ...targetPayload,
+            autosaveSessionId,
+            autosaveRevision: targetRevision,
+          }),
           keepalive,
         });
         const result = await response.json();
         if (!response.ok) {
           if (response.status === 409) {
-            transition("conflict", "面经已在其他页面更新，请刷新后继续。");
+            if (latestRevision.current === targetRevision) {
+              transition("conflict", "面经已在其他页面更新，请刷新后继续。");
+            }
             return;
           }
           throw new Error(result.message || "保存失败，请重试。");
         }
-        lastSavedRevision.current = targetRevision;
+        lastSavedRevision.current = Math.max(
+          lastSavedRevision.current,
+          targetRevision,
+        );
         onSaved(result as InterviewDetail, {
           isLatest: latestRevision.current === targetRevision,
         });
         transition("saved", "已保存");
       } catch (reason) {
-        transition(
-          "error",
-          reason instanceof Error ? reason.message : "保存失败，请重试。",
-        );
+        if (targetRevision >= lastSavedRevision.current) {
+          transition(
+            "error",
+            reason instanceof Error ? reason.message : "保存失败，请重试。",
+          );
+        }
       } finally {
-        saving.current = false;
+        inFlightRevisions.current.delete(targetRevision);
+        if (
+          inFlightRevisions.current.size === 0 &&
+          latestRevision.current > lastSavedRevision.current &&
+          !stopsAutosave(stateRef.current)
+        ) {
+          transition("idle");
+        }
       }
     },
-    [id, onSaved, transition],
+    [autosaveSessionId, id, onSaved, transition],
   );
 
   useEffect(() => {

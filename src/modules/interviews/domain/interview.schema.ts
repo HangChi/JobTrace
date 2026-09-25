@@ -59,21 +59,32 @@ export const createInterviewSchema = z
     }
   });
 
-export const updateInterviewSchema = z.object({
-  version: z.number().int().positive(),
-  interviewedOn: z.iso.date().optional(),
-  format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
-  durationMinutes: z.number().int().min(1).max(600).nullable().optional(),
-  interviewerNotes: optionalText(2000),
-  roundResult: z.enum(ROUND_RESULTS).default("pending"),
-  highlights: optionalText(10000),
-  gaps: optionalText(10000),
-  status: z.enum(REVIEW_STATUSES).default("draft"),
-  visibility: z.enum(INTERVIEW_VISIBILITIES).optional(),
-  authorMode: z.enum(INTERVIEW_AUTHOR_MODES).optional(),
-  questions: z.array(questionInputSchema).max(200).default([]),
-  actionItems: z.array(actionItemInputSchema).max(100).default([]),
-});
+export const updateInterviewSchema = z
+  .object({
+    version: z.number().int().positive(),
+    autosaveSessionId: z.uuid().optional(),
+    autosaveRevision: z.number().int().positive().optional(),
+    interviewedOn: z.iso.date().optional(),
+    format: z.enum(INTERVIEW_FORMATS).nullable().optional(),
+    durationMinutes: z.number().int().min(1).max(600).nullable().optional(),
+    interviewerNotes: optionalText(2000),
+    roundResult: z.enum(ROUND_RESULTS).default("pending"),
+    highlights: optionalText(10000),
+    gaps: optionalText(10000),
+    status: z.enum(REVIEW_STATUSES).default("draft"),
+    visibility: z.enum(INTERVIEW_VISIBILITIES).optional(),
+    authorMode: z.enum(INTERVIEW_AUTHOR_MODES).optional(),
+    questions: z.array(questionInputSchema).max(200).default([]),
+    actionItems: z.array(actionItemInputSchema).max(100).default([]),
+  })
+  .refine(
+    (value) =>
+      Boolean(value.autosaveSessionId) === Boolean(value.autosaveRevision),
+    {
+      path: ["autosaveRevision"],
+      message: "自动保存会话和修订号必须同时提供",
+    },
+  );
 
 export type CreateInterviewInput = z.infer<typeof createInterviewSchema>;
 export type UpdateInterviewInput = z.infer<typeof updateInterviewSchema>;

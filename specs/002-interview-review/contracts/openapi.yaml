@@ -135,6 +135,8 @@ components:
       required: [version]
       properties:
         version: { type: integer, minimum: 1 }
+        autosaveSessionId: { type: string, format: uuid, description: 与 autosaveRevision 同时提供；标识当前编辑页面。 }
+        autosaveRevision: { type: integer, minimum: 1, description: 当前编辑页面内单调递增的本地修订号。 }
         format: { oneOf: [{ $ref: '#/components/schemas/InterviewFormat' }, { type: 'null' }] }
         durationMinutes: { type: [integer, 'null'], minimum: 1, maximum: 600 }
         interviewerNotes: { type: [string, 'null'], maxLength: 2000 }

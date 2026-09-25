@@ -60,6 +60,8 @@
 | `gaps` | text | no | 最长 10,000 字符 |
 | `status` | review_status | yes | 默认 draft |
 | `version` | integer | yes | 默认 1；每次成功聚合更新递增 |
+| `autosave_session_id` | uuid | no | 当前最后一次自动保存所属的编辑页面会话；与 autosave_revision 同时为空或非空 |
+| `autosave_revision` | bigint | no | 编辑页面会话内单调递增的修订号；同会话较低或相同修订为幂等 no-op |
 | `created_at` | timestamptz | yes | 数据库生成 |
 | `updated_at` | timestamptz | yes | 聚合更新时刷新 |
 
@@ -127,6 +129,7 @@ user 1 ── N applications 1 ── N stage_occurrences
 - 创建未记录阶段的面经：在同一事务中写入 stage occurrence、面经及其初始事件。
 - 阶段日期/类型修正：保留 occurrence ID；面经读取最新阶段展示值，但不改写历史快照。
 - 面经内容更新：写入当前快照并递增 version；不把每次文字编辑写入投递事件历史。
+- 同一自动保存会话可在前一请求未完成时提交更高修订；数据库锁定聚合后只应用最高修订，迟到的旧修订不覆盖数据。不同会话仍必须通过 version 乐观并发检查。
 
 ## Validation and error mapping
 

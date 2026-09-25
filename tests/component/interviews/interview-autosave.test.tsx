@@ -34,6 +34,10 @@ describe("面经自动保存", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     delete window.__testFlush;
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "visible",
+    });
   });
 
   it("变更后防抖 800ms 保存并展示成功状态", async () => {
@@ -137,5 +141,59 @@ describe("面经自动保存", () => {
       { version: 3 },
       { isLatest: true },
     );
+  });
+
+  it("保存进行中离开页面时立即 keepalive 提交最新修订", async () => {
+    vi.useFakeTimers();
+    let resolveFirst!: (value: object) => void;
+    let resolveSecond!: (value: object) => void;
+    const firstResponse = new Promise((resolve) => {
+      resolveFirst = resolve;
+    });
+    const secondResponse = new Promise((resolve) => {
+      resolveSecond = resolve;
+    });
+    const fetchMock = vi
+      .fn()
+      .mockReturnValueOnce(firstResponse)
+      .mockReturnValueOnce(secondResponse);
+    const onSaved = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const { rerender } = render(<Harness revision={1} onSaved={onSaved} />);
+
+    await act(async () => vi.advanceTimersByTimeAsync(800));
+    rerender(<Harness revision={2} onSaved={onSaved} />);
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "hidden",
+    });
+    await act(async () =>
+      document.dispatchEvent(new Event("visibilitychange")),
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const firstRequest = fetchMock.mock.calls[0][1] as RequestInit;
+    const secondRequest = fetchMock.mock.calls[1][1] as RequestInit;
+    const firstBody = JSON.parse(String(firstRequest.body));
+    const secondBody = JSON.parse(String(secondRequest.body));
+    expect(firstRequest.keepalive).toBe(false);
+    expect(secondRequest.keepalive).toBe(true);
+    expect(firstBody.autosaveSessionId).toBe(secondBody.autosaveSessionId);
+    expect(firstBody.autosaveRevision).toBe(1);
+    expect(secondBody.autosaveRevision).toBe(2);
+
+    await act(async () => {
+      resolveSecond({
+        ok: true,
+        json: async () => ({ version: 3 }),
+      });
+      await secondResponse;
+      resolveFirst({
+        ok: true,
+        json: async () => ({ version: 3 }),
+      });
+      await firstResponse;
+    });
+    expect(onSaved).toHaveBeenCalledWith({ version: 3 }, { isLatest: true });
   });
 });
