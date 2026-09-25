@@ -406,3 +406,7 @@ Each increment must retain public/private isolation and pass all previously comp
 ## Phase 17: Incremental freshness presentation
 
 - [X] T141 Preserve previously stored job dates during unchanged synchronization and show each company's latest source-provided job date instead of the shared synchronization timestamp
+
+## Phase 18: Concurrent source convergence
+
+- [X] T142 Serialize same-company batch application and company read-model refreshes with one transaction-scoped database lock, and cover concurrent cross-source URL convergence and successful run completion in integration tests

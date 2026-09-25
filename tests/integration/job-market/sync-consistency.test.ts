@@ -176,6 +176,138 @@ test("sync completion is fenced and atomically updates data, run and source stat
   }
 });
 
+test("same-company source completions serialize and converge matching URLs", async () => {
+  const sql = testDatabase();
+  const lockSql = testDatabase();
+  const repository = new PostgresSyncRepository();
+  const jobs = new PostgresJobMarketRepository();
+  const [company] = await sql<Array<{ id: string }>>`
+    insert into job_market_companies(canonical_name,normalized_name,identity_key)
+    values('Concurrent Sources','concurrent sources',${testId("company")}) returning id
+  `;
+  const sourceIds: string[] = [];
+  let releaseCompanyLock = () => {};
+  let lockHolder: Promise<unknown> | undefined;
+
+  try {
+    for (const adapter of ["greenhouse", "lever"] as const) {
+      const sourceId = await repository.createSource({
+        companyId: company.id,
+        adapter,
+        externalKey: testId(adapter),
+        baseUrl: "https://jobs.example.com",
+        allowedHosts: ["jobs.example.com"],
+        countryCodes: [],
+        accessBasis: "public",
+        isOfficial: true,
+        syncIntervalMinutes: 360,
+      });
+      sourceIds.push(sourceId);
+      await repository.updateSource(sourceId, { status: "active" });
+    }
+
+    const claims = await Promise.all(
+      sourceIds.map((sourceId, index) =>
+        repository.claimOne(
+          sourceId,
+          `worker-${index}`,
+          `request-${index}`,
+          new Date("2026-09-04T02:00:00Z"),
+        ),
+      ),
+    );
+    expect(claims.every(Boolean)).toBe(true);
+
+    let confirmCompanyLock!: () => void;
+    const companyLockHeld = new Promise<void>((resolve) => {
+      confirmCompanyLock = resolve;
+    });
+    const releaseGate = new Promise<void>((resolve) => {
+      releaseCompanyLock = resolve;
+    });
+    lockHolder = lockSql.begin(async (tx) => {
+      await tx`select pg_advisory_xact_lock(hashtextextended(${`job-market-company:${company.id}`},0))`;
+      confirmCompanyLock();
+      await releaseGate;
+    });
+    await companyLockHeld;
+
+    const completions = Promise.allSettled(
+      claims.map((claim, index) =>
+        jobs.completeBatch(
+          claim!,
+          batch(`source-${index}`, new Date("2026-09-04T02:01:00Z")),
+          new Date("2026-09-04T02:01:00Z"),
+          "succeeded",
+        ),
+      ),
+    );
+
+    let waitingForCompanyLock = 0;
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const [locks] = await sql<Array<{ count: number }>>`
+        select count(*)::int as count
+        from pg_locks
+        where locktype='advisory' and granted=false
+      `;
+      waitingForCompanyLock = locks.count;
+      if (waitingForCompanyLock >= 2) break;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    expect(waitingForCompanyLock).toBeGreaterThanOrEqual(2);
+
+    releaseCompanyLock();
+    await lockHolder;
+    lockHolder = undefined;
+    const results = await completions;
+    expect(results.every((result) => result.status === "fulfilled")).toBe(true);
+    expect(
+      results
+        .filter(
+          (
+            result,
+          ): result is PromiseFulfilledResult<
+            Awaited<ReturnType<typeof jobs.completeBatch>>
+          > => result.status === "fulfilled",
+        )
+        .reduce((total, result) => total + result.value.created, 0),
+    ).toBe(1);
+    expect(
+      await sql`select id from job_market_posts where company_id=${company.id}`,
+    ).toHaveLength(1);
+    expect(
+      await sql`select record.source_id from job_market_source_records record
+        join job_market_posts post on post.id=record.post_id
+        where post.company_id=${company.id}`,
+    ).toHaveLength(2);
+    expect(
+      await sql`select include_closed from job_market_company_read_models
+        where company_id=${company.id}`,
+    ).toHaveLength(2);
+    expect(
+      await sql`select id from job_market_sync_runs
+        where source_id=any(${sourceIds}) and status='succeeded'`,
+    ).toHaveLength(2);
+  } finally {
+    releaseCompanyLock();
+    await lockHolder?.catch(() => undefined);
+    await sql`update job_market_sources set lease_until=null,leased_by=null,lease_run_id=null where id=any(${sourceIds})`.catch(
+      () => undefined,
+    );
+    await sql`delete from job_market_events where source_id=any(${sourceIds})`;
+    await sql`delete from job_market_source_records where source_id=any(${sourceIds})`;
+    await sql`delete from job_market_post_locations where post_id in(select id from job_market_posts where company_id=${company.id})`;
+    await sql`delete from job_market_locations where id not in(select location_id from job_market_post_locations)`;
+    await sql`delete from job_market_posts where company_id=${company.id}`;
+    await sql`delete from job_market_campaigns where company_id=${company.id}`;
+    await sql`delete from job_market_sync_runs where source_id=any(${sourceIds})`;
+    await sql`delete from job_market_sources where id=any(${sourceIds})`;
+    await sql`delete from job_market_companies where id=${company.id}`;
+    await lockSql.end();
+    await sql.end();
+  }
+});
+
 test("failed completion atomically records diagnostics and releases its own lease", async () => {
   const sql = testDatabase();
   const repository = new PostgresSyncRepository();

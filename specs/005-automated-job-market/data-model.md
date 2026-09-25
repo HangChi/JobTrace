@@ -197,6 +197,8 @@ SyncRun 1 ── * Event * ── PublicPost/Campaign/Source
 4. Ambiguous or fuzzy candidates remain separate and are logged for review; display name alone never merges companies.
 5. Prefer an official source as primary; retain all source records and switch primary without changing canonical post id.
 
+Batch application and company read-model refresh use the same transaction-scoped company lock. Sources for different companies remain concurrent, while same-company sources observe prior committed URL matches before inserting and cannot overlap the read model's `DELETE` + `INSERT` rebuild.
+
 ## State transitions
 
 ### Source
