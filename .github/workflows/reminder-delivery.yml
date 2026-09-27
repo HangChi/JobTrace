@@ -1,0 +1,37 @@
+name: Reminder delivery
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: reminder-delivery
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      REMINDER_DELIVERY_URL: ${{ vars.REMINDER_DELIVERY_URL }}
+      REMINDER_DELIVERY_SECRET: ${{ secrets.REMINDER_DELIVERY_SECRET }}
+    steps:
+      - name: Deliver due reminders
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${REMINDER_DELIVERY_URL}" || -z "${REMINDER_DELIVERY_SECRET}" ]]; then
+            echo "::notice::Reminder delivery is not configured."
+            exit 0
+          fi
+          endpoint="${REMINDER_DELIVERY_URL%/}/api/internal/reminders/deliver"
+          curl --fail-with-body --silent --show-error \
+            --retry 2 --retry-all-errors --max-time 120 \
+            --request POST \
+            --header "Authorization: Bearer ${REMINDER_DELIVERY_SECRET}" \
+            --header "Content-Type: application/json" \
+            --data '{"limit":50}' \
+            "${endpoint}"

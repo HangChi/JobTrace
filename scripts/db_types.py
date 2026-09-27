@@ -20,6 +20,8 @@ TABLES = (
     "job_market_admin_jobs",
     "job_market_campaign_favorites", "application_job_market_links",
     "job_market_source_candidates",
+    "progress_reminder_completions", "scheduled_reminders",
+    "reminder_notification_attempts",
     "sessions", "users", "verification_tokens",
 )
 

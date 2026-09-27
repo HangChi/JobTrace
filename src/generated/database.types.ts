@@ -1465,6 +1465,28 @@ export const databaseSchema = {
       "nullable": false
     }
   ],
+  "progress_reminder_completions": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "stage_occurrence_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
   "sessions": [
     {
       "name": "id",

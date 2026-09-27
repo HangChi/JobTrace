@@ -5,6 +5,7 @@ import type { AnalyticsSummary } from "@/modules/analytics";
 import { AnalyticsPanel } from "@/modules/analytics/ui/analytics-panel";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
 import { PageHeader } from "@/shared/ui/page-header";
+import type { ReminderSummary } from "@/modules/reminders";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -18,6 +19,7 @@ type Search = Record<string, string | string[] | undefined>;
 type ApplicationDashboardProps = {
   initialPage: ApplicationPage;
   initialSummary: AnalyticsSummary;
+  initialReminderSummary?: ReminderSummary;
   query: Search;
   filtered: boolean;
   listQuery: string;
@@ -31,6 +33,7 @@ export function ApplicationDashboard(props: ApplicationDashboardProps) {
 function DashboardState({
   initialPage,
   initialSummary,
+  initialReminderSummary,
   query,
   filtered,
   listQuery,
@@ -89,7 +92,10 @@ function DashboardState({
           </>
         }
       />
-      <AnalyticsPanel summary={summary} />
+      <AnalyticsPanel
+        summary={summary}
+        reminderSummary={initialReminderSummary}
+      />
       <ApplicationFilters query={query} />
       {page.items.length ? (
         <ApplicationTable

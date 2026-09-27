@@ -33,9 +33,13 @@ pnpm dev
 | `AUTH_TRUST_PROXY_HEADERS`          | 默认 `false`。仅当应用源站不可直连，且反向代理把 `X-Forwarded-For` 覆盖为单个合法客户端 IP 时设为 `true`。                    |
 | `AUTH_CHALLENGE_VERIFY_URL`         | 可选。配置后，登录和注册必须提供 `x-auth-challenge`，服务端以 JSON 调用该端点。                                               |
 | `AUTH_CHALLENGE_SECRET`             | 按 CAPTCHA 服务要求设置，不得暴露给浏览器。                                                                                   |
-| `AUTH_EMAIL_DELIVERY_URL`           | 生产必填。接收 `password_reset` 或 `email_verification_code` 投递任务；注册验证码和密码恢复共用。                             |
+| `AUTH_EMAIL_DELIVERY_URL`           | 生产必填。接收 `password_reset`、`email_verification_code` 或 `scheduled_reminder` 投递任务。                                 |
 | `AUTH_EMAIL_DELIVERY_SECRET`        | 可选。作为 Bearer 凭据调用邮件投递 Webhook，不得暴露给浏览器。                                                                |
 | `AUTH_EMAIL_VERIFICATION_TEST_CODE` | 仅限隔离测试。生产环境会忽略该值，不得把固定验证码用于真实流量。                                                              |
+| `REMINDER_DELIVERY_SECRET`          | 至少 32 个字符；外部提醒调度器调用内部投递入口的 Bearer 密钥，只能通过秘密管理服务注入。                                      |
+| `REMINDER_DELIVERY_BATCH_SIZE`      | 每次最多认领的到期提醒数，默认 50、上限 100。                                                                                 |
+| `REMINDER_DELIVERY_MAX_ATTEMPTS`    | 单个计划时间的邮件最大尝试次数，默认 3、上限 5。                                                                              |
+| `REMINDER_DELIVERY_LEASE_SECONDS`   | 邮件发送认领租约，默认 120 秒；应大于邮件 Webhook 超时。                                                                      |
 
 > [!WARNING]
 > `DATABASE_URL`、`BETTER_AUTH_SECRET`、`AUTH_CHALLENGE_SECRET` 和所有 COS 凭据都只能作为服务端变量存在，不得添加 `NEXT_PUBLIC_` 前缀。
@@ -59,9 +63,19 @@ pnpm dev
 
 个人中心支持绑定、换绑和解绑邮箱。绑定/换绑需要新邮箱验证码与当前密码，解绑需要当前密码；解绑后仍可使用用户名登录，但无法通过邮箱找回密码。忘记密码入口始终返回不枚举账号的统一提示；存在账号时，Better Auth 生成一小时有效的单次 token，并通过邮件投递 Webhook 发送重置链接。
 
-仓库内的 `deploy/mail-adapter` 提供可直接用 Docker Compose 启动的 SMTP Webhook，支持 `password_reset` 与 `email_verification_code` 两种模板。复制其 `.env.example` 为 `.env` 后填入 SMTP 授权码和随机 Bearer 密钥，服务默认仅监听 `127.0.0.1:5590`。
+仓库内的 `deploy/mail-adapter` 提供可直接用 Docker Compose 启动的 SMTP Webhook，支持 `password_reset`、`email_verification_code` 与 `scheduled_reminder` 三种模板。复制其 `.env.example` 为 `.env` 后填入 SMTP 授权码和随机 Bearer 密钥，服务默认仅监听 `127.0.0.1:5590`。
 
 个人中心可查看所有未过期会话并逐个撤销；修改密码会撤销其他设备的会话。邮箱、验证码、重置 URL、投递凭据和 Session 都不得写入日志。
+
+### 待办提醒调度与邮件投递
+
+生产调度器每分钟调用 `POST /api/internal/reminders/deliver`，并在 `Authorization: Bearer <REMINDER_DELIVERY_SECRET>` 中携带服务端密钥。自托管部署默认安装 `jobtrace-reminders.timer`，满足一分钟精度。仓库的 `.github/workflows/reminder-delivery.yml` 是每五分钟运行的远程兜底：在 Actions Variables 配置 `REMINDER_DELIVERY_URL` 为生产站点来源，在 Actions Secrets 配置同名 `REMINDER_DELIVERY_SECRET`；它不满足一分钟送达目标，不应与主调度器同时启用。
+
+到期提醒由 PostgreSQL 原子认领；同一提醒、计划时间和渠道具有唯一通知记录，重复调用不会创建第二个发送身份。发送 worker 使用短租约和随机 claim token，超时后可由后续轮次恢复，旧 worker 的迟到结果不会覆盖新认领。邮件失败不会删除或完成站内提醒；在最大尝试次数内会按调度节奏重试，用户也可以从界面请求重试。
+
+监控至少覆盖：调度入口连续失败、最老到期提醒超过 2 分钟仍未处理、过期认领租约、邮件失败率突增，以及单轮持续达到批量上限。日志只记录 request ID、数量、受控错误码和耗时，不记录 Bearer 密钥、收件地址、待办正文或邮件正文。
+
+密钥轮换时先让应用接受新值，再更新调度方，确认一次成功调用后移除旧值。回滚时先停止外部调度器，再禁用提醒邮件调用并回滚应用；保留提醒与通知记录表，避免丢失用户待办。邮件服务不可用时允许站内提醒继续运行。
 
 ## 数据库生命周期
 

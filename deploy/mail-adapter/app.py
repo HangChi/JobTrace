@@ -81,6 +81,40 @@ def verification_code_message(payload: dict) -> EmailMessage:
     return message
 
 
+def scheduled_reminder_message(payload: dict) -> EmailMessage:
+    company_name = str(payload["companyName"]).strip()
+    position_name = str(payload["positionName"]).strip()
+    title = str(payload["title"]).strip()
+    event_at = str(payload["eventAt"]).strip()
+    application_url = str(payload["applicationUrl"]).strip()
+    parsed_url = urlparse(application_url)
+    if not all((company_name, position_name, title, event_at)):
+        raise ValueError("missing reminder field")
+    if any(len(value) > 160 for value in (company_name, position_name, title)):
+        raise ValueError("reminder field too long")
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+        raise ValueError("invalid application URL")
+    subject = f"待办提醒：{company_name} · {position_name}"
+    message = message_base(payload["to"], subject)
+    message.set_content(
+        f"{title}\n\n公司：{company_name}\n岗位：{position_name}\n"
+        f"事项时间：{event_at}（北京时间）\n\n查看投递：{application_url}"
+    )
+    message.add_alternative(
+        f"""<!doctype html><html lang="zh-CN"><body style="font-family:Arial,sans-serif;color:#172033;line-height:1.6">
+<div style="max-width:560px;margin:32px auto;padding:28px;border:1px solid #dce6e4;border-radius:12px">
+<p style="font-size:13px;color:#087d70;margin:0 0 8px">JOBTRACE 待办提醒</p>
+<h1 style="font-size:22px;margin:0 0 16px">{html.escape(title)}</h1>
+<p><strong>{html.escape(company_name)}</strong> · {html.escape(position_name)}</p>
+<p>事项时间：{html.escape(event_at)}（北京时间）</p>
+<p style="margin:28px 0"><a href="{html.escape(application_url, quote=True)}" style="background:#087d70;color:white;padding:12px 20px;border-radius:8px;text-decoration:none">查看投递</a></p>
+<p style="font-size:13px;color:#64748b">你可以在 JobTrace 中完成、稍后提醒或取消这条待办。</p>
+</div></body></html>""",
+        subtype="html",
+    )
+    return message
+
+
 def send(message: EmailMessage) -> None:
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15, context=context) as smtp:
@@ -136,6 +170,8 @@ class Handler(BaseHTTPRequestHandler):
                 message = password_reset_message(payload)
             elif template == "email_verification_code":
                 message = verification_code_message(payload)
+            elif template == "scheduled_reminder":
+                message = scheduled_reminder_message(payload)
             else:
                 raise ValueError("unsupported template")
         except (KeyError, TypeError, ValueError, json.JSONDecodeError):

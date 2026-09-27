@@ -39,12 +39,55 @@ export function ApplicationEditor({
     event.preventDefault();
     setBusy(true);
     setError("");
+    const formValues = Object.fromEntries(
+      new FormData(event.currentTarget),
+    ) as Record<string, FormDataEntryValue>;
     const body = {
-      ...Object.fromEntries(new FormData(event.currentTarget)),
+      ...formValues,
       stages: [],
       version: current.version,
       changeDate: today(),
     };
+    const nextStatus = String(formValues.status ?? current.status);
+    const enteringTerminal =
+      current.status === "submitted" &&
+      (nextStatus === "offer" || nextStatus === "refused");
+    let remindersToComplete: Array<{ id: string; version: number }> = [];
+    if (enteringTerminal) {
+      try {
+        const reminderResponse = await fetch("/api/reminders", {
+          cache: "no-store",
+        });
+        if (reminderResponse.ok) {
+          const reminderSummary = (await reminderResponse.json()) as {
+            overdue: Array<{
+              id: string;
+              applicationId: string;
+              version: number;
+            }>;
+            upcoming: Array<{
+              id: string;
+              applicationId: string;
+              version: number;
+            }>;
+          };
+          const related = [
+            ...reminderSummary.overdue,
+            ...reminderSummary.upcoming,
+          ].filter((item) => item.applicationId === current.id);
+          if (
+            related.length &&
+            !window.confirm(
+              `这条投递还有 ${related.length} 条待处理提醒。\n\n选择“确定”保留提醒；选择“取消”将把它们标记为完成。`,
+            )
+          ) {
+            remindersToComplete = related;
+          }
+        }
+      } catch {
+        // Status updates remain available when the reminder summary is temporarily unavailable.
+      }
+    }
     const response = await fetch(`/api/applications/${current.id}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
@@ -55,6 +98,17 @@ export function ApplicationEditor({
     else {
       setCurrent(result as ApplicationDetail);
       setMessage("修改已保存。");
+      if (remindersToComplete.length) {
+        await Promise.all(
+          remindersToComplete.map((reminder) =>
+            fetch(`/api/reminders/${reminder.id}/complete`, {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ version: reminder.version }),
+            }),
+          ),
+        );
+      }
     }
     setBusy(false);
   }

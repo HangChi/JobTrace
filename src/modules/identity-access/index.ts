@@ -52,4 +52,5 @@ export {
 } from "./application/admin-user-service";
 export { getAdminSummary } from "./application/admin-summary-service";
 export { listAdminAuditEvents } from "./application/admin-audit-service";
+export { deliverEmail } from "./infrastructure/email-delivery.server";
 export { hasAuthConfiguration } from "@/shared/config/env";

@@ -15,6 +15,7 @@ import { formatCompanyWithCity } from "../application/display";
 import { EditApplicationDialog } from "./application-dialogs";
 import { RecruitmentStageTimeline } from "./recruitment-stage-timeline";
 import type { StageInterviewSummary } from "@/modules/interviews/application/contracts";
+import { ReminderEditorDialog } from "@/modules/reminders/ui/reminder-editor-dialog";
 
 const DETAIL_CACHE_TTL_MS = 5 * 60_000;
 const DETAIL_CACHE_LIMIT = 50;
@@ -195,6 +196,13 @@ function ApplicationDetailContent({
                 </section>
               )}
               <div className="detail-dialog-actions">
+                <ReminderEditorDialog
+                  application={{
+                    id: detail.id,
+                    companyName: detail.companyName,
+                    positionName: detail.positionName,
+                  }}
+                />
                 {detail.jobUrl && (
                   <a
                     className="button secondary detail-action-link"

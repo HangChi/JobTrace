@@ -1,6 +1,9 @@
 export { getAnalyticsSummary } from "./application/get-summary";
 export { getAnalyticsReport } from "./application/get-report";
-export { completeProgressReminder } from "./application/progress-reminder-service";
+export {
+  completeProgressReminder,
+  resolveProgressReminder,
+} from "./application/progress-reminder-service";
 export {
   parseAnalyticsReportQuery,
   resolveAnalyticsRange,

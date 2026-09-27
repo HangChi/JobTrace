@@ -55,7 +55,7 @@ chmod 600 .env.server
 4. 安装依赖、执行数据库迁移并构建 standalone 产物；
 5. 将新版本原子切换到 `/opt/jobtrace/current`；
 6. 安装并启动 `jobtrace.service`；
-7. 安装并启用每六小时运行的 `jobtrace-sync.timer`；
+7. 安装并启用每六小时运行的 `jobtrace-sync.timer` 和每分钟运行的 `jobtrace-reminders.timer`；
 8. 执行就绪检查，失败时回滚到上一版本。
 
 自定义本地环境文件或远程暂存目录：
@@ -92,6 +92,16 @@ sudo journalctl -u jobtrace-sync.service -n 100 --no-pager
 ```
 
 同步服务每批处理最多 10 个来源，最多循环 30 批。数据库租约会阻止多个任务重复处理同一来源。
+
+待办提醒由 `jobtrace-reminders.timer` 每分钟触发。检查或手动触发：
+
+```bash
+sudo systemctl list-timers jobtrace-reminders.timer
+sudo systemctl start jobtrace-reminders.service
+sudo journalctl -u jobtrace-reminders.service -n 100 --no-pager
+```
+
+提醒服务只调用本机内部接口；邮件失败不会移除站内待办。`REMINDER_DELIVERY_SECRET` 必须同时存在于应用与 timer 的环境文件中。
 
 ## 新公司公众号采集
 
@@ -160,4 +170,4 @@ JOBTRACE_ARTIFACT_FILE=/tmp/jobtrace-release.tar.gz \
   ./deploy/server/push-artifact.sh ubuntu@your-server
 ```
 
-应用代码发布与招聘内容更新彼此独立。`jobtrace-sync.timer`、`jobtrace-collect.timer`、`jobtrace-research.timer` 和 `jobtrace-sitescan.timer` 均直接在服务器运行；它们调用本机应用接口抓取和更新内容，不依赖 GitHub Actions 或其他 CI/CD。
+应用代码发布与后台任务彼此独立。`jobtrace-sync.timer`、`jobtrace-reminders.timer`、`jobtrace-collect.timer`、`jobtrace-research.timer` 和 `jobtrace-sitescan.timer` 均直接在服务器运行；它们调用本机应用接口，不依赖 GitHub Actions 或其他 CI/CD。

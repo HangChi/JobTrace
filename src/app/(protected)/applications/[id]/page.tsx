@@ -11,6 +11,7 @@ import {
 } from "@/modules/interviews";
 import { NewInterviewDialog } from "@/modules/interviews/ui/interview-dialogs";
 import { STAGE_LABELS, formatCompanyWithCity } from "@/modules/applications";
+import { ReminderEditorDialog } from "@/modules/reminders/ui/reminder-editor-dialog";
 
 export default async function ApplicationPage({
   params,
@@ -47,6 +48,19 @@ export default async function ApplicationPage({
           </p>
         </div>
       </header>
+      <section className="panel reminder-detail-callout">
+        <div>
+          <h2>提醒</h2>
+          <p>为跟进、笔试、面试或复盘安排具体时间。</p>
+        </div>
+        <ReminderEditorDialog
+          application={{
+            id: application.id,
+            companyName: application.companyName,
+            positionName: application.positionName,
+          }}
+        />
+      </section>
       {application.notes && (
         <section className="panel">
           <h2>备注</h2>
@@ -99,7 +113,7 @@ export default async function ApplicationPage({
       >
         <div>
           <h2 id="delete-application-title">删除这条投递</h2>
-          <p>删除后，招聘阶段、更新历史和面经复盘也会一起移除。</p>
+          <p>删除后，招聘阶段、更新历史、面经复盘和关联提醒也会一起移除。</p>
         </div>
         <DeleteApplicationDialog
           id={application.id}

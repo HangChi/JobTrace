@@ -78,6 +78,28 @@ const jobMarketEnvSchema = z.object({
   JOB_MARKET_ALLOW_PROXY_DNS: z.enum(["true", "false"]).optional(),
 });
 
+const reminderEnvSchema = z.object({
+  REMINDER_DELIVERY_SECRET: z.string().min(32).optional(),
+  REMINDER_DELIVERY_BATCH_SIZE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(50),
+  REMINDER_DELIVERY_MAX_ATTEMPTS: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .default(3),
+  REMINDER_DELIVERY_LEASE_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(30)
+    .max(600)
+    .default(120),
+});
+
 export type CosEnv = {
   secretId: string;
   secretKey: string;
@@ -181,5 +203,23 @@ export function getJobMarketEnv() {
       value.JOB_MARKET_ALLOW_PROXY_DNS === undefined
         ? process.env.NODE_ENV === "development"
         : value.JOB_MARKET_ALLOW_PROXY_DNS === "true",
+  };
+}
+
+export function getReminderEnv() {
+  const value = reminderEnvSchema.parse({
+    REMINDER_DELIVERY_SECRET: process.env.REMINDER_DELIVERY_SECRET || undefined,
+    REMINDER_DELIVERY_BATCH_SIZE:
+      process.env.REMINDER_DELIVERY_BATCH_SIZE || undefined,
+    REMINDER_DELIVERY_MAX_ATTEMPTS:
+      process.env.REMINDER_DELIVERY_MAX_ATTEMPTS || undefined,
+    REMINDER_DELIVERY_LEASE_SECONDS:
+      process.env.REMINDER_DELIVERY_LEASE_SECONDS || undefined,
+  });
+  return {
+    secret: value.REMINDER_DELIVERY_SECRET,
+    batchSize: value.REMINDER_DELIVERY_BATCH_SIZE,
+    maxAttempts: value.REMINDER_DELIVERY_MAX_ATTEMPTS,
+    leaseSeconds: value.REMINDER_DELIVERY_LEASE_SECONDS,
   };
 }

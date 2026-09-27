@@ -1,0 +1,254 @@
+openapi: 3.1.0
+info:
+  title: JobTrace Scheduled Reminders
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /api/reminders:
+    get:
+      summary: List the current user's reminder summary
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [active, completed, cancelled] }
+      responses:
+        "200":
+          description: Reminder groups and email availability
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReminderSummary" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      summary: Create a reminder owned by the current user
+      security: [{ sessionCookie: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReminderInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/reminders/{id}:
+    patch:
+      summary: Edit a pending or due reminder
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - { $ref: "#/components/schemas/ReminderInput" }
+                - type: object
+                  required: [version]
+                  properties: { version: { type: integer, minimum: 1 } }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      summary: Cancel a pending or due reminder
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody: { $ref: "#/components/requestBodies/Version" }
+      responses:
+        "200":
+          description: Cancelled reminder
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+  /api/reminders/{id}/complete:
+    post:
+      summary: Complete a reminder
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody: { $ref: "#/components/requestBodies/Version" }
+      responses:
+        "200":
+          description: Completed reminder
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+  /api/reminders/{id}/snooze:
+    post:
+      summary: Schedule the next notification without changing event time
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, notifyAt]
+              properties:
+                version: { type: integer, minimum: 1 }
+                notifyAt: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Snoozed reminder
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+  /api/reminders/{id}/reopen:
+    post:
+      summary: Reopen a completed or cancelled reminder with new times
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, eventAt, notifyAt]
+              properties:
+                version: { type: integer, minimum: 1 }
+                eventAt: { type: string, format: date-time }
+                notifyAt: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Reopened reminder
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reminder" }
+  /api/reminders/{id}/retry-email:
+    post:
+      summary: Retry the current failed email notification
+      security: [{ sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/ReminderId" }]
+      requestBody: { $ref: "#/components/requestBodies/Version" }
+      responses:
+        "202": { description: Retry accepted }
+  /api/analytics/progress-reminders/{stageOccurrenceId}/resolve:
+    post:
+      summary: Complete or dismiss a system suggestion
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - in: path
+          name: stageOccurrenceId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolution]
+              properties:
+                resolution: { type: string, enum: [completed, dismissed] }
+      responses:
+        "200": { description: Suggestion resolved }
+  /api/internal/reminders/deliver:
+    post:
+      summary: Claim due reminders and deliver email attempts
+      security: [{ internalBearer: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { limit: { type: integer, minimum: 1, maximum: 100 } }
+      responses:
+        "200":
+          description: Bounded delivery summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [claimed, sent, failed, skipped]
+                properties:
+                  claimed: { type: integer }
+                  sent: { type: integer }
+                  failed: { type: integer }
+                  skipped: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+components:
+  securitySchemes:
+    sessionCookie: { type: apiKey, in: cookie, name: better-auth.session_token }
+    internalBearer: { type: http, scheme: bearer }
+  parameters:
+    ReminderId:
+      in: path
+      name: id
+      required: true
+      schema: { type: string, format: uuid }
+  requestBodies:
+    Version:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [version]
+            properties: { version: { type: integer, minimum: 1 } }
+  schemas:
+    ReminderInput:
+      type: object
+      required: [applicationId, title, eventAt, notifyAt, emailEnabled]
+      properties:
+        applicationId: { type: string, format: uuid }
+        sourceStageOccurrenceId: { type: [string, "null"], format: uuid }
+        title: { type: string, minLength: 1, maxLength: 120 }
+        eventAt: { type: string, format: date-time }
+        notifyAt: { type: string, format: date-time }
+        emailEnabled: { type: boolean }
+    Reminder:
+      allOf:
+        - { $ref: "#/components/schemas/ReminderInput" }
+        - type: object
+          required: [id, companyName, positionName, status, version]
+          properties:
+            id: { type: string, format: uuid }
+            companyName: { type: string }
+            positionName: { type: string }
+            status: { type: string, enum: [pending, due, completed, cancelled] }
+            version: { type: integer }
+            emailStatus: { type: [string, "null"], enum: [claimed, sent, failed, skipped, null] }
+    ReminderSummary:
+      type: object
+      required: [overdue, upcoming, suggestions, email]
+      properties:
+        overdue: { type: array, items: { $ref: "#/components/schemas/Reminder" } }
+        upcoming: { type: array, items: { $ref: "#/components/schemas/Reminder" } }
+        suggestions: { type: array, items: { type: object } }
+        email:
+          type: object
+          required: [available, address]
+          properties:
+            available: { type: boolean }
+            address: { type: [string, "null"], format: email }
+    Problem:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        fieldErrors: { type: array, items: { type: object } }
+  responses:
+    Invalid:
+      description: Invalid input
+      content: { application/json: { schema: { $ref: "#/components/schemas/Problem" } } }
+    Unauthorized:
+      description: Authentication failed
+      content: { application/json: { schema: { $ref: "#/components/schemas/Problem" } } }
+    NotFound:
+      description: Resource is absent or not owned by actor
+      content: { application/json: { schema: { $ref: "#/components/schemas/Problem" } } }
+    Conflict:
+      description: Version conflict; client must refresh
+      content: { application/json: { schema: { $ref: "#/components/schemas/Problem" } } }

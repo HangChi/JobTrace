@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ProgressReminderList } from "@/modules/analytics/ui/progress-reminder-list";
 
-describe("待处理进展列表", () => {
+describe("系统建议列表", () => {
   it("展示阶段信息、日期并提供完成操作", () => {
     render(
       <ProgressReminderList
@@ -35,14 +35,16 @@ describe("待处理进展列表", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "待处理进展" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "系统建议" })).toBeVisible();
     expect(screen.getByText("华为（上海，北京）")).toBeVisible();
     expect(screen.getByText("腾讯（深圳）")).toBeVisible();
     expect(screen.getByText(/2026-08-19/)).toBeVisible();
     expect(screen.queryByText(/进展日期/)).toBeNull();
     expect(screen.queryByRole("link", { name: "补充测评结果" })).toBeNull();
     expect(screen.queryAllByRole("link")).toHaveLength(0);
-    expect(screen.getAllByRole("button", { name: "不再提醒" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "设置提醒" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "完成" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "关闭建议" })).toHaveLength(2);
   });
 
   it("没有提醒时不占用布局", () => {
@@ -76,7 +78,7 @@ describe("待处理进展列表", () => {
     expect(screen.getByText("测评/AI测评")).toBeVisible();
   });
 
-  it("点击不再提醒后立即移除，并持久化处理状态", async () => {
+  it("点击完成后立即移除，并持久化处理状态", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response(JSON.stringify({ completed: true })));
@@ -99,13 +101,17 @@ describe("待处理进展列表", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "不再提醒" }));
+    fireEvent.click(screen.getByRole("button", { name: "完成" }));
     await waitFor(() =>
       expect(screen.queryByText("字节跳动（北京）")).toBeNull(),
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/analytics/progress-reminders/stage-3/complete",
-      { method: "POST" },
+      "/api/analytics/progress-reminders/stage-3/resolve",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ resolution: "completed" }),
+      },
     );
     fetchMock.mockRestore();
   });

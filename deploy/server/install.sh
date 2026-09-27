@@ -15,6 +15,7 @@ releases_dir="${app_root}/releases"
 env_dir="${JOBTRACE_ENV_DIR:-/etc/jobtrace}"
 env_file="${env_dir}/app.env"
 sync_bin="${JOBTRACE_SYNC_BIN:-/usr/local/libexec/jobtrace-sync}"
+reminder_bin="${JOBTRACE_REMINDER_BIN:-/usr/local/libexec/jobtrace-reminders}"
 env_source="${JOBTRACE_ENV_SOURCE:-}"
 release_artifact="${JOBTRACE_RELEASE_ARTIFACT:-}"
 
@@ -195,6 +196,8 @@ fi
 
 install -m 0750 -o root -g "$app_group" \
   "${source_dir}/deploy/server/jobtrace-sync.sh" "$sync_bin"
+install -m 0750 -o root -g "$app_group" \
+  "${source_dir}/deploy/server/jobtrace-reminders.sh" "$reminder_bin"
 collect_bin="${JOBTRACE_COLLECT_BIN:-/usr/local/libexec/jobtrace-collect}"
 install -m 0750 -o root -g "$app_group" \
   "${source_dir}/deploy/server/jobtrace-collect.sh" "$collect_bin"
@@ -226,6 +229,17 @@ sed \
 install -m 0644 -o root -g root \
   "${source_dir}/deploy/server/jobtrace-sync.timer" \
   /etc/systemd/system/jobtrace-sync.timer
+sed \
+  -e "s|@@APP_USER@@|${app_user}|g" \
+  -e "s|@@APP_GROUP@@|${app_group}|g" \
+  -e "s|@@ENV_FILE@@|${env_file}|g" \
+  -e "s|@@APP_PORT@@|${PORT:-3000}|g" \
+  -e "s|@@REMINDER_BIN@@|${reminder_bin}|g" \
+  "${source_dir}/deploy/server/jobtrace-reminders.service.in" \
+  > /etc/systemd/system/jobtrace-reminders.service
+install -m 0644 -o root -g root \
+  "${source_dir}/deploy/server/jobtrace-reminders.timer" \
+  /etc/systemd/system/jobtrace-reminders.timer
 sed \
   -e "s|@@APP_USER@@|${app_user}|g" \
   -e "s|@@APP_GROUP@@|${app_group}|g" \
@@ -265,6 +279,8 @@ if command -v systemd-analyze >/dev/null 2>&1; then
     /etc/systemd/system/jobtrace.service \
     /etc/systemd/system/jobtrace-sync.service \
     /etc/systemd/system/jobtrace-sync.timer \
+    /etc/systemd/system/jobtrace-reminders.service \
+    /etc/systemd/system/jobtrace-reminders.timer \
     /etc/systemd/system/jobtrace-collect.service \
     /etc/systemd/system/jobtrace-collect.timer \
     /etc/systemd/system/jobtrace-research.service \
@@ -277,7 +293,7 @@ ln -sfn "$release_dir" "${app_root}/.current-new"
 mv -Tf "${app_root}/.current-new" "${app_current}"
 
 systemctl daemon-reload
-systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer >/dev/null
+systemctl enable jobtrace.service jobtrace-sync.timer jobtrace-reminders.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer >/dev/null
 systemctl restart jobtrace.service
 
 healthy=false
@@ -307,11 +323,12 @@ fi
 
 systemctl restart \
   jobtrace-sync.timer \
+  jobtrace-reminders.timer \
   jobtrace-collect.timer \
   jobtrace-research.timer \
   jobtrace-sitescan.timer
 
 echo "JobTrace release ${release_id} is healthy."
 echo "Application: http://127.0.0.1:${PORT:-3000}"
-echo "Timers: $(systemctl is-active jobtrace-sync.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer | paste -sd ',' -)"
+echo "Timers: $(systemctl is-active jobtrace-sync.timer jobtrace-reminders.timer jobtrace-collect.timer jobtrace-research.timer jobtrace-sitescan.timer | paste -sd ',' -)"
 echo "Run the first catalog initialization from /admin/job-market."

@@ -70,7 +70,7 @@ export function DeleteApplicationDialog({
           </span>
           <div>
             <strong>{name}</strong>
-            <p>相关招聘阶段、更新历史和面经复盘也会一起删除。</p>
+            <p>相关招聘阶段、更新历史、面经复盘和待处理提醒也会一起删除。</p>
           </div>
         </div>
         {error && <p className="field-error">{error}</p>}

@@ -15,6 +15,15 @@ type DeliveryPayload =
       template: "email_verification_code";
       code: string;
       expiresInSeconds: number;
+    }
+  | {
+      to: string;
+      template: "scheduled_reminder";
+      companyName: string;
+      positionName: string;
+      title: string;
+      eventAt: string;
+      applicationUrl: string;
     };
 
 export async function deliverEmail(payload: DeliveryPayload) {

@@ -3,6 +3,7 @@ import { listApplications } from "@/modules/applications";
 import { ApplicationDashboard } from "@/modules/applications/ui/application-dashboard";
 import { ResetPageOnReload } from "@/modules/applications/ui/reset-page-on-reload";
 import { requirePageUser } from "@/modules/identity-access";
+import { getReminderSummary } from "@/modules/reminders";
 import { toSearchParams } from "@/shared/url/search-params";
 
 export const dynamic = "force-dynamic";
@@ -21,9 +22,10 @@ export default async function ApplicationsPage({
       ? search.limit
       : "10";
   const listSearch = { ...search, limit: pageSize };
-  const [page, summary] = await Promise.all([
+  const [page, summary, reminderSummary] = await Promise.all([
     listApplications(toSearchParams(listSearch)),
     getAnalyticsSummary(),
+    getReminderSummary(),
   ]);
   const filtered = [
     search.q,
@@ -46,6 +48,7 @@ export default async function ApplicationsPage({
       <ApplicationDashboard
         initialPage={page}
         initialSummary={summary}
+        initialReminderSummary={reminderSummary}
         query={search}
         filtered={filtered}
         listQuery={listQuery}
