@@ -263,6 +263,10 @@ T046 lifecycle integration | T047 owner isolation | T048 component test | T049 E
 - [X] T064 [US2] 增加自动保存会话修订字段与数据库乱序保护，扩展更新契约并让离页 flush 并发发送最新快照到 `supabase/migrations/20260925000200_interview_autosave_revisions.sql`、`src/modules/interviews/domain/interview.schema.ts`、`src/modules/interviews/ui/interview-autosave.ts`、相关 OpenAPI 与生成类型
 - [X] T065 [US2] 运行面经自动保存组件/集成回归、格式、lint、类型和数据库类型漂移门禁并记录完成状态
 
+## Phase 9: Stage mutation lock-order hardening
+
+- [X] T066 [US4] Make stage update and removal lock the parent application before the stage occurrence, and cover concurrent review creation against both mutations without deadlocks
+
 - `[P]` 仅表示文件和前置依赖允许并行，不要求使用子智能体。
 - 不新增第三方运行时依赖；优先复用现有模块模式和共享 UI。
 - 数据库迁移必须从空库和包含现有投递数据的数据库重放。
