@@ -188,6 +188,27 @@ paths:
         '400': { $ref: '#/components/responses/ValidationError' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+  /applications/{id}/stages/{occurrenceId}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: occurrenceId, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: updateApplicationStage
+      description: Optimistic stage-occurrence edit using the parent application version.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateApplicationStage' }
+      responses:
+        '200':
+          description: Updated application detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApplicationDetail' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
   /analytics/summary:
     get:
       operationId: getAnalyticsSummary
@@ -376,6 +397,14 @@ components:
       properties:
         stage: { $ref: '#/components/schemas/RecruitmentStage' }
         occurredOn: { type: string, format: date }
+    UpdateApplicationStage:
+      allOf:
+        - { $ref: '#/components/schemas/StageInput' }
+        - type: object
+          required: [version, changeDate]
+          properties:
+            version: { type: integer, minimum: 1 }
+            changeDate: { type: string, format: date }
     ApplicationSummary:
       type: object
       required: [id, companyName, positionName, appliedDate, type, status, latestDate, stages, needsFollowUp, followUpDays, followUpReason, version]

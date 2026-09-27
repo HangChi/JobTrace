@@ -1,5 +1,5 @@
-// 进程内 admin 长任务注册表：面向单实例部署的轻量任务化方案。
-// 不持久化——进程重启后运行中的任务即丢失，任务本身可安全重跑。
+import { PostgresAdminJobStore } from "../infrastructure/postgres-admin-job-store";
+
 export type AdminJobKind =
   | "wechat_collect"
   | "ats_site_scan"
@@ -25,19 +25,34 @@ export type AdminJobSnapshot = {
   error: string | null;
 };
 
-// 服务内部用 reporter 上报进度；快照对象整体替换，轮询方拿到的是不可变快照。
-export type AdminJobReporter = (progress: {
-  phase?: string;
-  current?: number;
-  total?: number | null;
-  message?: string | null;
-}) => void;
+export type AdminJobReporter = (progress: Partial<AdminJobProgress>) => void;
 
-type AdminJobInternal = { snapshot: AdminJobSnapshot };
+export interface AdminJobStore {
+  claim(
+    job: AdminJobSnapshot,
+    leaseExpiresAt: Date,
+    now: Date,
+  ): Promise<boolean>;
+  report(
+    id: string,
+    progress: Partial<AdminJobProgress>,
+    leaseExpiresAt: Date,
+  ): Promise<void>;
+  finish(
+    id: string,
+    outcome:
+      | { status: "succeeded"; result: unknown }
+      | { status: "failed"; error: string },
+    now: Date,
+  ): Promise<void>;
+  get(id: string, now: Date): Promise<AdminJobSnapshot | null>;
+  prune(finishedBefore: Date, maxFinished: number): Promise<void>;
+}
 
-const registry = new Map<string, AdminJobInternal>();
 const RETAINED_FINISHED_MS = 30 * 60_000;
-const MAX_TRACKED_JOBS = 50;
+const MAX_FINISHED_JOBS = 50;
+const LEASE_MS = 2 * 60_000;
+const HEARTBEAT_MS = 30_000;
 
 export class AdminJobConflictError extends Error {
   constructor(kind: AdminJobKind) {
@@ -46,82 +61,99 @@ export class AdminJobConflictError extends Error {
   }
 }
 
-export function startAdminJob(
-  kind: AdminJobKind,
-  run: (report: AdminJobReporter) => Promise<unknown>,
-): string {
-  for (const job of registry.values())
-    if (job.snapshot.kind === kind && job.snapshot.status === "running")
-      throw new AdminJobConflictError(kind);
-  pruneAdminJobs();
-  const id = crypto.randomUUID();
-  const job: AdminJobInternal = {
-    snapshot: {
+export function createAdminJobManager(
+  store: AdminJobStore,
+  options: { leaseMs?: number; heartbeatMs?: number } = {},
+) {
+  const leaseMs = options.leaseMs ?? LEASE_MS;
+  const heartbeatMs = options.heartbeatMs ?? HEARTBEAT_MS;
+
+  async function prune(now = new Date()) {
+    await store.prune(
+      new Date(now.getTime() - RETAINED_FINISHED_MS),
+      MAX_FINISHED_JOBS,
+    );
+  }
+
+  async function start(
+    kind: AdminJobKind,
+    run: (report: AdminJobReporter) => Promise<unknown>,
+  ): Promise<string> {
+    const now = new Date();
+    await prune(now);
+    const id = crypto.randomUUID();
+    const job: AdminJobSnapshot = {
       id,
       kind,
       status: "running",
-      startedAt: new Date().toISOString(),
+      startedAt: now.toISOString(),
       finishedAt: null,
       progress: { phase: "启动中", current: 0, total: null, message: null },
       result: null,
       error: null,
-    },
-  };
-  registry.set(id, job);
-  const report: AdminJobReporter = (progress) => {
-    if (job.snapshot.status !== "running") return;
-    job.snapshot = {
-      ...job.snapshot,
-      progress: { ...job.snapshot.progress, ...progress },
     };
-  };
-  void run(report)
-    .then((result) => {
-      job.snapshot = {
-        ...job.snapshot,
-        status: "succeeded",
-        result,
-        finishedAt: new Date().toISOString(),
-      };
-    })
-    .catch((error: unknown) => {
-      job.snapshot = {
-        ...job.snapshot,
-        status: "failed",
-        error:
-          error instanceof Error
-            ? error.message
-            : JSON.stringify(error ?? null),
-        finishedAt: new Date().toISOString(),
-      };
-    });
-  return id;
-}
+    if (!(await store.claim(job, new Date(now.getTime() + leaseMs), now)))
+      throw new AdminJobConflictError(kind);
 
-export function getAdminJob(id: string): AdminJobSnapshot | null {
-  return registry.get(id)?.snapshot ?? null;
-}
+    let writes = Promise.resolve();
+    const enqueueReport = (progress: Partial<AdminJobProgress>) => {
+      writes = writes
+        .then(() => store.report(id, progress, new Date(Date.now() + leaseMs)))
+        .catch(() => undefined);
+    };
+    const heartbeat = setInterval(() => enqueueReport({}), heartbeatMs);
+    heartbeat.unref?.();
 
-export function pruneAdminJobs(now = Date.now()): void {
-  for (const [id, job] of registry) {
-    const finishedAt = Date.parse(job.snapshot.finishedAt ?? "");
-    if (
-      job.snapshot.status !== "running" &&
-      Number.isFinite(finishedAt) &&
-      now - finishedAt > RETAINED_FINISHED_MS
-    )
-      registry.delete(id);
+    void run(enqueueReport)
+      .then(async (result) => {
+        clearInterval(heartbeat);
+        await writes;
+        await store.finish(id, { status: "succeeded", result }, new Date());
+      })
+      .catch(async (error: unknown) => {
+        clearInterval(heartbeat);
+        await writes;
+        await store.finish(
+          id,
+          {
+            status: "failed",
+            error:
+              error instanceof Error
+                ? error.message
+                : JSON.stringify(error ?? null),
+          },
+          new Date(),
+        );
+      })
+      .catch(() => undefined);
+    return id;
   }
-  if (registry.size <= MAX_TRACKED_JOBS) return;
-  const removable = [...registry.values()]
-    .filter((job) => job.snapshot.status !== "running")
-    .sort((left, right) =>
-      left.snapshot.startedAt.localeCompare(right.snapshot.startedAt),
-    )
-    .slice(0, registry.size - MAX_TRACKED_JOBS);
-  for (const job of removable) registry.delete(job.snapshot.id);
+
+  return {
+    start,
+    get: (id: string) => store.get(id, new Date()),
+    prune,
+  };
 }
 
-export function resetAdminJobsForTesting(): void {
-  registry.clear();
+let productionManager: ReturnType<typeof createAdminJobManager> | undefined;
+
+function manager() {
+  productionManager ??= createAdminJobManager(new PostgresAdminJobStore());
+  return productionManager;
+}
+
+export function startAdminJob(
+  kind: AdminJobKind,
+  run: (report: AdminJobReporter) => Promise<unknown>,
+) {
+  return manager().start(kind, run);
+}
+
+export function getAdminJob(id: string) {
+  return manager().get(id);
+}
+
+export function pruneAdminJobs(now?: Date) {
+  return manager().prune(now);
 }

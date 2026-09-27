@@ -75,6 +75,9 @@ export class PostgresApplicationRepository implements ApplicationRepository {
           }
         | undefined;
       if (input.jobMarketPostId) {
+        await tx`select pg_advisory_xact_lock(hashtextextended(
+          ${ownerId} || ':' || ${input.jobMarketPostId},0
+        ))`;
         const [existing] = await tx<Array<{ applicationId: string }>>`
           select application_id as "applicationId" from application_job_market_links
           where owner_id=${ownerId} and post_id=${input.jobMarketPostId}`;
@@ -352,17 +355,20 @@ export class PostgresApplicationRepository implements ApplicationRepository {
     ownerId: string,
     id: string,
     occurrenceId: string,
+    expectedVersion: number,
     stage: string,
     occurredOn: string,
     changeDate: string,
   ) {
     try {
       await this.sql`select public.update_stage_occurrence_for_owner(
-        ${ownerId},${id},${occurrenceId},${stage}::recruitment_stage,${occurredOn}::date,${changeDate}::date
+        ${ownerId},${id},${occurrenceId},${expectedVersion},${stage}::recruitment_stage,${occurredOn}::date,${changeDate}::date
       )`;
       return this.get(ownerId, id) as Promise<ApplicationDetail>;
     } catch (error) {
       const code = (error as { code?: string }).code;
+      if (code === "40001")
+        throw new Problem("conflict", "记录已被更新，请刷新后重试。", 409);
       if (code === "23505")
         throw new Problem(
           "conflict",

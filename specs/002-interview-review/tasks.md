@@ -266,6 +266,7 @@ T046 lifecycle integration | T047 owner isolation | T048 component test | T049 E
 ## Phase 9: Stage mutation lock-order hardening
 
 - [X] T066 [US4] Make stage update and removal lock the parent application before the stage occurrence, and cover concurrent review creation against both mutations without deadlocks
+- [X] T067 [US4] Require the parent application version when editing a stage occurrence, reject stale concurrent edits after taking the canonical parent lock, and cover the 409 contract
 
 - `[P]` 仅表示文件和前置依赖允许并行，不要求使用子智能体。
 - 不新增第三方运行时依赖；优先复用现有模块模式和共享 UI。

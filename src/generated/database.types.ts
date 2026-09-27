@@ -726,6 +726,53 @@ export const databaseSchema = {
       "nullable": true
     }
   ],
+  "job_market_admin_jobs": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "kind",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "started_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "finished_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "lease_expires_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "progress",
+      "type": "jsonb",
+      "nullable": false
+    },
+    {
+      "name": "result",
+      "type": "jsonb",
+      "nullable": true
+    },
+    {
+      "name": "error",
+      "type": "text",
+      "nullable": true
+    }
+  ],
   "job_market_campaign_favorites": [
     {
       "name": "owner_id",

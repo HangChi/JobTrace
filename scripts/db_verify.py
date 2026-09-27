@@ -53,8 +53,8 @@ def main() -> None:
             )
             occurrence_id = cursor.fetchone()[0]
             cursor.execute(
-                "select public.update_stage_occurrence_for_owner('db-verify',%s,%s,'interview_2','2026-08-07','2026-08-07')",
-                (app_id, occurrence_id),
+                "select public.update_stage_occurrence_for_owner('db-verify',%s,%s,%s,'interview_2','2026-08-07','2026-08-07')",
+                (app_id, occurrence_id, 3),
             )
             cursor.execute(
                 "select count(*) from application_events where application_id=%s and type='stage_changed'",

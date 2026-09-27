@@ -17,7 +17,7 @@ export async function startJobMarketJob(
 ): Promise<string> {
   await requireAdmin();
   try {
-    return startAdminJob(kind, run);
+    return await startAdminJob(kind, run);
   } catch (error) {
     if (error instanceof AdminJobConflictError)
       throw new Problem(
@@ -35,7 +35,7 @@ export async function getJobMarketJob(
 ): Promise<AdminJobSnapshot> {
   await requireAdmin();
   if (!jobId) throw new Problem("validation", "缺少 jobId 查询参数。", 400);
-  const job = getAdminJob(jobId);
+  const job = await getAdminJob(jobId);
   if (!job || job.kind !== kind)
     throw new Problem("not_found", "任务不存在或已过期。", 404);
   return job;

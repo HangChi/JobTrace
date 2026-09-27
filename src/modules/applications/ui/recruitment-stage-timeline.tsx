@@ -176,6 +176,7 @@ export function RecruitmentStageTimeline({
             stage: selectedOccurrence.stage,
             occurredOn,
             changeDate: today(),
+            version: application.version,
           }),
         },
       );

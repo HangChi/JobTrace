@@ -115,6 +115,7 @@ export async function updateApplicationStage(
     actor.id,
     id,
     occurrenceId,
+    value.version,
     value.stage,
     value.occurredOn,
     value.changeDate,

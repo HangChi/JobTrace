@@ -165,18 +165,27 @@ test("从公共岗位创建投递时使用服务端字段并返回可导航的�
   >`insert into job_market_posts(company_id,campaign_id,title,normalized_title,content_hash,primary_apply_url) values(${company.id},${campaign.id},'可信岗位','可信岗位',${"d".repeat(64)},'https://jobs.example.com/trusted') returning id`;
   let applicationId: string | undefined;
   try {
-    const created = await request.post("/api/applications", {
-      data: {
-        jobMarketPostId: post.id,
-        companyName: "伪造公司",
-        positionName: "伪造岗位",
-        city: "伪造地点",
-        jobUrl: "https://attacker.example/apply",
-        appliedDate: "2026-08-30",
-        status: "submitted",
-      },
-    });
-    expect(created.status()).toBe(201);
+    const create = (companyName: string) =>
+      request.post("/api/applications", {
+        data: {
+          jobMarketPostId: post.id,
+          companyName,
+          positionName: "伪造岗位",
+          city: "伪造地点",
+          jobUrl: "https://attacker.example/apply",
+          appliedDate: "2026-08-30",
+          status: "submitted",
+        },
+      });
+    const responses = await Promise.all([
+      create("伪造公司 A"),
+      create("伪造公司 B"),
+    ]);
+    expect(responses.map((response) => response.status()).sort()).toEqual([
+      201, 409,
+    ]);
+    const created = responses.find((response) => response.status() === 201)!;
+    const duplicate = responses.find((response) => response.status() === 409)!;
     const application = await created.json();
     applicationId = application.id;
     expect(application).toMatchObject({
@@ -184,20 +193,13 @@ test("从公共岗位创建投递时使用服务端字段并返回可导航的�
       positionName: "可信岗位",
       jobUrl: "https://jobs.example.com/trusted",
     });
-
-    const duplicate = await request.post("/api/applications", {
-      data: {
-        jobMarketPostId: post.id,
-        companyName: "可信公司",
-        positionName: "可信岗位",
-        appliedDate: "2026-08-30",
-      },
-    });
-    expect(duplicate.status()).toBe(409);
     expect(await duplicate.json()).toMatchObject({
       code: "job_market_application_exists",
       existingApplicationId: application.id,
     });
+    expect(
+      await sql`select id from applications where owner_id=(select owner_id from applications where id=${application.id}) and id in(select application_id from application_job_market_links where post_id=${post.id})`,
+    ).toHaveLength(1);
   } finally {
     if (applicationId)
       await sql`delete from applications where id=${applicationId}`;

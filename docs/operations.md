@@ -289,7 +289,7 @@ Greenhouse、Lever、Ashby、SmartRecruiters、Moka、小米招聘以及字节�
 
 默认目录数据由 `scripts/generate-default-catalog.ts` 与 `scripts/generate-default-directory.ts` 维护：两个脚本是唯一数据源，生成 `default-source-catalog.json` 与 `default-company-directory.json` 供运行时导入（`pnpm catalog:generate` / `pnpm company-directory:generate`），CI 通过 `catalog:check` 与 `company-directory:check` 拒绝过期产物，直接手改运行时模块或 JSON 会被下次生成覆盖。因为每个条目都会扩大服务端出站访问白名单，增加企业前必须人工验证其公开 ATS 接口；自动化测试仍只能访问本地 fixture，不能依赖真实企业站点。
 
-一键初始化、招聘入口扫描、ATS 招聘板枚举、公司官网研究与公众号采集都是后台任务：POST 立即返回 `jobId`，管理页轮询同一路径的 `GET ?jobId=` 显示阶段与进度，可以离开页面；同类任务同时只允许一个（重复触发返回 409）。任务状态保存在进程内存中，应用重启即终止，但以上操作都设计为可安全重跑。一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
+一键初始化、招聘入口扫描、ATS 招聘板枚举、公司官网研究与公众号采集都是后台任务：POST 立即返回 `jobId`，管理页轮询同一路径的 `GET ?jobId=` 显示阶段与进度，可以离开页面；同类任务通过 PostgreSQL 部分唯一索引跨实例限制为一个（重复触发返回 409）。运行中的任务以两分钟租约和三十秒心跳记录在 `job_market_admin_jobs`；应用重启后原 `jobId` 仍可查询，过期运行会标记为失败并允许重试。任务完成状态保留三十分钟，最多保留最近五十条。初始化中的来源同步与外部定时同步还会经过来源级 fencing lease，重叠触发不会重复认领同一来源。一键初始化可以在定时同步关闭时完成首次同步。后续持续更新仍需设置 `JOB_MARKET_ENABLED=true`、有效的 `JOB_MARKET_SYNC_SECRET`，并配置下述调度器。
 
 外部调度器每六小时调用一次 `POST /api/internal/job-market/sync`。默认企业来源的同步间隔同样是六小时；每次计划任务以最多 10 个来源为一批持续认领（`JOB_MARKET_SYNC_BATCH_SIZE`，1–10），队列清空时提前结束，单次运行最多 30 批、覆盖 300 个到期来源（`JOBTRACE_SYNC_MAX_BATCHES`，部署脚本自身校验上限为 30）。当前目录规模（475 个来源）已超过单窗口覆盖上限：全量同时到期（例如刚完成一键初始化）时，剩余来源会顺延到后续六小时窗口直到全部追平；来源到期时间天然错峰时不受影响。生产环境必须设置 `JOB_MARKET_ENABLED=true`，并由秘密管理系统注入 `JOB_MARKET_SYNC_SECRET`；轮换时先在调用方和应用同时支持新值，再移除旧值，任何日志和 cron 命令都不得打印密钥。`JOB_MARKET_SYNC_BATCH_SIZE` 控制单次认领数，HTTP 超时和响应体上限由对应环境变量限定；来源自身的同步间隔用于计算下次到期时间。
 

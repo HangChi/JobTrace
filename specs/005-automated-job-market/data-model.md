@@ -176,6 +176,24 @@ Private link between an existing application and its source public post.
 
 Unique `(owner_id, post_id)` prevents duplicate tracking. Public queries never join this table except for the current user's `alreadyTrackedApplicationId` projection.
 
+Creation takes a transaction-scoped advisory lock derived from `(owner_id, post_id)` before checking the unique relation. A concurrent loser waits for the winner to commit, then returns the committed `application_id` instead of leaking a raw unique-constraint error.
+
+### `job_market_admin_jobs`
+
+Persistent execution record for administrator-triggered long-running operations.
+
+| Field | Type | Rules |
+|---|---|---|
+| `id` | uuid | primary key and execution fencing token |
+| `kind` | text | bounded administrator operation kind |
+| `status` | text | `running`, `succeeded`, or `failed`; one running row per kind |
+| `started_at`, `finished_at` | timestamptz | lifecycle timestamps |
+| `lease_expires_at` | timestamptz nullable | required only while running; renewed by progress and heartbeat |
+| `progress`, `result` | jsonb | bounded progress snapshot and terminal result |
+| `error` | text nullable | safe terminal diagnostic |
+
+Expired running rows are atomically failed before another execution of the same kind is claimed. Terminal rows remain queryable for 30 minutes and are bounded to the most recent 50 records.
+
 ## Relationships
 
 ```text

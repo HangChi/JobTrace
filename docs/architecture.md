@@ -137,7 +137,7 @@ Server Component 取得当前 actor 后直接调用应用服务，不通过自�
 
 ## 自动招聘市场边界
 
-默认企业来源目录与公司目录的数据由生成脚本维护：`scripts/generate-default-catalog.ts` 与 `scripts/generate-default-directory.ts` 是唯一数据源，产出 `default-source-catalog.json` / `default-company-directory.json` 供运行时导入（`pnpm catalog:generate` / `pnpm company-directory:generate`，CI 用对应 `:check` 命令拒绝过期产物）；当前规模以自动生成的[公司招聘入口总览](company-directory.md)为准。目录属于受审查的出站来源配置，而不是数据库 seed。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。管理端的长耗时操作（初始化、入口扫描、ATS 枚举、公司研究、公众号采集）以进程内后台任务执行：POST 立即返回 `jobId`，状态与进度通过同一路径的 `GET` 查询，同类任务单并发。
+默认企业来源目录与公司目录的数据由生成脚本维护：`scripts/generate-default-catalog.ts` 与 `scripts/generate-default-directory.ts` 是唯一数据源，产出 `default-source-catalog.json` / `default-company-directory.json` 供运行时导入（`pnpm catalog:generate` / `pnpm company-directory:generate`，CI 用对应 `:check` 命令拒绝过期产物）；当前目录包含 471 家可自动同步企业、475 个来源，精确构成以自动生成的[公司招聘入口总览](company-directory.md)为准。目录属于受审查的出站来源配置，而不是数据库 seed。管理员初始化服务先验证每个 HTTPS 来源，再通过 `PostgresSourceCatalogRepository` 幂等持久化企业和来源，最后复用正常的来源认领与同步管线。因此，默认目录、手工登记和定时任务会产生相同的标准化岗位、生命周期事件、安全诊断与日志。管理端的长耗时操作（初始化、入口扫描、ATS 枚举、公司研究、公众号采集）以 PostgreSQL 持久租约协调：POST 立即返回 `jobId`，状态与进度通过同一路径的 `GET` 跨实例查询，同类任务单并发，进程中断后由租约过期恢复。
 
 来源发现使用独立的 `job_market_source_candidates` 边界。管理员触发的扫描只检查目录中已登记的公开 HTTPS 招聘入口，识别受支持 ATS 链接或 `JobPosting` JSON-LD，并记录有界健康诊断；扫描不直接写入活动来源。只有管理员明确执行“批准并启用”后，审批事务才以候选中保存的精确主机白名单创建 `job_market_sources`。因此，自动发现不能绕过来源登记、访问依据审核或适配器注册表。
 

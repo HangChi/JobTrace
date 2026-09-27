@@ -44,6 +44,7 @@ export interface ApplicationRepository {
     ownerId: string,
     id: string,
     occurrenceId: string,
+    expectedVersion: number,
     stage: string,
     occurredOn: string,
     changeDate: string,

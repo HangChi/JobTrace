@@ -410,3 +410,8 @@ Each increment must retain public/private isolation and pass all previously comp
 ## Phase 18: Concurrent source convergence
 
 - [X] T142 Serialize same-company batch application and company read-model refreshes with one transaction-scoped database lock, and cover concurrent cross-source URL convergence and successful run completion in integration tests
+
+## Phase 19: Cross-instance operation consistency
+
+- [X] T143 Serialize application creation per owner and public job inside the creation transaction so concurrent requests return one success and one navigable existing-application conflict
+- [X] T144 Persist administrator background job leases, progress, outcomes, and interrupted-process recovery in PostgreSQL with cross-instance regression coverage

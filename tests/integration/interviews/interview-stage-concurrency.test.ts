@@ -90,7 +90,8 @@ for (const operation of ["update", "delete"] as const) {
           ? stageSql`
               select id from public.update_stage_occurrence_for_owner(
                 ${applicationRow.ownerId},${application.id},${occurrence.id},
-                'interview_2'::recruitment_stage,'2026-08-18'::date,'2026-08-20'::date
+                ${staged.version},'interview_2'::recruitment_stage,
+                '2026-08-18'::date,'2026-08-20'::date
               )
             `
           : stageSql`
@@ -137,3 +138,55 @@ for (const operation of ["update", "delete"] as const) {
     }
   });
 }
+
+test("concurrent stage edits reject the stale application version", async ({
+  request,
+}) => {
+  const application = await (
+    await request.post("/api/applications", {
+      data: {
+        companyName: "Stage Optimistic Lock",
+        positionName: "Engineer",
+        appliedDate: "2026-08-01",
+        status: "submitted",
+      },
+    })
+  ).json();
+  const staged = await (
+    await request.post(`/api/applications/${application.id}/stages`, {
+      data: { stage: "interview_1", occurredOn: "2026-08-17" },
+    })
+  ).json();
+  const occurrence = staged.stageOccurrences.find(
+    (item: { stage: string }) => item.stage === "interview_1",
+  );
+
+  try {
+    const edit = (occurredOn: string) =>
+      request.patch(
+        `/api/applications/${application.id}/stages/${occurrence.id}`,
+        {
+          data: {
+            stage: occurrence.stage,
+            occurredOn,
+            changeDate: "2026-08-20",
+            version: staged.version,
+          },
+        },
+      );
+    const responses = await Promise.all([
+      edit("2026-08-18"),
+      edit("2026-08-19"),
+    ]);
+    expect(responses.map((response) => response.status()).sort()).toEqual([
+      200, 409,
+    ]);
+    const conflict = responses.find((response) => response.status() === 409)!;
+    expect(await conflict.json()).toMatchObject({
+      code: "conflict",
+      message: "记录已被更新，请刷新后重试。",
+    });
+  } finally {
+    await request.delete(`/api/applications/${application.id}`);
+  }
+});
