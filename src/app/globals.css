@@ -3945,6 +3945,21 @@ dialog::backdrop {
   font-size: 0.68rem;
   letter-spacing: 0.04em;
 }
+.reminder-item-context-link {
+  width: max-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1px;
+  color: var(--brand-dark);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.reminder-item-context-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .reminder-item-copy .reminder-email-error {
   color: var(--danger);
 }
@@ -3963,12 +3978,75 @@ dialog::backdrop {
 .reminder-snooze-menu {
   position: relative;
 }
-.reminder-snooze-menu > summary {
+.reminder-snooze-menu > summary,
+.reminder-more-menu > summary {
   list-style: none;
   cursor: pointer;
 }
-.reminder-snooze-menu > summary::-webkit-details-marker {
+.reminder-snooze-menu > summary::-webkit-details-marker,
+.reminder-more-menu > summary::-webkit-details-marker {
   display: none;
+}
+.reminder-more-menu {
+  position: relative;
+}
+.reminder-more-menu > summary {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+.reminder-more-menu > summary:hover,
+.reminder-more-menu[open] > summary {
+  color: var(--brand-dark);
+  border-color: var(--line);
+  background: var(--surface-soft);
+}
+.reminder-more-popover {
+  position: absolute;
+  z-index: 21;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  min-width: 154px;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow: 0 18px 45px rgb(18 39 53 / 16%);
+}
+.reminder-more-popover > .button,
+.reminder-more-popover > .reminder-open-button {
+  width: 100%;
+  min-height: 34px;
+  justify-content: flex-start;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--ink);
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+}
+.reminder-more-popover > .button:hover,
+.reminder-more-popover > .reminder-open-button:hover {
+  color: var(--brand-dark);
+  background: var(--surface-soft);
+}
+.reminder-more-popover > .reminder-cancel-action,
+.reminder-more-popover > .reminder-cancel-action:hover {
+  color: var(--danger);
 }
 .reminder-snooze-popover {
   position: absolute;
@@ -4072,7 +4150,7 @@ dialog::backdrop {
   .reminder-item-actions {
     display: grid;
     grid-column: 1 / -1;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
     justify-content: stretch;
   }
   .reminder-item-actions > *,
@@ -4089,6 +4167,12 @@ dialog::backdrop {
     right: auto;
     left: 0;
     width: min(280px, calc(100vw - 72px));
+  }
+  .reminder-more-menu > summary {
+    width: 40px;
+  }
+  .reminder-more-popover {
+    right: 0;
   }
   .reminder-channel-options {
     grid-template-columns: 1fr;

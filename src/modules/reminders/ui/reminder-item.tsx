@@ -134,6 +134,12 @@ export function ReminderItem({
             {formatBeijingDateTime(reminder.eventAt)}
           </span>
         </div>
+        <Link
+          className="reminder-item-context-link"
+          href={`/applications/${reminder.applicationId}` as Route}
+        >
+          查看投递详情 <span aria-hidden="true">↗</span>
+        </Link>
         {reminder.emailStatus === "failed" && (
           <span className="reminder-email-error">
             邮件发送失败，站内提醒仍然有效。
@@ -146,12 +152,6 @@ export function ReminderItem({
         )}
       </div>
       <div className="reminder-item-actions">
-        <Link
-          className="button ghost"
-          href={`/applications/${reminder.applicationId}` as Route}
-        >
-          查看投递
-        </Link>
         {!historical && (
           <>
             <button
@@ -203,36 +203,43 @@ export function ReminderItem({
                 </button>
               </div>
             </details>
-            <ReminderEditorDialog
-              application={{
-                id: reminder.applicationId,
-                companyName: reminder.companyName,
-                positionName: reminder.positionName,
-              }}
-              email={email}
-              reminder={reminder}
-              buttonLabel="编辑"
-              onSaved={onChanged}
-            />
-            <button
-              className="button ghost"
-              disabled={Boolean(busy)}
-              onClick={() =>
-                window.confirm("取消后将不再发送这条提醒，确定取消吗？") &&
-                void act("cancel")
-              }
-            >
-              取消
-            </button>
-            {reminder.emailStatus === "failed" && (
-              <button
-                className="button secondary"
-                disabled={Boolean(busy)}
-                onClick={() => void act("retry-email")}
-              >
-                重试邮件
-              </button>
-            )}
+            <details className="reminder-more-menu">
+              <summary aria-label="更多操作">
+                <span aria-hidden="true">•••</span>
+              </summary>
+              <div className="reminder-more-popover">
+                <ReminderEditorDialog
+                  application={{
+                    id: reminder.applicationId,
+                    companyName: reminder.companyName,
+                    positionName: reminder.positionName,
+                  }}
+                  email={email}
+                  reminder={reminder}
+                  buttonLabel="编辑提醒"
+                  onSaved={onChanged}
+                />
+                {reminder.emailStatus === "failed" && (
+                  <button
+                    className="button secondary"
+                    disabled={Boolean(busy)}
+                    onClick={() => void act("retry-email")}
+                  >
+                    重试邮件
+                  </button>
+                )}
+                <button
+                  className="button ghost reminder-cancel-action"
+                  disabled={Boolean(busy)}
+                  onClick={() =>
+                    window.confirm("取消后将不再发送这条提醒，确定取消吗？") &&
+                    void act("cancel")
+                  }
+                >
+                  取消提醒
+                </button>
+              </div>
+            </details>
           </>
         )}
         {historical && (

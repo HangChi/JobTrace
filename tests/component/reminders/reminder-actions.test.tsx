@@ -124,7 +124,12 @@ describe("ReminderItem actions", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: label }));
+    if (label !== "完成") fireEvent.click(screen.getByLabelText("更多操作"));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: label === "取消" ? "取消提醒" : label,
+      }),
+    );
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
     expect(fetchMock.mock.calls[0][0]).toBe(
