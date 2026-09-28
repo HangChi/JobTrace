@@ -24,6 +24,13 @@ describe("ReminderPanel", () => {
   it("groups due and upcoming reminders with lifecycle actions", () => {
     render(
       <ReminderPanel
+        preferences={{
+          homeEnabled: true,
+          homeView: "scheduled",
+          defaultLead: "1h",
+          defaultSnoozeMinutes: 30,
+          emailDefault: false,
+        }}
         initialSummary={{
           overdue: [
             {
@@ -44,14 +51,20 @@ describe("ReminderPanel", () => {
     expect(screen.getByText("已到时间事项")).toBeVisible();
     expect(screen.getByText("未来事项")).toBeVisible();
     expect(screen.getAllByRole("button", { name: "完成" })).toHaveLength(2);
-    expect(
-      screen.getAllByRole("button", { name: "稍后 30 分钟" }),
-    ).toHaveLength(2);
+    expect(screen.getAllByText("稍后提醒")).toHaveLength(2);
+    expect(screen.queryAllByText("30 分钟")).toHaveLength(2);
   });
 
   it("shows a directional empty state", () => {
     render(
       <ReminderPanel
+        preferences={{
+          homeEnabled: true,
+          homeView: "scheduled",
+          defaultLead: "1h",
+          defaultSnoozeMinutes: 30,
+          emailDefault: false,
+        }}
         initialSummary={{
           overdue: [],
           upcoming: [],

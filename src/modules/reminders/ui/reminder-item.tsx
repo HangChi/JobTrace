@@ -18,19 +18,28 @@ function futureLocal(minutes: number) {
   return toBeijingLocalInput(new Date(Date.now() + minutes * 60_000));
 }
 
+const snoozeOptions = [
+  { minutes: 30, label: "30 分钟" },
+  { minutes: 60, label: "1 小时" },
+  { minutes: 1440, label: "明天此时" },
+] as const;
+
 export function ReminderItem({
   reminder,
   email,
+  defaultSnoozeMinutes,
   onChanged,
 }: {
   reminder: Reminder;
   email: ReminderEmailAvailability;
+  defaultSnoozeMinutes: 30 | 60 | 1440;
   onChanged: (reminder: Reminder) => void;
 }) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
-  const [snoozePreset, setSnoozePreset] = useState("30");
-  const [customSnoozeAt, setCustomSnoozeAt] = useState(() => futureLocal(30));
+  const [customSnoozeAt, setCustomSnoozeAt] = useState(() =>
+    futureLocal(defaultSnoozeMinutes),
+  );
   const [reopenEventAt, setReopenEventAt] = useState(() => futureLocal(120));
   const [reopenNotifyAt, setReopenNotifyAt] = useState(() => futureLocal(60));
 
@@ -62,12 +71,12 @@ export function ReminderItem({
     }
   }
 
-  function snooze() {
+  function snooze(minutes?: number) {
     try {
       const notifyAt =
-        snoozePreset === "custom"
+        minutes === undefined
           ? parseBeijingDateTime(customSnoozeAt)
-          : new Date(Date.now() + Number(snoozePreset) * 60_000);
+          : new Date(Date.now() + minutes * 60_000);
       void act("snooze", {
         version: reminder.version,
         notifyAt: notifyAt.toISOString(),
@@ -91,20 +100,40 @@ export function ReminderItem({
 
   const historical =
     reminder.status === "completed" || reminder.status === "cancelled";
+  const defaultSnooze = snoozeOptions.find(
+    (option) => option.minutes === defaultSnoozeMinutes,
+  )!;
   return (
     <li className={`reminder-item is-${reminder.status}`}>
       <span className="company-avatar" aria-hidden="true">
         {reminder.companyName.slice(0, 1)}
       </span>
       <div className="reminder-item-copy">
-        <strong>{reminder.title}</strong>
+        <div className="reminder-item-title-row">
+          <strong>{reminder.title}</strong>
+          <span className={`reminder-status-chip is-${reminder.status}`}>
+            {reminder.status === "due"
+              ? "已到时间"
+              : reminder.status === "pending"
+                ? "待处理"
+                : reminder.status === "completed"
+                  ? "已完成"
+                  : "已取消"}
+          </span>
+        </div>
         <span>
           {reminder.companyName} · {reminder.positionName}
         </span>
-        <span>
-          事项 {formatBeijingDateTime(reminder.eventAt)} · 提醒{" "}
-          {formatBeijingDateTime(reminder.notifyAt)}
-        </span>
+        <div className="reminder-time-ticket">
+          <span>
+            <small>提醒</small>
+            {formatBeijingDateTime(reminder.notifyAt)}
+          </span>
+          <span>
+            <small>事项</small>
+            {formatBeijingDateTime(reminder.eventAt)}
+          </span>
+        </div>
         {reminder.emailStatus === "failed" && (
           <span className="reminder-email-error">
             邮件发送失败，站内提醒仍然有效。
@@ -132,36 +161,48 @@ export function ReminderItem({
             >
               完成
             </button>
-            <label className="reminder-inline-control">
-              <span className="visually-hidden">稍后提醒时间</span>
-              <select
-                value={snoozePreset}
-                disabled={Boolean(busy)}
-                onChange={(event) => setSnoozePreset(event.target.value)}
-              >
-                <option value="30">30 分钟后</option>
-                <option value="60">1 小时后</option>
-                <option value="1440">明天此时</option>
-                <option value="custom">自定义</option>
-              </select>
-            </label>
-            {snoozePreset === "custom" && (
-              <label className="reminder-inline-control">
-                <span className="visually-hidden">自定义稍后提醒时间</span>
-                <input
-                  type="datetime-local"
-                  value={customSnoozeAt}
-                  onChange={(event) => setCustomSnoozeAt(event.target.value)}
-                />
-              </label>
-            )}
-            <button
-              className="button secondary"
-              disabled={Boolean(busy)}
-              onClick={snooze}
-            >
-              {snoozePreset === "30" ? "稍后 30 分钟" : "稍后提醒"}
-            </button>
+            <details className="reminder-snooze-menu">
+              <summary className="button secondary">稍后提醒</summary>
+              <div className="reminder-snooze-popover">
+                <p>选择下一次提醒时间</p>
+                <div className="reminder-snooze-presets">
+                  <button
+                    type="button"
+                    className="is-default"
+                    onClick={() => snooze(defaultSnooze.minutes)}
+                  >
+                    {defaultSnooze.label}
+                    <small>默认</small>
+                  </button>
+                  {snoozeOptions
+                    .filter((option) => option.minutes !== defaultSnoozeMinutes)
+                    .map((option) => (
+                      <button
+                        type="button"
+                        key={option.minutes}
+                        onClick={() => snooze(option.minutes)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                </div>
+                <label>
+                  自定义时间
+                  <input
+                    type="datetime-local"
+                    value={customSnoozeAt}
+                    onChange={(event) => setCustomSnoozeAt(event.target.value)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => snooze()}
+                >
+                  使用此时间
+                </button>
+              </div>
+            </details>
             <ReminderEditorDialog
               application={{
                 id: reminder.applicationId,

@@ -6,6 +6,7 @@ import type {
   NotificationAttemptStatus,
   Reminder,
   ReminderInput,
+  ReminderPreferences,
   ReminderStatus,
   ReminderSummary,
 } from "../application/contracts";
@@ -63,6 +64,45 @@ export class PostgresReminderRepository {
       available,
       address: available ? String(row.recoveryEmail) : null,
     };
+  }
+
+  async preferences(ownerId: string): Promise<ReminderPreferences> {
+    const [row] = await this.sql<ReminderPreferences[]>`
+      select reminder_home_enabled as home_enabled,
+        reminder_home_view as home_view,
+        reminder_default_lead as default_lead,
+        reminder_default_snooze_minutes as default_snooze_minutes,
+        reminder_email_default as email_default
+      from public.users where id=${ownerId}
+    `;
+    return (
+      row ?? {
+        homeEnabled: true,
+        homeView: "scheduled",
+        defaultLead: "1h",
+        defaultSnoozeMinutes: 30,
+        emailDefault: false,
+      }
+    );
+  }
+
+  async updatePreferences(ownerId: string, value: ReminderPreferences) {
+    const [row] = await this.sql<ReminderPreferences[]>`
+      update public.users set
+        reminder_home_enabled=${value.homeEnabled},
+        reminder_home_view=${value.homeView},
+        reminder_default_lead=${value.defaultLead},
+        reminder_default_snooze_minutes=${value.defaultSnoozeMinutes},
+        reminder_email_default=${value.emailDefault},
+        updated_at=now()
+      where id=${ownerId}
+      returning reminder_home_enabled as home_enabled,
+        reminder_home_view as home_view,
+        reminder_default_lead as default_lead,
+        reminder_default_snooze_minutes as default_snooze_minutes,
+        reminder_email_default as email_default
+    `;
+    return row;
   }
 
   async list(

@@ -34,7 +34,7 @@ describe("ReminderEditorDialog", () => {
       />,
     );
     fireEvent.click(screen.getByRole("button", { name: "设置提醒" }));
-    expect(screen.getByRole("checkbox", { name: "邮件" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /邮件提醒/ })).toBeDisabled();
     expect(
       screen.getByRole("link", { name: "绑定并验证邮箱" }),
     ).toHaveAttribute("href", "/profile");

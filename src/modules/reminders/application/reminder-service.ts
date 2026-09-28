@@ -4,6 +4,7 @@ import { requireUser } from "@/modules/identity-access";
 import { Problem } from "@/shared/errors/problem";
 import {
   reminderInputSchema,
+  reminderPreferencesSchema,
   reminderUpdateSchema,
   reopenSchema,
   snoozeSchema,
@@ -23,6 +24,19 @@ export async function getReminderSummary(
 ) {
   const actor = await requireUser();
   return repository().list(actor.id, status);
+}
+
+export async function getReminderPreferences() {
+  const actor = await requireUser();
+  return repository().preferences(actor.id);
+}
+
+export async function updateReminderPreferences(input: unknown) {
+  const actor = await requireUser();
+  const value = reminderPreferencesSchema.parse(input);
+  const updated = await repository().updatePreferences(actor.id, value);
+  if (!updated) throw new Problem("not_found", "没有找到账号资料。", 404);
+  return updated;
 }
 
 export async function createReminder(input: unknown) {

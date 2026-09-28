@@ -81,6 +81,18 @@ The reminder summary returned to the UI contains:
 - optional history filtered by completed/cancelled.
 - current verified email availability, never another user's address.
 
+## `users` reminder preference extension
+
+| Added field | Type | Rules |
+|---|---|---|
+| `reminder_home_enabled` | boolean | default true; controls whether the home reminder region is rendered |
+| `reminder_home_view` | text | `scheduled` or `suggestions`; exactly one home reminder type |
+| `reminder_default_lead` | text | `on_time`, `30m`, `1h`, or `1d` |
+| `reminder_default_snooze_minutes` | integer | `30`, `60`, or `1440` |
+| `reminder_email_default` | boolean | default false; applied only while the user has a verified email |
+
+Preferences are read and updated through the authenticated reminder settings service. The owner is always derived from the session, never from a request body.
+
 ## Reminder state transitions
 
 ```text

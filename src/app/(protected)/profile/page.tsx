@@ -7,6 +7,8 @@ import { getProfile, listAccountSessions } from "@/modules/identity-access";
 import { CredentialSettings } from "@/modules/identity-access/ui/credential-settings";
 import { ProfileForm } from "@/modules/identity-access/ui/profile-form";
 import { SessionList } from "@/modules/identity-access/ui/session-list";
+import { getReminderPreferences } from "@/modules/reminders";
+import { ReminderSettings } from "@/modules/reminders/ui/reminder-settings";
 import { logoutAction } from "@/app/(auth)/actions";
 import {
   formatProfileDate,
@@ -18,11 +20,13 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const [profile, totalApplications, sessions] = await Promise.all([
-    getProfile(),
-    countApplications(),
-    listAccountSessions(),
-  ]);
+  const [profile, totalApplications, sessions, reminderPreferences] =
+    await Promise.all([
+      getProfile(),
+      countApplications(),
+      listAccountSessions(),
+      getReminderPreferences(),
+    ]);
   const roleLabel = profile.role === "admin" ? "管理员账号" : "个人账号";
 
   return (
@@ -92,6 +96,26 @@ export default async function ProfilePage() {
                 image: profile.image,
                 username: profile.username,
               }}
+            />
+          </section>
+
+          <section
+            className="profile-section panel"
+            id="profile-reminders"
+            aria-labelledby="profile-reminders-title"
+          >
+            <div className="profile-section-heading">
+              <span className="profile-section-icon reminder-icon">
+                <ProfileSectionIcon name="reminder" />
+              </span>
+              <div>
+                <h2 id="profile-reminders-title">提醒设置</h2>
+                <p>决定首页展示和新提醒的默认行为。</p>
+              </div>
+            </div>
+            <ReminderSettings
+              initial={reminderPreferences}
+              emailAvailable={profile.emailVerified}
             />
           </section>
 

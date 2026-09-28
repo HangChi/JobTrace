@@ -159,6 +159,18 @@
 
 ---
 
+## Phase 9: Reminder preference and layout refinement
+
+**Purpose**: Remove duplicated reminder controls and let each user choose one concise home reminder experience.
+
+- [X] T044 Persist owner-scoped reminder display and creation defaults in `supabase/migrations/20260927000500_reminder_preferences.sql`, `src/modules/reminders/application/contracts.ts`, and `src/modules/reminders/infrastructure/postgres-reminder-repository.ts`
+- [X] T045 Add authenticated reminder preference reads and updates in `src/modules/reminders/application/reminder-service.ts` and `src/app/api/reminder-settings/route.ts`
+- [X] T046 Add the profile reminder settings UI and apply defaults to new reminder creation in `src/modules/reminders/ui/reminder-settings.tsx`, `src/app/(protected)/profile/page.tsx`, and `src/modules/reminders/ui/reminder-editor-dialog.tsx`
+- [X] T047 Render exactly one home reminder type according to user preference in `src/modules/analytics/ui/analytics-panel.tsx` and `src/app/(protected)/applications/page.tsx`
+- [X] T048 Consolidate snooze into one menu, mark the configured default, refine responsive reminder cards, and cover preferences/layout in `src/modules/reminders/ui/reminder-item.tsx`, `src/app/globals.css`, and `tests/component/reminders/`
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

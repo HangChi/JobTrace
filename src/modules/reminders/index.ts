@@ -1,6 +1,7 @@
 export type {
   Reminder,
   ReminderInput,
+  ReminderPreferences,
   ReminderStatus,
   ReminderSummary,
 } from "./application/contracts";
@@ -11,6 +12,7 @@ export {
   reopenSchema,
   snoozeSchema,
   suggestionResolutionSchema,
+  reminderPreferencesSchema,
   versionSchema,
 } from "./application/contracts";
 export {
@@ -27,9 +29,11 @@ export {
   completeReminder,
   createReminder,
   getReminderSummary,
+  getReminderPreferences,
   reopenReminder,
   retryReminderEmail,
   snoozeReminder,
   updateReminder,
+  updateReminderPreferences,
 } from "./application/reminder-service";
 export { deliverDueReminders } from "./application/reminder-delivery-service";

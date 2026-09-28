@@ -41,6 +41,17 @@ export const reminderDeliverySchema = z.object({
 export const suggestionResolutionSchema = z.object({
   resolution: z.enum(["completed", "dismissed"]),
 });
+export const reminderPreferencesSchema = z.object({
+  homeEnabled: z.boolean(),
+  homeView: z.enum(["scheduled", "suggestions"]),
+  defaultLead: z.enum(["on_time", "30m", "1h", "1d"]),
+  defaultSnoozeMinutes: z.union([
+    z.literal(30),
+    z.literal(60),
+    z.literal(1440),
+  ]),
+  emailDefault: z.boolean(),
+});
 
 export type ReminderInput = z.infer<typeof reminderInputSchema>;
 export type Reminder = {
@@ -63,6 +74,7 @@ export type ReminderEmailAvailability = {
   available: boolean;
   address: string | null;
 };
+export type ReminderPreferences = z.infer<typeof reminderPreferencesSchema>;
 export type ReminderSummary = {
   overdue: Reminder[];
   upcoming: Reminder[];

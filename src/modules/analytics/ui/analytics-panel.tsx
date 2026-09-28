@@ -1,7 +1,7 @@
 import type { AnalyticsSummary } from "../application/contracts";
 import { FollowUpList } from "./follow-up-list";
 import { ProgressReminderList } from "./progress-reminder-list";
-import type { ReminderSummary } from "@/modules/reminders";
+import type { ReminderPreferences, ReminderSummary } from "@/modules/reminders";
 import { ReminderPanel } from "@/modules/reminders/ui/reminder-panel";
 import { StageDistribution } from "./stage-distribution";
 import { SummaryCards } from "./summary-cards";
@@ -9,9 +9,11 @@ import { SummaryCards } from "./summary-cards";
 export function AnalyticsPanel({
   summary,
   reminderSummary,
+  reminderPreferences,
 }: {
   summary: AnalyticsSummary;
   reminderSummary?: ReminderSummary;
+  reminderPreferences: ReminderPreferences;
 }) {
   return (
     <section
@@ -25,8 +27,18 @@ export function AnalyticsPanel({
         <p className="muted">当前进展与待办</p>
       </div>
       <SummaryCards summary={summary} />
-      {reminderSummary && <ReminderPanel initialSummary={reminderSummary} />}
-      <ProgressReminderList items={summary.progressReminders} />
+      {reminderPreferences.homeEnabled &&
+        reminderPreferences.homeView === "scheduled" &&
+        reminderSummary && (
+          <ReminderPanel
+            initialSummary={reminderSummary}
+            preferences={reminderPreferences}
+          />
+        )}
+      {reminderPreferences.homeEnabled &&
+        reminderPreferences.homeView === "suggestions" && (
+          <ProgressReminderList items={summary.progressReminders} />
+        )}
       <div className="analytics-grid">
         <StageDistribution values={summary.stageDistribution} />
         <FollowUpList items={summary.followUps} />

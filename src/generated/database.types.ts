@@ -1485,6 +1485,165 @@ export const databaseSchema = {
       "name": "completed_at",
       "type": "timestamp with time zone",
       "nullable": false
+    },
+    {
+      "name": "resolution",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "reminder_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "reminder_notification_attempts": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "reminder_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "channel",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "scheduled_for",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "claim_token",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "lease_until",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "attempt_count",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "recipient",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "error_code",
+      "type": "text",
+      "nullable": true
+    },
+    {
+      "name": "sent_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    }
+  ],
+  "scheduled_reminders": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "owner_id",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "application_id",
+      "type": "uuid",
+      "nullable": false
+    },
+    {
+      "name": "source_stage_occurrence_id",
+      "type": "uuid",
+      "nullable": true
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "event_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "notify_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "email_enabled",
+      "type": "boolean",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "cancelled_at",
+      "type": "timestamp with time zone",
+      "nullable": true
+    },
+    {
+      "name": "version",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "nullable": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "nullable": false
     }
   ],
   "sessions": [
@@ -1614,6 +1773,31 @@ export const databaseSchema = {
       "name": "recovery_email_verified_at",
       "type": "timestamp with time zone",
       "nullable": true
+    },
+    {
+      "name": "reminder_home_enabled",
+      "type": "boolean",
+      "nullable": false
+    },
+    {
+      "name": "reminder_home_view",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "reminder_default_lead",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "reminder_default_snooze_minutes",
+      "type": "integer",
+      "nullable": false
+    },
+    {
+      "name": "reminder_email_default",
+      "type": "boolean",
+      "nullable": false
     }
   ],
   "verification_tokens": [

@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Reminder, ReminderSummary } from "../application/contracts";
+import type {
+  Reminder,
+  ReminderPreferences,
+  ReminderSummary,
+} from "../application/contracts";
 import { ReminderItem } from "./reminder-item";
 
 export function ReminderPanel({
   initialSummary,
+  preferences,
 }: {
   initialSummary: ReminderSummary;
+  preferences: ReminderPreferences;
 }) {
   const [summary, setSummary] = useState(initialSummary);
   const [view, setView] = useState<"active" | "completed" | "cancelled">(
@@ -152,6 +158,7 @@ export function ReminderPanel({
                     key={item.id}
                     reminder={item}
                     email={summary.email}
+                    defaultSnoozeMinutes={preferences.defaultSnoozeMinutes}
                     onChanged={changed}
                   />
                 ))}

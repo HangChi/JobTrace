@@ -6,6 +6,7 @@ import { Dialog } from "@/shared/ui/dialog";
 import type {
   Reminder,
   ReminderEmailAvailability,
+  ReminderPreferences,
 } from "../application/contracts";
 import {
   calculateNotifyAt,
@@ -119,11 +120,26 @@ export function ReminderEditorDialog({
         className="button secondary reminder-open-button"
         onClick={() => {
           setOpen(true);
-          if (!email) {
-            void fetch("/api/reminders", { cache: "no-store" })
-              .then((response) => response.json())
-              .then((result) => {
-                if (result?.email) setResolvedEmail(result.email);
+          if (!reminder) {
+            void Promise.all([
+              email
+                ? Promise.resolve({ email })
+                : fetch("/api/reminders", { cache: "no-store" }).then(
+                    (response) => response.json(),
+                  ),
+              fetch("/api/reminder-settings", { cache: "no-store" }).then(
+                (response) => response.json(),
+              ),
+            ])
+              .then(([summary, preferences]) => {
+                const nextEmail = summary.email as ReminderEmailAvailability;
+                const nextPreferences = preferences as ReminderPreferences;
+                if (nextEmail) setResolvedEmail(nextEmail);
+                if (nextPreferences.defaultLead)
+                  setLead(nextPreferences.defaultLead);
+                setEmailEnabled(
+                  Boolean(nextPreferences.emailDefault && nextEmail?.available),
+                );
               })
               .catch(() => undefined);
           }
@@ -189,23 +205,35 @@ export function ReminderEditorDialog({
           )}
           <fieldset className="reminder-channels">
             <legend>通知方式</legend>
-            <label>
-              <input type="checkbox" checked disabled />
-              站内
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={emailEnabled}
-                disabled={!resolvedEmail.available}
-                onChange={(event) => setEmailEnabled(event.target.checked)}
-              />
-              邮件{resolvedEmail.address ? ` · ${resolvedEmail.address}` : ""}
-            </label>
+            <div className="reminder-channel-options">
+              <label className="reminder-channel-option is-active">
+                <input type="checkbox" checked disabled />
+                <span>
+                  <strong>站内提醒</strong>
+                  <small>始终开启</small>
+                </span>
+              </label>
+              <label
+                className={`reminder-channel-option${
+                  emailEnabled ? " is-active" : ""
+                }${!resolvedEmail.available ? " is-disabled" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={emailEnabled}
+                  disabled={!resolvedEmail.available}
+                  onChange={(event) => setEmailEnabled(event.target.checked)}
+                />
+                <span>
+                  <strong>邮件提醒</strong>
+                  <small>{resolvedEmail.address ?? "尚未绑定邮箱"}</small>
+                </span>
+              </label>
+            </div>
             {!resolvedEmail.available && (
-              <small>
-                邮件提醒需要先<Link href="/profile">绑定并验证邮箱</Link>。
-              </small>
+              <p className="reminder-channel-note">
+                要接收邮件，请先<Link href="/profile">绑定并验证邮箱</Link>。
+              </p>
             )}
           </fieldset>
           <p className="reminder-preview" role="status">

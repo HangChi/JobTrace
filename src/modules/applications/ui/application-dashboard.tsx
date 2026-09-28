@@ -5,7 +5,7 @@ import type { AnalyticsSummary } from "@/modules/analytics";
 import { AnalyticsPanel } from "@/modules/analytics/ui/analytics-panel";
 import { ExportButton } from "@/modules/data-transfer/ui/export-button";
 import { PageHeader } from "@/shared/ui/page-header";
-import type { ReminderSummary } from "@/modules/reminders";
+import type { ReminderPreferences, ReminderSummary } from "@/modules/reminders";
 import type {
   ApplicationDetail,
   ApplicationPage,
@@ -20,6 +20,7 @@ type ApplicationDashboardProps = {
   initialPage: ApplicationPage;
   initialSummary: AnalyticsSummary;
   initialReminderSummary?: ReminderSummary;
+  reminderPreferences: ReminderPreferences;
   query: Search;
   filtered: boolean;
   listQuery: string;
@@ -34,6 +35,7 @@ function DashboardState({
   initialPage,
   initialSummary,
   initialReminderSummary,
+  reminderPreferences,
   query,
   filtered,
   listQuery,
@@ -95,6 +97,7 @@ function DashboardState({
       <AnalyticsPanel
         summary={summary}
         reminderSummary={initialReminderSummary}
+        reminderPreferences={reminderPreferences}
       />
       <ApplicationFilters query={query} />
       {page.items.length ? (

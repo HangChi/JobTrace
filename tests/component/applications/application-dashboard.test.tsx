@@ -79,6 +79,13 @@ describe("投递 Dashboard 分页同步", () => {
         key="limit=10"
         initialPage={applicationPage(1, "第一页公司")}
         initialSummary={summary(20)}
+        reminderPreferences={{
+          homeEnabled: true,
+          homeView: "scheduled",
+          defaultLead: "1h",
+          defaultSnoozeMinutes: 30,
+          emailDefault: false,
+        }}
         query={{}}
         filtered={false}
         listQuery="limit=10"
@@ -94,6 +101,13 @@ describe("投递 Dashboard 分页同步", () => {
         key="limit=10&page=2"
         initialPage={applicationPage(2, "第二页公司")}
         initialSummary={summary(19)}
+        reminderPreferences={{
+          homeEnabled: true,
+          homeView: "scheduled",
+          defaultLead: "1h",
+          defaultSnoozeMinutes: 30,
+          emailDefault: false,
+        }}
         query={{ page: "2" }}
         filtered={false}
         listQuery="limit=10&page=2"

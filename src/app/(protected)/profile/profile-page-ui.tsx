@@ -1,4 +1,5 @@
-export type ProfileSectionIcon = "profile" | "security" | "data" | "account";
+export type ProfileSectionIcon =
+  "profile" | "reminder" | "security" | "data" | "account";
 
 export const profileSections: Array<{
   id: string;
@@ -6,6 +7,7 @@ export const profileSections: Array<{
   icon: ProfileSectionIcon;
 }> = [
   { id: "profile-details", label: "个人资料", icon: "profile" },
+  { id: "profile-reminders", label: "提醒设置", icon: "reminder" },
   { id: "profile-security", label: "账号安全", icon: "security" },
   { id: "profile-data", label: "数据管理", icon: "data" },
   { id: "profile-account", label: "账号信息", icon: "account" },
@@ -17,6 +19,12 @@ export function ProfileSectionIcon({ name }: { name: ProfileSectionIcon }) {
       <>
         <circle cx="12" cy="8" r="3" />
         <path d="M5.5 20c.7-4.1 2.8-6 6.5-6s5.8 1.9 6.5 6" />
+      </>
+    ),
+    reminder: (
+      <>
+        <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8" />
+        <path d="M10 21h4M9 4.5 7.5 3M15 4.5 16.5 3" />
       </>
     ),
     security: (

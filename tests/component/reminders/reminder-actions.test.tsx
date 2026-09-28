@@ -41,22 +41,21 @@ describe("ReminderItem actions", () => {
       <ReminderItem
         reminder={base}
         email={{ available: false, address: null }}
+        defaultSnoozeMinutes={30}
         onChanged={vi.fn()}
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("稍后提醒时间"), {
-      target: { value: "60" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "稍后提醒" }));
+    fireEvent.click(screen.getByText("稍后提醒"));
+    fireEvent.click(screen.getByRole("button", { name: "1 小时" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({
       version: 3,
       notifyAt: "2026-10-08T05:00:00.000Z",
     });
-    expect(screen.getByRole("option", { name: "明天此时" })).toBeVisible();
-    expect(screen.getByRole("option", { name: "自定义" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "明天此时" })).toBeVisible();
+    expect(screen.getByLabelText("自定义时间")).toBeVisible();
   });
 
   it("requires explicit event and notification times when reopening", async () => {
@@ -79,6 +78,7 @@ describe("ReminderItem actions", () => {
       <ReminderItem
         reminder={completed}
         email={{ available: false, address: null }}
+        defaultSnoozeMinutes={30}
         onChanged={vi.fn()}
       />,
     );
@@ -119,6 +119,7 @@ describe("ReminderItem actions", () => {
       <ReminderItem
         reminder={reminder}
         email={{ available: true, address: "user@example.test" }}
+        defaultSnoozeMinutes={30}
         onChanged={vi.fn()}
       />,
     );

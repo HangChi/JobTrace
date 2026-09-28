@@ -80,6 +80,15 @@ Expected: all three original suggestions disappear for distinct reasons; the con
 
 Expected: no reminder is silently removed on status change; deletion cancels reminders only after confirmation; focus, labels, errors and live status meet WCAG 2.2 AA.
 
+## Scenario 8: Reminder preferences and single home view
+
+1. Open profile reminder settings and select “我的定时提醒”, a one-hour creation lead, a 30-minute snooze default, and the desired email default; save.
+2. Open the applications dashboard with both scheduled reminders and unresolved system suggestions.
+3. Expand one “稍后提醒” action.
+4. Return to settings, switch the home view to “系统建议”, save, and reload the dashboard.
+
+Expected: the first dashboard view shows only scheduled reminders; the snooze menu contains one 30-minute option marked as default; the second dashboard view shows only system suggestions. Hiding the home reminder card removes both types.
+
 ## Operational validation
 
 - Configure a one-minute external scheduler for the internal delivery endpoint using the runtime secret; never place the secret in logs or version control.

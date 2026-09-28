@@ -57,7 +57,8 @@
 ### UI composition
 
 - `ReminderEditorDialog` 从投递详情和建议条目打开，预填公司/岗位语境和建议文案。
-- `ReminderPanel` 替换现有 `ProgressReminderList` 的单一列表，分为“已到时间”“接下来”“系统建议”，默认只展示待处理内容。
+- 投递首页根据用户偏好在 `ReminderPanel` 与 `ProgressReminderList` 中只渲染一种，避免同一事项以定时提醒和系统建议两种卡片重复出现。
+- `ReminderPanel` 将主动提醒分为“已到时间”和“接下来”，默认只展示待处理内容；资料页集中维护首页提醒类型、默认提前量、默认稍后时长与邮件默认值。
 - 完成与稍后提醒为主操作；关闭建议、取消提醒放入低强调度并提供明确确认。
 - 第一版直接集成现有投递首页的 AnalyticsPanel，不新增顶级导航，避免用户在“投递”和“提醒”之间来回切换；提醒历史通过面板状态筛选访问。
 
@@ -83,6 +84,7 @@ src/
 ├── app/
 │   ├── (protected)/applications/[id]/page.tsx
 │   ├── api/reminders/route.ts
+│   ├── api/reminder-settings/route.ts
 │   ├── api/reminders/[id]/route.ts
 │   ├── api/reminders/[id]/complete/route.ts
 │   ├── api/reminders/[id]/snooze/route.ts
@@ -106,7 +108,8 @@ deploy/mail-adapter/
 └── test_app.py
 
 supabase/migrations/
-└── 20260927000300_scheduled_reminders.sql
+├── 20260927000300_scheduled_reminders.sql
+└── 20260927000500_reminder_preferences.sql
 
 tests/
 ├── unit/reminders/
