@@ -397,6 +397,7 @@ describe("China big-tech API providers", () => {
     );
     expect(batch.jobs).toHaveLength(1);
     expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "230908258",
       title: "多模态大模型算法工程师(J24176)",
       campaignName: "算法类",
       recruitmentType: "社会招聘",
@@ -425,6 +426,7 @@ describe("China big-tech API providers", () => {
       new AbortController().signal,
     );
     expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "1",
       recruitmentType: "校园招聘",
       detailUrl: "https://job.dahuatech.com/#/CampusPosition?id=1",
     });
@@ -459,5 +461,41 @@ describe("China big-tech API providers", () => {
     );
     expect(calls).toBe(2);
     expect(batch.jobs).toHaveLength(15);
+  });
+
+  it("parses Baidu initial data even when embedded text contains semicolons", async () => {
+    const initial = {
+      layoutData: { footer: { summary: "加入百度；一起成长" } },
+      listData: {
+        rows: [
+          {
+            name: "北京-AI产品经理(J100665)",
+            postId: "post-1",
+            jobId: "job-1",
+            postType: "产品",
+            education: "本科",
+            serviceCondition: "负责AI产品规划",
+            updateDate: "2026-09-24",
+          },
+        ],
+      },
+    };
+    const fetcher: SecureSourceFetch = async () =>
+      response(
+        `<html><script>window.__INITIAL_DATA__ =${JSON.stringify(initial)}; window.prefix="/jobs";</script></html>`,
+        "text/html",
+      );
+    const batch = await new ChinaBigTechAdapter(fetcher).fetch(
+      source("baidu", "https://talent.baidu.com/jobs/list"),
+      context,
+      new AbortController().signal,
+    );
+
+    expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "job-1",
+      title: "北京-AI产品经理(J100665)",
+      recruitmentType: "产品",
+      education: "本科",
+    });
   });
 });

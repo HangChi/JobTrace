@@ -113,9 +113,18 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       accept: ["text/html", "application/xhtml+xml"],
     });
     const html = await response.text();
-    const encoded = html.match(
-      /window\.__INITIAL_DATA__\s*=\s*(\{[\s\S]*?\});\s*window\.prefix/,
-    )?.[1];
+    const marker = "window.__INITIAL_DATA__";
+    const markerIndex = html.indexOf(marker);
+    const valueStart = markerIndex < 0 ? -1 : html.indexOf("=", markerIndex);
+    const valueEnd = html.indexOf("window.prefix", valueStart);
+    const encoded =
+      valueStart >= 0 && valueEnd > valueStart
+        ? html
+            .slice(valueStart + 1, valueEnd)
+            .trim()
+            .replace(/;$/, "")
+            .trim()
+        : null;
     if (!encoded)
       throw new SourceError(
         "invalid_source_payload",
@@ -641,7 +650,12 @@ export class ChinaBigTechAdapter implements SourceAdapter {
       ...normalizeItems(
         source,
         rows.map((job) => ({
-          id: job.jobAdIntId ?? job.jobAdId,
+          // The live API exposes the integer id before the UUID. Passing that
+          // number through unchanged makes the shared normalizer ignore it and
+          // fall back to a title/url hash, which collides for repeated titles.
+          id:
+            job.jobAdId ??
+            (job.jobAdIntId == null ? undefined : String(job.jobAdIntId)),
           title: job.jobAdName,
           locations: job.workingPlace,
           campaign: job.jobCategroyDescription ?? job.companyName,

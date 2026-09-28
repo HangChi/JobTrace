@@ -100,6 +100,12 @@ export function normalizeAdapterJob(
   const batchLabel = optionalText(value.batch, 200);
   const target = optionalText(value.target);
   const descriptionText = plainText(optionalText(value.description, 50_000));
+  const publishedAt = safeDate(value.publishedAt);
+  const parsedValidThrough = safeDate(value.validThrough);
+  const validThrough =
+    publishedAt && parsedValidThrough && parsedValidThrough < publishedAt
+      ? null
+      : parsedValidThrough;
   const normalized: Omit<NormalizedJob, "contentHash"> = {
     externalJobId,
     title,
@@ -118,8 +124,8 @@ export function normalizeAdapterJob(
     descriptionText,
     detailUrl,
     applyUrl,
-    publishedAt: safeDate(value.publishedAt),
-    validThrough: safeDate(value.validThrough),
+    publishedAt,
+    validThrough,
     sourceStatus: value.closed === true ? "closed" : "open",
   };
   return { ...normalized, contentHash: contentHash(normalized) };
@@ -130,10 +136,34 @@ export function normalizeItems(
   items: AdapterJobInput[],
 ) {
   const jobs: NormalizedJob[] = [];
+  const jobIndexes = new Map<string, number>();
   const rejected: RejectedSourceItem[] = [];
   for (const item of items) {
     try {
-      jobs.push(normalizeAdapterJob(source, item));
+      const normalized = normalizeAdapterJob(source, item);
+      const existingIndex = jobIndexes.get(normalized.externalJobId);
+      if (existingIndex === undefined) {
+        jobIndexes.set(normalized.externalJobId, jobs.length);
+        jobs.push(normalized);
+        continue;
+      }
+
+      // Some public feeds repeat the same posting between categories or pages.
+      // A source snapshot must contain each external id once or PostgreSQL's
+      // atomic upsert rejects the entire batch. Preserve the first record and
+      // merge any additional locations exposed by later copies.
+      const existing = jobs[existingIndex];
+      const locations = [
+        ...new Map(
+          [...existing.locations, ...normalized.locations].map((location) => [
+            location.normalizedKey,
+            location,
+          ]),
+        ).values(),
+      ];
+      const { contentHash: _contentHash, ...fields } = existing;
+      const merged = { ...fields, locations };
+      jobs[existingIndex] = { ...merged, contentHash: contentHash(merged) };
     } catch {
       rejected.push({
         externalJobId: optionalText(item.id, 500) ?? undefined,
@@ -155,11 +185,5 @@ export async function fetchJson(
     allowedHosts: source.allowedHosts,
     signal,
     accept: ["application/json", "application/ld+json"],
-    headers: Object.fromEntries(
-      [
-        source.etag ? ["If-None-Match", source.etag] : null,
-        source.lastModified ? ["If-Modified-Since", source.lastModified] : null,
-      ].filter((item): item is [string, string] => Boolean(item)),
-    ),
   });
 }

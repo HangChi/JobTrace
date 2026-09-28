@@ -20,7 +20,23 @@ type BatchResult = {
   rejected: number;
 };
 
-function batchPayload(batch: NormalizedSourceBatch) {
+export function buildBatchPayload(batch: NormalizedSourceBatch) {
+  // PostgreSQL's set-based location upsert requires one display value per
+  // normalized key. Upstream feeds can vary only by casing within one page
+  // (for example, "Shanghai" and "shanghai"), so make that representation
+  // stable across the whole batch before handing it to the database function.
+  const canonicalLocations = new Map<
+    string,
+    NormalizedSourceBatch["jobs"][number]["locations"][number]
+  >();
+  for (const job of batch.jobs) {
+    for (const location of job.locations) {
+      if (!canonicalLocations.has(location.normalizedKey)) {
+        canonicalLocations.set(location.normalizedKey, location);
+      }
+    }
+  }
+
   return batch.jobs.map((job, ordinal) => ({
     ordinal,
     proposed_post_id: crypto.randomUUID(),
@@ -40,11 +56,14 @@ function batchPayload(batch: NormalizedSourceBatch) {
     campaign_key: job.campaignKey,
     campaign_name: job.campaignName,
     batch_label: job.batchLabel,
-    locations: job.locations.map((location) => ({
-      normalizedKey: location.normalizedKey,
-      name: location.name,
-      isRemote: location.isRemote,
-    })),
+    locations: job.locations.map((location) => {
+      const canonical = canonicalLocations.get(location.normalizedKey)!;
+      return {
+        normalizedKey: canonical.normalizedKey,
+        name: canonical.name,
+        isRemote: canonical.isRemote,
+      };
+    }),
   }));
 }
 
@@ -57,7 +76,7 @@ export class PostgresJobMarketRepository implements JobMarketRepository {
     batch: NormalizedSourceBatch,
     now: Date,
   ): Promise<SyncResult> {
-    const payload = batchPayload(batch);
+    const payload = buildBatchPayload(batch);
     const [result] = await this.sql<BatchResult[]>`
       select discovered,created,updated,stale,closed,rejected
       from public.apply_job_market_batch(
@@ -82,7 +101,7 @@ export class PostgresJobMarketRepository implements JobMarketRepository {
     now: Date,
     status: "succeeded" | "partial",
   ): Promise<SyncResult> {
-    const payload = batchPayload(batch);
+    const payload = buildBatchPayload(batch);
     const [result] = await this.sql<BatchResult[]>`
       select discovered,created,updated,stale,closed,rejected
       from public.complete_job_market_sync_success(

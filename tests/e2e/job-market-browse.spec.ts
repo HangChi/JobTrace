@@ -51,6 +51,7 @@ test("fixture-backed marketplace aggregates jobs and supports combined URL filte
 
     await page.getByLabel("关键词", { exact: true }).fill("不存在岗位");
     await page.getByRole("button", { name: "筛选" }).click();
+    await expect(page).toHaveURL(/status=&postedFrom=/);
     await expect(
       page.getByRole("heading", { name: "没有符合条件的招聘记录" }),
     ).toBeVisible();

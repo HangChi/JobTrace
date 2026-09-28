@@ -12,6 +12,7 @@ const LOCATION_PATTERN =
   /(?:北京|上海|深圳|广州|杭州|苏州|南京|成都|武汉|西安|天津|重庆|无锡|宁波|厦门|青岛|长沙|郑州|合肥|济南|佛山|东莞|大连|沈阳|昆明|南昌|福州|珠海|惠州|常州|南通|嘉兴|绍兴|温州|全国|远程)/g;
 const NEXT_PAGE_PATTERN = /^(?:下一页|下页|next|next page|›|»|>)$/i;
 const MAX_PAGES_PER_SYNC = 20;
+const MAX_DAYEE_PAGES_PER_RECRUIT_TYPE = 5;
 
 function clean(value: string | null | undefined) {
   return value?.normalize("NFKC").replace(/\s+/g, " ").trim() ?? "";
@@ -195,6 +196,102 @@ async function fetchDayeeJobList(
   context: { now: Date; maxItems: number },
   signal: AbortSignal,
 ) {
+  const suiteKey = source.externalKey.match(/\b(SU[a-f0-9]{24})\b/i)?.[1];
+  if (suiteKey) {
+    const rows: AdapterJobInput[] = [];
+    const pageSize = Math.min(100, context.maxItems);
+    let total = 0;
+    const recruitTypes = [1, 2, 12, 13];
+    for (const recruitType of recruitTypes) {
+      let totalPages = 1;
+      for (
+        let page = 1;
+        page <= totalPages &&
+        page <= MAX_DAYEE_PAGES_PER_RECRUIT_TYPE &&
+        rows.length < context.maxItems;
+        page += 1
+      ) {
+        const endpoint = new URL(
+          `/wecruit/positionInfo/listPosition/${suiteKey}`,
+          source.baseUrl,
+        );
+        const response = await fetcher(endpoint.href, {
+          allowedHosts: source.allowedHosts,
+          signal,
+          accept: ["application/json"],
+          method: "POST",
+          body: new URLSearchParams({
+            recruitType: String(recruitType),
+            currentPage: String(page),
+            pageSize: String(pageSize),
+          }).toString(),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+        const payload = (await response.json()) as {
+          state?: string | number;
+          data?: {
+            pageForm?: {
+              totalPage?: number;
+              dataCount?: number;
+              pageData?: Array<Record<string, unknown>>;
+            };
+          };
+        };
+        const pageForm = payload.data?.pageForm;
+        if (
+          String(payload.state) !== "200" ||
+          !Array.isArray(pageForm?.pageData)
+        )
+          throw new SourceError(
+            "invalid_source_payload",
+            "Dayee jobs API returned an invalid response",
+          );
+        totalPages = Math.max(1, Number(pageForm.totalPage ?? 1));
+        total += page === 1 ? Number(pageForm.dataCount ?? 0) : 0;
+        for (const job of pageForm.pageData) {
+          if (rows.length >= context.maxItems) break;
+          const id = job.postId;
+          const detailUrl = new URL(
+            `/${suiteKey}/mc/detail?postId=${encodeURIComponent(String(id ?? ""))}`,
+            source.baseUrl,
+          );
+          rows.push({
+            id,
+            title: job.postName,
+            locations: job.workPlaceStr,
+            campaign: job.projectName,
+            recruitmentType:
+              recruitType === 1
+                ? "校园招聘"
+                : recruitType === 2
+                  ? "社会招聘"
+                  : recruitType === 12
+                    ? "实习招聘"
+                    : "海外招聘",
+            description: job.company,
+            detailUrl: detailUrl.href,
+            applyUrl: detailUrl.href,
+            publishedAt: job.publishDate ?? job.publishFirstDate,
+            validThrough: job.endDate,
+          });
+        }
+        if (!pageForm.pageData.length) break;
+      }
+      totalPages = 1;
+    }
+    if (!rows.length)
+      throw new SourceError(
+        "invalid_source_payload",
+        "Dayee jobs API returned no public positions",
+      );
+    return {
+      completeness:
+        rows.length < total ? ("partial" as const) : ("complete" as const),
+      sourceMetadata: { fetchedAt: context.now },
+      ...normalizeItems(source, rows),
+    };
+  }
+
   const rows: AdapterJobInput[] = [];
   const seen = new Set<string>();
   let lastPage = false;

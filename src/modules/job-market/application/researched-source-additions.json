@@ -54,24 +54,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-0a0a4cbc72",
-  "companyIdentityKey": "default:wechat-article:爱科赛博",
-  "companyName": "爱科赛博",
-  "companyType": "企业",
-  "industry": "科技",
-  "websiteUrl": "https://campus.51job.com/cnaction",
-  "adapter": "job51",
-  "externalKey": "cnaction",
-  "baseUrl": "https://campus.51job.com/cnaction",
-  "allowedHosts": [
-   "campus.51job.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-5a43f60137",
   "companyIdentityKey": "default:wechat-article:奥比中光",
   "companyName": "奥比中光",
@@ -209,24 +191,6 @@
   "baseUrl": "https://nrec1.zhiye.com/",
   "allowedHosts": [
    "nrec1.zhiye.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
-  "identityKey": "default:researched-src-77bac530d2",
-  "companyIdentityKey": "default:wechat-article:博众精工",
-  "companyName": "博众精工",
-  "companyType": "企业",
-  "industry": "科技",
-  "websiteUrl": "https://bozhon.zhiye.com/social/jobs",
-  "adapter": "beisen",
-  "externalKey": "bozhon.zhiye.com",
-  "baseUrl": "https://bozhon.zhiye.com/",
-  "allowedHosts": [
-   "bozhon.zhiye.com"
   ],
   "countryCodes": [
    "cn"
@@ -3114,24 +3078,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-75faceaf20",
-  "companyIdentityKey": "default:wechat-article:淘宝闪购",
-  "companyName": "淘宝闪购",
-  "companyType": "企业",
-  "industry": "互联网",
-  "websiteUrl": "https://talent.alibaba.com/",
-  "adapter": "china_bigtech",
-  "externalKey": "alibaba",
-  "baseUrl": "https://talent.alibaba.com/",
-  "allowedHosts": [
-   "talent.alibaba.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-99b3643230",
   "companyIdentityKey": "default:wechat-article:天马微电子",
   "companyName": "天马微电子",
@@ -3888,24 +3834,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-c98f164f00",
-  "companyIdentityKey": "default:wechat-article:壹思唯国际教育",
-  "companyName": "壹思唯国际教育",
-  "companyType": "企业",
-  "industry": "教育",
-  "websiteUrl": "https://eisway.zhiye.com/campus/jobs",
-  "adapter": "beisen",
-  "externalKey": "eisway.zhiye.com",
-  "baseUrl": "https://eisway.zhiye.com/",
-  "allowedHosts": [
-   "eisway.zhiye.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-8fe07628e9",
   "companyIdentityKey": "default:wechat-article:亿联网络",
   "companyName": "亿联网络",
@@ -4266,24 +4194,6 @@
   "syncIntervalMinutes": 360
  },
  {
-  "identityKey": "default:researched-src-c287419440",
-  "companyIdentityKey": "default:wechat-article:中国电科29所",
-  "companyName": "中国电科29所",
-  "companyType": "国有企业",
-  "industry": "国央企",
-  "websiteUrl": "https://campus.51job.com/cetc29",
-  "adapter": "job51",
-  "externalKey": "cetc29",
-  "baseUrl": "https://campus.51job.com/cetc29",
-  "allowedHosts": [
-   "campus.51job.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
   "identityKey": "default:researched-src-c66fd5df11",
   "companyIdentityKey": "default:wechat-article:中国电科33所",
   "companyName": "中国电科33所",
@@ -4295,24 +4205,6 @@
   "baseUrl": "https://campus.51job.com/wangan/page1.html",
   "allowedHosts": [
    "campus.51job.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
-  "identityKey": "default:researched-src-a4997d0a00",
-  "companyIdentityKey": "default:wechat-article:中国电科二所",
-  "companyName": "中国电科二所",
-  "companyType": "事业单位",
-  "industry": "事业单位 / 研究所",
-  "websiteUrl": "https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
-  "adapter": "dayee",
-  "externalKey": "wecruit.hotjob.cn|/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
-  "baseUrl": "https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
-  "allowedHosts": [
-   "wecruit.hotjob.cn"
   ],
   "countryCodes": [
    "cn"
@@ -4349,24 +4241,6 @@
   "baseUrl": "https://coamc.zhiye.com/",
   "allowedHosts": [
    "coamc.zhiye.com"
-  ],
-  "countryCodes": [
-   "cn"
-  ],
-  "syncIntervalMinutes": 360
- },
- {
-  "identityKey": "default:researched-src-5cc200da5f",
-  "companyIdentityKey": "default:wechat-article:中国航发湖南动力机械研究所",
-  "companyName": "中国航发湖南动力机械研究所",
-  "companyType": "事业单位",
-  "industry": "事业单位",
-  "websiteUrl": "https://campus.51job.com/zghfdys2027",
-  "adapter": "job51",
-  "externalKey": "zghfdys2027",
-  "baseUrl": "https://campus.51job.com/zghfdys2027",
-  "allowedHosts": [
-   "campus.51job.com"
   ],
   "countryCodes": [
    "cn"

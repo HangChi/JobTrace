@@ -1,18 +1,39 @@
 import { z } from "zod";
 import { SOURCE_ADAPTERS } from "../domain/entities";
 
+const emptyQueryValueToUndefined = (value: unknown) =>
+  typeof value === "string" && value.trim() === "" ? undefined : value;
+
 export const campaignIdSchema = z.uuid();
 export const sourceIdSchema = z.uuid();
 export const campaignQuerySchema = z.object({
-  q: z.string().trim().max(100).optional(),
-  company: z.string().trim().max(100).optional(),
-  location: z.string().trim().max(100).optional(),
-  status: z.enum(["open", "stale", "closed"]).optional(),
-  postedFrom: z.iso.date().optional(),
-  favorite: z
-    .enum(["true", "false"])
-    .transform((value) => value === "true")
-    .optional(),
+  q: z.preprocess(
+    emptyQueryValueToUndefined,
+    z.string().trim().max(100).optional(),
+  ),
+  company: z.preprocess(
+    emptyQueryValueToUndefined,
+    z.string().trim().max(100).optional(),
+  ),
+  location: z.preprocess(
+    emptyQueryValueToUndefined,
+    z.string().trim().max(100).optional(),
+  ),
+  status: z.preprocess(
+    emptyQueryValueToUndefined,
+    z.enum(["open", "stale", "closed"]).optional(),
+  ),
+  postedFrom: z.preprocess(
+    emptyQueryValueToUndefined,
+    z.iso.date().optional(),
+  ),
+  favorite: z.preprocess(
+    emptyQueryValueToUndefined,
+    z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional(),
+  ),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });

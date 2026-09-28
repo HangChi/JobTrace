@@ -357,7 +357,16 @@ export function createSecureSourceClient(options?: {
       let url = initialUrl;
       for (let redirects = 0; redirects <= 3; redirects += 1) {
         const addresses = await resolvePublicHost(url, resolver, allowProxyDns);
-        const transport = dispatcherFactory(url.hostname, addresses);
+        // A few public ATS hosts publish several A/AAAA records while some
+        // individual edges intermittently refuse connections. Rotate the
+        // pinned order between bounded retries so SSRF protection remains in
+        // place without retrying the same unhealthy edge three times.
+        const offset = attempt % addresses.length;
+        const orderedAddresses = [
+          ...addresses.slice(offset),
+          ...addresses.slice(0, offset),
+        ];
+        const transport = dispatcherFactory(url.hostname, orderedAddresses);
         let response: Response | undefined;
         try {
           response = await fetcher(url, {

@@ -235,4 +235,53 @@ describe("expanded domestic recruitment adapters", () => {
     });
     expect(batch.jobs[0]!.locations.map((item) => item.name)).toEqual(["深圳"]);
   });
+
+  it("reads Dayee SPA positions from the public form endpoint", async () => {
+    const requests: Array<{ url: string; body?: string }> = [];
+    const fetcher: SecureSourceFetch = async (url, options) => {
+      requests.push({ url, body: options.body });
+      return response({
+        state: "200",
+        data: {
+          pageForm: {
+            totalPage: 1,
+            dataCount: 1,
+            pageData:
+              options.body?.includes("recruitType=1") === true
+                ? [
+                    {
+                      postId: "post-1",
+                      postName: "芯片设计工程师",
+                      workPlaceStr: "上海市",
+                      projectName: "2027校园招聘",
+                      company: "测试公司",
+                      publishDate: "2026-09-20 09:00:00",
+                      endDate: "2027-09-20 23:59:59",
+                    },
+                  ]
+                : [],
+          },
+        },
+      });
+    };
+    const batch = await new DayeeAdapter(fetcher).fetch(
+      source(
+        "dayee",
+        "wecruit.hotjob.cn|/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
+        "https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus",
+      ),
+      context,
+      new AbortController().signal,
+    );
+
+    expect(requests[0]).toMatchObject({
+      url: "https://wecruit.hotjob.cn/wecruit/positionInfo/listPosition/SU6056ebe60dcad424d03e1c5b",
+      body: expect.stringContaining("recruitType=1"),
+    });
+    expect(batch.jobs[0]).toMatchObject({
+      externalJobId: "post-1",
+      title: "芯片设计工程师",
+      recruitmentType: "校园招聘",
+    });
+  });
 });

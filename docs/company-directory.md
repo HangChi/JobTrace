@@ -1,8 +1,8 @@
 # 公司招聘入口总览
 
-> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1286** 家公司（自动同步 471 · 官网入口 639 · 公众号 176）。
+> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1279** 家公司（自动同步 464 · 官网入口 639 · 公众号 176）。
 
-## 自动同步公司（471 家）
+## 自动同步公司（464 家）
 
 岗位由公开招聘来源自动同步。
 
@@ -13,7 +13,6 @@
 | 艾利丹尼森中国                     | 外企     | 材料科学 / 制造业              | 自动同步 | <https://jobs.smartrecruiters.com/AveryDennison>                                           |
 | 艾罗能源                           | 上市公司 | 光伏 / 储能                    | 自动同步 | <https://app.mokahr.com/social-recruitment/solaxpower/151400>                              |
 | 艾诺仪器                           | 企业     | 科技                           | 自动同步 | <https://ainuo.zhiye.com/social/jobs>                                                      |
-| 爱科赛博                           | 企业     | 科技                           | 自动同步 | <https://campus.51job.com/cnaction>                                                        |
 | 安踏集团                           | 上市公司 | 服饰 / 零售                    | 自动同步 | <https://app.mokahr.com/social-recruitment/antahr/142914>                                  |
 | 安永中国                           | 外企     | 专业服务                       | 自动同步 | <https://app.mokahr.com/social-recruitment/ey/102474>                                      |
 | 奥比中光                           | 企业     | 互联网                         | 自动同步 | <https://app.mokahr.com/social-recruitment/orbbec/44936>                                   |
@@ -38,7 +37,6 @@
 | 博世中国                           | 外企     | 汽车技术 / 工业技术            | 自动同步 | <https://jobs.smartrecruiters.com/BoschGroup>                                              |
 | 博思软件                           | 上市公司 | 政务软件 / 数字财政            | 自动同步 | <https://app.mokahr.com/campus-recruitment/bosssoft/68370>                                 |
 | 博西家电中国                       | 外企     | 家用电器 / 智能制造            | 自动同步 | <https://app.mokahr.com/apply/bshg/28741>                                                  |
-| 博众精工                           | 企业     | 科技                           | 自动同步 | <https://bozhon.zhiye.com/social/jobs>                                                     |
 | 蔡司中国                           | 外企     | 光学 / 医疗科技                | 自动同步 | <https://app.mokahr.com/social-recruitment/zeiss/70004>                                    |
 | 灿芯半导体                         | 企业     | 半导体                         | 自动同步 | <https://britesemi.zhiye.com/social/jobs>                                                  |
 | 畅游                               | 上市公司 | 游戏 / 数字娱乐                | 自动同步 | <https://app.mokahr.com/social-recruitment/cyou-inc/42232>                                 |
@@ -298,7 +296,6 @@
 | 泰科电子 (TE Connectivity）        | 外企     | 外企 / 科技                    | 自动同步 | <https://campus.51job.com/te/p2.html>                                                      |
 | 泰隆银行                           | 企业     | 金融                           | 自动同步 | <https://zjtlcb.zhiye.com/campus/jobs>                                                     |
 | 陶朗中国                           | 外企     | 智能分选 / 循环经济            | 自动同步 | <https://jobs.smartrecruiters.com/TOMRA>                                                   |
-| 淘宝闪购                           | 企业     | 互联网                         | 自动同步 | <https://talent.alibaba.com/>                                                              |
 | 特步                               | 上市公司 | 运动服饰 / 消费品              | 自动同步 | <https://app.mokahr.com/social-recruitment/xtep>                                           |
 | 特纳唐逊中国                       | 外企     | 工程咨询 / 项目管理            | 自动同步 | <https://jobs.smartrecruiters.com/TurnerTownsend>                                          |
 | 特斯拉中国                         | 外企     | 新能源汽车 / 能源              | 自动同步 | <https://app.mokahr.com/social-recruitment/tesla/46129>                                    |
@@ -374,7 +371,6 @@
 | 姚记科技                           | 企业     | 游戏                           | 自动同步 | <https://app.mokahr.com/social-recruitment/yaoji/145427>                                   |
 | 药明合联                           | 企业     | 生物医药                       | 自动同步 | <https://app.mokahr.com/social-recruitment/wuxixdc/164235>                                 |
 | 一鸣食品                           | 企业     | 快消零售                       | 自动同步 | <https://inm.zhiye.com/jobs>                                                               |
-| 壹思唯国际教育                     | 企业     | 教育                           | 自动同步 | <https://eisway.zhiye.com/campus/jobs>                                                     |
 | 宜家中国                           | 外企     | 家居零售 / 供应链              | 自动同步 | <https://jobs.smartrecruiters.com/InterIKEAGroup>                                          |
 | 亿联网络                           | 企业     | 互联网                         | 自动同步 | <https://yealink.zhiye.com/social/jobs>                                                    |
 | 易控智驾                           | 企业     | 汽车新能源                     | 自动同步 | <https://app.mokahr.com/social-recruitment/eqhr/39785>                                     |
@@ -412,13 +408,10 @@
 | 志凌海纳 SmartX                    | 民营企业 | 云计算 / 超融合 / 企业软件     | 自动同步 | <https://app.mokahr.com/social-recruitment/smartx>                                         |
 | 致同                               | 企业     | 金融                           | 自动同步 | <https://grantthornton.zhiye.com/campus/jobs>                                              |
 | 中电二公司                         | 国有企业 | 国央企                         | 自动同步 | <https://campus.51job.com/cese2/>                                                          |
-| 中国电科29所                       | 国有企业 | 国央企                         | 自动同步 | <https://campus.51job.com/cetc29>                                                          |
 | 中国电科33所                       | 事业单位 | 事业单位                       | 自动同步 | <https://campus.51job.com/wangan/page1.html>                                               |
-| 中国电科二所                       | 事业单位 | 事业单位 / 研究所              | 自动同步 | <https://wecruit.hotjob.cn/SU6056ebe60dcad424d03e1c5b/mc/position/campus>                  |
 | 中国电子科技集团公司第五十研究所   | 事业单位 | 事业单位                       | 自动同步 | <https://campus.51job.com/cetc50/company.html>                                             |
 | 中国东方资产                       | 国有企业 | 国央企 / 金融                  | 自动同步 | <https://coamc.zhiye.com/custom/campus>                                                    |
 | 中国广核集团                       | 中央企业 | 核能 / 新能源                  | 自动同步 | <https://cgn.hotjob.cn/wt/CGN/mobweb/v8/position/list>                                     |
-| 中国航发湖南动力机械研究所         | 事业单位 | 事业单位                       | 自动同步 | <https://campus.51job.com/zghfdys2027>                                                     |
 | 中国人民保险集团                   | 国有企业 | 国央企 / 金融                  | 自动同步 | <https://picc.zhiye.com/>                                                                  |
 | 中国三星                           | 企业     | 半导体                         | 自动同步 | <https://www.samsung.com.cn/about-us/careers/>                                             |
 | 中国网安/三十所                    | 国有企业 | 国央企                         | 自动同步 | <https://app.mokahr.com/social-recruitment/cetc30/36269>                                   |

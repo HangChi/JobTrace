@@ -222,6 +222,39 @@ describe("job market source request security", () => {
     expect(close).toHaveBeenCalledOnce();
   });
 
+  it("rotates validated addresses between bounded transport retries", async () => {
+    const attempted: string[][] = [];
+    const client = createSecureSourceClient({
+      resolver: async () => ["8.8.8.8", "1.1.1.1"],
+      dispatcherFactory: (_hostname, addresses) => {
+        attempted.push([...addresses]);
+        return {
+          dispatcher: {} as never,
+          close: async () => undefined,
+        };
+      },
+      fetcher: async () => {
+        if (attempted.length === 1) throw new Error("edge unavailable");
+        return new Response("{}", {
+          headers: { "content-type": "application/json" },
+        });
+      },
+      retryDelayMs: 0,
+    });
+
+    await expect(
+      client("https://jobs.example.com/jobs", {
+        allowedHosts: ["jobs.example.com"],
+        accept: ["application/json"],
+        signal: new AbortController().signal,
+      }),
+    ).resolves.toMatchObject({ status: 200 });
+    expect(attempted).toEqual([
+      ["8.8.8.8", "1.1.1.1"],
+      ["1.1.1.1", "8.8.8.8"],
+    ]);
+  });
+
   it.each([
     ["an empty DNS result", []],
     ["mixed public and private DNS results", ["8.8.8.8", "127.0.0.1"]],
