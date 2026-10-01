@@ -23,10 +23,7 @@ export const campaignQuerySchema = z.object({
     emptyQueryValueToUndefined,
     z.enum(["open", "stale", "closed"]).optional(),
   ),
-  postedFrom: z.preprocess(
-    emptyQueryValueToUndefined,
-    z.iso.date().optional(),
-  ),
+  postedFrom: z.preprocess(emptyQueryValueToUndefined, z.iso.date().optional()),
   favorite: z.preprocess(
     emptyQueryValueToUndefined,
     z
@@ -53,10 +50,7 @@ export const sourceCandidateReviewSchema = z.object({
 });
 
 export const wechatCollectSchema = z.object({
-  queries: z
-    .array(z.string().trim().min(2).max(30))
-    .max(6)
-    .optional(),
+  queries: z.array(z.string().trim().min(2).max(30)).max(6).optional(),
 });
 
 export const companyCandidateIdSchema = z.uuid();
@@ -64,7 +58,17 @@ export const companyCandidateIdSchema = z.uuid();
 export const companyCandidateReviewSchema = z.object({
   action: z.enum(["approve", "ignore"]),
   companyName: z.string().trim().min(2).max(60).optional(),
-  companyType: z.enum(["企业", "民营企业", "上市公司", "国有企业", "中央企业", "事业单位", "外企"]).optional(),
+  companyType: z
+    .enum([
+      "企业",
+      "民营企业",
+      "上市公司",
+      "国有企业",
+      "中央企业",
+      "事业单位",
+      "外企",
+    ])
+    .optional(),
   industry: z.string().trim().min(2).max(60).optional(),
 });
 
