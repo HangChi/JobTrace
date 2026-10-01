@@ -1,6 +1,6 @@
 # 公司招聘入口总览
 
-> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1279** 家公司（自动同步 464 · 官网入口 639 · 公众号 176）。
+> 本文档由 `pnpm directory:generate` 根据 `DEFAULT_SOURCE_CATALOG` 与 `DEFAULT_COMPANY_DIRECTORY` 自动生成，请勿手工编辑。公司别名由 `company-directory-aliases.json` 统一归并。共计 **1286** 家公司（自动同步 464 · 官网入口 639 · 公众号 183）。
 
 ## 自动同步公司（464 家）
 
@@ -1119,13 +1119,14 @@
 | X-MOTORS                                     | 企业     | 科技                       | 官网 | <https://www.x-motors.sg/join2>                                                                    |
 | xTool                                        | 民营企业 | 智能硬件                   | 官网 | <https://xtool.jobs.feishu.cn/>                                                                    |
 
-## 公众号发布公司（176 家）
+## 公众号发布公司（183 家）
 
 以微信公众号招聘推文为准。
 
 | 公司                                     | 类型     | 行业              | 渠道   | 链接                                                                                                     |
 | ---------------------------------------- | -------- | ----------------- | ------ | -------------------------------------------------------------------------------------------------------- |
 | 艾华集团                                 | 企业     | 半导体            | 公众号 | <https://mp.weixin.qq.com/s/BfzTVNFfkVh6UoEtwj41vQ>                                                      |
+| 爱科赛博                                 | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/FPfkyel2Yh_80itl8mnm1g>                                                      |
 | 安徽国控资本有限公司及所属企业（第二批） | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/Nddt1A5v5c09AC30QDMNJA>                                                      |
 | 安徽建工集团                             | 国有企业 | 国央企 / 建筑     | 公众号 | <https://mp.weixin.qq.com/s/wvz361enVhskHchx4rjGdw>                                                      |
 | 昂纳科技集团                             | 企业     | 半导体            | 公众号 | <https://mp.weixin.qq.com/s/q9QwVhN4zCxIwpW86do79g>                                                      |
@@ -1138,6 +1139,7 @@
 | 倍通                                     | 企业     | 物流              | 公众号 | <https://mp.weixin.qq.com/s/XSbc2QV-StSceKmBXq2lFw?scene=1&click_id=1857302869>                          |
 | 博康半导体                               | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/4YvS1PnHW4l6Wg5fWQ6zqA>                                                      |
 | 博瑞集信                                 | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/qXleDA7PsZjXu_9lGQZO6A>                                                      |
+| 博众精工                                 | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/ONzodlyhk1_zc1voBFg6qw>                                                      |
 | 成都四威科技股份有限公司                 | 国有企业 | 国央企 / 通信服务 | 公众号 | <https://mp.weixin.qq.com/s/rFSRUMLudqRAIwiwzok-dQ>                                                      |
 | 重庆城投基础设施建设有限公司             | 国有企业 | 国央企 / 建筑     | 公众号 | <https://mp.weixin.qq.com/s/zCH_2uQklgAYtpo2yc-DNg?scene=1&click_id=92320730>                            |
 | 重庆发展置业管理有限公司                 | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/68cS0nS96N4PWolYcQxBLA?scene=1&click_id=1829988564>                          |
@@ -1232,6 +1234,7 @@
 | 四大名补教育                             | 企业     | 教育              | 公众号 | <https://mp.weixin.qq.com/s/HCmLA-QL9V9ZctSkevr57A>                                                      |
 | 太衍基金                                 | 企业     | 金融              | 公众号 | <https://mp.weixin.qq.com/s/LNlHb6Ra9Ah83kwEcdgzjg>                                                      |
 | 韬润半导体                               | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/eQPZqxtqcViUusR6QH9XPQ>                                                      |
+| 淘宝闪购                                 | 企业     | 互联网            | 公众号 | <https://mp.weixin.qq.com/s/GfBOF27Dd4Q47qHlLtF46w?scene=1>                                              |
 | 腾竞体育                                 | 企业     | 游戏              | 公众号 | <https://mp.weixin.qq.com/s/oBECMMzA4ewiL-NhgiMB1Q>                                                      |
 | 天津低空经济投资发展集团有限公司         | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/xYmWuf3W8QKJHH7fwM8X_w>                                                      |
 | 网宿科技                                 | 企业     | 科技 / 互联网     | 公众号 | <https://mp.weixin.qq.com/s/CygRnnUmMgpNdHYY4nC-VA>                                                      |
@@ -1260,6 +1263,7 @@
 | 星钥半导体                               | 企业     | 半导体            | 公众号 | <https://mp.weixin.qq.com/s/7LK0KMW4AcPtdySyPLvpfg?scene=1&click_id=693028010>                           |
 | 兴华基金                                 | 企业     | 金融              | 公众号 | <https://mp.weixin.qq.com/s/f7ZezUJ3BAQI-sEy_KoFoA>                                                      |
 | 伊凡迪                                   | 企业     | 教育              | 公众号 | <https://mp.weixin.qq.com/s/Mww1duDkyZo1xPTFZA1Csg>                                                      |
+| 壹思唯国际教育                           | 企业     | 教育              | 公众号 | <https://mp.weixin.qq.com/s/yWls6iWQw9ToxRjHJvCQIw?scene=1&click_id=936274929>                           |
 | 毅成资本                                 | 企业     | 金融              | 公众号 | <https://mp.weixin.qq.com/s/eTirGlphK4xI1kcijwkuuQ?scene=1>                                              |
 | 因克斯智能                               | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/eziUX9rZesuco8UwZImtqw>                                                      |
 | 寅成智能                                 | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/vHV7qYid8oYkDAQ8taxDGQ>                                                      |
@@ -1277,8 +1281,11 @@
 | 指色网络                                 | 企业     | 游戏              | 公众号 | <https://mp.weixin.qq.com/s/cptpM4-8CfAuGCL9ZOSI3Q>                                                      |
 | 中安·智能                                | 企业     | 科技              | 公众号 | <https://mp.weixin.qq.com/s/eIV5q-yUoZIDszfqrgMirg>                                                      |
 | 中财化建                                 | 企业     | 其他              | 公众号 | <https://mp.weixin.qq.com/s/8RprFKYsn0thf16WhNsb3Q?scene=1>                                              |
+| 中国电科29所                             | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/er6-fPnspti9NN_vYQKltw>                                                      |
 | 中国电科第十四研究所                     | 事业单位 | 事业单位          | 公众号 | <https://mp.weixin.qq.com/s/4mCHrr8bKjXlcufSNKfMlQ>                                                      |
+| 中国电科二所                             | 事业单位 | 事业单位 / 研究所 | 公众号 | <https://mp.weixin.qq.com/s/L4Qr_wRr4yb5HeF_fnLamQ>                                                      |
 | 中国国际投资促进会                       | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/CbfWRXWpeeZZot7C1LdUeQ?scene=1>                                              |
+| 中国航发湖南动力机械研究所               | 事业单位 | 事业单位          | 公众号 | <https://mp.weixin.qq.com/s/ZQ0QV6fPQ4VzRSI1Tav-Kg>                                                      |
 | 中国航发黎明                             | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/squG_9lfMAikZAfGZ5-OLg>                                                      |
 | 中国航发南京航空动力                     | 国有企业 | 国央企            | 公众号 | <https://mp.weixin.qq.com/s/riTQjcdgyVDa9fveGC-OoA>                                                      |
 | 中国航发四川燃气涡轮研究院               | 事业单位 | 事业单位          | 公众号 | <https://mp.weixin.qq.com/s/mvn9IalTkM4iAVeRp2hylQ>                                                      |
