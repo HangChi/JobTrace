@@ -3,5 +3,9 @@ import { requireUser } from "@/modules/identity-access";
 
 export async function getAnalyticsSummary() {
   const actor = await requireUser();
-  return fetchAnalyticsSummary(actor.id);
+  return getAnalyticsSummaryForOwner(actor.id);
+}
+
+export async function getAnalyticsSummaryForOwner(ownerId: string) {
+  return fetchAnalyticsSummary(ownerId);
 }
