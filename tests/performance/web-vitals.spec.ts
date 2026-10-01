@@ -47,8 +47,7 @@ async function measureRoute(
   const devtools = await page.context().newCDPSession(page);
   await devtools.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   for (let sample = 0; sample < 4; sample += 1) {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
+    await page.goto(path, { waitUntil: "domcontentloaded" });
     await interaction(page, sample);
     await page.getByLabel("打开用户菜单").click();
     await page.waitForTimeout(150);
