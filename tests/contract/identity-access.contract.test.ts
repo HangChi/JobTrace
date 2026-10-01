@@ -54,18 +54,31 @@ test("duplicate usernames return a specific field-level conflict", async ({
   baseURL,
 }) => {
   const username = `duplicate_${crypto.randomUUID().replaceAll("-", "").slice(0, 10)}`;
-  const options = {
-    data: { username, password: "Duplicate123!" },
+  const options = (email: string) => ({
+    data: {
+      username,
+      email,
+      verificationCode: "000000",
+      password: "Duplicate123!",
+    },
     headers: {
       origin: baseURL!,
       "x-forwarded-for": "198.51.100.60",
     },
-  };
+  });
 
-  expect((await request.post("/api/auth/register", options)).status()).toBe(
-    202,
+  expect(
+    (
+      await request.post(
+        "/api/auth/register",
+        options(`${username}_first@example.test`),
+      )
+    ).status(),
+  ).toBe(202);
+  const duplicate = await request.post(
+    "/api/auth/register",
+    options(`${username}_second@example.test`),
   );
-  const duplicate = await request.post("/api/auth/register", options);
   expect(duplicate.status()).toBe(409);
   expect(await duplicate.json()).toMatchObject({
     code: "registration_conflict",
