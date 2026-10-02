@@ -5912,6 +5912,26 @@
       "publishedAt": "2026-08-05T00:00:00.000+08:00"
     },
     {
+      "identityKey": "default:wechat-article:中国电科29所",
+      "companyName": "中国电科29所",
+      "companyType": "国有企业",
+      "industry": "国央企",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/er6-fPnspti9NN_vYQKltw",
+      "publishedAt": "2026-08-11T00:00:00.000+08:00"
+    },
+    {
+      "identityKey": "default:wechat-article:中国电科二所",
+      "companyName": "中国电科二所",
+      "companyType": "事业单位",
+      "industry": "事业单位 / 研究所",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/L4Qr_wRr4yb5HeF_fnLamQ",
+      "publishedAt": "2026-08-23T00:00:00.000+08:00"
+    },
+    {
       "identityKey": "default:wechat-article:中国电科第十四研究所",
       "companyName": "中国电科第十四研究所",
       "companyType": "事业单位",
@@ -5970,6 +5990,16 @@
       "channelLabel": "公众号招聘原文",
       "entryUrl": "https://mp.weixin.qq.com/s/mvn9IalTkM4iAVeRp2hylQ",
       "publishedAt": "2026-08-28T00:00:00.000+08:00"
+    },
+    {
+      "identityKey": "default:wechat-article:中国航发湖南动力机械研究所",
+      "companyName": "中国航发湖南动力机械研究所",
+      "companyType": "事业单位",
+      "industry": "事业单位",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/ZQ0QV6fPQ4VzRSI1Tav-Kg",
+      "publishedAt": "2026-08-26T00:00:00.000+08:00"
     },
     {
       "identityKey": "default:wechat-article:中国航发黎明",
@@ -6252,6 +6282,16 @@
       "publishedAt": "2026-08-27T00:00:00.000+08:00"
     },
     {
+      "identityKey": "default:wechat-article:博众精工",
+      "companyName": "博众精工",
+      "companyType": "企业",
+      "industry": "科技",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/ONzodlyhk1_zc1voBFg6qw",
+      "publishedAt": "2026-08-25T00:00:00.000+08:00"
+    },
+    {
       "identityKey": "default:wechat-article:博康半导体",
       "companyName": "博康半导体",
       "companyType": "企业",
@@ -6400,6 +6440,16 @@
       "channelLabel": "公众号招聘原文",
       "entryUrl": "https://mp.weixin.qq.com/s/rusCP_yJ6S1hR7NPBmdxdw",
       "publishedAt": "2026-08-07T00:00:00.000+08:00"
+    },
+    {
+      "identityKey": "default:wechat-article:壹思唯国际教育",
+      "companyName": "壹思唯国际教育",
+      "companyType": "企业",
+      "industry": "教育",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/yWls6iWQw9ToxRjHJvCQIw?scene=1&click_id=936274929",
+      "publishedAt": "2026-08-21T00:00:00.000+08:00"
     },
     {
       "identityKey": "default:wechat-article:大泽农生物科技",
@@ -7002,6 +7052,16 @@
       "publishedAt": "2026-08-09T00:00:00.000+08:00"
     },
     {
+      "identityKey": "default:wechat-article:淘宝闪购",
+      "companyName": "淘宝闪购",
+      "companyType": "企业",
+      "industry": "互联网",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/GfBOF27Dd4Q47qHlLtF46w?scene=1",
+      "publishedAt": "2026-08-10T00:00:00.000+08:00"
+    },
+    {
       "identityKey": "default:wechat-article:深圳市家族办公室促进会",
       "companyName": "深圳市家族办公室促进会",
       "companyType": "事业单位",
@@ -7090,6 +7150,16 @@
       "channelLabel": "公众号招聘原文",
       "entryUrl": "https://mp.weixin.qq.com/s/jAcmH2zeB2eLjukJJA6vWQ",
       "publishedAt": "2026-08-28T00:00:00.000+08:00"
+    },
+    {
+      "identityKey": "default:wechat-article:爱科赛博",
+      "companyName": "爱科赛博",
+      "companyType": "企业",
+      "industry": "科技",
+      "channel": "wechat",
+      "channelLabel": "公众号招聘原文",
+      "entryUrl": "https://mp.weixin.qq.com/s/FPfkyel2Yh_80itl8mnm1g",
+      "publishedAt": "2026-08-25T00:00:00.000+08:00"
     },
     {
       "identityKey": "default:wechat-article:玫瑰岛集团",

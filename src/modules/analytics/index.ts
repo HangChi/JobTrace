@@ -1,4 +1,7 @@
-export { getAnalyticsSummary } from "./application/get-summary";
+export {
+  getAnalyticsSummary,
+  getAnalyticsSummaryForOwner,
+} from "./application/get-summary";
 export { getAnalyticsReport } from "./application/get-report";
 export {
   completeProgressReminder,

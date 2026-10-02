@@ -154,6 +154,7 @@ const interviewQuery = {
   status: [],
   stage: [],
   result: [],
+  publication: [],
   page: 1,
   limit: 50,
 };

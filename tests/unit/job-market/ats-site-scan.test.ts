@@ -44,7 +44,10 @@ describe("extractBoardHits", () => {
         title: "比亚迪校园招聘 - Moka",
         url: "https://app.mokahr.com/campus-recruitment/byd",
       },
-      { title: "招聘官网汇总", url: "https://app.mokahr.com/social-recruitment/xyz" },
+      {
+        title: "招聘官网汇总",
+        url: "https://app.mokahr.com/social-recruitment/xyz",
+      },
     ]);
     // 同一 Moka 租户的社招/校招是不同板子（externalKey 不同），都保留。
     expect(hits.length).toBe(2);

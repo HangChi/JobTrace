@@ -28,10 +28,14 @@ test("阶段修正保持 occurrence 和独立面试日期、删除 SET NULL、�
     ).json();
     reviewId = review.id;
     const occurrenceId = review.stageOccurrenceId;
+    const currentApplication = await (
+      await request.get(`/api/applications/${application.id}`)
+    ).json();
     const changed = await request.patch(
       `/api/applications/${application.id}/stages/${occurrenceId}`,
       {
         data: {
+          version: currentApplication.version,
           stage: "interview_2",
           occurredOn: "2026-08-18",
           changeDate: "2026-08-20",

@@ -12,7 +12,9 @@ describe("extractCompanyFromTitle", () => {
     expect(extractCompanyFromTitle("字节跳动 招聘 | 海量岗位等你来")).toBe(
       "字节跳动",
     );
-    expect(extractCompanyFromTitle("【蜜雪集团】2026秋招公告")).toBe("蜜雪集团");
+    expect(extractCompanyFromTitle("【蜜雪集团】2026秋招公告")).toBe(
+      "蜜雪集团",
+    );
     expect(extractCompanyFromTitle("腾讯音乐社会招聘")).toBe("腾讯音乐");
     expect(extractCompanyFromTitle("XX科技公司2026-2027实习招聘")).toBe(
       "XX科技公司",
@@ -51,9 +53,9 @@ describe("extractCompanyFromTitle", () => {
     expect(
       extractCompanyFromTitle("【校园招聘】中国电信甘肃公司2027届校园招聘"),
     ).toBe("中国电信甘肃公司");
-    expect(extractCompanyFromTitle("招聘 | 中金公司2027届校园招聘正式启动")).toBe(
-      "中金公司",
-    );
+    expect(
+      extractCompanyFromTitle("招聘 | 中金公司2027届校园招聘正式启动"),
+    ).toBe("中金公司");
     expect(extractCompanyFromTitle("中铁工业2027届全球校园招聘")).toBe(
       "中铁工业",
     );
