@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Form from "next/form";
 import type { Route } from "next";
 import type { AnalyticsResolvedRange } from "../application/contracts";
 import {
@@ -27,7 +28,7 @@ export function AnalyticsReportFilters({
       ? [query.city, ...cities]
       : cities;
   return (
-    <form className="panel analytics-report-filters" action="/analytics">
+    <Form className="panel analytics-report-filters" action="/analytics">
       <div className="analytics-filter-heading">
         <div>
           <h2>分析范围</h2>
@@ -93,6 +94,6 @@ export function AnalyticsReportFilters({
       <p className="analytics-filter-note">
         以投递日期确定分析范围；入选投递后续发生的阶段、面经和最终结果仍会计入。
       </p>
-    </form>
+    </Form>
   );
 }

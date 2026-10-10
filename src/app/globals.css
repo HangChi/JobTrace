@@ -1803,6 +1803,11 @@ tbody tr:last-child td {
   border-color: #c9e1e9;
   background: #edf7fa;
 }
+.type-spring_recruitment {
+  color: #8a4f62;
+  border-color: #e8ced7;
+  background: #fcf1f5;
+}
 .type-early_campus_recruitment {
   color: #6f4b96;
   border-color: #ddcdec;

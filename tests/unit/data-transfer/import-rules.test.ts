@@ -37,6 +37,19 @@ describe("导入导出安全", () => {
       data: { type: "early_campus_recruitment" },
     });
   });
+  it("归一化春招类型", () => {
+    expect(
+      validateImportRow({
+        公司: "甲",
+        岗位: "开发",
+        投递日期: "2026-08-13",
+        类型: "春招",
+      }),
+    ).toMatchObject({
+      success: true,
+      data: { type: "spring_recruitment" },
+    });
+  });
   it("阻止公式注入", () =>
     expect(escapeSpreadsheetFormula('=HYPERLINK("bad")')).toBe(
       '\'=HYPERLINK("bad")',

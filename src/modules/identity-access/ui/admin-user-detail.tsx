@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { TYPE_LABELS } from "@/modules/applications/domain/catalog";
 import type {
   AdminManagedApplication,
   AdminManagedInterview,
@@ -12,13 +13,6 @@ const applicationStatus = {
   submitted: "已投递",
   offer: "Offer",
   refused: "已拒绝",
-} as const;
-const applicationType = {
-  summer_internship: "暑期实习",
-  daily_internship: "日常实习",
-  early_campus_recruitment: "秋招提前批",
-  campus_recruitment: "秋招",
-  social_recruitment: "社招",
 } as const;
 const stageLabels: Record<string, string> = {
   screening: "简历筛选",
@@ -101,7 +95,7 @@ function ApplicationRecord({ item }: { item: AdminManagedApplication }) {
           <span className={`admin-record-status is-${item.status}`}>
             {applicationStatus[item.status]}
           </span>
-          <span>{applicationType[item.type]}</span>
+          <span>{TYPE_LABELS[item.type]}</span>
         </div>
       </div>
       <details className="admin-record-disclosure">

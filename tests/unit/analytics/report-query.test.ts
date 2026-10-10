@@ -73,4 +73,12 @@ describe("求职分析时间范围", () => {
       ).type,
     ).toBe("early_campus_recruitment");
   });
+
+  it("接受春招筛选", () => {
+    expect(
+      parseAnalyticsReportQuery(
+        new URLSearchParams("period=90d&type=spring_recruitment"),
+      ).type,
+    ).toBe("spring_recruitment");
+  });
 });

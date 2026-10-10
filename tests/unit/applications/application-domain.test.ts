@@ -33,6 +33,16 @@ describe("投递领域", () => {
       }).type,
     ).toBe("early_campus_recruitment");
   });
+  it("支持春招类型", () => {
+    expect(
+      createApplicationSchema.parse({
+        companyName: "甲",
+        positionName: "开发",
+        appliedDate: "2026-08-13",
+        type: "spring_recruitment",
+      }).type,
+    ).toBe("spring_recruitment");
+  });
   it("校验必要字段、URL 和日期关系", () => {
     expect(
       createApplicationSchema.safeParse({

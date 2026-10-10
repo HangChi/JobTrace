@@ -1,8 +1,10 @@
+import Link from "next/link";
+import Form from "next/form";
 import type { AdminAuditQuery } from "../application/admin-query-schema";
 
 export function AdminAuditFilters({ query }: { query: AdminAuditQuery }) {
   return (
-    <form className="panel admin-filters" action="/admin/audit" method="get">
+    <Form className="panel admin-filters" action="/admin/audit">
       <label>
         <span>操作者</span>
         <input name="actor" maxLength={100} defaultValue={query.actor} />
@@ -47,10 +49,10 @@ export function AdminAuditFilters({ query }: { query: AdminAuditQuery }) {
         <button className="button" type="submit">
           应用筛选
         </button>
-        <a className="button secondary" href="/admin/audit">
+        <Link className="button secondary" href="/admin/audit">
           清除筛选
-        </a>
+        </Link>
       </div>
-    </form>
+    </Form>
   );
 }

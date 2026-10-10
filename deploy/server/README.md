@@ -171,3 +171,48 @@ JOBTRACE_ARTIFACT_FILE=/tmp/jobtrace-release.tar.gz \
 ```
 
 应用代码发布与后台任务彼此独立。`jobtrace-sync.timer`、`jobtrace-reminders.timer`、`jobtrace-collect.timer`、`jobtrace-research.timer` 和 `jobtrace-sitescan.timer` 均直接在服务器运行；它们调用本机应用接口，不依赖 GitHub Actions 或其他 CI/CD。
+
+## 数据库备份
+
+`jobtrace-db-backup.sh` + `jobtrace-db-backup.service.in` + `jobtrace-db-backup.timer`
+提供每日 PostgreSQL 备份与异地副本。
+
+安装（服务器上以 root 执行，`.service.in` 中的 `@@BACKUP_BIN@@` 替换为 `/usr/local/libexec/jobtrace-db-backup`）：
+
+```bash
+install -m 755 jobtrace-db-backup.sh /usr/local/libexec/jobtrace-db-backup
+install -m 644 jobtrace-db-backup.service /etc/systemd/system/
+install -m 644 jobtrace-db-backup.timer   /etc/systemd/system/
+systemctl daemon-reload && systemctl enable --now jobtrace-db-backup.timer
+```
+
+行为：
+
+- 每日 03:30（Asia/Shanghai）导出 `jobtrace` 库到 `/var/backups/jobtrace/`
+- 命名 `jobtrace-YYYYMMDD-HHMMSS.dump`（custom 格式、自带压缩）；软链 `jobtrace-latest.dump` 指向最新一份
+- 保留 `JOBTRACE_BACKUP_KEEP` 份（默认 7），超出按时间删除最旧的
+- **失败不破坏既有备份**：先写 `.part`，`pg_restore --list` 校验通过后才改名落盘
+- 同步到异地服务器 `ubuntu@122.51.43.231:/srv/jobtrace-backups`（设 `JOBTRACE_OFFSITE_DEST=""` 可关闭）
+
+异地同步的前提：
+
+- 源服务器有私钥 `/etc/jobtrace/keys/offsite`，其公钥已装到目标机的 `~/.ssh/authorized_keys`
+  （建议加 `from="<源服务器公网IP>"` 限定来源）
+- 目标机上有接收目录 `/srv/jobtrace-backups`
+- `/etc/jobtrace/keys/known_hosts` 存在（从 `~/.ssh/known_hosts` 复制而来，见下方陷阱 3）
+
+### 三个部署陷阱（都实际踩过）
+
+1. **该容器的数据库超级用户名不是 `postgres`**。环境变量 `POSTGRES_USER=user_ZEe4Xd`，
+   用 `-U postgres` 会报 `role "postgres" does not exist`（而且错误只走 stderr，容易被忽略）。
+   脚本因此默认从容器 `printenv POSTGRES_USER` 自动探测用户名，不写死。
+
+2. **异地同步的 rsync 排除模式必须带尾部 `/`**。
+   `--exclude='/????????-*'` 本意是排除部署前快照目录 `20260919-1949`，
+   但 **`jobtrace` 恰好也是 8 个字符**，于是所有 `jobtrace-*.dump` 被一并排除——
+   命令返回成功、日志显示"已同步"，实际一个备份文件都没传过去。
+   必须写成 `--exclude='/????????-*/'`（尾部 `/` 表示只匹配目录）。
+
+3. **服务单元带 `ProtectHome=true`，运行时读不到 `/root/.ssh/known_hosts`**，
+   配合 `StrictHostKeyChecking=yes` 会直接失败（`Host key verification failed`）。
+   因此脚本显式指定 `-o UserKnownHostsFile=/etc/jobtrace/keys/known_hosts`。

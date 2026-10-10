@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Form from "next/form";
 import type { Route } from "next";
 import type { CampaignSummary } from "../domain/entities";
 import { PageHeader } from "@/shared/ui/page-header";
@@ -198,7 +199,7 @@ export function JobMarketPage({
                   </span>
                 )}
               </div>
-              <form className="job-market-page-jump" action="/">
+              <Form className="job-market-page-jump" action="/">
                 {Object.entries(query).flatMap(([key, value]) => {
                   if (ignoredQueryKeys.has(key) || !value) return [];
                   const values = Array.isArray(value) ? value : [value];
@@ -223,7 +224,7 @@ export function JobMarketPage({
                 />
                 <span>页</span>
                 <button type="submit">前往</button>
-              </form>
+              </Form>
             </nav>
           )}
         </>

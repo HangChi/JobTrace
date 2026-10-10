@@ -456,6 +456,10 @@ T097 认证规则 | T098 HTTP 契约 | T099 账号生命周期 | T100 组件 | T
 - [X] T141 [US0] 添加原子验证码尝试数据库函数并切换注册/邮箱绑定服务到 supabase/migrations/20260925000100_atomic_email_verification_attempts.sql、src/modules/identity-access/application/email-verification-service.ts、src/modules/identity-access/application/auth-service.ts
 - [X] T142 [US0] 执行验证码并发集成测试、identity-access 回归、格式、lint 和类型门禁并记录完成状态
 
+## Phase 19: Spring recruitment application type
+
+- [X] T143 [US1] 增加 `spring_recruitment` 投递类型，覆盖数据库枚举、领域校验、创建编辑、筛选分析、管理员视图、导入导出、公开契约、文档与回归测试
+
 ## Implementation Strategy
 
 ### MVP First

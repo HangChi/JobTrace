@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Form from "next/form";
 import type { Route } from "next";
 
 export function PublicInterviewFilters({
@@ -26,7 +27,7 @@ export function PublicInterviewFilters({
     return (search ? `/interviews?${search}` : "/interviews") as Route;
   };
   return (
-    <form className="public-company-search" method="get" action="/interviews">
+    <Form className="public-company-search" action="/interviews">
       <input type="hidden" name="sort" value={sort} />
       <div className="public-company-search-field">
         <svg aria-hidden="true" viewBox="0 0 20 20">
@@ -86,6 +87,6 @@ export function PublicInterviewFilters({
           按热度
         </Link>
       </nav>
-    </form>
+    </Form>
   );
 }

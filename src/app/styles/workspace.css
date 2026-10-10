@@ -522,6 +522,7 @@
 .stage-badge.stage-final_interview,
 .type-badge.type-summer_internship,
 .type-badge.type-daily_internship,
+.type-badge.type-spring_recruitment,
 .type-badge.type-early_campus_recruitment,
 .type-badge.type-campus_recruitment,
 .type-badge.type-social_recruitment {
@@ -540,6 +541,12 @@
   color: #27677b;
   border-color: #cddfe5;
   background: #eff6f8;
+}
+
+.type-badge.type-spring_recruitment {
+  color: #875065;
+  border-color: #e3ced6;
+  background: #faf1f4;
 }
 
 .type-badge.type-early_campus_recruitment {

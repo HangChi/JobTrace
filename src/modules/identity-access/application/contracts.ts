@@ -1,3 +1,5 @@
+import type { ApplicationType } from "@/modules/applications/domain/catalog";
+
 export const accountRoles = ["user", "admin"] as const;
 export type AccountRole = (typeof accountRoles)[number];
 
@@ -74,12 +76,7 @@ export type AdminManagedApplication = {
   positionName: string;
   city: string | null;
   jobUrl: string | null;
-  type:
-    | "summer_internship"
-    | "daily_internship"
-    | "early_campus_recruitment"
-    | "campus_recruitment"
-    | "social_recruitment";
+  type: ApplicationType;
   status: "submitted" | "offer" | "refused";
   appliedDate: string;
   latestDate: string;

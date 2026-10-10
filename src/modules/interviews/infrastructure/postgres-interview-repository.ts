@@ -363,15 +363,16 @@ export class PostgresInterviewRepository implements InterviewRepository {
       ${query.city ? this.sql`and a.city=${query.city}` : this.sql``}
       ${query.position ? this.sql`and a.position_name=${query.position}` : this.sql``}
     `;
-    const [facets] = await this.sql<Row[]>`
+    const [facetRows, rows] = await Promise.all([
+      this.sql<Row[]>`
       select
         coalesce(array_agg(distinct a.city order by a.city)
           filter(where nullif(trim(a.city),'') is not null),'{}') cities,
         coalesce(array_agg(distinct a.position_name order by a.position_name),'{}') positions
       from interview_reviews r join applications a on a.id=r.application_id
       where ${this.publicAvailability()}
-    `;
-    const rows = await this.sql<Row[]>`
+      `,
+      this.sql<Row[]>`
       select selected.*,totals.total_count,
         (select count(*)::int from interview_questions q where q.interview_review_id=selected.id) question_count,
         coalesce((
@@ -430,7 +431,9 @@ export class PostgresInterviewRepository implements InterviewRepository {
       order by
         ${query.sort === "hot" ? this.sql`selected.hot_score desc,` : this.sql``}
         selected.published_at desc,selected.id desc
-    `;
+      `,
+    ]);
+    const [facets] = facetRows;
     const dataRows = rows.filter((row) => row.id);
     const items = dataRows.slice(0, query.limit).map(mapPublicFeedItem);
     const last = dataRows[query.limit - 1];

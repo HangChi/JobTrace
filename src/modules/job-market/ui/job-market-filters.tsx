@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Form from "next/form";
 
 type Search = Record<string, string | string[] | undefined>;
 export function JobMarketFilters({ query }: { query: Search }) {
@@ -6,7 +7,7 @@ export function JobMarketFilters({ query }: { query: Search }) {
     typeof query[key] === "string" ? (query[key] as string) : "";
   const favoriteOnly = value("favorite") === "true";
   return (
-    <form className="job-market-filters" action="/" role="search">
+    <Form className="job-market-filters" action="/" role="search">
       {favoriteOnly ? (
         <input type="hidden" name="favorite" value="true" />
       ) : null}
@@ -45,6 +46,6 @@ export function JobMarketFilters({ query }: { query: Search }) {
           </button>
         </div>
       </div>
-    </form>
+    </Form>
   );
 }

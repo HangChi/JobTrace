@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(16);
 select has_table('public','applications','applications exists');
 select has_table('public','application_stage_occurrences','stages exists');
 select has_table('public','application_events','events exists');
@@ -7,6 +7,7 @@ select has_table('public','import_batches','import batches exist');
 select col_is_pk('public','applications','id','application id is primary key');
 select has_column('public','applications','type','application type exists');
 select col_not_null('public','applications','type','application type is required');
+select ok('spring_recruitment'=any(enum_range(null::public.application_type)::text[]),'spring recruitment application type exists');
 select fk_ok('public','application_events','application_id','public','applications','id','event cascade foreign key');
 select fk_ok('public','application_stage_occurrences','application_id','public','applications','id','stage cascade foreign key');
 select has_index('public','applications','applications_search_idx','trigram search index exists');

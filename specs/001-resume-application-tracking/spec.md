@@ -151,6 +151,7 @@
 - **FR-035**: 管理后台 MUST 允许管理员分页查看用户账号、角色、注册时间、最近登录时间和禁用状态，并允许启用/禁用普通用户；系统 MUST 阻止管理员禁用或降级自己的最后一个有效管理员账号。
 - **FR-036**: 会话 MUST 使用安全 Cookie 与服务端验证，生产环境 Cookie 必须启用 `HttpOnly`、`Secure`、`SameSite=Lax` 和合理过期策略；退出、禁用账号和凭据重置后必须使不再有效的访问失效。
 - **FR-037**: 登录和注册入口 MUST 具备速率限制/CAPTCHA 接入点和统一失败反馈；日志不得记录密码、访问令牌、刷新令牌或完整 Cookie。
+- **FR-038**: 投递类型 MUST 支持春招，稳定代码为 `spring_recruitment`，并在创建、编辑、筛选、分析、导入导出和管理员视图中统一显示为“春招”。
 
 ### Key Entities *(include if feature involves data)*
 

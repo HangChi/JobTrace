@@ -149,6 +149,24 @@ test("创建秋招提前批投递", async ({ request }) => {
   ).toBe(204);
 });
 
+test("创建春招投递", async ({ request }) => {
+  const created = await request.post("/api/applications", {
+    data: {
+      companyName: "Contract Spring Recruitment",
+      positionName: "Engineer",
+      appliedDate: "2026-08-13",
+      type: "spring_recruitment",
+      status: "submitted",
+    },
+  });
+  expect(created.status()).toBe(201);
+  const application = await created.json();
+  expect(application.type).toBe("spring_recruitment");
+  expect(
+    (await request.delete(`/api/applications/${application.id}`)).status(),
+  ).toBe(204);
+});
+
 test("从公共岗位创建投递时使用服务端字段并返回可导航的重复冲突", async ({
   request,
 }) => {

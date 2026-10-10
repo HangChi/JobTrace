@@ -31,6 +31,7 @@ JobTrace 支持用 CSV/XLSX 批量创建投递记录、导出投递表格，以�
 | ---------- | -------------------------- |
 | 暑期实习   | `summer_internship`        |
 | 日常实习   | `daily_internship`         |
+| 春招       | `spring_recruitment`       |
 | 秋招提前批 | `early_campus_recruitment` |
 | 秋招       | `campus_recruitment`       |
 | 社招       | `social_recruitment`       |

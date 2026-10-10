@@ -9,6 +9,7 @@ import {
 } from "../domain/catalog";
 import { STAGE_LABELS } from "@/modules/applications/domain/catalog";
 import Link from "next/link";
+import Form from "next/form";
 import type { Route } from "next";
 
 export function InterviewFilters({
@@ -19,9 +20,8 @@ export function InterviewFilters({
   const first = (value: string | string[] | undefined) =>
     Array.isArray(value) ? value[0] : value;
   return (
-    <form
+    <Form
       className="panel interview-filters personal-interview-filters"
-      method="get"
       action="/interviews/mine"
     >
       <label className="filter-search">
@@ -108,6 +108,6 @@ export function InterviewFilters({
           清除
         </Link>
       </div>
-    </form>
+    </Form>
   );
 }

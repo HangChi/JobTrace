@@ -1,9 +1,10 @@
 import Link from "next/link";
+import Form from "next/form";
 import type { AdminUserQuery } from "../application/admin-query-schema";
 
 export function AdminUserFilters({ query }: { query: AdminUserQuery }) {
   return (
-    <form className="panel admin-filters" action="/admin/users" method="get">
+    <Form className="panel admin-filters" action="/admin/users">
       <label>
         <span>用户名或邮箱</span>
         <input name="q" defaultValue={query.q} maxLength={100} />
@@ -48,6 +49,6 @@ export function AdminUserFilters({ query }: { query: AdminUserQuery }) {
           清除筛选
         </Link>
       </div>
-    </form>
+    </Form>
   );
 }
